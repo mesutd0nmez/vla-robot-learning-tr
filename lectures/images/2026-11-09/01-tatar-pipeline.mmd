@@ -1,0 +1,13 @@
+flowchart LR
+    D["BridgeData V2'den<br/>50 komut<br/>(20 al-yerleştir, 15 itme, 15 yönlendirme)"] --> TR["İki araştırmacı<br/>elle Türkçe'ye çevirir"]
+    D --> EN["İngilizce komut"]
+    TR --> M
+    EN --> M
+    IMG["TEK sabit sentetik görüntü<br/>224×224"] --> M["OpenVLA-7B<br/>4-bit NF4, T4 GPU, donmuş"]
+    M --> AEN["A_EN ∈ ℝ⁷"]
+    M --> ATR["A_TR ∈ ℝ⁷"]
+    AEN --> C["L2 = ‖A_EN − A_TR‖<br/>cos = A_EN·A_TR / ‖‖‖‖"]
+    ATR --> C
+    C --> S["3 tekrar × 50 × 2 dil = 300 çıkarım<br/>t-test, Wilcoxon, ANOVA, Spearman"]
+    style IMG fill:#ffd6d6,color:#000
+    style M fill:#ffd166,color:#000

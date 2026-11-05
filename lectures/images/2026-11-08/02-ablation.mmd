@@ -1,0 +1,9 @@
+flowchart TB
+    Q["Soru: model dili kullanıyor mu?"] --> C1["① Doğru komut<br/>'put the bowl on the plate'<br/>→ üst sınır"]
+    Q --> C2["② Boş komut<br/>''<br/>→ sahne-ezber tabanı"]
+    Q --> C3["③ Yanlış komut<br/>'open the drawer'<br/>→ dil yönlendiriyor mu?"]
+    Q --> C4["④ Parafraz<br/>'place the bowl onto the plate'<br/>→ anlam mı, kalıp mı?"]
+    Q --> C5["⑤ Türkçe<br/>'kâseyi tabağın üstüne koy'<br/>→ dil anlaşılıyor mu?"]
+    C1 --> R["Yorum tablosu:<br/>①≈② → dil kullanılmıyor<br/>③ düşüyor, ② düşmüyor → dil 'bozucu' ama 'taşıyıcı' değil<br/>④≈① → anlam; ④≪① → kalıp ezberi<br/>⑤≈② → Türkçe = gürültü; ⑤≈① → Türkçe anlaşılıyor"]
+    style Q fill:#ffd166,color:#000
+    style R fill:#d4f5d4,color:#000

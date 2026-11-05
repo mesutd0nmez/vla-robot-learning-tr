@@ -1,0 +1,16 @@
+flowchart LR
+    subgraph T["Tasarlanan yol (VLA)"]
+        direction LR
+        I1["görüntü"] --> M1["model"]
+        L1["komut:<br/>'put the bowl on the plate'"] --> M1
+        M1 --> A1["action"]
+    end
+    subgraph S["Öğrenilen kısayol (shortcut)"]
+        direction LR
+        I2["görüntü:<br/>kâse + tabak"] --> M2["model"]
+        L2["komut (okunmuyor)"] -.-> M2
+        M2 --> A2["action: kâseyi tabağa koy<br/>— çünkü eğitimde bu sahne<br/>hep bu görevdi"]
+    end
+    style L2 fill:#eee,stroke-dasharray: 5 5,color:#999
+    style M1 fill:#ffd166,color:#000
+    style M2 fill:#ffd166,color:#000
