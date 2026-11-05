@@ -1,0 +1,16 @@
+flowchart LR
+    subgraph OBS["obs (dict) — LIBERO'nun döndürdüğü"]
+        o1["agentview_image (H,W,3) uint8<br/>üçüncü şahıs, TERS gelir"]
+        o2["robot0_eye_in_hand_image (H,W,3)<br/>bilek kamerası"]
+        o3["robot0_eef_pos (3), robot0_eef_quat (4)<br/>uç eyleyici konum/yönelim"]
+        o4["robot0_gripper_qpos (2)<br/>parmak açıklığı"]
+        o5["robot0_joint_pos (7)"]
+    end
+    subgraph ACT["action (7,) float ∈ [-1,1]"]
+        a1["[0:3] Δx Δy Δz — ölçekli, metre değil"]
+        a2["[3:6] Δroll Δpitch Δyaw"]
+        a3["[6] gripper: -1 aç, +1 kapat"]
+    end
+    OBS -->|"policy"| ACT
+    style OBS fill:#cfe8ff,color:#000
+    style ACT fill:#d4f5d4,color:#000

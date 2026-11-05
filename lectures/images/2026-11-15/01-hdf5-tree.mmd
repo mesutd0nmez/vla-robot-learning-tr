@@ -1,0 +1,14 @@
+flowchart TB
+    F["📦 ..._demo.hdf5 (bir görev)"] --> D["data/  attrs: env, problem_info{language_instruction}, bddl_file_name, env_info"]
+    D --> E0["demo_0/"] 
+    D --> E1["demo_1/"]
+    D --> EN["… demo_49/  (50 insan demosu)"]
+    E0 --> A["actions  (T,7) float<br/>Δx Δy Δz Δr Δp Δy gripper"]
+    E0 --> O["obs/"]
+    E0 --> R["rewards (T,)  dones (T,)  states (T,·)"]
+    O --> O1["agentview_rgb  (T,128,128,3) uint8"]
+    O --> O2["eye_in_hand_rgb (T,128,128,3)"]
+    O --> O3["ee_states (T,7): pos(3)+quat(4)<br/>ee_pos (T,3)  ee_ori (T,4)"]
+    O --> O4["gripper_states (T,2)   joint_states (T,7)"]
+    style A fill:#d4f5d4,color:#000
+    style O1 fill:#cfe8ff,color:#000

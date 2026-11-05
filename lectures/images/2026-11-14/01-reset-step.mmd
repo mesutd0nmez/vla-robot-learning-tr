@@ -1,0 +1,18 @@
+sequenceDiagram
+    participant S as Script
+    participant L as LIBERO env
+    participant R as robosuite OSC_POSE
+    participant M as MuJoCo
+    S->>L: OffScreenRenderEnv(bddl)
+    L->>M: sahneyi kur (BDDL to MJCF)
+    S->>L: reset() + set_init_state(init_states[0])
+    L->>M: qpos ve qvel yukle
+    L-->>S: obs: agentview_image, eye_in_hand, eef_pos, gripper_qpos
+    loop her kontrol adimi (20 Hz)
+        S->>L: step(action[7])
+        L->>R: delta poz to eklem torklari
+        R->>M: mj_step x 25
+        M-->>L: yeni durum
+        L->>L: render + success predicate
+        L-->>S: obs, reward, done, info
+    end

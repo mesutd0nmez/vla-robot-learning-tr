@@ -12,7 +12,7 @@ bağlanması (language grounding). Türkçe kaynak çok az olduğu için notlar,
 
 | Aşama | Kapsam | Durum |
 |---|---|---|
-| 0. Başlangıç — 30 günlük hızlandırılmış giriş | Kavramlar → ortam kurulumu → ilk deneyler → proje üzerine akıl yürütme (`plan/30-day-plan.md`) | 🟡 Gün 1 / 30 |
+| 0. Başlangıç — 30 günlük hızlandırılmış giriş | Kavramlar → ortam kurulumu → ilk deneyler → proje üzerine akıl yürütme (`plan/30-day-plan.md`) | 🟡 Dersler 1–11 hazır (5–15 Kas) |
 | 1. Literatür ve konu seçimi | Tez ekseninin danışmanla netleştirilmesi, kaynak taraması | ⬜ |
 | 2. Deney altyapısı | Benchmark, model, metrik ve veri setinin kurulması | ⬜ |
 | 3. Deneyler | Ana deneyler, ablasyonlar, sonuç analizi | ⬜ |
