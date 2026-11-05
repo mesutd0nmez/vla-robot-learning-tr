@@ -1,0 +1,33 @@
+# Gün 1 — Kaynak haritası ve robot learning döngüsü
+
+**Tarih:** 5 Kasım 2026 · **Süre:** ~30 dk · **Okuma:** `kaynaklar/robot-learning-vla-giris.md` §1–9
+
+## Tek fikir
+Robot learning tek bir döngüdür:
+
+```
+observation ──► policy ──► action ──► dünya değişir ──► yeni observation ──► ...
+```
+
+- **Observation:** robotun sensörlerinden gelen şey — RGB görüntü, eklem açıları, gripper durumu, dil komutu. Robot dünyanın tamamını görmez, sadece gözlemini.
+- **Policy:** gözleme bakıp ne yapacağına karar veren fonksiyon. Makine öğrenmesi modeli *burada* yaşar. VLA bir policy türüdür.
+- **Action:** fiziksel komut — ör. `Δx=+0.02, Δy=-0.01, Δz=0, gripper=close` (7 serbestlik derecesi: 3 konum + 3 dönüş + gripper).
+
+Görüntü sınıflandırmadan farkı: çıktı bir etiket değil, dünyayı **değiştiren** bir komuttur ve döngü sürekli tekrar eder.
+
+## Nasıl öğrenir?
+- **Imitation learning / behavior cloning:** insan teleoperasyonla görevi gösterir, `(observation_t, action_t)` çiftleri kaydedilir, model bunu supervised learning gibi öğrenir (X = observation, y = uzman action).
+- **Reinforcement learning:** ödül sinyaliyle deneme-yanılma. Gerçek robotta deneme pahalı olduğu için manipülasyonda imitation learning baskındır.
+- **Simülasyon:** hızlı ve kırılmaz veri; bedeli **sim-to-real gap**.
+
+## Danışmanın gönderdiği paket neden bu şekilde?
+Üç çizgi birleşiyor:
+1. **VLA / robot learning araç seti** — giriş notu, VLANeXt, awesome-vla-wam.
+2. **Türkçe komut + VLA** — Tatar vd. 2026: OpenVLA-7B'ye aynı 50 komut İngilizce ve Türkçe verilmiş; action vektörleri ciddi sapıyor (L2 0.50, cosine 0.37). Tokenizer "Kaldır"ı "Kal"+"dır" diye bölüyor.
+3. **Mekânsal akıl yürütme** — Li'nin tezi (StepGame, RoomSpace) ve Cohn'un makaleleri; "Dil dünyanın güzel bir sıkıştırmasıdır, ama dünya değildir."
+
+Olası tez ekseni (henüz kesin değil): Türkçe mekânsal komutların VLA modellerinde grounding'i.
+
+## Görev
+1. §1–9'u oku.
+2. `cikti.md` dosyasına: 9 kaynağı 1'er satırla kendi cümlelerinle tanımla; "policy nedir?" bir cümle.

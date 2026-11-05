@@ -1,0 +1,13 @@
+# telifli materyal
+*.pdf
+*.docx
+# python
+__pycache__/
+*.pyc
+.venv/
+# data / checkpoints
+*.hdf5
+*.h5
+*.safetensors
+*.bin
+.DS_Store
