@@ -14,8 +14,8 @@
   - [<span class="nav-num">11</span>Klavye Günü 3](/lectures/lecture-11.md)
 
 - **Plan**
-  - [<span class="nav-num">·</span>VLA / Robot Learning — 30 Günlük Çalışma Planı](/plan/30-day-plan.md)
   - [<span class="nav-num">·</span>Günlük Çalışma Logu](/plan/daily-log.md)
+  - [<span class="nav-num">·</span>VLA / Robot Learning — 30 Günlük Çalışma Planı](/plan/lecture-plan.md)
 
 - **Kaynaklar**
   - [<span class="nav-num">·</span>Genel bakış](/resources/README.md)

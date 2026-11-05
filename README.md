@@ -14,7 +14,7 @@ bağlanması (language grounding). Türkçe kaynak çok az olduğu için notlar,
 
 | Aşama | Kapsam | Durum |
 |---|---|---|
-| 0. Başlangıç — 30 günlük hızlandırılmış giriş | Kavramlar → ortam kurulumu → ilk deneyler → proje üzerine akıl yürütme (`plan/30-day-plan.md`) | 🟡 Ders 1–11 hazır |
+| 0. Başlangıç — Hızlandırılmış giriş (Ders 1–30) | Kavramlar → ortam kurulumu → ilk deneyler → proje üzerine akıl yürütme (`plan/lecture-plan.md`) | 🟡 Ders 1–11 hazır |
 | 1. Literatür ve konu seçimi | Tez ekseninin danışmanla netleştirilmesi, kaynak taraması | ⬜ |
 | 2. Deney altyapısı | Benchmark, model, metrik ve veri setinin kurulması | ⬜ |
 | 3. Deneyler | Ana deneyler, ablasyonlar, sonuç analizi | ⬜ |
@@ -26,7 +26,7 @@ Aşamalar netleştikçe bu tablo ve `plan/` klasörü güncellenir.
 
 | Klasör | İçerik |
 |---|---|
-| `plan/` | Aşama planları (`30-day-plan.md`) ve `daily-log.md` (her çalışma gününün durumu, görevi, çıktısı) |
+| `plan/` | Ders planı (`lecture-plan.md`) ve `daily-log.md` (her çalışma gününün durumu, görevi, çıktısı) |
 | `lectures/` | Dersler `lecture-NN.md` (görseller `lectures/images/lecture-NN/`); her dersin sonunda kendini sına soruları ve cevapları |
 | `resources/` | Kaynak listesi ve Türkçe giriş notları (telifli PDF'ler yerine bağlantılar) |
 | `notes/` | Konu bazlı birikimli notlar (OpenVLA, LIBERO, spatial reasoning, tokenizasyon…) |

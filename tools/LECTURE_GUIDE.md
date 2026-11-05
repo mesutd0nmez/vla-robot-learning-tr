@@ -4,7 +4,7 @@ Bu dosya, `lectures/lecture-NN.md` dosyalarının nasıl yazılacağını tanım
 
 ## Sıra ve konu
 - Yeni dersin numarası = `lectures/` altındaki en büyük `lecture-NN` + 1.
-- Konu: `plan/30-day-plan.md` tablosunda aynı numaralı "Gün" satırı. 30'dan sonra: `README.md`'deki aşamalar (literatür → deney altyapısı → deneyler → tez yazımı) ve `plan/daily-log.md`'deki notlar/sorular doğrultusunda, bir önceki dersin "Sonraki ders" bölümünde vaat edilen konu.
+- Konu: `plan/lecture-plan.md` tablosunda aynı numaralı "Gün" satırı. 30'dan sonra: `README.md`'deki aşamalar (literatür → deney altyapısı → deneyler → tez yazımı) ve `plan/daily-log.md`'deki notlar/sorular doğrultusunda, bir önceki dersin "Sonraki ders" bölümünde vaat edilen konu.
 - Önceki dersin "Sonraki ders" bölümüne sadık kal; `plan/daily-log.md`'de Mesut'un bıraktığı not/soru varsa dersin başında bir paragrafla cevapla.
 
 ## Format (lecture-01…11 ile birebir aynı iskelet)
