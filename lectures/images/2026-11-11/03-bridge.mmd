@@ -1,0 +1,11 @@
+flowchart TB
+    subgraph RS["RoomSpace (LLM, metin)"]
+        r1["oda ölçeği, mobilya"]; r2["ilişki: N/S/E/W, ön/arka/sağ/sol, yakın/uzak, içinde/temas"]; r3["çıktı: metin cevabı"]; r4["bakış açısı: top-down vs kapıdan"]
+    end
+    subgraph LB["LIBERO (VLA, action)"]
+        l1["masa ölçeği, mutfak nesneleri"]; l2["ilişki: between, next to, on, in, left/right of, front/back"]; l3["çıktı: 7-DoF action"]; l4["bakış açısı: agentview kamerası (sabit) + bilek kamerası"]
+    end
+    r2 -->|"aynı niteliksel ilişkiler,<br/>Türkçe'de EK olarak kodlanır"| l2
+    r4 -->|"'sağ' kime göre? kameraya mı, robota mı?"| l4
+    style r2 fill:#ffd166,color:#000
+    style l2 fill:#ffd166,color:#000

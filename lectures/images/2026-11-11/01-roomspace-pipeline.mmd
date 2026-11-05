@@ -1,0 +1,6 @@
+flowchart LR
+    A["① 3B oda üret<br/>ProcTHOR / AI2-THOR<br/>kare oda, 4 duvar,<br/>güney duvarında kapı"] --> B["② Mekânsal gösterim seç<br/>CDC (N/S/E/W)<br/>1-cross / TPCC (ön/arka/sağ/sol, yakın/uzak)<br/>RCC (topoloji)"]
+    B --> C["③ Hikâye + soru üret<br/>CSP: n nesne, m kısıt, p sıkılık<br/>'fridge is in front-right of counter'<br/>Soru: fridge ↔ shelving?"]
+    C --> D["④ Altın etiket<br/>mantıksal çözücü (ASP)<br/>TÜM geçerli cevaplar"]
+    D --> E["⑤ LLM değerlendirmesi<br/>top-down (N/S/E/W) vs<br/>north-facing (ön/arka/sağ/sol)"]
+    style C fill:#ffd166,color:#000
