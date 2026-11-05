@@ -103,11 +103,11 @@ body.close .content { margin-left: 0; }
 .sidebar-nav > ul > li > p strong { font-weight: 600; }
 .sidebar-nav li ul { margin: 2px 0 10px; }
 .sidebar-nav li li a {
-  display: grid; grid-template-columns: 26px 1fr; gap: 8px; align-items: baseline;
+  display: flex; gap: 8px; align-items: baseline;
   padding: 5px 12px 5px 14px; border-radius: 6px; color: var(--ink-2); line-height: 1.35;
 }
 .sidebar-nav li li a:hover { background: var(--paper); text-decoration: none; color: var(--ink); }
-.sidebar-nav li li a .nav-num { font: 500 12px var(--mono); color: var(--muted); text-align: right; }
+.sidebar-nav li li a .nav-num { flex: 0 0 26px; font: 500 12px var(--mono); color: var(--muted); text-align: right; }
 .sidebar-nav li li.active > a { background: var(--paper); color: var(--ink); box-shadow: inset 3px 0 0 var(--blue); }
 .sidebar-nav li li.active > a .nav-num { color: var(--blue); }
 /* collapse eklentisi */
