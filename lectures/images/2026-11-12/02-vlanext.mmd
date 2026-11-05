@@ -1,0 +1,10 @@
+flowchart LR
+    subgraph O["OpenVLA (2024)"]
+        o1["SigLIP+DINOv2"] --> o2["LLaMA-2 7B<br/>tokenizer: 32k, İngilizce ağırlıklı"] --> o3["256-bin token, tek adım"]
+    end
+    subgraph V["VLANeXt (ICML 2026)"]
+        v1["Qwen3-VL görsel kodlayıcı"] --> v2["Qwen3-VL-2B<br/>tokenizer: ~150k, çok dilli"] --> v3["policy head: sürekli action chunk<br/>(flow / regresyon)"]
+    end
+    O -->|"2 yıl, 500+ ablation,<br/>12 bulgu"| V
+    style o2 fill:#ffd6d6,color:#000
+    style v2 fill:#d4f5d4,color:#000

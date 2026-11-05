@@ -1,0 +1,9 @@
+flowchart TB
+    RP["Robot Policy"] --> POL["Policy (sıfırdan)<br/>Diffusion Policy, ACT"]
+    RP --> VLA["VLA — VLM üstüne<br/>RT-2 · OpenVLA · OpenVLA-OFT · π0 · π0.5<br/>VLANeXt · Gemini Robotics · MolmoAct · Qwen-VLA"]
+    RP --> WAM["WAM — gelecek durumu tahmin eder<br/>DreamZero · VLANeXt-WAM · Fast-WAM · Kairos"]
+    RP --> LAM["LAM — etiketsiz videodan gizli action<br/>LAPA · LARA · VLANeXt-LAM"]
+    RP --> HAP["HAP — insan davranış verisiyle ön-eğitim<br/>EgoScale"]
+    RP --> CAP["Robotic Agentics / Code-as-Policy<br/>LLM programlar yazar, araçları çağırır"]
+    VLA -.->|"bir model ikisi birden olabilir"| WAM
+    style VLA fill:#ffd166,color:#000
