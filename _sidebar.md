@@ -15,7 +15,7 @@
 
 - **Plan**
   - [<span class="nav-num">·</span>Günlük Çalışma Logu](/plan/daily-log.md)
-  - [<span class="nav-num">·</span>VLA / Robot Learning — 30 Günlük Çalışma Planı](/plan/lecture-plan.md)
+  - [<span class="nav-num">·</span>Ders Planı](/plan/lecture-plan.md)
 
 - **Kaynaklar**
   - [<span class="nav-num">·</span>Genel bakış](/resources/README.md)

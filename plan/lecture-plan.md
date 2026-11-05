@@ -1,12 +1,6 @@
-# VLA / Robot Learning — 30 Günlük Çalışma Planı
+# Ders Planı
 
-**Takvim:** Günler takvime değil sıraya bağlıdır; her sabah 07:00'de (TR) sıradaki ders otomatik yazılır ve siteye düşer. Bir günde birden fazla ders çalışılabilir.
-**Günlük süre:** 30–60 dk · **Hedef:** 30 gün sonunda LIBERO üzerinde bir VLA'yı çalıştırabilmek, dil/mekânsal robustness deneyi tasarlayabilmek ve "bir proje yapalım" dendiğinde araştırma sorusu + deney planı üretebilmek.
-
-## Her gün nasıl çalışıyoruz
-1. Chat'e "Gün N" yaz. Claude `daily-log.md` dosyasını okur, o günün konusunu anlatır, görevi verir.
-2. Gün sonunda kısa çıktıyı (3–5 cümle, bir tablo, bir komut çıktısı) chat'e yapıştır. Claude log'a işler.
-3. Takıldığın yerde plan kayar; kaybolmaz. Plan esnek, sıra sabit.
+Her ders ≤ 1 saat. Dersler sıra numarasıyla ilerler; her sabah 07:00'de (TR) sıradaki ders otomatik yazılır. Hedef: Ders 30'un sonunda LIBERO üzerinde bir VLA'yı çalıştırabilmek, dil/mekânsal robustness deneyi tasarlayabilmek ve "bir proje yapalım" dendiğinde araştırma sorusu + deney planı üretebilmek. Bu tablo Aşama 0'ı kapsar; sonraki aşamaların planı buraya eklenecek.
 
 ## Kaynak haritası (danışmanın gönderdikleri)
 | Kaynak | Ne? | Neden gönderildi? |
@@ -21,13 +15,13 @@
 | `DravenALG/awesome-vla-wam` | Okuma listesi: VLA, WAM, Policy, LAM, benchmark, donanım | Literatür haritası |
 | paperswithcode.co/methods/vla | 2025–26 VLA makaleleri | Güncel yön: WAM, JEPA, RL-for-VLA |
 
-**Olası tez ekseni (henüz danışmanla netleştirilecek):** Türkçe (özellikle mekânsal) komutların VLA modellerinde grounding'i — LIBERO/LIBERO-Plus üzerinde ölçülmesi ve iyileştirilmesi.
+**Aday tez ekseni (danışmanla netleşmedi):** Türkçe (özellikle mekânsal) komutların VLA modellerinde grounding'i — LIBERO/LIBERO-Plus üzerinde ölçülmesi ve iyileştirilmesi.
 
 ---
 
-## FAZ 1 — Kavramlar (Gün 1–8)
+## Faz 1 — Kavramlar (Ders 1–8)
 
-| Gün | Konu | Kaynak | Çıktı |
+| Ders | Konu | Kaynak | Çıktı |
 |---|---|---|
 | 1 | Kaynak haritası + robot learning döngüsü (obs → policy → action) | Not §1–9 | Kaynakları kendi cümlelerinle 1'er satır tanımla |
 | 2 | VLA nedir, VLM–VLA farkı, OpenVLA mimarisi (SigLIP+DINOv2 → projector → LLaMA-2 7B → 256-bin action token, 7-DoF) | Not §10–14, Tatar §III.A | OpenVLA pipeline'ını elle çiz |
@@ -38,14 +32,14 @@
 | 7 | RoomSpace benchmark: 3D oda, bakış açısı, soru türleri, tutarlılık kontrolü | Li tezi Böl. 5; Figure 1 | RoomSpace ilişkilerinden LIBERO'ya taşınabilecek Türkçe komut listesi (10 adet) |
 | 8 | Haftalık sentez + awesome-vla-wam taraması (VLA / WAM / Policy / LAM; π0, OpenVLA-OFT, VLANeXt, DreamZero) | Repo README | 1 sayfalık kendi kavram haritan |
 
-## FAZ 2 — Ortam ve ilk çalıştırma (Gün 9–16)
+## Faz 2 — Ortam ve ilk çalıştırma (Ders 9–16)
 
 **Donanım kararı:** MacBook Pro M2 (32 GB, 19 çekirdek GPU). CUDA yok → iki katman:
 - **Mac'te (lokal):** LIBERO simülasyonu (MuJoCo arm64 çalışır), HDF5 dataset inceleme, OpenVLA-7B tek-görüntü inference (bf16, MPS; 14 GB RAM; yavaş ama çalışır), tokenizer analizi.
 - **Colab/Kaggle ücretsiz T4'te:** VLANeXt / OpenVLA-OFT ile LIBERO eval (flash-attn + CUDA gerekiyor; Mac'te çalışmaz). Az episode ile.
 - Kurulum günleri **komut komut** rehberle gelir (Python/conda temel düzey).
 
-| Gün | Konu | Nerede | Çıktı |
+| Ders | Konu | Nerede | Çıktı |
 |---|---|---|
 | 9 | Miniconda (arm64) + Python 3.10 env; `pip install mujoco`; ilk MuJoCo sahnesi | Mac | `python -c "import mujoco"` çalışıyor, bir sahne render |
 | 10 | LIBERO kurulumu (robosuite arm64 notlarıyla); env `reset()` / `step()` / görüntü kaydet | Mac | 1 episode frame'leri (png) |
@@ -56,9 +50,9 @@
 | 15 | Tatar deneyi mini reprodüksiyon: 5 komut EN/TR, L2 + cosine | Mac | Mini tablo |
 | 16 | Haftalık sentez; LIBERO-Plus'ı Colab'da ayrı env'de kur (asset indirme) | Colab | LIBERO-Plus çalışıyor |
 
-## FAZ 3 — Deney tasarımı ve robustness (Gün 17–24)
+## Faz 3 — Deney tasarımı ve robustness (Ders 17–24)
 
-| Gün | Konu | Çıktı |
+| Ders | Konu | Çıktı |
 |---|---|---|
 | 17 | LIBERO-Plus perturbation türleri; language perturbation kodda nasıl uygulanıyor | Perturbation tablosu |
 | 18 | Deney: aynı task, instruction = doğru / boş / yanlış / Türkçe → success rate (10 episode) | 4 satırlık sonuç tablosu |
@@ -69,9 +63,9 @@
 | 23 | Çözüm yaklaşımları: çeviri katmanı vs çok dilli VLM backbone vs Türkçe LoRA fine-tune — artı/eksi/maliyet | Karşılaştırma tablosu |
 | 24 | Haftalık sentez | Faz 3 özeti |
 
-## FAZ 4 — Proje üzerine akıl yürütme (Gün 25–30)
+## Faz 4 — Proje üzerine akıl yürütme (Ders 25–30)
 
-| Gün | Konu | Çıktı |
+| Ders | Konu | Çıktı |
 |---|---|---|
 | 25 | 3 aday araştırma sorusu (RQ) formüle et | RQ listesi |
 | 26 | Her RQ için: veri, model, benchmark, metrik, hesaplama maliyeti | Deney matrisi |
