@@ -1,34 +1,48 @@
-# Robot Learning ve VLA — 30 Günlük Türkçe Çalışma Günlüğü
+# Robot Learning ve VLA — Yüksek Lisans Tez Günlüğü (Türkçe)
 
-Yüksek lisans tezi hazırlığı kapsamında, **Vision-Language-Action (VLA)** modelleri ve robot learning alanını
-günde 30–60 dakika ile sıfırdan öğrenme sürecinin açık kaydı. Amaç: 30 gün sonunda LIBERO üzerinde bir VLA'yı
-çalıştırabilmek, dil/mekânsal robustness deneyi tasarlayabilmek ve bir araştırma projesi üzerine akıl yürütebilmek.
+Bilgisayar Mühendisliği yüksek lisans tezimin (ALKU) **tüm çalışma sürecinin** açık kaydı:
+kavramları öğrenmekten literatür taramasına, kurulumlardan deneylere, araştırma sorusundan tez yazımına kadar
+her adım bu repoda Türkçe olarak tutulur.
 
-Türkçe kaynak azlığı nedeniyle her günün notu herkesin kullanabileceği şekilde yazılmaktadır.
+Alan: **Vision-Language-Action (VLA)** modelleri, robot learning, dil ve mekânsal komutların robot davranışına
+bağlanması (language grounding). Türkçe kaynak çok az olduğu için notlar, başkalarının da kullanabileceği
+şekilde yazılır.
+
+## Aşamalar
+
+| Aşama | Kapsam | Durum |
+|---|---|---|
+| 0. Başlangıç — 30 günlük hızlandırılmış giriş | Kavramlar → ortam kurulumu → ilk deneyler → proje üzerine akıl yürütme (`plan/30-gun-plani.md`) | 🟡 Gün 1 / 30 |
+| 1. Literatür ve konu seçimi | Tez ekseninin danışmanla netleştirilmesi, kaynak taraması | ⬜ |
+| 2. Deney altyapısı | Benchmark, model, metrik ve veri setinin kurulması | ⬜ |
+| 3. Deneyler | Ana deneyler, ablasyonlar, sonuç analizi | ⬜ |
+| 4. Tez yazımı ve savunma | Tez metni, makale, sunum | ⬜ |
+
+Aşamalar netleştikçe bu tablo ve `plan/` klasörü güncellenir.
 
 ## Yapı
 
 | Klasör | İçerik |
 |---|---|
-| `plan/30-gun-plani.md` | 4 fazlı 30 günlük plan (kavramlar → ortam → deney → proje) |
-| `plan/gunluk-log.md` | Her günün durumu, görevi ve çıktısı |
-| `gunler/gun-NN/` | O günün ders notu (`ders.md`) ve benim çıktım (`cikti.md`) |
-| `kaynaklar/` | Türkçe giriş notu ve kaynak listesi (telifli PDF'ler yerine linkler) |
-| `notlar/` | Konu bazlı birikimli notlar (OpenVLA, LIBERO, spatial reasoning…) |
+| `plan/` | Dönem/aşama planları ve `gunluk-log.md` (her çalışma gününün durumu, görevi, çıktısı) |
+| `gunler/gun-NN/` | O günün ders notu (`ders.md`) ve kendi çıktım (`cikti.md`) |
+| `kaynaklar/` | Kaynak listesi ve Türkçe giriş notları (telifli PDF'ler yerine bağlantılar) |
+| `notlar/` | Konu bazlı birikimli notlar (OpenVLA, LIBERO, spatial reasoning, tokenizasyon…) |
 | `kod/` | Kurulum scriptleri, deney kodları, Colab notebook'ları |
+
+İleride eklenecek: `deneyler/` (deney kayıtları ve sonuçlar), `tez/` (tez metni taslakları), `sunumlar/`.
+
+## Nasıl çalışıyorum
+
+- Günde 30–60 dk. Her gün bir konu, bir küçük çıktı. Çalışma Claude ile birlikte yürütülür; ders notu ve plan
+  oradan gelir, çıktılar benim.
+- Her günün sonunda `gunler/gun-NN/` ve `plan/gunluk-log.md` commit'lenir; böylece kaldığım yer hiçbir zaman kaybolmaz.
+- Takılınca plan kayar, atlanmaz.
 
 ## Donanım
 
-MacBook Pro M2 (32 GB) — LIBERO simülasyonu ve OpenVLA inference lokal (MPS); CUDA gerektiren eval'ler ücretsiz Colab T4'te.
-
-## İlerleme
-
-| Faz | Günler | Durum |
-|---|---|---|
-| 1. Kavramlar | 1–8 | 🟡 devam ediyor |
-| 2. Ortam ve ilk çalıştırma | 9–16 | ⬜ |
-| 3. Deney tasarımı ve robustness | 17–24 | ⬜ |
-| 4. Proje üzerine akıl yürütme | 25–30 | ⬜ |
+MacBook Pro M2 (32 GB) — simülasyon (LIBERO/MuJoCo) ve OpenVLA inference lokal (MPS); CUDA gerektiren
+eval ve eğitimler Colab/Kaggle T4 ya da kiralık GPU'da.
 
 ## Kaynaklar
 
