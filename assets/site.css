@@ -24,7 +24,7 @@
   --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   --sidebar-w: 288px;
   --toc-w: 220px;
-  --measure: 70ch;
+  --measure: 860px;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -60,9 +60,10 @@ main { display: block; position: relative; }
 }
 .content { margin-left: var(--sidebar-w); min-height: 100vh; position: relative; }
 .markdown-section {
-  max-width: var(--measure); margin: 0 auto; padding: 56px 40px 96px;
+  max-width: var(--measure); margin: 0; padding: 56px 48px 96px 64px;
 }
-@media (min-width: 1240px) { .markdown-section { margin-left: max(56px, calc((100% - var(--toc-w) - 80px - 70ch) / 2)); } }
+@media (min-width: 1240px) { .content { padding-right: calc(var(--toc-w) + 56px); } .markdown-section { max-width: min(var(--measure), 100%); } }
+@media (min-width: 1700px) { body { font-size: 18px; } :root { --measure: 980px; } .markdown-section { padding-left: 72px; } }
 
 body.close .sidebar { transform: translateX(-100%); }
 body.close .content { margin-left: 0; }
@@ -138,7 +139,7 @@ body.close .content { margin-left: 0; }
 .markdown-section li { margin: 4px 0; }
 .markdown-section hr { border: 0; height: 0; margin: 0; }
 .markdown-section strong { font-weight: 600; }
-.markdown-section img { max-width: 100%; height: auto; display: block; margin: 20px auto; border-radius: 6px; border: 1px solid var(--line); background: #fff; }
+.markdown-section img { max-width: 100%; height: auto; display: block; margin: 20px 0; border-radius: 6px; border: 1px solid var(--line); background: #fff; }
 .markdown-section em { font-style: italic; }
 
 /* "Bugünün tek cümlesi" — anahtar fikir */
