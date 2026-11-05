@@ -8,6 +8,8 @@ Alan: **Vision-Language-Action (VLA)** modelleri, robot learning, dil ve mekâns
 bağlanması (language grounding). Türkçe kaynak çok az olduğu için notlar, başkalarının da kullanabileceği
 şekilde yazılır.
 
+**Site:** https://mesutd0nmez.github.io/vla-robot-learning-tr/ — sol menüden derslere ulaşılır (GitHub Pages + Docsify; derleme yok, markdown tarayıcıda render edilir).
+
 ## Aşamalar
 
 | Aşama | Kapsam | Durum |
@@ -28,7 +30,8 @@ Aşamalar netleştikçe bu tablo ve `plan/` klasörü güncellenir.
 | `lectures/` | Dersler `lecture-NN.md` (görseller `lectures/images/lecture-NN/`); her dersin sonunda kendini sına soruları ve cevapları |
 | `resources/` | Kaynak listesi ve Türkçe giriş notları (telifli PDF'ler yerine bağlantılar) |
 | `notes/` | Konu bazlı birikimli notlar (OpenVLA, LIBERO, spatial reasoning, tokenizasyon…) |
-| `code/` | Kurulum scriptleri, deney kodları, Colab notebook'ları |
+| `code/` | Kurulum scriptleri, deney kodları, Colab notebook'ları (her klasörde README ile kaynak kodu) |
+| `index.html`, `_sidebar.md`, `assets/` | Dokümantasyon sitesi (Docsify); `tools/gen_sidebar.py` menüyü üretir |
 
 İleride eklenecek: `experiments/` (deney kayıtları ve sonuçlar), `thesis/` (tez metni taslakları), `slides/`.
 

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>VLA Tez Günlüğü</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <meta name="description" content="Robot Learning ve VLA — yüksek lisans tez günlüğü (Türkçe)">
+  <link rel="stylesheet" href="assets/vendor/vue.css">
+  <link rel="stylesheet" href="assets/vendor/prism/prism-tomorrow.min.css">
+  <style>
+    :root { --theme-color: #d97706; }
+    .sidebar { font-size: 14px; }
+    .sidebar ul li a { white-space: normal; }
+    .markdown-section { max-width: 920px; }
+    .markdown-section pre { background: #2d2d2d; border-radius: 6px; }
+    .markdown-section pre > code { color: #f8f8f2; font-size: 13px; line-height: 1.5; }
+    .markdown-section pre .token.comment { color: #999; }
+    .markdown-section code { font-size: 0.9em; }
+    .markdown-section img { border: 1px solid #eee; border-radius: 6px; margin: 8px 0; }
+    .markdown-section table { display: table; width: 100%; font-size: 14px; }
+    .markdown-section details { border: 1px solid #e5e7eb; border-radius: 6px; padding: 6px 12px; margin: 8px 0 16px; background: #fafafa; }
+    .markdown-section summary { cursor: pointer; color: #d97706; font-weight: 600; }
+    .markdown-section blockquote { border-left: 4px solid #d97706; background: #fff7ed; padding: 8px 16px; }
+    .task-list-item input { margin-right: 6px; }
+    .app-name-link img { height: 28px; }
+  </style>
+</head>
+<body>
+  <div id="app">Yükleniyor…</div>
+  <script>
+    window.$docsify = {
+      name: '🤖 VLA Tez Günlüğü',
+      repo: 'https://github.com/mesutd0nmez/vla-robot-learning-tr',
+      homepage: 'README.md',
+      loadSidebar: true,
+      alias: { '/.*/_sidebar.md': '/_sidebar.md' },
+      subMaxLevel: 2,
+      sidebarDisplayLevel: 1,
+      relativePath: true,
+      auto2top: true,
+      search: { placeholder: 'Ara…', noData: 'Sonuç yok', paths: 'auto', depth: 3 },
+      copyCode: { buttonText: 'Kopyala', successText: 'Kopyalandı' },
+      pagination: { previousText: 'Önceki', nextText: 'Sonraki', crossChapter: true, crossChapterText: true },
+      plugins: [function (hook) { hook.doneEach(function () { document.querySelectorAll('.task-list-item input[type=checkbox]').forEach(function (c) { c.disabled = false; }); }); }]
+    }
+  </script>
+  <script src="assets/vendor/docsify.min.js"></script>
+  <script src="assets/vendor/search.min.js"></script>
+  <script src="assets/vendor/docsify-copy-code.min.js"></script>
+  <script src="assets/vendor/docsify-pagination.min.js"></script>
+  <script src="assets/vendor/docsify-sidebar-collapse.min.js"></script>
+  <script src="assets/vendor/prism/prism-python.min.js"></script>
+  <script src="assets/vendor/prism/prism-bash.min.js"></script>
+  <script src="assets/vendor/prism/prism-yaml.min.js"></script>
+  <script src="assets/vendor/prism/prism-json.min.js"></script>
+  <script src="assets/vendor/prism/prism-markdown.min.js"></script>
+</body>
+</html>
