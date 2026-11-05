@@ -1,0 +1,11 @@
+flowchart TB
+    subgraph C["Görüntü sınıflandırma (tek atış)"]
+        direction LR
+        I1["Image"] --> M1["CNN / ViT"] --> L1["Class: 'cat'"]
+    end
+    subgraph R["Robot learning (kapalı döngü)"]
+        direction LR
+        I2["Image + robot state<br/>+ language"] --> M2["Policy"] --> L2["Action"] --> E["Env.step()"] --> I2
+    end
+    style M1 fill:#ffd166,color:#000
+    style M2 fill:#ffd166,color:#000

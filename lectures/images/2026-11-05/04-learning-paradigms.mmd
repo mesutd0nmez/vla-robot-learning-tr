@@ -1,0 +1,13 @@
+flowchart LR
+    subgraph IL["Imitation Learning / Behavior Cloning"]
+        direction TB
+        H["İnsan teleoperasyonla<br/>görevi gösterir"] --> D["Dataset<br/>(o₁,a₁), (o₂,a₂), … (o_T,a_T)"]
+        D --> S["Supervised learning<br/>X = observation<br/>y = expert action"]
+    end
+    subgraph RLx["Reinforcement Learning"]
+        direction TB
+        T["Robot dener"] --> RW["Ödül<br/>+1 bardak tutuldu<br/>−1 düştü"]
+        RW --> U["Policy güncelle"] --> T
+    end
+    style S fill:#d4f5d4,color:#000
+    style RW fill:#ffd6d6,color:#000
