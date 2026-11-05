@@ -1,0 +1,1 @@
+Sonuçlar makine-okunur tutulur: her koşu için bir satır `runs.csv` (run_id, tarih, model, checkpoint, suite, task_id, lang, condition[correct/empty/wrong/paraphrase/tr], n_episodes, success_rate, notlar). Ham log'lar büyükse repoya girmez; `datasets/` altında veri kartıyla referans verilir.

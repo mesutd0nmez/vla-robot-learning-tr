@@ -14,6 +14,7 @@ Türkçe açık kaynak; site: https://mesutd0nmez.github.io/vla-robot-learning-t
 - `lectures/lecture-NN.md` — dersler (sıra numaralı, tarihsiz); görseller `lectures/images/lecture-NN/`
 - `code/dayNN/` — o dersin script'leri + README.md (her script `## ad.py` + python bloğu)
 - `projects/NN-kisa-ad/` — Mesut'un yerelde Claude Code ile yaptığı demo/deney/araştırma projeleri; `projects/_template/README.md` şablonuyla başlanır, `projects/README.md` tablosuna satır eklenir. Dersler burayı değiştirmez; projeler derslere atıf yapabilir.
+- `datasets/NN-kisa-ad/` — veri kartı (`dataset-card.md`, zorunlu) + küçük veri dosyaları (`data/`, <10 MB). Kendi ürettiğimiz Türkçe komut setleri ve sonuç tabloları burada; dış veriler (LIBERO HDF5, checkpoint) yalnızca kartla (kaynak, sürüm, lisans, sha256, dönüşümler).
 - `resources/`, `notes/`, `plan/`; ileride `thesis/`, `slides/`
 - Site: `index.html` + `assets/site.css` (Docsify, derleme yok), `home.md` (ana sayfa), `_sidebar.md` (üretilir)
 
@@ -24,6 +25,7 @@ Türkçe açık kaynak; site: https://mesutd0nmez.github.io/vla-robot-learning-t
 
 ## Yerelde proje yaparken (Claude Code)
 - `git pull` → `cp -r projects/_template projects/NN-kisa-ad` → README'yi doldur → kod/sonuç/görsel aynı klasöre → `projects/README.md` tablosunu güncelle → `python tools/gen_sidebar.py` → commit/push.
+- Her deney koşusu `results/runs.csv`'ye bir satır (run_id, model, checkpoint, suite, task_id, lang, condition, n_episodes, success_rate). Üretilen/kullanılan her veri için `datasets/` altında kart aç.
 - Büyük dosyalar (checkpoint, HDF5, video) repoya girmez (`.gitignore`); sonuçları küçük CSV/PNG olarak kaydet.
 
 ## Çalışma kuralları

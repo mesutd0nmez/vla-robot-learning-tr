@@ -24,6 +24,9 @@
 - **Projeler**
   - [<span class="nav-num">·</span>Genel bakış](/projects/README.md)
 
+- **Veri setleri**
+  - [<span class="nav-num">·</span>Genel bakış](/datasets/README.md)
+
 - **Kod**
   - [<span class="nav-num">09</span>Gün 9 kodu](/code/day09/README.md)
   - [<span class="nav-num">10</span>Gün 10 kodu](/code/day10/README.md)

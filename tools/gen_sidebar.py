@@ -28,6 +28,13 @@ if proj.exists():
         r = d/"README.md"
         if r.exists():
             lines.append(f'  - [<span class="nav-num">{d.name[:2]}</span>{title(r)}](/projects/{d.name}/README.md)')
+ds = root/"datasets"
+if ds.exists():
+    lines += ["", "- **Veri setleri**", f'  - [<span class="nav-num">·</span>Genel bakış](/datasets/README.md)']
+    for d in sorted(x for x in ds.iterdir() if x.is_dir() and not x.name.startswith(("_", "."))):
+        r = d/"dataset-card.md"
+        if r.exists():
+            lines.append(f'  - [<span class="nav-num">{d.name[:2]}</span>{title(r)}](/datasets/{d.name}/dataset-card.md)')
 code = root/"code"
 if code.exists():
     days = sorted(x for x in code.iterdir() if x.is_dir() and not x.name.startswith("."))
