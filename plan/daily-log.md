@@ -18,3 +18,9 @@ Bu dosya her günün sonunda güncellenir. Yeni güne başlarken Claude önce bu
 **Ders:** `lectures/2026-11-06.md` — SigLIP+DINOv2, projector, LLaMA-2, 256-bin action tokenizasyonu, LoRA fine-tune, OpenVLA-OFT farkı (4 görsel, 5 soru)
 **Görev (Mesut):** Pipeline'ı görsele bakmadan çiz; soruları cevapla.
 **Notlar / sorular:** —
+
+## Gün 3 — 7 Kasım 2026 — Benchmark ≠ simülatör
+**Durum:** Ders hazır (5 Kas'ta yazıldı)
+**Ders:** `lectures/2026-11-07.md` — MuJoCo/robosuite/LIBERO/eval yığını, 4 suite, BDDL + 50 demo, eval protokolü (50 ep/task), liderlik tablosunun doyması, LIBERO-Plus'ın 7 bozulması ve "model dili görmezden geliyor" bulgusu (4 görsel, 5 soru)
+**Görev (Mesut):** 4 suite tablosu + Spatial komutlarındaki ilişki kelimelerinin Türkçe ek karşılıkları.
+**Notlar / sorular:** —

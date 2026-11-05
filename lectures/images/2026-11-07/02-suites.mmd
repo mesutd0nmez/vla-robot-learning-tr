@@ -1,0 +1,18 @@
+flowchart LR
+    subgraph S["LIBERO-Spatial · 10 task"]
+        s1["Aynı nesneler, farklı yerleşim<br/>'pick up the black bowl <b>between the plate and the ramekin</b><br/>and place it on the plate'"]
+    end
+    subgraph O["LIBERO-Object · 10 task"]
+        o1["Aynı yerleşim, farklı nesneler<br/>'pick up the <b>alphabet soup</b> and place it in the basket'"]
+    end
+    subgraph G["LIBERO-Goal · 10 task"]
+        g1["Aynı nesneler ve yerleşim, farklı hedef<br/>'<b>open the middle drawer</b> of the cabinet'<br/>'<b>put the bowl on the stove</b>'"]
+    end
+    subgraph T["LIBERO-10 (Long) · 10 task"]
+        t1["İki alt görevi zincirle<br/>'put <b>both</b> the alphabet soup <b>and</b> the cream cheese<br/>in the basket'"]
+    end
+    S ~~~ O ~~~ G ~~~ T
+    style S fill:#cfe8ff,color:#000
+    style O fill:#d4f5d4,color:#000
+    style G fill:#fff2b3,color:#000
+    style T fill:#ffd6d6,color:#000

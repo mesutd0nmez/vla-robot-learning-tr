@@ -1,0 +1,9 @@
+flowchart TB
+    P["🧠 POLICY<br/>OpenVLA / OFT / VLANeXt"] <-->|"observation ⇄ action"| H
+    H["EVAL HARNESS<br/>episode döngüsü, success sayımı<br/>(VLANeXt libero_bench_eval, OpenVLA eval script)"] --> L
+    L["LIBERO — BENCHMARK<br/>130 task (4 suite), BDDL task tanımları,<br/>50 insan demosu/task, başlangıç durumları, success predicate'leri"] --> R
+    R["robosuite — ROBOT KATMANI<br/>Franka Panda modeli, OSC_POSE kontrolcü,<br/>kamera kurulumu, Gym benzeri reset/step API"] --> M
+    M["MuJoCo — FİZİK MOTORU<br/>rijit cisim dinamiği, temas, sürtünme, yerçekimi"]
+    style P fill:#ffd166,color:#000
+    style L fill:#d4f5d4,color:#000
+    style M fill:#eee,color:#000
