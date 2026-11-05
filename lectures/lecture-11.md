@@ -1,6 +1,6 @@
 # Ders 11 — Klavye Günü 3: LIBERO Demo Verisi — HDF5'in İçi ve Gerçek Bir Trajectory
 
-**Tarih:** 15 Kasım 2026 · **Faz 2 / Gün 11** · **Süre:** ~55 dk (okuma 15 + indirme 10 + inceleme 30)
+**Faz 2 / Gün 11** · **Süre:** ~55 dk (okuma 15 + indirme 10 + inceleme 30)
 **Ön koşul:** Ders 10 (LIBERO çalışıyor), Ders 1 (trajectory/episode) · **Kod:** `code/day11/`
 
 > **Bugünün tek cümlesi:** Bir VLA'nın öğrendiği şeyin tamamı bu dosyalarda: her görev için 50 insan demosu, her demo için `(görüntü, robot durumu, action)` zaman serisi — bugün bunu açıp Ders 1'deki soyut `(o_t, a_t)` çiftlerini gerçek sayılar olarak göreceksin.
@@ -36,7 +36,7 @@ Hugging Face erişimi yavaşsa `--use-huggingface` bayrağını kaldır (UT Aust
 
 ## 3. Dosyanın içi
 
-![HDF5 yapısı](images/2026-11-15/01-hdf5-tree.png)
+![HDF5 yapısı](images/lecture-11/01-hdf5-tree.png)
 
 | Yol | Ne | Boyut |
 |---|---|---|
@@ -71,11 +71,11 @@ Script sırasıyla: attr'ları ve komutu yazdırır → 50 episode'un uzunluk da
 
 Aşağıdaki çıktılar bu dersi hazırlarken **aynı script**le, LIBERO şemasında üretilmiş küçük bir örnek dosyadan alındı (robosuite "Lift" görevi, scripted bir yaklaş–tut–kaldır politikası; insan demosu değil). Senin çıktın gerçek insan teleoperasyonu olacak — daha gürültülü, daha uzun:
 
-![Action dizisi](images/2026-11-15/02-actions-demo.png)
+![Action dizisi](images/lecture-11/02-actions-demo.png)
 
 Okuma: t<45 yaklaşma (Δx, Δy, Δz sıfıra yakınsıyor: hedefe vardıkça delta küçülür), t=45 gripper −1 → +1 (tut), t≥60 Δz pozitif sabit (kaldır). Ders 1'deki temsili grafik, gerçek bir rollout'ta böyle görünüyor.
 
-![Kareler](images/2026-11-15/03-frames-demo.png)
+![Kareler](images/lecture-11/03-frames-demo.png)
 
 İlk / orta / son kare, 180° döndürülmüş. Senin dosyanda: kâse masada → gripper'da → tabakta.
 
@@ -107,9 +107,72 @@ Script'in yazdığı `gripper benzersiz değerler` satırına bak. LIBERO ham de
 | Bellek dolu | `imgs[i]` tek kare okur; tüm diziyi (`imgs[:]`) yükleme |
 | PNG'de görüntü ters | `[::-1, ::-1]` satırını kontrol et; LIBERO ham görüntüsü ters gelir |
 
+## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
+
+**1. Episode uzunluğu T neden değişir?**  _(tek seçim)_
+- [ ] A) Kamera hızı
+- [ ] B) İnsan her denemede farklı hızda hareket eder
+- [ ] C) Görev değişir
+- [ ] D) HDF5 sınırı
+
+<details><summary>Cevap</summary>
+
+**B.** 
+
+</details>
+
+**2. Komut (language_instruction) HDF5'te nerede?**  _(tek seçim)_
+- [ ] A) Her demo'nun obs'unda
+- [ ] B) data.attrs['problem_info'] JSON'unda
+- [ ] C) actions dizisinde
+- [ ] D) Dosya adında değil, yok
+
+<details><summary>Cevap</summary>
+
+**B.** 
+
+</details>
+
+**3. Türkçe eval için demo dosyasını değiştirmek gerekir mi?**  _(tek seçim)_
+- [ ] A) Evet, her zaman
+- [ ] B) Hayır; eval'de komutu sen verirsin. Fine-tune için evet
+- [ ] C) Evet, görüntüleri de
+- [ ] D) Hayır, hiçbir durumda
+
+<details><summary>Cevap</summary>
+
+**B.** 
+
+</details>
+
+**4. `obs/` altında bulunanlar? (birden fazla)**  _(birden fazla seçim)_
+- [ ] A) agentview_rgb
+- [ ] B) eye_in_hand_rgb
+- [ ] C) ee_states
+- [ ] D) actions
+- [ ] E) gripper_states
+
+<details><summary>Cevap</summary>
+
+**A, B, C, E.** actions demo düzeyindedir, obs altında değil.
+
+</details>
+
+**5. Gripper işareti uyarısı hakkında doğrular? (birden fazla)**  _(birden fazla seçim)_
+- [ ] A) LIBERO ham: -1 açık, +1 kapalı
+- [ ] B) OpenVLA RLDS verisinde dönüştürülmüştür
+- [ ] C) Eval'de geri çevirmek gerekir
+- [ ] D) İşaret önemsizdir
+
+<details><summary>Cevap</summary>
+
+**A, B, C.** 
+
+</details>
+
 ---
 
-## Yarın (Gün 12 — 16 Kasım)
+## Sonraki ders (Ders 12)
 Colab T4'e geçiş: VLANeXt kurulumu, Hugging Face checkpoint'i, `libero_bench_eval` ile 2–3 episode — ilk success rate sayın. Hazır bir notebook iskeletiyle.
 
 ---
@@ -129,4 +192,4 @@ Colab T4'e geçiş: VLANeXt kurulumu, Hugging Face checkpoint'i, `libero_bench_e
 - Hugging Face veri seti: [yifengzhu-hf/LIBERO-datasets](https://huggingface.co/datasets/yifengzhu-hf/LIBERO-datasets)
 - OpenVLA `experiments/robot/libero/regenerate_libero_dataset.py` ve `libero_utils.py` (RLDS dönüşümü, gripper işareti, 180° döndürme): [github.com/openvla/openvla](https://github.com/openvla/openvla)
 - h5py dokümantasyonu: [docs.h5py.org](https://docs.h5py.org)
-- Kod: `code/day11/inspect_hdf5.py`; görseller `images/2026-11-15/` aynı script'le, LIBERO şemasındaki örnek dosyadan üretildi.
+- Kod: `code/day11/inspect_hdf5.py`; görseller `images/lecture-11/` aynı script'le, LIBERO şemasındaki örnek dosyadan üretildi.

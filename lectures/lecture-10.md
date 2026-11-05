@@ -1,6 +1,6 @@
 # Ders 10 — Klavye Günü 2: LIBERO Kurulumu ve İlk Episode
 
-**Tarih:** 14 Kasım 2026 · **Faz 2 / Gün 10** · **Süre:** ~60 dk (okuma 15 + kurulum 25 + çalıştırma 20)
+**Faz 2 / Gün 10** · **Süre:** ~60 dk (okuma 15 + kurulum 25 + çalıştırma 20)
 **Ön koşul:** Ders 9 (`vla` ortamı çalışıyor) · **Kod:** `code/day10/`
 
 > **Bugünün tek cümlesi:** Bugün Ders 1'deki döngüyü ilk kez kendi elinle çalıştırıyorsun — `reset()` ile dünyayı kur, `step(action)` ile robotu oynat, `obs` ile gözlemi al, `check_success()` ile sınav sonucunu oku. Policy henüz yok; action'ı sen yazıyorsun.
@@ -78,7 +78,7 @@ open libero_first_episode.png
 
 Script'in yaptığı, sıra diyagramı olarak:
 
-![reset/step](images/2026-11-14/01-reset-step.png)
+![reset/step](images/lecture-10/01-reset-step.png)
 
 ### Satır satır
 ```python
@@ -97,7 +97,7 @@ env.check_success()                                            # BDDL predicate:
 
 ### Gözlem ve action sözleşmesi
 
-![obs ve action](images/2026-11-14/03-obs-action.png)
+![obs ve action](images/lecture-10/03-obs-action.png)
 
 İki tuzak:
 1. **Görüntüler ters gelir.** LIBERO/robosuite kamera görüntüsü dikey olarak ters (OpenGL kökenli). OpenVLA'nın eval kodu `img[::-1, ::-1]` ile 180° döndürür; eğitim verisi öyle işlendiği için eval'de de aynısı şart. Script'te aynı döndürme var.
@@ -105,7 +105,7 @@ env.check_success()                                            # BDDL predicate:
 
 Bugün ürettiğin görüntü (robot aşağı iner, gripper kapanır — görevi *yapmaz*, sadece hareket eder) şuna benzeyecek; alttaki robosuite'in kendi "Lift" ortamından, aynı kamera adlarıyla, bu dersi hazırlarken üretildi:
 
-![robosuite Lift, agentview + bilek](images/2026-11-14/02-robosuite-lift.png)
+![robosuite Lift, agentview + bilek](images/lecture-10/02-robosuite-lift.png)
 
 Üst sıra `agentview`, alt sıra `robot0_eye_in_hand`; soldan sağa t=0, 30, 60. Senin çıktında LIBERO'nun mutfak sahnesi (kâse, tabak, ramekin) olacak.
 
@@ -138,9 +138,71 @@ Bugün ürettiğin görüntü (robot aşağı iner, gripper kapanır — görevi
 
 Hata mesajının tamamını chat'e yapıştır.
 
+## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
+
+**1. robosuite 1.4.1 ile hangi mujoco sürümü?**  _(tek seçim)_
+- [ ] A) 3.x
+- [ ] B) 2.3.7
+- [ ] C) 1.50
+- [ ] D) Fark etmez
+
+<details><summary>Cevap</summary>
+
+**B.** 3.x ile joint-type AssertionError.
+
+</details>
+
+**2. Spatial suite'in 10 komutunun ortak yapısı?**  _(tek seçim)_
+- [ ] A) Farklı nesneler, aynı yer
+- [ ] B) Hepsi 'siyah kâseyi al, tabağa koy'; yalnızca kâsenin konum ifadesi değişir
+- [ ] C) Hepsi çekmece açma
+- [ ] D) Farklı robotlar
+
+<details><summary>Cevap</summary>
+
+**B.** 
+
+</details>
+
+**3. Görüntüyü 180° döndürmeyi unutursan?**  _(tek seçim)_
+- [ ] A) Hiçbir şey
+- [ ] B) Model dağılım dışı görüntü görür, başarı düşer
+- [ ] C) Hız artar
+- [ ] D) Gripper ters çalışır
+
+<details><summary>Cevap</summary>
+
+**B.** 
+
+</details>
+
+**4. `set_init_state` hakkında doğrular? (birden fazla)**  _(birden fazla seçim)_
+- [ ] A) 50 kayıtlı başlangıçtan birini yükler
+- [ ] B) Karşılaştırılabilirlik için zorunludur
+- [ ] C) reset() ile aynıdır
+- [ ] D) Her episode farklı seed'le rastgele başlar
+
+<details><summary>Cevap</summary>
+
+**A, B.** 
+
+</details>
+
+**5. action[6] (gripper) hakkında doğrular? (birden fazla)**  _(birden fazla seçim)_
+- [ ] A) -1 açık
+- [ ] B) +1 kapalı
+- [ ] C) Kontrolcü 0 eşiğinde ikiliye çevirir
+- [ ] D) 0.3 'yarım açık' demektir
+
+<details><summary>Cevap</summary>
+
+**A, B, C.** 
+
+</details>
+
 ---
 
-## Yarın (Gün 11 — 15 Kasım)
+## Sonraki ders (Ders 11)
 LIBERO'nun insan demolarını indirip HDF5 dosyasını açacağız: episode yapısı, `obs/agentview_rgb`, `actions[T,7]`, ve Ders 1'deki action grafiğini gerçek veriden çizeceğiz.
 
 ---

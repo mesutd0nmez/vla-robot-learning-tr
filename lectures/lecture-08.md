@@ -1,6 +1,6 @@
 # Ders 8 — Hafta 1 Sentezi ve VLA Model Aileleri Haritası
 
-**Tarih:** 12 Kasım 2026 · **Faz 1 / Gün 8 (Faz 1'in sonu)** · **Okuma süresi:** ~40 dk
+**Faz 1 / Gün 8 ** · **Okuma süresi:** ~40 dk
 **Ön koşul:** Ders 1–7 · **Kaynak:** `awesome-vla-wam` README; VLANeXt README ve makalesi; paperswithcode VLA sayfası
 
 > **Bugünün tek cümlesi:** 2026'da "VLA" artık tek bir tarif değil; VLM üstüne kurulu policy'ler (VLA), geleceği tahmin eden policy'ler (WAM), etiketsiz videodan öğrenenler (LAM) ve bunların melezleri var — tezin için en önemli sonuç, VLANeXt'in Qwen3-VL omurgasının OpenVLA'nın LLaMA-2'sine karşı doğal bir **Türkçe tokenizer kontrolü** sunması.
@@ -9,7 +9,7 @@
 
 ## 1. Hafta 1'de ne kurduk?
 
-![Hafta 1 haritası](images/2026-11-12/04-week1-map.png)
+![Hafta 1 haritası](images/lecture-08/04-week1-map.png)
 
 Yedi günde altı kavram kümesi oturdu. Bugün bunları birbirine bağlayıp alanın güncel haritasına yerleştiriyoruz; yarından itibaren klavye başına geçiyoruz.
 
@@ -22,7 +22,7 @@ Hafta 1'in tez açısından üç çıkarımı:
 
 ## 2. awesome-vla-wam'ın kategorileri: alan 2026'da nasıl bölünüyor?
 
-![Model aileleri](images/2026-11-12/01-families.png)
+![Model aileleri](images/lecture-08/01-families.png)
 
 Liste altı kategori tanımlıyor; her birinin "kurucu" makalesi yıldızla işaretli:
 
@@ -54,7 +54,7 @@ Benchmark/Environment bölümü: LIBERO, LIBERO-Plus, CALVIN, RLBench, SimplerEn
 
 **VLANeXt** (Tang vd., ICML 2026) bir model olduğu kadar bir *yöntem* makalesi: RT-2 tarzı basit bir baseline'dan başlayıp 500'den fazla kontrollü deneyle VLA tasarım uzayını taramış, 12 bulguyu bir "tarife" indirgemiş. Üç eksen: temel bileşenler (omurga, tokenizer), algı (görsel kodlama, kamera sayısı, çözünürlük), action modelleme (chunk, loss, policy head).
 
-![OpenVLA vs VLANeXt](images/2026-11-12/02-vlanext.png)
+![OpenVLA vs VLANeXt](images/lecture-08/02-vlanext.png)
 
 | | OpenVLA | VLANeXt-B |
 |---|---|---|
@@ -67,7 +67,7 @@ Benchmark/Environment bölümü: LIBERO, LIBERO-Plus, CALVIN, RLBench, SimplerEn
 
 **VLANeXt Family** (Eylül 2026 arXiv) aynı tarifi beş yöne genişletiyor: S (0.8B), L (4B), LAM, JEPA (gelecek DINOv3 özelliği tahmini), WAM (Wan2.2 video omurgası):
 
-![VLANeXt ailesi](images/2026-11-12/03-vlanext-family.png)
+![VLANeXt ailesi](images/lecture-08/03-vlanext-family.png)
 
 ### Tezin için neden kritik?
 Tatar vd. (Ders 5) sorunu LLaMA-2 tokenizer'ına bağlıyor. Bu hipotez test edilebilir: **aynı Türkçe komut setini OpenVLA (LLaMA-2) ve VLANeXt (Qwen3-VL) üzerinde koş.** Qwen tokenizer'ı "kaldır"ı muhtemelen tek ya da anlamlı parçalara böler. Eğer Türkçe düşüşü VLANeXt'te belirgin biçimde küçükse hipotez güçlenir; aynı kalıyorsa sorun tokenizer'da değil, fine-tuning verisinin tamamen İngilizce olmasında (dil-action eşlemesinin hiç Türkçe örnek görmemesi) demektir. İki model, iki tokenizer, aynı benchmark — temiz bir kontrollü deney, ve kod tabanı hazır.
@@ -114,9 +114,72 @@ Kural: her gün 1 saat; kurulum takılırsa o gün "hata ayıklama" günüdür, 
 ## 7. Bugünün görevi (20 dk)
 Hafta 1 haritasını (yukarıdaki mindmap) **kendi** düzeninle, kâğıda ya da bir araçla yeniden çiz; en az iki kutuyu kendi cümlenle yeniden adlandır. Sonra `awesome-vla-wam` README'sini aç, VLA Models bölümünden başlıkları tezinle ilgili görünen 3 makale seç, her biri için "neden ilgili" bir cümle yaz.
 
+## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
+
+**1. WAM'ı VLA'dan ayıran şey?**  _(tek seçim)_
+- [ ] A) VLM kullanmaz
+- [ ] B) Geleceğin durumunu/temsilini tahmin ederek action üretir
+- [ ] C) Yalnızca videoyla eğitilir
+- [ ] D) Dil almaz
+
+<details><summary>Cevap</summary>
+
+**B.** İkisi birden olabilir.
+
+</details>
+
+**2. VLANeXt'in omurgası?**  _(tek seçim)_
+- [ ] A) LLaMA-2 7B
+- [ ] B) PaliGemma
+- [ ] C) Qwen3-VL-2B
+- [ ] D) SigLIP+DINOv2+Vicuna
+
+<details><summary>Cevap</summary>
+
+**C.** 
+
+</details>
+
+**3. Türkçe düşüşü VLANeXt'te de OpenVLA kadarsa ne anlama gelir?**  _(tek seçim)_
+- [ ] A) Tokenizer hipotezi güçlenir
+- [ ] B) Tokenizer hipotezi zayıflar; sorun dil–action eşlemesinin yalnızca İngilizce görülmesi olabilir
+- [ ] C) Qwen Türkçe bilmiyor
+- [ ] D) Deney yanlış
+
+<details><summary>Cevap</summary>
+
+**B.** 
+
+</details>
+
+**4. awesome-vla-wam kategorileri? (birden fazla)**  _(birden fazla seçim)_
+- [ ] A) VLA
+- [ ] B) WAM
+- [ ] C) LAM
+- [ ] D) HAP
+- [ ] E) CNN
+
+<details><summary>Cevap</summary>
+
+**A, B, C, D.** 
+
+</details>
+
+**5. LAM fikri neden tez için ilginç olabilir? (birden fazla)**  _(birden fazla seçim)_
+- [ ] A) Gerçek action etiketi istemez
+- [ ] B) Türkçe konuşan insan videolarıyla ön-eğitim hayal edilebilir
+- [ ] C) LIBERO'da en yüksek skoru alır
+- [ ] D) Tokenizer sorununu doğrudan çözer
+
+<details><summary>Cevap</summary>
+
+**A, B.** 
+
+</details>
+
 ---
 
-## Yarın (Gün 9 — 13 Kasım)
+## Sonraki ders (Ders 9)
 Klavye günü: Mac'te Miniconda (arm64), Python 3.10 ortamı, `pip install mujoco`, ilk MuJoCo sahnesini render etme. Adım adım, kopyala-yapıştır komutlarla.
 
 ---
@@ -139,4 +202,4 @@ Klavye günü: Mac'te Miniconda (arm64), Python 3.10 ortamı, `pip install mujoc
 - Ye et al. (2024). *LAPA: Latent Action Pretraining from Videos.* [arXiv:2410.11758](https://arxiv.org/abs/2410.11758)
 - Chi et al. (2023). *Diffusion Policy.* [arXiv:2303.04137](https://arxiv.org/abs/2303.04137)
 - [paperswithcode.co/methods/vla](https://paperswithcode.co/methods/vla)
-- Görseller: bu repo için üretildi (`images/2026-11-12/`); aile grafiği VLANeXt README'sindeki değerlerle çizilmiştir.
+- Görseller: bu repo için üretildi (`images/lecture-08/`); aile grafiği VLANeXt README'sindeki değerlerle çizilmiştir.

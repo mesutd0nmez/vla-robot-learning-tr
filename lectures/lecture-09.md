@@ -1,6 +1,6 @@
 # Ders 9 — Klavye Günü 1: Mac'te Python Ortamı ve İlk MuJoCo Sahnesi
 
-**Tarih:** 13 Kasım 2026 · **Faz 2 / Gün 9** · **Süre:** ~50 dk (okuma 15 + uygulama 35)
+**Faz 2 / Gün 9** · **Süre:** ~50 dk (okuma 15 + uygulama 35)
 **Ön koşul:** Ders 3 (MuJoCo'nun yığındaki yeri) · **Donanım:** MacBook Pro M2, macOS · **Kod:** `code/day09/`
 
 > **Bugünün tek cümlesi:** Bugün hiçbir şey öğrenmiyoruz, sadece *çalıştırıyoruz*: izole bir Python ortamı kuracak, MuJoCo'yu yükleyecek ve bir topun masaya düştüğünü kendi makinende render edeceksin — Faz 2'nin geri kalanı bu ortamın üstüne kurulur.
@@ -11,7 +11,7 @@
 
 Robot learning kütüphaneleri birbirine sıkı bağımlı sürümler ister (numpy, robosuite, mujoco, torch). Sistem Python'una kurarsan bir projenin sürümü diğerini bozar. **Conda ortamı** = projeye özel, silinebilir bir Python kurulumu. .NET'teki çözüm bazlı NuGet restore'un kaba karşılığı; ama ortamlar makine genelinde değil, adla seçilir.
 
-![Kurulum akışı](images/2026-11-13/01-install-flow.png)
+![Kurulum akışı](images/lecture-09/01-install-flow.png)
 
 Hedef ortam: `vla`, Python **3.10**. Neden 3.10? LIBERO'nun resmi README'si 3.8 der ama OpenVLA ve VLANeXt LIBERO'yu 3.10'da kurup kullanıyor; 3.10 hem modern torch hem robosuite 1.4 ile uyumlu, Apple Silicon'da sorunsuz.
 
@@ -86,7 +86,7 @@ open first_scene.png
 
 Göreceğin şey (burada üretilen gerçek çıktı):
 
-![İlk sahne](images/2026-11-13/02-first-scene.png)
+![İlk sahne](images/lecture-09/02-first-scene.png)
 
 Dört kare: t=0 top havada (sadece gölgesi görünüyor), t=60 düşüyor, t=120 masaya değdi, t=399 durdu. Konsolda `top z: 0.46 → masaya indi` yazmalı (masa üstü 0.42 + top yarıçapı 0.04).
 
@@ -134,9 +134,71 @@ XML'de bir değer değiştir, tekrar çalıştır, farkı gör:
 
 Hata mesajının **tamamını** (ilk satırdan son satıra) chat'e yapıştır; "çalışmadı" yeterli değil.
 
+## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
+
+**1. `conda activate vla` yapmadan script çalıştırırsan?**  _(tek seçim)_
+- [ ] A) Daha hızlı çalışır
+- [ ] B) Sistem Python'u çalışır, mujoco bulunamaz
+- [ ] C) Otomatik aktive olur
+- [ ] D) MPS kapanır
+
+<details><summary>Cevap</summary>
+
+**B.** 
+
+</details>
+
+**2. `mj_step` ile `env.step` farkı?**  _(tek seçim)_
+- [ ] A) Aynı şey
+- [ ] B) mj_step tek fizik adımı; env.step kontrolcü + ~25 fizik adımı + render + success
+- [ ] C) env.step daha düşük seviye
+- [ ] D) mj_step action alır
+
+<details><summary>Cevap</summary>
+
+**B.** 
+
+</details>
+
+**3. `numpy<2` kısıtının nedeni?**  _(tek seçim)_
+- [ ] A) numpy 2 Apple Silicon'da yok
+- [ ] B) robosuite/LIBERO numpy 2'de kaldırılan np.float_ kullanır
+- [ ] C) mujoco numpy 2 ile uyumsuz
+- [ ] D) torch numpy 2 istemez
+
+<details><summary>Cevap</summary>
+
+**B.** 
+
+</details>
+
+**4. Mac'e özgü doğrular? (birden fazla)**  _(birden fazla seçim)_
+- [ ] A) Offscreen render MUJOCO_GL ayarı olmadan çalışır
+- [ ] B) Etkileşimli viewer için mjpython gerekir
+- [ ] C) CUDA kullanılır
+- [ ] D) Miniconda arm64 olmalı
+
+<details><summary>Cevap</summary>
+
+**A, B, D.** 
+
+</details>
+
+**5. MJCF'de hareket edebilen body için gerekenler? (birden fazla)**  _(birden fazla seçim)_
+- [ ] A) freejoint ya da başka bir joint
+- [ ] B) mass/kütle (geom'da)
+- [ ] C) camera
+- [ ] D) light
+
+<details><summary>Cevap</summary>
+
+**A, B.** Eklemi olmayan body statiktir.
+
+</details>
+
 ---
 
-## Yarın (Gün 10 — 14 Kasım)
+## Sonraki ders (Ders 10)
 robosuite + LIBERO kurulumu; bir LIBERO görevini açıp `reset()` / `step()` ile robotu hareket ettirme, agentview ve bilek kamerası görüntülerini kaydetme. Mac'te takılırsa Docker/Colab yedek yolu hazır.
 
 ---
@@ -156,4 +218,4 @@ robosuite + LIBERO kurulumu; bir LIBERO görevini açıp `reset()` / `step()` il
 - Miniconda: [docs.anaconda.com/miniconda](https://docs.anaconda.com/miniconda/)
 - PyTorch on Apple Silicon (MPS): [pytorch.org/docs/stable/notes/mps.html](https://pytorch.org/docs/stable/notes/mps.html)
 - VLANeXt `COMMON_ISSUES.md` (numpy 2 hatası): [github.com/DravenALG/VLANeXt](https://github.com/DravenALG/VLANeXt)
-- Kod: `code/day09/check_env.py`, `code/day09/first_scene.py` (bu repoda); görsel `images/2026-11-13/02-first-scene.png` aynı script'le üretildi.
+- Kod: `code/day09/check_env.py`, `code/day09/first_scene.py` (bu repoda); görsel `images/lecture-09/02-first-scene.png` aynı script'le üretildi.

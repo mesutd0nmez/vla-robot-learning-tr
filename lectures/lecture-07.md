@@ -1,6 +1,6 @@
 # Ders 7 — RoomSpace: Bir Mekânsal Benchmark Nasıl Tasarlanır ve LIBERO'ya Nasıl Taşınır?
 
-**Tarih:** 11 Kasım 2026 · **Faz 1 / Gün 7** · **Okuma süresi:** ~45 dk
+**Faz 1 / Gün 7** · **Okuma süresi:** ~45 dk
 **Ön koşul:** Ders 6 (CDC, RCC-8, 1-cross) · **Kaynak:** Li (2025) Bölüm 5; Li, Hogg, Cohn (IJCAI-24); danışmanın gönderdiği RoomSpace Figure 1
 
 > **Bugünün tek cümlesi:** RoomSpace, "hangi ilişki türleri, hangi bakış açısından, kaç hop'la, hangi altın etiketle" sorularını *sistematik* cevaplayan bir benchmark üretim çerçevesidir; LIBERO'daki Türkçe komut setini aynı disiplinle tasarlarsan sonuçların yorumlanabilir olur.
@@ -22,7 +22,7 @@ Dikkat: hikâye hem mutlak (NE, NW) hem göreli (front-right) ilişkileri karı�
 
 ## 2. Üretim hattı: beş adım
 
-![RoomSpace hattı](images/2026-11-11/01-roomspace-pipeline.png)
+![RoomSpace hattı](images/lecture-07/01-roomspace-pipeline.png)
 
 ### ① 3B oda
 ProcTHOR (AI2-THOR üstünde) ile prosedürel üretilmiş tek odalı sahneler: mutfak, salon, yatak odası, banyo. Her oda **kare**, dört duvar (N/S/E/W), **güney duvarında kapı** — ajanın sabit konumu. Mobilyalar (fridge, bed, sofa), duvar nesneleri (pencere, tablo), yüzey nesneleri (tezgâhtaki bardak). Set boyutları: RoomSpace-100 / 1K / 10K (iç içe).
@@ -50,7 +50,7 @@ Mekânsal problemlerin çoğunda **birden fazla geçerli cevap** vardır (fridge
 
 ## 3. Bulgular: hop arttıkça çöküş
 
-![RoomSpace sonuçları](images/2026-11-11/02-roomspace-results.png)
+![RoomSpace sonuçları](images/lecture-07/02-roomspace-results.png)
 
 - Llama-3-8B, n=3'te %50, n=6'da %4. GPT-4 genel olarak daha iyi ama aynı eğilim; GPT-3.5 n=6'da sıfır.
 - Aynı n için m artınca doğruluk artıyor: daha az hop, daha kolay — metin uzasa bile.
@@ -62,7 +62,7 @@ Sonuç, slayttaki iddianın ölçülmüş hâli: metinden mekânsal çıkarım, 
 
 ## 4. Taşıma: RoomSpace'ten LIBERO'ya
 
-![Köprü](images/2026-11-11/03-bridge.png)
+![Köprü](images/lecture-07/03-bridge.png)
 
 RoomSpace'in dört tasarım ilkesini LIBERO komut setine aktarmak:
 
@@ -113,9 +113,73 @@ Dikkat edilecekler: 3–6 bakış açısına bağlı; 8 iki referans (2 hop benz
 ## 7. Bugünün görevi (15 dk)
 Yukarıdaki 10 komutu kendi kelimelerinle yeniden yaz (eş anlamlılar: *koy / yerleştir / bırak*; *üstüne / üzerine*). Her komut için iki yüzey formu olsun. Bu, Gün 20'deki parafraz koşulunun Türkçe tarafı olacak. Ayrıca 3–6 için "robota göre" versiyonlarını not et.
 
+## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
+
+**1. RoomSpace altın etiketleri neden mantıksal çözücüyle üretir?**  _(tek seçim)_
+- [ ] A) İnsan etiketi pahalıdır
+- [ ] B) Mekânsal kısıtlar birden fazla geçerli cevaba izin verir
+- [ ] C) LLM'ler etiketleyemez
+- [ ] D) Çözücü daha hızlıdır
+
+<details><summary>Cevap</summary>
+
+**B.** Tüm tutarlı cevaplar kabul edilir.
+
+</details>
+
+**2. m = n−1 konfigürasyonu neden en zor?**  _(tek seçim)_
+- [ ] A) Metin en uzun
+- [ ] B) Zincir: her kısıt zorunlu, n−1 hop
+- [ ] C) En çok nesne
+- [ ] D) Bakış açısı değişir
+
+<details><summary>Cevap</summary>
+
+**B.** m artınca kısa yollar çıkar, hop azalır.
+
+</details>
+
+**3. LIBERO'da 'tabağın sağına koy' success predicate'i nasıl olmalı?**  _(tek seçim)_
+- [ ] A) Tek bir hedef koordinat
+- [ ] B) Bölge: x eşiğin ötesinde, y sınırlı, kâse masada
+- [ ] C) Kameradan görsel kontrol
+- [ ] D) İnsan onayı
+
+<details><summary>Cevap</summary>
+
+**B.** 'Sağına' sonsuz geçerli konum içerir.
+
+</details>
+
+**4. RoomSpace'ten LIBERO'ya taşınabilecek tasarım ilkeleri? (birden fazla)**  _(birden fazla seçim)_
+- [ ] A) İlişki türlerini sistematik tarama
+- [ ] B) Bakış açısını sabitleme ve belirtme
+- [ ] C) ProcTHOR odalarını kullanma
+- [ ] D) Zorluğu parametreyle kontrol
+- [ ] E) Bölge tabanlı success
+
+<details><summary>Cevap</summary>
+
+**A, B, D, E.** ProcTHOR odaları LLM metin benchmark'ı için; LIBERO masa üstü.
+
+</details>
+
+**5. Taslak komut setinde bakış açısına bağlı olanlar? (birden fazla)**  _(birden fazla seçim)_
+- [ ] A) tabağın sağına
+- [ ] B) sepetin içine
+- [ ] C) tabağın önüne
+- [ ] D) tabağın yanına
+- [ ] E) tabağın arkasına
+
+<details><summary>Cevap</summary>
+
+**A, C, E.** 
+
+</details>
+
 ---
 
-## Yarın (Gün 8 — 12 Kasım)
+## Sonraki ders (Ders 8)
 Haftalık sentez ve VLA model aileleri haritası: awesome-vla-wam'ın kategorileri (VLA / WAM / Policy / LAM / HAP), VLANeXt ailesi (Qwen3-VL omurgası — Türkçe için neden önemli), π0, OpenVLA-OFT. Sonra Faz 2'ye geçiş: Mac'te kurulum planı.
 
 ---
@@ -135,4 +199,4 @@ Haftalık sentez ve VLA model aileleri haritası: awesome-vla-wam'ın kategorile
 - Li, Hogg, Cohn (2024). *Reframing Spatial Reasoning Evaluation in Language Models: A Real-World Simulation Benchmark for Qualitative Reasoning.* IJCAI-24. [arXiv:2405.15064](https://arxiv.org/abs/2405.15064)
 - Deitke et al. (2022). *ProcTHOR: Large-Scale Embodied AI Using Procedural Generation.* [arXiv:2206.06994](https://arxiv.org/abs/2206.06994)
 - Liu et al. (2023). LIBERO — BDDL görev tanımları. [arXiv:2306.03310](https://arxiv.org/abs/2306.03310)
-- Görseller: bu repo için üretildi (`images/2026-11-11/`); sonuç grafiği tezin Tablo 5.6 değerleriyle çizilmiştir.
+- Görseller: bu repo için üretildi (`images/lecture-07/`); sonuç grafiği tezin Tablo 5.6 değerleriyle çizilmiştir.

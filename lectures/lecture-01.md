@@ -1,6 +1,6 @@
 # Ders 1 — Robot Learning Döngüsü ve Kaynak Haritası
 
-**Tarih:** 5 Kasım 2026 · **Faz 1 / Gün 1** · **Okuma süresi:** ~35 dk
+**Faz 1 / Gün 1** · **Okuma süresi:** ~35 dk
 **Ön koşul:** yok · **Tamamlayıcı okuma:** `resources/robot-learning-vla-intro-tr.md` §1–9
 
 > **Bugünün tek cümlesi:** Robot learning, *gözlemden eyleme* giden bir fonksiyonu (policy) veriden öğrenmektir; VLA bu fonksiyonun görüntü **ve** dil alan modern bir biçimidir.
@@ -19,7 +19,7 @@ Bu alanın senin için önemli olan yanı: neredeyse tüm bu modeller **İngiliz
 
 Her şey şu döngüye indirgenir:
 
-![Robot learning döngüsü](images/2026-11-05/01-loop.png)
+![Robot learning döngüsü](images/lecture-01/01-loop.png)
 
 | Parça | Ne? | Örnek |
 |---|---|---|
@@ -39,7 +39,7 @@ Manipülasyon literatüründe en yaygın action uzayı **7 serbestlik derecesi (
 
 Temsili bir episode'un action dizisi şöyle görünür:
 
-![Örnek action dizisi](images/2026-11-05/06-action-trajectory.png)
+![Örnek action dizisi](images/lecture-01/06-action-trajectory.png)
 
 *Sentetik, anlatım amaçlı grafik. Gün 11'de LIBERO'nun gerçek demo dosyasından aynı grafiği kendin çizeceksin.*
 
@@ -51,7 +51,7 @@ Dikkat edilecek nokta: gripper boyutu **ikili** (0/1). Tatar vd. makalesinin en 
 
 Yazılımcı sezgisiyle bakınca robot learning "biraz daha karmaşık bir sınıflandırma" gibi görünebilir. Değil. Fark yapısal:
 
-![Sınıflandırma vs robot learning](images/2026-11-05/02-classification-vs-robot.png)
+![Sınıflandırma vs robot learning](images/lecture-01/02-classification-vs-robot.png)
 
 | | Görüntü sınıflandırma | Robot learning |
 |---|---|---|
@@ -67,7 +67,7 @@ Son satır tezinin kalbi: başarı oranı tek başına "model dili anladı" deme
 
 ## 4. Alanın hiyerarşisi: VLA nerede duruyor?
 
-![Hiyerarşi](images/2026-11-05/03-hierarchy.png)
+![Hiyerarşi](images/lecture-01/03-hierarchy.png)
 
 - **Embodied AI**: bir ajanın fiziksel ya da simüle bir dünyada algılayıp hareket ederek görev çözmesi. Navigasyon, manipülasyon, insansı robotlar…
 - **Robot learning**: bu davranışı elle kodlamak yerine veriden öğrenmek.
@@ -82,7 +82,7 @@ Son satır tezinin kalbi: başarı oranı tek başına "model dili anladı" deme
 
 ## 5. Robot nasıl öğrenir? İki paradigma
 
-![Öğrenme paradigmaları](images/2026-11-05/04-learning-paradigms.png)
+![Öğrenme paradigmaları](images/lecture-01/04-learning-paradigms.png)
 
 ### 5.1 Imitation learning ve behavior cloning
 Bir insan görevi gösterir (genellikle **teleoperasyon**: joystick, VR kumanda ya da ALOHA gibi "lider-takipçi" kol düzeneğiyle). Her zaman adımında `(observation, action)` çifti kaydedilir. Sonra model bunu düpedüz **supervised learning** gibi öğrenir:
@@ -108,7 +108,7 @@ Veri toplamanın üçüncü yolu simülasyon: robot kırılmaz, binlerce episode
 
 Gönderilen dokuz kaynağı tek tek değil, üç çizgi olarak oku:
 
-![Kaynak haritası](images/2026-11-05/05-source-map.png)
+![Kaynak haritası](images/lecture-01/05-source-map.png)
 
 ### Çizgi 1 — Araç seti
 | Kaynak | Ne? | Bu planda nerede? |
@@ -154,9 +154,71 @@ Türkçe'de mekânsal ilişkiler ek sistemiyle taşınır: *tabağ-**ın** üst-
 
 "Kendini sına" sorularını önce cevaplara bakmadan kendi cümlelerinle cevapla, sonra karşılaştır. Takıldığın ya da katılmadığın yeri chat'e yaz; yarının dersine not düşülür.
 
+## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
+
+**1. Robot learning döngüsünde 'policy' nedir?**  _(tek seçim)_
+- [ ] A) Robotun fiziksel sensörleri
+- [ ] B) Gözleme bakıp action seçen fonksiyon
+- [ ] C) Dünyayı simüle eden fizik motoru
+- [ ] D) Başarı oranını hesaplayan metrik
+
+<details><summary>Cevap</summary>
+
+**B.** Policy, observation → action eşlemesini yapan fonksiyondur; öğrenilen model burada yaşar.
+
+</details>
+
+**2. Görüntü sınıflandırmadan robot learning'i yapısal olarak ayıran şey hangisi?**  _(tek seçim)_
+- [ ] A) Daha büyük model gerekir
+- [ ] B) Çıktı dünyayı değiştirir ve bir sonraki girdiyi belirler (kapalı döngü)
+- [ ] C) Görüntü çözünürlüğü daha yüksektir
+- [ ] D) Etiket sayısı daha fazladır
+
+<details><summary>Cevap</summary>
+
+**B.** Action dünyayı değiştirir, yeni gözlem üretir; hatalar birikir (compounding error).
+
+</details>
+
+**3. Manipülasyonda imitation learning'in RL'den daha yaygın olmasının temel nedeni?**  _(tek seçim)_
+- [ ] A) RL teorik olarak çalışmaz
+- [ ] B) Gerçek robotta deneme-yanılma pahalı ve tehlikelidir
+- [ ] C) İnsan demosu toplamak imkânsızdır
+- [ ] D) RL dil girdisi alamaz
+
+<details><summary>Cevap</summary>
+
+**B.** RL binlerce deneme ister; gerçek robotta bu yavaş, pahalı ve riskli. BC insan demosundan supervised öğrenir.
+
+</details>
+
+**4. Observation içinde hangileri olabilir? (birden fazla)**  _(birden fazla seçim)_
+- [ ] A) RGB kamera görüntüsü
+- [ ] B) Eklem açıları
+- [ ] C) Dil komutu
+- [ ] D) Success rate
+
+<details><summary>Cevap</summary>
+
+**A, B, C.** Success rate bir değerlendirme metriğidir, gözlem değil.
+
+</details>
+
+**5. Tatar vd. makalesi hakkında doğru olanlar? (birden fazla)**  _(birden fazla seçim)_
+- [ ] A) OpenVLA-7B'ye aynı komutlar EN ve TR verildi
+- [ ] B) Kapalı döngü success rate ölçüldü
+- [ ] C) Tek bir sabit sentetik görüntü kullanıldı
+- [ ] D) Tokenizer 'Kaldır'ı 'Kal'+'dır' diye böldü
+
+<details><summary>Cevap</summary>
+
+**A, C, D.** Success rate ölçülmedi; action-vektör farkı (L2, cosine) ölçüldü.
+
+</details>
+
 ---
 
-## Yarın (Gün 2 — 6 Kasım)
+## Sonraki ders (Ders 2)
 OpenVLA'nın içini açacağız: SigLIP + DINOv2 görsel kodlayıcıları, projector, LLaMA-2 7B omurgası ve action'ın nasıl 256 "kutuya" bölünüp token olarak üretildiği. Tatar vd.'nin "Kal + dır" bulgusu tam bu mekanizmanın içinde yaşıyor.
 
 ---
@@ -177,5 +239,5 @@ OpenVLA'nın içini açacağız: SigLIP + DINOv2 görsel kodlayıcıları, proje
 - Liu et al. (2023). *LIBERO: Benchmarking Knowledge Transfer for Lifelong Robot Learning.* [arXiv:2306.03310](https://arxiv.org/abs/2306.03310)
 - Tatar, Gökmen, Akkoyun, Kahraman (2026). *Cross-Lingual Performance Analysis of VLA Models: Evaluating Turkish Command Understanding in OpenVLA.* SIU 2026, IEEE.
 - Li, F. (2025). *Benchmarking and Enhancing Spatial Reasoning in LLMs.* PhD tezi, University of Leeds.
-- Görseller: bu repo için üretildi (`images/2026-11-05/`, Mermaid kaynakları yanında).
+- Görseller: bu repo için üretildi (`images/lecture-01/`, Mermaid kaynakları yanında).
 

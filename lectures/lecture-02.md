@@ -1,6 +1,6 @@
 # Ders 2 — OpenVLA'nın İçi: Görüntü + Dil Nasıl Action Olur?
 
-**Tarih:** 6 Kasım 2026 · **Faz 1 / Gün 2** · **Okuma süresi:** ~40 dk
+**Faz 1 / Gün 2** · **Okuma süresi:** ~40 dk
 **Ön koşul:** Ders 1 (policy, observation, action, 7-DoF) · **Tamamlayıcı okuma:** `resources/robot-learning-vla-intro-tr.md` §10–14
 
 > **Bugünün tek cümlesi:** OpenVLA, bir görüntü-dil modelinin (VLM) "cevap" olarak metin yerine **action token'ları** üretmesi için robot verisiyle fine-tune edilmiş hâlidir; action'lar 256 kutuya bölünüp dil modelinin kelime dağarcığındaki token'lara eşlenir.
@@ -11,7 +11,7 @@
 
 Bir VLM (Vision-Language Model) görüntü ve soru alır, metin üretir: *"Masada kırmızı bir bardak var."* VLA aynı ağı alır, çıktıyı değiştirir: metin yerine **robot action**. Mimari neredeyse aynı; değişen şey eğitim verisi ve çıktının ne anlama geldiği.
 
-![VLM vs VLA](images/2026-11-06/02-vlm-vs-vla.png)
+![VLM vs VLA](images/lecture-02/02-vlm-vs-vla.png)
 
 OpenVLA'nın başlangıç noktası **Prismatic-7B** adlı açık VLM'dir. Bu VLM, Open X-Embodiment veri setindeki ~970 bin robot episode'u (22 farklı robot gövdesi) ile behavior cloning yöntemiyle fine-tune edilmiş ve OpenVLA ortaya çıkmıştır. Eğitim: 64 A100 GPU, ~14 gün. Sen bu modeli eğitmeyeceksin; hazır ağırlıkları indirip kullanacaksın (Hugging Face: `openvla/openvla-7b`).
 
@@ -19,7 +19,7 @@ OpenVLA'nın başlangıç noktası **Prismatic-7B** adlı açık VLM'dir. Bu VLM
 
 ## 2. Mimari: dört parça
 
-![OpenVLA mimarisi](images/2026-11-06/01-openvla-arch.png)
+![OpenVLA mimarisi](images/lecture-02/01-openvla-arch.png)
 
 ### 2.1 Görsel kodlayıcı: SigLIP + DINOv2
 OpenVLA tek değil **iki** görsel kodlayıcı kullanır ve çıktılarını kanal boyunca birleştirir:
@@ -56,7 +56,7 @@ Model, cevap olarak **sırayla 7 token** üretir (autoregressive: her token bir 
 
 Dil modeli yalnızca ayrık token üretir; robot action'ı ise sürekli bir sayıdır (Δx = 0.0137 m). Köprü şöyle kurulur:
 
-![Action binning](images/2026-11-06/04-action-binning.png)
+![Action binning](images/lecture-02/04-action-binning.png)
 
 1. **Aralığı belirle.** Her action boyutu için eğitim verisindeki 1. ve 99. yüzdelik değerleri alınır (uç değerler aralığı şişirmesin diye min/max değil).
 2. **256 eşit kutuya böl.** Aralık 256 parçaya ayrılır; sürekli değer düştüğü kutunun numarasına (0–255) dönüşür.
@@ -84,7 +84,7 @@ Sana gereken: bu LIBERO fine-tune'lu checkpoint'ler (`openvla/openvla-7b-finetun
 
 2025'te aynı grup (Kim, Finn, Liang) "Optimized Fine-Tuning" (OFT) tarifini yayınladı. Mimarinin omurgası aynı; değişen şey **action'ın nasıl üretildiği ve nasıl öğrenildiği**:
 
-![OpenVLA vs OFT](images/2026-11-06/03-oft.png)
+![OpenVLA vs OFT](images/lecture-02/03-oft.png)
 
 | Bileşen | OpenVLA | OpenVLA-OFT |
 |---|---|---|
@@ -120,9 +120,72 @@ Yani OFT, Bölüm 3'te saydığımız dört sorunun (çözünürlük, hız, grip
 ## 8. Bugünün görevi (15 dk)
 Soruları cevaplamadan önce kâğıda OpenVLA pipeline'ını **görsele bakmadan** çiz: görüntüden action'a kadar kutuları ve okları. Sonra görselle karşılaştır; eksik kutuyu chat'e yaz.
 
+## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
+
+**1. OpenVLA'nın action token'ları LLaMA-2 dağarcığına nasıl eklenir?**  _(tek seçim)_
+- [ ] A) Yeni 256 token eklenir
+- [ ] B) En az kullanılan son 256 token'ın üzerine yazılır
+- [ ] C) Her action boyutu için ayrı bir çıkış katmanı eklenir
+- [ ] D) Action'lar metin olarak yazdırılır
+
+<details><summary>Cevap</summary>
+
+**B.** Çıkış katmanı değişmesin diye var olan nadir token'lar 'işgal edilir'.
+
+</details>
+
+**2. OpenVLA neden iki görsel kodlayıcı (SigLIP + DINOv2) kullanır?**  _(tek seçim)_
+- [ ] A) Hız için
+- [ ] B) SigLIP anlam, DINOv2 geometri/mekân taşır; manipülasyon ikisini ister
+- [ ] C) Tek kodlayıcı 224×224'ü işleyemez
+- [ ] D) LLaMA-2 iki girdi bekler
+
+<details><summary>Cevap</summary>
+
+**B.** Prismatic çalışması iki kodlayıcının birleşiminin tek kodlayıcıdan iyi olduğunu göstermiştir.
+
+</details>
+
+**3. Cross-entropy ile eğitilen OpenVLA'da kutu 130 yerine 131 üretmek ile 250 üretmek arasındaki ceza farkı?**  _(tek seçim)_
+- [ ] A) 131 çok daha az cezalandırılır
+- [ ] B) Aynı ceza
+- [ ] C) 250 daha az cezalandırılır
+- [ ] D) Gripper boyutu hariç aynı
+
+<details><summary>Cevap</summary>
+
+**B.** CE yalnızca doğru sınıf/yanlış sınıf bakar; sayısal yakınlığı bilmez. OFT'nin L1'e geçme nedeni.
+
+</details>
+
+**4. OpenVLA-OFT'nin OpenVLA'dan farkları? (birden fazla)**  _(birden fazla seçim)_
+- [ ] A) Parallel decoding
+- [ ] B) Sürekli action gösterimi
+- [ ] C) Yeni görsel kodlayıcı
+- [ ] D) Action chunking (8 adım)
+- [ ] E) L1 regresyon loss
+
+<details><summary>Cevap</summary>
+
+**A, B, D, E.** Omurga ve görsel kodlayıcı aynıdır; değişen action üretimi ve loss.
+
+</details>
+
+**5. Türkçe komutun çıkarım süresini anlamlı değiştirmemesini açıklayanlar? (birden fazla)**  _(birden fazla seçim)_
+- [ ] A) Görsel kodlayıcıların sabit maliyeti süreyi domine eder
+- [ ] B) 256 görsel token komut token'larından çok daha fazladır
+- [ ] C) Türkçe daha az token üretir
+- [ ] D) Model Türkçe için özel hızlı yol kullanır
+
+<details><summary>Cevap</summary>
+
+**A, B.** Türkçe %30 daha çok token üretir ama bu 256 görsel token ve kodlayıcı maliyeti yanında küçük kalır.
+
+</details>
+
 ---
 
-## Yarın (Gün 3 — 7 Kasım)
+## Sonraki ders (Ders 3)
 Benchmark ≠ simülatör. LIBERO'nun dört suite'i (Spatial, Object, Goal, Long/10) neyi ölçer, MuJoCo ve robosuite altta nasıl çalışır, LIBERO-Plus neyi ekler. Faz 2'de kuracağın ortamın haritası.
 
 ---
@@ -144,4 +207,4 @@ Benchmark ≠ simülatör. LIBERO'nun dört suite'i (Spatial, Object, Goal, Long
 - Brohan et al. (2023). *RT-2.* [arXiv:2307.15818](https://arxiv.org/abs/2307.15818) — action-as-token fikrinin kaynağı
 - Hu et al. (2021). *LoRA: Low-Rank Adaptation of Large Language Models.* [arXiv:2106.09685](https://arxiv.org/abs/2106.09685)
 - Tatar vd. (2026). SIU 2026 — Türkçe komut deneyi, §III.A model ve eylem uzayı
-- Görseller: bu repo için üretildi (`images/2026-11-06/`); binning grafiği temsili veriyle çizilmiştir.
+- Görseller: bu repo için üretildi (`images/lecture-02/`); binning grafiği temsili veriyle çizilmiştir.

@@ -1,6 +1,6 @@
 # Ders 6 — Mekânsal Akıl Yürütmenin Temelleri: "Dil Dünyanın Sıkıştırmasıdır"
 
-**Tarih:** 10 Kasım 2026 · **Faz 1 / Gün 6** · **Okuma süresi:** ~45 dk
+**Faz 1 / Gün 6** · **Okuma süresi:** ~45 dk
 **Ön koşul:** Ders 4 (grounding) · **Kaynak:** Li, F. (2025), *Benchmarking and Enhancing Spatial Reasoning in LLMs*, PhD tezi, Leeds — Bölüm 1, 2.2, 2.3, 3.2; Cohn'un slaytı
 
 > **Bugünün tek cümlesi:** "Tabağın solunda" gibi bir ifade, sürekli 3B dünyanın birkaç bit'e sıkıştırılmış hâlidir; bu sıkıştırmanın kuralları (niteliksel mekânsal kalkülüsler) 30 yıldır biliniyor ve LLM'lerin bu kuralları ne kadar takip edebildiği ölçülebiliyor — VLA'da ise sıkıştırmayı tersine açıp action'a dönüştürmek gerekiyor.
@@ -11,7 +11,7 @@
 
 Cohn'un Milano'daki konuşmasından alıntıladığı bu cümle (Pat Grady, Sequoia) tezinin motivasyonunu tek satırda verir:
 
-![Sıkıştırma](images/2026-11-10/04-compression.png)
+![Sıkıştırma](images/lecture-06/04-compression.png)
 
 - Dünya sürekli ve metriktir: kâse (0.42, 0.17, 0.03)'te, tabak (0.51, 0.18, 0.02)'de, aralarında 9 cm var.
 - Dil bunu "kâse tabağın solunda" diye sıkıştırır. Mesafe, yükseklik, boyut atılmıştır; "sol" ise *kime göre* olduğunu söylemez.
@@ -28,7 +28,7 @@ Yapay zekâ topluluğu 1990'lardan beri "insanların mekânı nasıl kaba ama ku
 
 ### 2.1 Yön — Cardinal Direction Calculus (CDC)
 
-![CDC](images/2026-11-10/01-cdc.png)
+![CDC](images/lecture-06/01-cdc.png)
 
 Referans noktası b etrafında düzlem 9 bölgeye ayrılır: N, NE, E, SE, S, SW, W, NW ve EQ (aynı yer). İki yöntem:
 - **Projection-based:** x ve z farklarına bakılır (Δx<0 → batı, Δz<0 → güney). Ortada bir "B" kutusu vardır.
@@ -38,13 +38,13 @@ Referans noktası b etrafında düzlem 9 bölgeye ayrılır: N, NE, E, SE, S, SW
 
 ### 2.2 Topoloji — RCC-8
 
-![RCC-8](images/2026-11-10/02-rcc8.png)
+![RCC-8](images/lecture-06/02-rcc8.png)
 
 Nokta değil **bölge** tabanlıdır; iki bölgenin iç, sınır ve dışının nasıl kesiştiğine bakar. 8 ilişki: DC (ayrık), EC (dıştan temas), PO (kısmen örtüşme), EQ (eşit), TPP/NTPP (teğet / teğet olmayan iç parça) ve tersleri. Manipülasyon için en önemlisi EC ve NTPP: "bardak **tabağın üstünde**" (EC: temas), "elma **kâsenin içinde**" (NTPP: iç parça). Türkçe: *üst-ü-nde* vs *iç-i-nde* — tek ek farkı, topolojik olarak bambaşka iki ilişki.
 
 ### 2.3 Göreli yön — 1-cross ve TPCC
 
-![Göreli yön](images/2026-11-10/03-relative.png)
+![Göreli yön](images/lecture-06/03-relative.png)
 
 "Sağ / sol / ön / arka" **üçlü** ilişkidir: gözlemci A, referans B, hedef C. A kapıda kuzeye bakıyorsa yatak sandalyenin "ön-sağında"dır; A güneye baksa "arka-solunda" olur. **1-cross** dört bölgeyi, **TPCC** daha ince ayrımları (düz-sağ, sağ-ön vs ön-sağ) ve mesafeyi (yakın/uzak) ekler.
 
@@ -104,9 +104,72 @@ Son satır önemli: LIBERO'da "tabağın sağına koydu mu" sorusunun cevabı si
 ## 7. Bugünün görevi (15 dk)
 Aşağıdaki Türkçe ekleri bir tabloya koy ve her birini CDC / RCC-8 / 1-cross / mesafe eksenlerinden birine yerleştir: *-ın üstüne, -ın içine, -ın yanına, -ın sağına, -ın soluna, -ın önüne, -ın arkasına, -ın arasına, -a doğru, -dan uzağa*. Hangileri bakış açısına bağlı? (Yarın bu tablodan komut üreteceğiz.)
 
+## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
+
+**1. 'Bardağı tabağın üstüne koy' RCC-8'de hangi ilişki?**  _(tek seçim)_
+- [ ] A) DC (ayrık)
+- [ ] B) EC (dıştan temas)
+- [ ] C) NTPP (iç parça)
+- [ ] D) EQ
+
+<details><summary>Cevap</summary>
+
+**B.** Temas var, içerme yok.
+
+</details>
+
+**2. 'Sağ/sol' neden üçlü ilişkidir?**  _(tek seçim)_
+- [ ] A) Üç nesne gerekir
+- [ ] B) Gözlemci (bakış yönü), referans ve hedef gerekir
+- [ ] C) Üç boyutludur
+- [ ] D) Üç kalkülüs kullanılır
+
+<details><summary>Cevap</summary>
+
+**B.** 1-cross: A'ya göre C'nin B ile ilişkisi.
+
+</details>
+
+**3. Li'nin StepGame'de ~%100'e ulaşma yöntemi?**  _(tek seçim)_
+- [ ] A) Daha büyük LLM
+- [ ] B) LLM'i parser olarak kullanıp çıkarımı ASP çözücüye bırakmak
+- [ ] C) Daha çok fine-tune
+- [ ] D) Görüntü eklemek
+
+<details><summary>Cevap</summary>
+
+**B.** Neuro-symbolic: dil → mantık → deterministik çözüm.
+
+</details>
+
+**4. Bakış açısına bağlı Türkçe ekler? (birden fazla)**  _(birden fazla seçim)_
+- [ ] A) -ın sağına
+- [ ] B) -ın üstüne
+- [ ] C) -ın önüne
+- [ ] D) -ın içine
+- [ ] E) -ın arkasına
+
+<details><summary>Cevap</summary>
+
+**A, C, E.** Üstüne/içine topolojik, gözlemciden bağımsız.
+
+</details>
+
+**5. Projection-based ve cone-based CDC hakkında doğrular? (birden fazla)**  _(birden fazla seçim)_
+- [ ] A) Aynı nokta çifti için farklı sonuç verebilirler
+- [ ] B) Her ikisi de 9/8 yön bölgesi tanımlar
+- [ ] C) Cone-based açıya (atan2) dayanır
+- [ ] D) Her benchmark otomatik olarak cone-based kullanır
+
+<details><summary>Cevap</summary>
+
+**A, B, C.** Benchmark hangisini kullandığını belirtmek zorundadır.
+
+</details>
+
 ---
 
-## Yarın (Gün 7 — 11 Kasım)
+## Sonraki ders (Ders 7)
 RoomSpace benchmark'ının tasarımı (ProcTHOR odalar, CSP tabanlı hikâye üretimi, bakış açısı, mantıksal altın etiket) ve bu tasarımın LIBERO'ya nasıl taşınacağı: Türkçe mekânsal komut seti için ilk 10 aday.
 
 ---
@@ -128,4 +191,4 @@ RoomSpace benchmark'ının tasarımı (ProcTHOR odalar, CSP tabanlı hikâye ür
 - Frank (1991/1996). Cardinal direction calculus; Freksa (1992). *Using Orientation Information for Qualitative Spatial Reasoning* (1-cross / double-cross).
 - Shi, Zhang, Lipani (2022). *StepGame.* AAAI-22. [arXiv:2204.08292](https://arxiv.org/abs/2204.08292)
 - Cohn, A. G. — Milano konuşması slaydı (Pat Grady alıntısı), 2026.
-- Görseller: bu repo için üretildi (`images/2026-11-10/`).
+- Görseller: bu repo için üretildi (`images/lecture-06/`).

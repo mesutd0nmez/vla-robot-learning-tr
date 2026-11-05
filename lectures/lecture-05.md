@@ -1,6 +1,6 @@
 # Ders 5 — Makale Derin Okuma: Tatar vd. (2026), OpenVLA'da Türkçe Komut Anlayışı
 
-**Tarih:** 9 Kasım 2026 · **Faz 1 / Gün 5** · **Okuma süresi:** ~45 dk
+**Faz 1 / Gün 5** · **Okuma süresi:** ~45 dk
 **Ön koşul:** Ders 2 (action tokenizasyonu), Ders 4 (ablation mantığı) · **Kaynak:** Tatar, Gökmen, Akkoyun, Kahraman, *Görüntü-Dil-Aksiyon Modellerinin Çapraz Dil Performans Analizi: OpenVLA'da Türkçe Komut Anlayışının Değerlendirilmesi*, SIU 2026, IEEE (4 sayfa)
 
 > **Bugünün tek cümlesi:** Bu makale Türkçe + VLA sorusunu ilk kez soran ve doğru yerden (tokenizer) yakalayan değerli bir öncü; ama tek görüntü, action-vektör metriği ve success ölçümünün yokluğu onu bir *gözlem* seviyesinde bırakıyor — tezin, bu üç boşluğu kapatarak başlar.
@@ -24,7 +24,7 @@ Mimariden değil on sorudan başla. Bu makale için cevaplar:
 | **Generalization claim** | "Mevcut VLA'lar çok dilli action üretiminde köklü bir eksiklik taşıyor" |
 | **Ablation** | Komut karmaşıklığı (3 seviye) ve görev kategorisi (3 tür) karşılaştırması; dil ablation'ı (boş komut) **yok** |
 
-![Deney akışı](images/2026-11-09/01-tatar-pipeline.png)
+![Deney akışı](images/lecture-05/01-tatar-pipeline.png)
 
 ---
 
@@ -41,7 +41,7 @@ Her görev 3 kez, sıcaklık 0.3 ile tekrarlanıyor: 50 × 2 × 3 = 300 çıkar�
 
 ### 2.2 Bulgular
 
-![Kategori sonuçları](images/2026-11-09/02-category-results.png)
+![Kategori sonuçları](images/lecture-05/02-category-results.png)
 
 | Bulgu | Sayı | Yorum |
 |---|---|---|
@@ -52,13 +52,13 @@ Her görev 3 kez, sıcaklık 0.3 ile tekrarlanıyor: 50 × 2 × 3 = 300 çıkar�
 | Karmaşıklık | basit 0.551, orta 0.462, karmaşık 0.482 | ρ=0.002 — **ilişki yok** |
 | Token | TR 28.7 vs EN 21.9 (+%30.8) | gecikme 808 vs 810 ms — fark yok |
 
-![Karmaşıklık](images/2026-11-09/03-complexity.png)
+![Karmaşıklık](images/lecture-05/03-complexity.png)
 
 ### 2.3 Makalenin en güçlü iki gözlemi
 
 **Gripper etkisi.** L2 > 0.99 olan 14 görevin tamamında gripper boyutu farklı. Gripper 0/1 olduğu için tek uyumsuzluk L2'yi 1.0'a taşır. Yani ortalama 0.50'lik hata "her boyutta biraz sapma" değil, "bazı görevlerde gripper tamamen ters" demek. Pratikte: "kutuyu kaldır" dendiğinde gripper kapanmıyor → nesne düşüyor.
 
-![Gripper etkisi](images/2026-11-09/04-gripper-effect.png)
+![Gripper etkisi](images/lecture-05/04-gripper-effect.png)
 
 **Tokenizasyon.** LLaMA-2 BPE tokenizer'ı "Kaldır"ı `Kal` + `dır` diye bölüyor; `Kal` Türkçede "bekle" demek. Model yalnızca zayıf bir ipucu değil, *yanlış* bir ipucu alıyor. Karmaşıklıkla hatanın ilişkisiz çıkması da buna bağlanıyor: sorun cümlenin uzunluğu değil, tek tek kelimelerin yanlış parçalanması — "küpü kaldır" da uzun bir komut kadar bozuluyor.
 
@@ -113,9 +113,72 @@ Tez metninde bu makale şöyle konumlanır: "Tatar vd. (2026), OpenVLA-7B'nin T�
 ## 7. Bugünün görevi (15 dk)
 Makalenin 50 komutundan en az 5'ini (örnekler metinde: "Kırmızı küpü kaldır", "Bardağı tabağa koy", "En yakın nesneyi al ve ortaya yerleştir") LIBERO-Spatial görevlerine benzer biçimde yeniden yaz: her biri için EN ve TR versiyonu, ve TR'de hangi *ekin* mekânsal ilişkiyi taşıdığını işaretle (ör. tabağ-**a**, tabağ-**ın üstü-ne**).
 
+## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
+
+**1. Tatar vd. deneyinde 'environment' neydi?**  _(tek seçim)_
+- [ ] A) LIBERO simülasyonu
+- [ ] B) Gerçek WidowX robotu
+- [ ] C) Tek bir sabit sentetik görüntü
+- [ ] D) BridgeData V2 videoları
+
+<details><summary>Cevap</summary>
+
+**C.** Robot ve env.step yok; yalnızca inference.
+
+</details>
+
+**2. L2 > 0.99 olan 14 görevin ortak noktası?**  _(tek seçim)_
+- [ ] A) Hepsi uzun komut
+- [ ] B) Hepsinde gripper boyutu farklı
+- [ ] C) Hepsi itme kategorisi
+- [ ] D) Hepsi makine çevirisi
+
+<details><summary>Cevap</summary>
+
+**B.** Gripper 0/1 olduğu için tek uyumsuzluk L2'yi 1.0'a taşır.
+
+</details>
+
+**3. Makalede olmayan ve 0.50'lik L2'nin ne kadarının gürültü olduğunu gösterecek kontrol?**  _(tek seçim)_
+- [ ] A) Daha fazla Türkçe komut
+- [ ] B) EN–EN tekrar kontrolü (aynı komut iki kez)
+- [ ] C) Daha yüksek sıcaklık
+- [ ] D) Daha büyük görüntü
+
+<details><summary>Cevap</summary>
+
+**B.** Sıcaklık 0.3 ile örnekleme gürültüsü var; EN–EN farkı taban çizgisidir.
+
+</details>
+
+**4. Makalenin güçlü yönleri? (birden fazla)**  _(birden fazla seçim)_
+- [ ] A) Türkçe+VLA sorusunu ilk soran
+- [ ] B) Tokenizer teşhisi
+- [ ] C) Kapalı döngü success ölçümü
+- [ ] D) Etki büyüklüğü ve parametrik olmayan test
+
+<details><summary>Cevap</summary>
+
+**A, B, D.** Success ölçülmedi.
+
+</details>
+
+**5. Tezin bu makaleden ayrıştığı noktalar? (birden fazla)**  _(birden fazla seçim)_
+- [ ] A) Success rate ölçmek
+- [ ] B) Boş-komut tabanı
+- [ ] C) Tek görüntü yerine LIBERO sahneleri
+- [ ] D) OpenVLA ve VLANeXt'i karşılaştırmak
+- [ ] E) Türkçe yerine Almanca
+
+<details><summary>Cevap</summary>
+
+**A, B, C, D.** 
+
+</details>
+
 ---
 
-## Yarın (Gün 6 — 10 Kasım)
+## Sonraki ders (Ders 6)
 Mekânsal akıl yürütmenin temelleri: niteliksel mekânsal ilişkiler (yön, mesafe, topoloji; CDC, RCC-8, 1-cross), StepGame, ve Cohn'un "dil dünyanın sıkıştırmasıdır" cümlesinin anlamı. Li'nin tezi Bölüm 1–2.
 
 ---
@@ -136,4 +199,4 @@ Mekânsal akıl yürütmenin temelleri: niteliksel mekânsal ilişkiler (yön, m
 - Walke et al. (2023). *BridgeData V2.* [arXiv:2308.12952](https://arxiv.org/abs/2308.12952)
 - Rust et al. (2021). *How Good is Your Tokenizer? On the Monolingual Performance of Multilingual Language Models.* ACL. [arXiv:2012.15613](https://arxiv.org/abs/2012.15613)
 - Dettmers et al. (2023). *QLoRA* (NF4 kuantizasyon). [arXiv:2305.14314](https://arxiv.org/abs/2305.14314)
-- Görseller: bu repo için üretildi (`images/2026-11-09/`); kategori ve karmaşıklık grafikleri makalenin Tablo I–II değerleriyle, gripper grafiği temsili değerlerle çizilmiştir.
+- Görseller: bu repo için üretildi (`images/lecture-05/`); kategori ve karmaşıklık grafikleri makalenin Tablo I–II değerleriyle, gripper grafiği temsili değerlerle çizilmiştir.

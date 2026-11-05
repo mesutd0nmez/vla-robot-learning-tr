@@ -1,6 +1,6 @@
 # Ders 3 — Benchmark ≠ Simülatör: LIBERO, MuJoCo ve LIBERO-Plus
 
-**Tarih:** 7 Kasım 2026 · **Faz 1 / Gün 3** · **Okuma süresi:** ~40 dk
+**Faz 1 / Gün 3** · **Okuma süresi:** ~40 dk
 **Ön koşul:** Ders 1–2 · **Tamamlayıcı okuma:** `resources/robot-learning-vla-intro-tr.md` §15–17, §22–24
 
 > **Bugünün tek cümlesi:** Simülatör *fiziği* taklit eder, benchmark *sınavı* tanımlar; LIBERO bir sınavdır, MuJoCo o sınavın yapıldığı salondur — ve LIBERO-Plus, sınavın fazla kolay olduğunu gösteren yeni soru setidir.
@@ -11,7 +11,7 @@
 
 Bir VLA'yı simülasyonda çalıştırdığında aslında dört katmanlı bir yığın çalışır. Faz 2'de her birini ayrı ayrı kuracaksın; hangi hatanın hangi katmandan geldiğini bilmek saatler kazandırır.
 
-![Yazılım yığını](images/2026-11-07/01-stack.png)
+![Yazılım yığını](images/lecture-03/01-stack.png)
 
 | Katman | Rolü | Sen ne yaparsın? |
 |---|---|---|
@@ -43,7 +43,7 @@ Her görev için **50 insan demosu**, 3D fare (SpaceMouse) ile teleoperasyon. He
 ### 2.3 Dört suite
 VLA makalelerinde kullanılan dört suite, her biri 10 görev, her biri *farklı bir genelleme türünü* yalıtır:
 
-![LIBERO suite'leri](images/2026-11-07/02-suites.png)
+![LIBERO suite'leri](images/lecture-03/02-suites.png)
 
 | Suite | Sabit | Değişen | Ölçtüğü şey |
 |---|---|---|---|
@@ -65,7 +65,7 @@ Pratik sonuç: 2000 episode, OpenVLA ile T4'te saatler sürer. Gün 13'te 2–3 
 
 ## 3. Sınav doydu: herkes %95+
 
-![LIBERO liderlik tablosu](images/2026-11-07/04-libero-leaderboard.png)
+![LIBERO liderlik tablosu](images/lecture-03/04-libero-leaderboard.png)
 
 2024 ortasında OpenVLA %76.5 ile "güçlü" sayılıyordu; 2025 sonunda OFT %97.1, RIPT-VLA %97.5. Skorlar tavana vurdu. Bu iki şey anlamına gelebilir: ya modeller gerçekten çok iyi, ya da **sınav kolay**. LIBERO'nun yapısal zayıflıkları:
 
@@ -91,7 +91,7 @@ Pratik sonuç: 2000 episode, OpenVLA ile T4'te saatler sürer. Gün 13'te 2–3 
 
 Bulgular, 10 modelde (OpenVLA, OFT, π0, π0-fast, Nora, WorldVLA, UniVLA, RIPT-VLA…):
 
-![OFT bozulma altında](images/2026-11-07/03-oft-under-perturbation.png)
+![OFT bozulma altında](images/lecture-03/03-oft-under-perturbation.png)
 
 1. **En kırılgan eksenler kamera ve robot başlangıç durumu.** OFT %97.1 → kamera değişince %59.7, kol farklı pozdan başlayınca %37.2. π0 başlangıç durumu değişince %6.6'ya düşüyor.
 2. **Dil bozulması en *az* zarar verenlerden** (ortalama −25 puan) — ve bu makalenin asıl şok edici bulgusu, çünkü tersi beklenirdi.
@@ -138,9 +138,72 @@ Kural: makale LIBERO'da %97 diyorsa, aynı modelin CALVIN ya da gerçek robotta 
 ## 8. Bugünün görevi (15 dk)
 Dört suite için bir tablo yaz: suite adı, sabit olan, değişen, Türkçe mekânsal komut sorusuna uygunluk (1–5). Sonra şunu düşün: Spatial suite'in 10 komutunu Türkçe'ye çevirirken hangi İngilizce ilişki kelimeleri Türkçe'de *ek* olur? (Bu listeyi Gün 20'de kullanacağız.)
 
+## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
+
+**1. 'LIBERO MuJoCo üstünde çalışır' cümlesinde LIBERO'nun rolü?**  _(tek seçim)_
+- [ ] A) Fizik motoru
+- [ ] B) Görevler, demolar, başlangıç durumları ve success kriteri (benchmark)
+- [ ] C) Robot kontrolcüsü
+- [ ] D) VLA modeli
+
+<details><summary>Cevap</summary>
+
+**B.** MuJoCo fiziği, robosuite robotu, LIBERO sınavı tanımlar.
+
+</details>
+
+**2. Hangi suite'te aynı sahne için 10 farklı komut vardır (dil zorunlu)?**  _(tek seçim)_
+- [ ] A) Spatial
+- [ ] B) Object
+- [ ] C) Goal
+- [ ] D) Long
+
+<details><summary>Cevap</summary>
+
+**C.** Goal: nesneler ve yerleşim aynı, görev değişir; sahneden görev tahmin edilemez.
+
+</details>
+
+**3. LIBERO-Plus'ta OpenVLA-OFT için en büyük düşüşü hangi bozulma yarattı?**  _(tek seçim)_
+- [ ] A) Dil komutu
+- [ ] B) Arka plan dokusu
+- [ ] C) Robot başlangıç durumu
+- [ ] D) Sensör gürültüsü
+
+<details><summary>Cevap</summary>
+
+**C.** %97.1 → %37.2 (robot init state); kamera %59.7; dil ortalama −25 ile en az zarar verenlerden.
+
+</details>
+
+**4. LIBERO'nun yedi bozulma ekseninden olanlar? (birden fazla)**  _(birden fazla seçim)_
+- [ ] A) Kamera bakış açısı
+- [ ] B) Işık
+- [ ] C) Robot morfolojisi (farklı kol)
+- [ ] D) Dil komutu
+- [ ] E) Sensör gürültüsü
+
+<details><summary>Cevap</summary>
+
+**A, B, D, E.** Robot morfolojisi LIBERO-Plus'ta yok; nesne yerleşimi, kamera, robot init state, dil, ışık, arka plan, gürültü.
+
+</details>
+
+**5. Standart LIBERO eval protokolü hakkında doğrular? (birden fazla)**  _(birden fazla seçim)_
+- [ ] A) Görev başına 50 episode
+- [ ] B) Her episode sabit bir başlangıç durumundan başlar
+- [ ] C) Success insan tarafından değerlendirilir
+- [ ] D) Dört suite ortalaması raporlanır
+
+<details><summary>Cevap</summary>
+
+**A, B, D.** Success BDDL predicate ile otomatik hesaplanır.
+
+</details>
+
 ---
 
-## Yarın (Gün 4 — 8 Kasım)
+## Sonraki ders (Ders 4)
 Language grounding ve shortcut learning: bir VLA'nın dili gerçekten kullandığını nasıl ispatlarsın? Ablation mantığı, counterfactual komutlar, OpenVLA ≠ OFT ayrımı ve "dili gerçekten kullanıyor mu" için beş deney tasarımı.
 
 ---
@@ -162,4 +225,4 @@ Language grounding ve shortcut learning: bir VLA'nın dili gerçekten kullandı�
 - Zhu et al. (2020). *robosuite: A Modular Simulation Framework and Benchmark for Robot Learning.* [arXiv:2009.12293](https://arxiv.org/abs/2009.12293)
 - Mees et al. (2022). *CALVIN.* [arXiv:2112.03227](https://arxiv.org/abs/2112.03227) · James et al. (2020). *RLBench.* [arXiv:1909.12271](https://arxiv.org/abs/1909.12271)
 - Kim et al. (2024). OpenVLA, Bölüm 5 (LIBERO protokolü) [arXiv:2406.09246](https://arxiv.org/abs/2406.09246)
-- Görseller: bu repo için üretildi (`images/2026-11-07/`); grafiklerdeki sayılar LIBERO-Plus makalesinden alınmıştır.
+- Görseller: bu repo için üretildi (`images/lecture-03/`); grafiklerdeki sayılar LIBERO-Plus makalesinden alınmıştır.

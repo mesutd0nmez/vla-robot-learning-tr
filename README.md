@@ -12,7 +12,7 @@ bağlanması (language grounding). Türkçe kaynak çok az olduğu için notlar,
 
 | Aşama | Kapsam | Durum |
 |---|---|---|
-| 0. Başlangıç — 30 günlük hızlandırılmış giriş | Kavramlar → ortam kurulumu → ilk deneyler → proje üzerine akıl yürütme (`plan/30-day-plan.md`) | 🟡 Dersler 1–11 hazır (5–15 Kas) |
+| 0. Başlangıç — 30 günlük hızlandırılmış giriş | Kavramlar → ortam kurulumu → ilk deneyler → proje üzerine akıl yürütme (`plan/30-day-plan.md`) | 🟡 Ders 1–11 hazır |
 | 1. Literatür ve konu seçimi | Tez ekseninin danışmanla netleştirilmesi, kaynak taraması | ⬜ |
 | 2. Deney altyapısı | Benchmark, model, metrik ve veri setinin kurulması | ⬜ |
 | 3. Deneyler | Ana deneyler, ablasyonlar, sonuç analizi | ⬜ |
@@ -25,7 +25,7 @@ Aşamalar netleştikçe bu tablo ve `plan/` klasörü güncellenir.
 | Klasör | İçerik |
 |---|---|
 | `plan/` | Aşama planları (`30-day-plan.md`) ve `daily-log.md` (her çalışma gününün durumu, görevi, çıktısı) |
-| `lectures/` | Günlük dersler `YYYY-MM-DD.md` (görseller `lectures/images/YYYY-MM-DD/`); her dersin sonunda kendini sına soruları ve cevapları |
+| `lectures/` | Dersler `lecture-NN.md` (görseller `lectures/images/lecture-NN/`); her dersin sonunda kendini sına soruları ve cevapları |
 | `resources/` | Kaynak listesi ve Türkçe giriş notları (telifli PDF'ler yerine bağlantılar) |
 | `notes/` | Konu bazlı birikimli notlar (OpenVLA, LIBERO, spatial reasoning, tokenizasyon…) |
 | `code/` | Kurulum scriptleri, deney kodları, Colab notebook'ları |
@@ -36,9 +36,25 @@ Aşamalar netleştikçe bu tablo ve `plan/` klasörü güncellenir.
 
 - Günde en fazla 1 saat. Her gün bir konu, bir küçük çıktı. Ders notları Claude tarafından araştırılıp yazılır;
   çıktılar ve cevaplar benim.
-- Her ders aynı iskelette: ~35 dk okuma (görsellerle) → "Kendini sına" soruları (cevaplar dersin sonunda, önce
-  bakmadan cevaplanır) → kısa görev.
-- Her günün sonunda `lectures/YYYY-MM-DD.md` ve `plan/daily-log.md` commit'lenir; böylece kaldığım yer hiçbir zaman kaybolmaz.
+- Her ders aynı iskelette: ~35 dk okuma (görsellerle) → "Kendini sına" açık uçlu sorular (cevaplar dersin
+  sonunda) → çoktan seçmeli sorular (tek/çok seçimli; onay kutuları + açılır cevap) → kısa görev.
+
+## Dersler
+
+| # | Konu | Faz |
+|---|---|---|
+| [1](lectures/lecture-01.md) | Robot learning döngüsü ve kaynak haritası | 1 |
+| [2](lectures/lecture-02.md) | OpenVLA'nın içi: görüntü + dil → action | 1 |
+| [3](lectures/lecture-03.md) | Benchmark ≠ simülatör: LIBERO, MuJoCo, LIBERO-Plus | 1 |
+| [4](lectures/lecture-04.md) | Language grounding ve shortcut learning | 1 |
+| [5](lectures/lecture-05.md) | Makale derin okuma: Tatar vd. (2026) | 1 |
+| [6](lectures/lecture-06.md) | Mekânsal akıl yürütmenin temelleri | 1 |
+| [7](lectures/lecture-07.md) | RoomSpace → LIBERO | 1 |
+| [8](lectures/lecture-08.md) | Hafta 1 sentezi ve VLA model aileleri | 1 |
+| [9](lectures/lecture-09.md) | Mac: conda + MuJoCo + ilk sahne | 2 |
+| [10](lectures/lecture-10.md) | Mac: LIBERO kurulumu + ilk episode | 2 |
+| [11](lectures/lecture-11.md) | LIBERO HDF5 demo verisi | 2 |
+- Her ders `lectures/lecture-NN.md` olarak, `plan/daily-log.md` ile birlikte commit'lenir; bir günde birden fazla ders çalışılabilir; böylece kaldığım yer hiçbir zaman kaybolmaz.
 - Takılınca plan kayar, atlanmaz.
 
 ## Donanım

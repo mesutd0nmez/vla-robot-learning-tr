@@ -1,6 +1,6 @@
 # Ders 4 — Language Grounding ve Shortcut Learning: Model Dili Gerçekten Kullanıyor mu?
 
-**Tarih:** 8 Kasım 2026 · **Faz 1 / Gün 4** · **Okuma süresi:** ~40 dk
+**Faz 1 / Gün 4** · **Okuma süresi:** ~40 dk
 **Ön koşul:** Ders 2 (OpenVLA ≠ OFT), Ders 3 (LIBERO-Plus bulguları) · **Tamamlayıcı okuma:** giriş notu §18–21, §36, §49–51
 
 > **Bugünün tek cümlesi:** Yüksek success rate, modelin komutu anladığını göstermez; dili gerçekten kullanıp kullanmadığını ancak komutu *bozarak* (ablation ve counterfactual) ispatlayabilirsin — ve tezinin deneysel çekirdeği tam olarak budur.
@@ -23,7 +23,7 @@ VLM'ler (Ders 2) nesne grounding'de iyidir — "kırmızı bardak nerede?" sorus
 
 ## 2. Shortcut learning: kolay yol varsa model onu seçer
 
-![Shortcut learning](images/2026-11-08/01-shortcut.png)
+![Shortcut learning](images/lecture-04/01-shortcut.png)
 
 **Shortcut learning**, modelin görevin asıl nedenini değil, eğitim verisindeki *kolay korelasyonu* öğrenmesidir. Klasik örnek: inek fotoğraflarının hep çayırda olduğu bir veri setinde model "yeşil zemin = inek" öğrenir; plajdaki ineği tanıyamaz.
 
@@ -52,11 +52,11 @@ Makine öğrenmesinde bir girdinin *gerçekten* kullanıldığını göstermenin
 
 Üçü birlikte bir deney matrisi oluşturur:
 
-![Ablation matrisi](images/2026-11-08/02-ablation.png)
+![Ablation matrisi](images/lecture-04/02-ablation.png)
 
 ### 3.1 Beş koşul, iki olası dünya
 
-![Sonuç örüntüleri](images/2026-11-08/03-patterns.png)
+![Sonuç örüntüleri](images/lecture-04/03-patterns.png)
 
 *Sayılar varsayımsal; örüntüyü göstermek için.*
 
@@ -114,9 +114,72 @@ Tezin için anlam: "VLA dili yok sayıyor" artık bilinen bir bulgu; yeni katkı
 ## 8. Bugünün görevi (15 dk)
 Ders 3'te yazdığın Spatial suite tablosuna iki sütun ekle: "shortcut riski (düşük/orta/yüksek)" ve "boş-komut tabanı beklentin (%)". Ardından Goal suite'in 10 komutu için aynı iki sütunu doldur. Hangi suite'te Türkçe deneyi daha yorumlanabilir olur?
 
+## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
+
+**1. Bir VLA Goal suite'te doğru komutla %95, boş komutla %93 alıyor. Sonuç?**  _(tek seçim)_
+- [ ] A) Dil grounding'i güçlü
+- [ ] B) Dil kullanılmıyor (boş ≈ doğru)
+- [ ] C) Türkçe iyi anlaşılıyor
+- [ ] D) Model overfit değil
+
+<details><summary>Cevap</summary>
+
+**B.** Komut olmadan da görev yapılıyorsa komut okunmuyor demektir.
+
+</details>
+
+**2. Shortcut learning kimin özelliğidir?**  _(tek seçim)_
+- [ ] A) Yalnızca modelin
+- [ ] B) Veri/benchmark tasarımının (model en ucuz çözümü bulur)
+- [ ] C) Yalnızca tokenizer'ın
+- [ ] D) Simülatörün
+
+<details><summary>Cevap</summary>
+
+**B.** Sahne–görev %100 korelasyonluysa dili kullanmamak modele hiçbir şeye mal olmaz.
+
+</details>
+
+**3. Türkçe komutla %40, boş komutla da %40: ne diyebilirsin?**  _(tek seçim)_
+- [ ] A) Türkçe anlaşılıyor
+- [ ] B) Türkçe model için gürültüden farksız
+- [ ] C) Model dili hiç kullanmıyor
+- [ ] D) Deney hatalı
+
+<details><summary>Cevap</summary>
+
+**B.** Türkçe ≈ boş → Türkçe komut etkisiz; model dili kullanıyor (doğru komut daha yüksekse) ama Türkçe'yi değil.
+
+</details>
+
+**4. 'Dili gerçekten kullanıyor mu' deneyinin koşulları? (birden fazla)**  _(birden fazla seçim)_
+- [ ] A) Doğru komut
+- [ ] B) Boş komut
+- [ ] C) Yanlış görevin komutu
+- [ ] D) Parafraz
+- [ ] E) Daha büyük model
+
+<details><summary>Cevap</summary>
+
+**A, B, C, D.** Model boyutu bir koşul değil, ayrı bir değişkendir.
+
+</details>
+
+**5. Türkçe düşüşünün 'anlamsal' mı 'tokenizasyon' mu olduğunu ayırt etmeye yardım edenler? (birden fazla)**  _(birden fazla seçim)_
+- [ ] A) Türkçe→İngilizce çeviri katmanı
+- [ ] B) Farklı tokenizer'lı model (Qwen vs LLaMA-2) karşılaştırması
+- [ ] C) Daha çok episode
+- [ ] D) Success yerine L2 ölçmek
+
+<details><summary>Cevap</summary>
+
+**A, B.** Çeviri toparlıyorsa sorun anlamsal/dil; tokenizer değişince düzeliyorsa tokenizasyon.
+
+</details>
+
 ---
 
-## Yarın (Gün 5 — 9 Kasım)
+## Sonraki ders (Ders 5)
 Tatar vd. makalesinin derin okuması: deney düzeni, L2/cosine, gripper etkisi, tokenizasyon bulgusu; sonra üç güçlü, üç zayıf yön — ve senin tezinin bu makaleden nerede ayrıştığı.
 
 ---
@@ -137,4 +200,4 @@ Tatar vd. makalesinin derin okuması: deney düzeni, L2/cosine, gripper etkisi, 
 - Kim et al. (2024). *OpenVLA*, Bölüm 4 (language following deneyleri). [arXiv:2406.09246](https://arxiv.org/abs/2406.09246)
 - *VLA Grounder: Language-Conditioning Space Optimization for Black-Box VLA Models* (2026) ve *Provael: an adversarial evaluation harness for VLA policies* (2026) — [awesome-vla-wam](https://github.com/DravenALG/awesome-vla-wam) VLA Models bölümü
 - Tatar vd. (2026). SIU 2026.
-- Görseller: bu repo için üretildi (`images/2026-11-08/`); örüntü grafiği varsayımsal verilerle çizilmiştir.
+- Görseller: bu repo için üretildi (`images/lecture-04/`); örüntü grafiği varsayımsal verilerle çizilmiştir.
