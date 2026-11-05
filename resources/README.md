@@ -1,7 +1,7 @@
 # Kaynaklar
 
 ## Danışmanın gönderdiği başlangıç paketi
-- `robot-learning-vla-giris.md` — Türkçe kavram notu (bu repoda)
+- `robot-learning-vla-intro-tr.md` — Türkçe kavram notu (bu repoda)
 - Tatar, Gökmen, Akkoyun, Kahraman (2026). *Cross-Lingual Performance Analysis of VLA Models: Evaluating Turkish Command Understanding in OpenVLA.* SIU 2026, IEEE. (IEEE Xplore — link eklenecek)
 - Li, F. (2025). *Benchmarking and Enhancing Spatial Reasoning in Large Language Models.* PhD tezi, University of Leeds.
 - [DravenALG/VLANeXt](https://github.com/DravenALG/VLANeXt) — ICML 2026, VLA eğitim/eval kodu (LIBERO, LIBERO-Plus)

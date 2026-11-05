@@ -12,7 +12,7 @@ bağlanması (language grounding). Türkçe kaynak çok az olduğu için notlar,
 
 | Aşama | Kapsam | Durum |
 |---|---|---|
-| 0. Başlangıç — 30 günlük hızlandırılmış giriş | Kavramlar → ortam kurulumu → ilk deneyler → proje üzerine akıl yürütme (`plan/30-gun-plani.md`) | 🟡 Gün 1 / 30 |
+| 0. Başlangıç — 30 günlük hızlandırılmış giriş | Kavramlar → ortam kurulumu → ilk deneyler → proje üzerine akıl yürütme (`plan/30-day-plan.md`) | 🟡 Gün 1 / 30 |
 | 1. Literatür ve konu seçimi | Tez ekseninin danışmanla netleştirilmesi, kaynak taraması | ⬜ |
 | 2. Deney altyapısı | Benchmark, model, metrik ve veri setinin kurulması | ⬜ |
 | 3. Deneyler | Ana deneyler, ablasyonlar, sonuç analizi | ⬜ |
@@ -24,19 +24,19 @@ Aşamalar netleştikçe bu tablo ve `plan/` klasörü güncellenir.
 
 | Klasör | İçerik |
 |---|---|
-| `plan/` | Dönem/aşama planları ve `gunluk-log.md` (her çalışma gününün durumu, görevi, çıktısı) |
-| `gunler/gun-NN/` | O günün ders notu (`ders.md`) ve kendi çıktım (`cikti.md`) |
-| `kaynaklar/` | Kaynak listesi ve Türkçe giriş notları (telifli PDF'ler yerine bağlantılar) |
-| `notlar/` | Konu bazlı birikimli notlar (OpenVLA, LIBERO, spatial reasoning, tokenizasyon…) |
-| `kod/` | Kurulum scriptleri, deney kodları, Colab notebook'ları |
+| `plan/` | Aşama planları (`30-day-plan.md`) ve `daily-log.md` (her çalışma gününün durumu, görevi, çıktısı) |
+| `lectures/` | Günlük ders notları, `YYYY-MM-DD.md`; her dosyanın sonunda o günün çıktısı |
+| `resources/` | Kaynak listesi ve Türkçe giriş notları (telifli PDF'ler yerine bağlantılar) |
+| `notes/` | Konu bazlı birikimli notlar (OpenVLA, LIBERO, spatial reasoning, tokenizasyon…) |
+| `code/` | Kurulum scriptleri, deney kodları, Colab notebook'ları |
 
-İleride eklenecek: `deneyler/` (deney kayıtları ve sonuçlar), `tez/` (tez metni taslakları), `sunumlar/`.
+İleride eklenecek: `experiments/` (deney kayıtları ve sonuçlar), `thesis/` (tez metni taslakları), `slides/`.
 
 ## Nasıl çalışıyorum
 
 - Günde 30–60 dk. Her gün bir konu, bir küçük çıktı. Çalışma Claude ile birlikte yürütülür; ders notu ve plan
   oradan gelir, çıktılar benim.
-- Her günün sonunda `gunler/gun-NN/` ve `plan/gunluk-log.md` commit'lenir; böylece kaldığım yer hiçbir zaman kaybolmaz.
+- Her günün sonunda `lectures/YYYY-MM-DD.md` ve `plan/daily-log.md` commit'lenir; böylece kaldığım yer hiçbir zaman kaybolmaz.
 - Takılınca plan kayar, atlanmaz.
 
 ## Donanım
@@ -46,7 +46,7 @@ eval ve eğitimler Colab/Kaggle T4 ya da kiralık GPU'da.
 
 ## Kaynaklar
 
-Bkz. [`kaynaklar/README.md`](kaynaklar/README.md).
+Bkz. [`resources/README.md`](resources/README.md).
 
 ## Lisans
 

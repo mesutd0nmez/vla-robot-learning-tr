@@ -4,14 +4,14 @@
 **Günlük süre:** 30–60 dk · **Hedef:** 30 gün sonunda LIBERO üzerinde bir VLA'yı çalıştırabilmek, dil/mekânsal robustness deneyi tasarlayabilmek ve "bir proje yapalım" dendiğinde araştırma sorusu + deney planı üretebilmek.
 
 ## Her gün nasıl çalışıyoruz
-1. Chat'e "Gün N" yaz. Claude `gunluk-log.md` dosyasını okur, o günün konusunu anlatır, görevi verir.
+1. Chat'e "Gün N" yaz. Claude `daily-log.md` dosyasını okur, o günün konusunu anlatır, görevi verir.
 2. Gün sonunda kısa çıktıyı (3–5 cümle, bir tablo, bir komut çıktısı) chat'e yapıştır. Claude log'a işler.
 3. Takıldığın yerde plan kayar; kaybolmaz. Plan esnek, sıra sabit.
 
 ## Kaynak haritası (danışmanın gönderdikleri)
 | Kaynak | Ne? | Neden gönderildi? |
 |---|---|---|
-| `robot_learning_vla_giris.md` | Türkçe kavram notu (60 başlık) | Alanın zihinsel haritası; Faz 1'in omurgası |
+| `resources/robot-learning-vla-intro-tr.md` | Türkçe kavram notu (60 başlık) | Alanın zihinsel haritası; Faz 1'in omurgası |
 | Tatar vd. 2026 (SIU) — OpenVLA'da Türkçe komut | 4 sayfalık IEEE bildirisi | Türkçe + VLA çizgisinin tek mevcut örneği; metodolojisi tartışmaya açık |
 | Li, F. 2025 — Leeds PhD tezi (167 s.) | LLM'lerde spatial reasoning benchmark'ları: StepGame, RoomSpace | "Dil ≠ dünya" fikri; mekânsal ilişkilerin (sağ/sol/ön/arka/üstünde/içinde) nasıl benchmark'landığı |
 | Hallac ↔ Cohn e-postaları | Türkçe spatial reasoning değerlendirmesi fikri + 7 arXiv makalesi | Tezin muhtemel ekseni: Türkçe dilde mekânsal/eylemsel anlama |
