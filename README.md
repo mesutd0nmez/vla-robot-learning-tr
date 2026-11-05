@@ -25,7 +25,7 @@ Aşamalar netleştikçe bu tablo ve `plan/` klasörü güncellenir.
 | Klasör | İçerik |
 |---|---|
 | `plan/` | Aşama planları (`30-day-plan.md`) ve `daily-log.md` (her çalışma gününün durumu, görevi, çıktısı) |
-| `lectures/` | Günlük dersler `YYYY-MM-DD.md` (görseller `lectures/images/YYYY-MM-DD/`); her dosyanın sonunda sorular ve o günün çıktısı |
+| `lectures/` | Günlük dersler `YYYY-MM-DD.md` (görseller `lectures/images/YYYY-MM-DD/`); her dersin sonunda kendini sına soruları ve cevapları |
 | `resources/` | Kaynak listesi ve Türkçe giriş notları (telifli PDF'ler yerine bağlantılar) |
 | `notes/` | Konu bazlı birikimli notlar (OpenVLA, LIBERO, spatial reasoning, tokenizasyon…) |
 | `code/` | Kurulum scriptleri, deney kodları, Colab notebook'ları |
@@ -37,7 +37,7 @@ Aşamalar netleştikçe bu tablo ve `plan/` klasörü güncellenir.
 - Günde en fazla 1 saat. Her gün bir konu, bir küçük çıktı. Ders notları Claude tarafından araştırılıp yazılır;
   çıktılar ve cevaplar benim.
 - Her ders aynı iskelette: ~35 dk okuma (görsellerle) → "Kendini sına" soruları (cevaplar dersin sonunda, önce
-  bakmadan yazılır) → 15 dk'lık görev → dosyanın sonundaki "Çıktı" bölümü.
+  bakmadan cevaplanır) → kısa görev.
 - Her günün sonunda `lectures/YYYY-MM-DD.md` ve `plan/daily-log.md` commit'lenir; böylece kaldığım yer hiçbir zaman kaybolmaz.
 - Takılınca plan kayar, atlanmaz.
 

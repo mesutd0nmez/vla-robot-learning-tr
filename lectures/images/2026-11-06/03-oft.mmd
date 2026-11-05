@@ -1,0 +1,10 @@
+flowchart LR
+    subgraph O["OpenVLA (2024)"]
+        o1["7 token'ı tek tek üret<br/>(autoregressive)"] --> o2["ayrık 256-bin action"] --> o3["next-token CE loss"] --> o4["tek adım action<br/>~3–6 Hz"]
+    end
+    subgraph F["OpenVLA-OFT (2025)"]
+        f1["tüm action'ları<br/>tek geçişte üret<br/>(parallel decoding)"] --> f2["sürekli action<br/>(MLP action head)"] --> f3["L1 regresyon loss"] --> f4["action chunk<br/>(8 adım birden)<br/>26× daha hızlı"]
+    end
+    O -->|"aynı omurga,<br/>yeni fine-tune tarifi"| F
+    style o4 fill:#ffd6d6,color:#000
+    style f4 fill:#d4f5d4,color:#000

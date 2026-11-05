@@ -1,0 +1,12 @@
+flowchart TB
+    subgraph VLM["VLM — Prismatic-7B (başlangıç noktası)"]
+        direction LR
+        a["görüntü + soru"] --> b["LLM"] --> c["metin: 'There is a red cup<br/>on the table.'"]
+    end
+    subgraph VLA["VLA — OpenVLA (aynı ağ, farklı çıktı)"]
+        direction LR
+        d["görüntü + komut"] --> e["LLM"] --> f["action token'ları:<br/>⟨132⟩⟨127⟩⟨140⟩⟨128⟩⟨128⟩⟨131⟩⟨255⟩"]
+    end
+    VLM -->|"970k robot episode'u ile<br/>fine-tune (behavior cloning)"| VLA
+    style b fill:#ffd166,color:#000
+    style e fill:#ffd166,color:#000
