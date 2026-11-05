@@ -1,0 +1,6 @@
+flowchart LR
+    A["Miniconda (arm64)<br/>paket + ortam yöneticisi"] --> B["conda env: vla<br/>Python 3.10"]
+    B --> C["pip install mujoco<br/>(fizik + render)"]
+    C --> D["ilk sahne: XML → render → PNG"]
+    D --> E["Gün 10: robosuite + LIBERO"]
+    style B fill:#ffd166,color:#000
