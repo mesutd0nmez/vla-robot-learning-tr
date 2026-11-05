@@ -30,6 +30,7 @@ Aşamalar netleştikçe bu tablo ve `plan/` klasörü güncellenir.
 | `lectures/` | Dersler `lecture-NN.md` (görseller `lectures/images/lecture-NN/`); her dersin sonunda kendini sına soruları ve cevapları |
 | `resources/` | Kaynak listesi ve Türkçe giriş notları (telifli PDF'ler yerine bağlantılar) |
 | `notes/` | Konu bazlı birikimli notlar (OpenVLA, LIBERO, spatial reasoning, tokenizasyon…) |
+| `projects/` | Elle yürütülen demo, deney ve araştırma projeleri (klasör başına bir proje, `_template` şablonu) |
 | `code/` | Kurulum scriptleri, deney kodları, Colab notebook'ları (her klasörde README ile kaynak kodu) |
 | `index.html`, `_sidebar.md`, `assets/` | Dokümantasyon sitesi (Docsify); `tools/gen_sidebar.py` menüyü üretir |
 

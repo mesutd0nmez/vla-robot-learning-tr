@@ -21,6 +21,9 @@
   - [<span class="nav-num">·</span>Genel bakış](/resources/README.md)
   - [<span class="nav-num">·</span>Robot Learning ve VLA Alanına Giriş](/resources/robot-learning-vla-intro-tr.md)
 
+- **Projeler**
+  - [<span class="nav-num">·</span>Genel bakış](/projects/README.md)
+
 - **Kod**
   - [<span class="nav-num">09</span>Gün 9 kodu](/code/day09/README.md)
   - [<span class="nav-num">10</span>Gün 10 kodu](/code/day10/README.md)

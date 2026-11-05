@@ -13,13 +13,18 @@ Türkçe açık kaynak; site: https://mesutd0nmez.github.io/vla-robot-learning-t
 ## Yapı
 - `lectures/lecture-NN.md` — dersler (sıra numaralı, tarihsiz); görseller `lectures/images/lecture-NN/`
 - `code/dayNN/` — o dersin script'leri + README.md (her script `## ad.py` + python bloğu)
-- `resources/`, `notes/`, `plan/`; ileride `experiments/`, `thesis/`, `slides/`
+- `projects/NN-kisa-ad/` — Mesut'un yerelde Claude Code ile yaptığı demo/deney/araştırma projeleri; `projects/_template/README.md` şablonuyla başlanır, `projects/README.md` tablosuna satır eklenir. Dersler burayı değiştirmez; projeler derslere atıf yapabilir.
+- `resources/`, `notes/`, `plan/`; ileride `thesis/`, `slides/`
 - Site: `index.html` + `assets/site.css` (Docsify, derleme yok), `home.md` (ana sayfa), `_sidebar.md` (üretilir)
 
 ## Otomasyon
 - Her sabah 06:51 (TR) bulutta zamanlanmış görev sıradaki dersi yazıp `main`'e push eder.
   Yerelde çalışmaya başlamadan önce **`git pull`**; aynı ders numarasını iki kez yazma.
 - Yeni ders/klasör ekledikten sonra: `python tools/gen_sidebar.py`, `home.md` ızgarasına kart, `README.md` tablosuna satır.
+
+## Yerelde proje yaparken (Claude Code)
+- `git pull` → `cp -r projects/_template projects/NN-kisa-ad` → README'yi doldur → kod/sonuç/görsel aynı klasöre → `projects/README.md` tablosunu güncelle → `python tools/gen_sidebar.py` → commit/push.
+- Büyük dosyalar (checkpoint, HDF5, video) repoya girmez (`.gitignore`); sonuçları küçük CSV/PNG olarak kaydet.
 
 ## Çalışma kuralları
 - Dil Türkçe, teknik terimler İngilizce; Mesut'a "sen". Her iddia kaynaklı (arXiv/GitHub bağlantısı).

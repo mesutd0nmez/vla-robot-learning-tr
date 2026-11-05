@@ -11,3 +11,8 @@ __pycache__/
 *.safetensors
 *.bin
 .DS_Store
+*.mp4
+*.ckpt
+*.pt
+*.pth
+*.npz
