@@ -1,0 +1,26 @@
+# Gün 12 — VLANeXt LIBERO eval, ücretsiz T4 için küçük bütçe.
+# Orijinal: VLANeXt/config/libero_bench_config.yaml (num_parallel_envs: 32, num_trials_per_task: 50)
+# Kullanım: VLANeXt kökünde  python -m scripts.libero_bench_eval --config config/t4_bench_config.yaml
+data:
+  augmentation:
+    center_crop: true          # eğitimde random crop vardı; eval'de merkez kırpma (orijinal ayar)
+    center_crop_ratio: 0.9
+
+model:
+  diffusion_steps: 5           # flow-matching adımı; orijinal 5. Hızlandırmak için düşürme, kalite düşer
+  scheduler_type: "flow_match"
+
+project:
+  use_wandb: false             # wandb hesabı isteme
+
+eval:
+  finetuned_checkpoint: "checkpoints/VLANeXt_libero_spatial.pt"   # hf download ile indirdiğin dosya (16.4 GB)
+  task_suite_name: "libero_spatial"   # libero_spatial | libero_object | libero_goal | libero_10
+  num_steps_wait: 10           # ilk 10 adım no-op (nesneler yerleşsin) — OpenVLA protokolüyle aynı
+  num_steps_execute: 8         # 8'lik chunk'ın 8'i de uygulanır, sonra model yeniden çağrılır
+  num_parallel_envs: 2         # T4 + 12 GB RAM: 1–2. Her env ayrı bir süreç (~1 GB RAM)
+  num_trials_per_task: 1       # görev başına 1 episode (orijinal 50). VLANEXT_TASK_IDS ile görevleri de daralt
+  seed: 42
+  image_size: 256
+  resume_episodes: 0
+  resume_successes: 0

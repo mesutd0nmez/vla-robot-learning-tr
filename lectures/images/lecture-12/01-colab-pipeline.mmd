@@ -1,0 +1,16 @@
+flowchart LR
+    classDef key fill:#ffd166,stroke:#333,color:#111
+    classDef inp fill:#cfe8ff,stroke:#333,color:#111
+    classDef out fill:#d4f5d4,stroke:#333,color:#111
+    classDef bad fill:#ffd6d6,stroke:#333,color:#111
+
+    A["1 Colab / Kaggle<br/>T4 16 GB VRAM<br/>RAM 12.7 / 29 GB"]:::inp --> B["2 apt: libegl, libgl<br/>MUJOCO_GL=egl"]
+    B --> C["3 VLANeXt + LIBERO<br/>transformers 5.5, robosuite 1.4.1,<br/>mujoco 3.8.1"]
+    C --> D["4 T4 yamaları<br/>flash_attention_2 -> sdpa<br/>torch.load mmap=True<br/>VLANEXT_TASK_IDS"]:::key
+    D --> E["5 hf download<br/>VLANeXt_libero_spatial.pt<br/>16.4 GB"]:::inp
+    E --> F["6 scripts.libero_bench_eval<br/>t4_bench_config.yaml<br/>3 görev x 1 episode"]:::key
+    F --> G["7 eval.log + mp4<br/>parse_eval_log.py<br/>runs.csv satırı"]:::out
+
+    P1["T4 = sm75:<br/>FlashAttention-2 yok"]:::bad -.-> D
+    P2["16.4 GB .pt ><br/>12.7 GB RAM"]:::bad -.-> D
+    P3["varsayılan bütçe:<br/>10 görev x 50 ep x 32 env"]:::bad -.-> F

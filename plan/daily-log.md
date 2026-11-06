@@ -73,3 +73,10 @@ Dersler tarihe değil sıraya bağlıdır (`lectures/lecture-NN.md`); bir günde
 **Ders:** `lectures/lecture-11.md` — indirme, HDF5 ağacı, inspect_hdf5.py (doğrulandı), action grafiği, gripper işareti uyarısı, 128px sınırlılığı (3 görsel, 5 soru)
 **Görev (Mesut):** Spatial demo indir, 3 demo'yu karşılaştır.
 **Notlar / sorular:** —
+
+## Ders 12 — Colab T4'te VLANeXt: ilk success rate
+**Durum:** Ders hazır
+**Ders:** `lectures/lecture-12.md` — Colab vs Kaggle (RAM), kodun 4 engeli (FA2/sm75, 16.4 GB checkpoint vs 12.7 GB RAM, 500-episode bütçe, bağımlılıklar) ve 3 tek-satırlık yama, 8 hücrelik notebook, eval döngüsü protokolü (10 no-op, chunk 8, max 220, 180° döndürme, gripper eşiği, done→success), 3 episode'un güven aralığı, makale LIBERO + LIBERO-plus Language grafikleri ve tez bağlantısı (4 görsel, 5 soru). Doğrulananlar: patch script (idempotent), log parser, robosuite 1.4.1 + mujoco 3.8.1 + numpy 2 (Linux). Hipotez: T4'te gerçek koşu süreleri/bellek (GPU erişimi yoktu). Ders 8'deki yazar hatası düzeltildi (Wu vd.).
+**Kod:** `code/day12/` — `colab_vlanext_t4.ipynb`, `vlanext_t4_patch.py`, `t4_bench_config.yaml`, `parse_eval_log.py`, `plot_paper_results.py`
+**Görev (Mesut):** Notebook'u koş; parse tablosu + runs.csv + başarısız episode teşhisi → `projects/01-vlanext-t4-ilk-eval/`.
+**Notlar / sorular:** —

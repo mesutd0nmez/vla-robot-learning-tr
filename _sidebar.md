@@ -12,6 +12,7 @@
   - [<span class="nav-num">09</span>Klavye Günü 1](/lectures/lecture-09.md)
   - [<span class="nav-num">10</span>Klavye Günü 2](/lectures/lecture-10.md)
   - [<span class="nav-num">11</span>Klavye Günü 3](/lectures/lecture-11.md)
+  - [<span class="nav-num">12</span>Klavye Günü 4](/lectures/lecture-12.md)
 
 - **Plan**
   - [<span class="nav-num">·</span>Günlük Çalışma Logu](/plan/daily-log.md)
@@ -31,3 +32,4 @@
   - [<span class="nav-num">09</span>Gün 9 kodu](/code/day09/README.md)
   - [<span class="nav-num">10</span>Gün 10 kodu](/code/day10/README.md)
   - [<span class="nav-num">11</span>Gün 11 kodu](/code/day11/README.md)
+  - [<span class="nav-num">12</span>Gün 12 kodu](/code/day12/README.md)
