@@ -1,0 +1,38 @@
+flowchart TB
+    classDef model fill:#ffd166,stroke:#333,color:#000
+    classDef input fill:#cfe8ff,stroke:#333,color:#000
+    classDef output fill:#d4f5d4,stroke:#333,color:#000
+    classDef problem fill:#ffd6d6,stroke:#333,color:#000
+    classDef plain fill:#ffffff,stroke:#333,color:#000
+
+    subgraph SEQ["Qwen3-VL girdi dizisi (soldan saga, tek ornek)"]
+        direction LR
+        T0["proprio<br/>8 adim x 7 -> 8 token<br/>action_projector (Linear)"]:::input
+        T1["sablon<br/>im_start user"]:::plain
+        T2["agentview<br/>256x256 -> 64 image token"]:::input
+        T3["wrist<br/>256x256 -> 64 image token"]:::input
+        T4["KOMUT metni<br/>pick up the black bowl ... (yaklasik 20 token)<br/>Turkce komut buraya girer"]:::problem
+        T5["sablon<br/>im_end, im_start assistant"]:::plain
+        T6["16 meta query<br/>ogrenilen vektorler<br/>pad id ile isaretli"]:::model
+        T0 --- T1 --- T2 --- T3 --- T4 --- T5 --- T6
+    end
+
+    VLM["Qwen3-VL-2B: 28 transformer katmani<br/>output_hidden_states=True<br/>hidden_states = (embedding, katman 1, ..., katman 28) -> 29 tensor<br/>her biri [B, dizi uzunlugu, 2048]"]:::model
+
+    subgraph POL["Policy: ActionDiffusionTransformerMoE (29 blok, hidden 1024, 16 head)"]
+        direction TB
+        X0["x = input_proj(gurultulu 8x7 action) + pos_embed<br/>t = TimestepEmbedder(flow-matching adimi)"]:::plain
+        B1["blok 1: self-attn + cross-attn<br/>key/value = [x, vlm_proj(hidden_states[0])]<br/>adaLN(t) ile modulasyon"]:::model
+        B2["blok 2: key/value = [x, vlm_proj(hidden_states[1])]"]:::model
+        BD["..."]:::plain
+        B29["blok 29: key/value = [x, vlm_proj(hidden_states[28])]"]:::model
+        FL["FinalLayer1D -> velocity tahmini (8x7)"]:::output
+        X0 --> B1 --> B2 --> BD --> B29 --> FL
+    end
+
+    LOOP["5 Euler adimi: action = scheduler.step(velocity, t, action)<br/>sigma: 1.0 -> 0.75 -> 0.50 -> 0.25 -> 0.001 -> 0<br/>sonuc: 8 x 7 action, [-1, 1]"]:::output
+
+    SEQ --> VLM
+    VLM -- "29 hidden state, hepsi policy'ye" --> POL
+    FL --> LOOP
+    LOOP -. "5 kez tekrar (VLM yeniden kosmaz)" .-> X0

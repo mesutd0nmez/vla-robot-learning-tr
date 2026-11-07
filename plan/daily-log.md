@@ -80,3 +80,10 @@ Dersler tarihe değil sıraya bağlıdır (`lectures/lecture-NN.md`); bir günde
 **Kod:** `code/day12/` — `colab_vlanext_t4.ipynb`, `vlanext_t4_patch.py`, `t4_bench_config.yaml`, `parse_eval_log.py`, `plot_paper_results.py`
 **Görev (Mesut):** Notebook'u koş; parse tablosu + runs.csv + başarısız episode teşhisi → `projects/01-vlanext-t4-ilk-eval/`.
 **Notlar / sorular:** —
+
+## Ders 13 — Kod okuma: komut → action → success zinciri
+**Durum:** Ders hazır
+**Ders:** `lectures/lecture-13.md` — VLANeXt + LIBERO eval zincirinin 22 kritik satırı (`trace_eval_chain.py` gerçek çıktısı); `task.language`'ın BDDL `:language` alanından değil **dosya adından** türediği; Qwen chat şablonu (eğitim/eval aynı yapı); dizi kuruluşu (8 proprio token başa, 16 meta query sona, 29 hidden state); `soft` bağlantı: policy bloğu i ↔ VLM katmanı i cross-attention (`MoEBlock`); flow-matching 5 Euler adımı (sigma 1→0.75→0.5→0.25→0.001→0, VLM bir kez çalışır); `_denormalize_action` gerçek min/max (legacy/mixed); success = `(On akita_black_bowl_1 plate_1)` → `check_ontop`: temas + xy < 3 cm, nesne adıyla; makale Tablo 1 bağlantı türü × LIBERO-plus Language (74.6/81.0/89.2) (5 görsel, 5 soru). Düzeltme: Ders 12'deki "16 query'lik policy head" anlatımı eksikti. Hipotez: Qwen3-VL şablonunun tam string'i (HF erişimi yoktu; `show_prompt.py` çalıştırılmadı).
+**Kod:** `code/day13/` — `trace_eval_chain.py` (doğrulandı), `show_prompt.py` (py_compile), `plot_day13.py`
+**Görev (Mesut):** VLANeXt'i klonla, `trace_eval_chain.py` + `show_prompt.py` çalıştır; şablon string'i, EN/TR token sayıları ve "arasındaki/üstüne" parçalanışını `projects/01-vlanext-t4-ilk-eval/README.md` sonuna "Ders 13 notu" olarak ekle.
+**Notlar / sorular:** —

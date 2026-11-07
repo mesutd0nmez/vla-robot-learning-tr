@@ -21,6 +21,7 @@ Bilgisayar Mühendisliği yüksek lisans tezimin açık kaydı: Vision-Language-
 <a href="#/lectures/lecture-10"><b>10</b><span>LIBERO kurulumu ve ilk episode<small>Faz 2 · Klavye</small></span></a>
 <a href="#/lectures/lecture-11"><b>11</b><span>LIBERO demo verisi: HDF5'in içi<small>Faz 2 · Klavye</small></span></a>
 <a href="#/lectures/lecture-12"><b>12</b><span>Colab T4'te VLANeXt: ilk success rate<small>Faz 2 · Klavye</small></span></a>
+<a href="#/lectures/lecture-13"><b>13</b><span>Kod okuma: komut → action → success<small>Faz 2 · Kod okuma</small></span></a>
 </div>
 
 ## Nasıl çalışıyorum
@@ -31,7 +32,7 @@ Her ders aynı iskelette: 35 dakikalık okuma (görsellerle), "kendini sına" a�
 
 | Aşama | Kapsam | Durum |
 |---|---|---|
-| 0. Hızlandırılmış giriş (Ders 1–30) | Kavramlar → ortam kurulumu → ilk deneyler → proje üzerine akıl yürütme | Ders 1–11 hazır |
+| 0. Hızlandırılmış giriş (Ders 1–30) | Kavramlar → ortam kurulumu → ilk deneyler → proje üzerine akıl yürütme | Ders 1–13 hazır |
 | 1. Literatür ve konu seçimi | Tez ekseninin danışmanla netleştirilmesi, kaynak taraması | — |
 | 2. Deney altyapısı | Benchmark, model, metrik ve veri setinin kurulması | — |
 | 3. Deneyler | Ana deneyler, ablasyonlar, sonuç analizi | — |

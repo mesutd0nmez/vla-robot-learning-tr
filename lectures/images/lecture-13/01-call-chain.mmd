@@ -1,0 +1,42 @@
+flowchart LR
+    classDef model fill:#ffd166,stroke:#333,color:#000
+    classDef input fill:#cfe8ff,stroke:#333,color:#000
+    classDef output fill:#d4f5d4,stroke:#333,color:#000
+    classDef problem fill:#ffd6d6,stroke:#333,color:#000
+    classDef plain fill:#ffffff,stroke:#333,color:#000
+
+    subgraph S1["1. Komut ve gozlem nereden geliyor"]
+        direction TB
+        A["scripts/libero_bench_eval.py<br/>eval_libero(cfg)"]:::plain
+        C["LIBERO benchmark/__init__.py<br/>grab_language_from_filename<br/>bddl dosya adi -> task.language"]:::input
+        D["parallel_eval_utils.build_episode_specs<br/>task_description = task.language<br/>init_state = init_states[episode_idx]"]:::input
+        P["Turkce deney icin degisecek satir:<br/>task_description = TR_MAP.get(task.name, task.language)"]:::problem
+        E["rollout_episode_batch<br/>SubprocVectorEnv, 10 no-op, action_buffer"]:::plain
+        F["_make_eval_observation<br/>agentview + wrist 256x256, 180 derece, crop 0.9<br/>proprio = eef_pos(3) + axis-angle(3) + gripper(1)"]:::input
+        A --> C --> D --> E --> F
+        D -.-> P
+    end
+
+    subgraph S2["2. Model: komut action'a nasil donusuyor"]
+        direction TB
+        G["VLANeXt_utils.get_vla_action<br/>messages = [image, image, text]<br/>processor.apply_chat_template(add_generation_prompt=True)"]:::input
+        H["VLANeXt.predict_action -> _get_vlm_condition_qwen<br/>[proprio 8] + [sablon + 2 goruntu + komut] + [16 meta query]"]:::model
+        I["Qwen3-VL-2B forward<br/>output_hidden_states=True -> 29 hidden state"]:::model
+        J["ActionDiffusionTransformerMoE (29 blok)<br/>blok i, VLM katman i'ye cross-attention<br/>flow-matching 5 Euler adimi"]:::model
+        K["8 x 7 action chunk, [-1, 1]"]:::output
+        G --> H --> I --> J --> K
+    end
+
+    subgraph S3["3. Action ve success"]
+        direction TB
+        L["_denormalize_action<br/>ilk 6 boyut min/max ile<br/>gripper > 0 ise +1, degilse -1"]:::output
+        M["env.step(actions)<br/>LIBERO bddl_base_domain.step<br/>done = _check_success()"]:::plain
+        N["libero_tabletop_manipulation._check_success<br/>goal: (On akita_black_bowl_1 plate_1)<br/>On = plate.check_ontop(bowl): temas + xy mesafe < 3 cm"]:::output
+        O["done ise success=True, episode biter<br/>degilse 220 adimda basarisiz"]:::output
+        Q["done degil ve buffer bosaldi:<br/>yeni gozlem al, 1. kutuya don"]:::plain
+        L --> M --> N --> O
+        O -.-> Q
+    end
+
+    F --> G
+    K --> L
