@@ -1,0 +1,18 @@
+flowchart TD
+  classDef in fill:#cfe8ff,stroke:#333,color:#000
+  classDef model fill:#ffd166,stroke:#333,color:#000
+  classDef out fill:#d4f5d4,stroke:#333,color:#000
+  classDef bad fill:#ffd6d6,stroke:#333,color:#000
+
+  S["Önce EN tarafı: d(en, distractor) ile d(en, para) karşılaştır"]:::in
+  S -->|"distractor ≈ para (küçük)"| X["Model İngilizce'de bile mekânsal ifadeyi görmüyor<br/>(LIBERO-Plus bulgusu). TR deneyi bu karede anlamsız;<br/>başka kare / adım seç"]:::bad
+  S -->|"distractor >> para"| Y["Mekânsal ifade action'ı değiştiriyor: deney geçerli"]:::out
+  Y --> Q["d(en, tr) nerede duruyor?"]:::model
+  Q -->|"≈ para"| A1["Dil etkisi yok / küçük: TR komut EN gibi işleniyor<br/>(tokenizer hipotezi bu karede desteklenmez)"]:::out
+  Q -->|"para < tr < distractor, gripper uyumlu"| A2["Kısmi grounding: yön benzer, büyüklük sapıyor<br/>(Tatar'ın 'düşük kosinüs' bulgusunun hafif hâli)"]:::model
+  Q -->|"≈ empty"| A3["Model TR'yi gürültü gibi işliyor: komut yok tabanı<br/>(Chen vd. 2026'nın OpenVLA-OFT örüntüsü)"]:::bad
+  Q -->|"≈ distractor ya da gripper ters"| A4["Yanlış hedef / yanlış gripper: en kötü durum,<br/>kapalı döngüde başarısızlık beklenir (Ders 18)"]:::bad
+  A1 --> Z["Her yorum n=5 ile 'gözlem'dir; Wilcoxon p en az 0.0625.<br/>Kesinleşme: daha çok kare (init 0–9) + kapalı döngü success (Ders 18)"]:::in
+  A2 --> Z
+  A3 --> Z
+  A4 --> Z

@@ -15,6 +15,7 @@
   - [<span class="nav-num">12</span>Klavye Günü 4](/lectures/lecture-12.md)
   - [<span class="nav-num">13</span>Kod Okuma Günü](/lectures/lecture-13.md)
   - [<span class="nav-num">14</span>Klavye Günü 5](/lectures/lecture-14.md)
+  - [<span class="nav-num">15</span>Klavye Günü 6](/lectures/lecture-15.md)
 
 - **Plan**
   - [<span class="nav-num">·</span>Günlük Çalışma Logu](/plan/daily-log.md)
@@ -29,6 +30,7 @@
 
 - **Veri setleri**
   - [<span class="nav-num">·</span>Genel bakış](/datasets/README.md)
+  - [<span class="nav-num">01</span>LIBERO-Spatial TR mini — 5 görev × 6 komut koşulu](/datasets/01-libero-spatial-tr-mini/dataset-card.md)
 
 - **Kod**
   - [<span class="nav-num">09</span>Gün 9 kodu](/code/day09/README.md)
@@ -37,3 +39,4 @@
   - [<span class="nav-num">12</span>Gün 12 kodu](/code/day12/README.md)
   - [<span class="nav-num">13</span>Gün 13 kodu](/code/day13/README.md)
   - [<span class="nav-num">14</span>Gün 14 kodu](/code/day14/README.md)
+  - [<span class="nav-num">15</span>Gün 15 kodu](/code/day15/README.md)

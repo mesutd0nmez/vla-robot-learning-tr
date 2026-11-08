@@ -9,4 +9,4 @@ Klasör adı: `NN-kisa-ad`. Her klasörde `dataset-card.md` zorunlu; `data/` yal
 
 | # | Veri seti | Tür | Durum | Özet |
 |---|---|---|---|---|
-| — | — | — | — | Henüz veri seti yok |
+| 01 | [LIBERO-Spatial TR mini](01-libero-spatial-tr-mini/dataset-card.md) | kendi ürettiğim | v0.1 (çeviri doğrulaması bekliyor) | 5 Spatial görevi × 6 komut koşulu (en/para/tr/tr2/distractor/empty), 30 satır + LLaMA-2 token sayıları — Ders 15 |

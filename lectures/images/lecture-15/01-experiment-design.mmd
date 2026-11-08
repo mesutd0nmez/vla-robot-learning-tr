@@ -1,0 +1,35 @@
+flowchart TB
+  classDef in fill:#cfe8ff,stroke:#333,color:#000
+  classDef model fill:#ffd166,stroke:#333,color:#000
+  classDef out fill:#d4f5d4,stroke:#333,color:#000
+  classDef bad fill:#ffd6d6,stroke:#333,color:#000
+
+  subgraph F["5 kare: LIBERO-Spatial görev 0–4, init 0, 10 no-op, 180° döndürülmüş"]
+    direction LR
+    f0["task 0: arasındaki"]:::in
+    f1["task 1: yanındaki"]:::in
+    f2["task 2: ortasındaki"]:::in
+    f3["task 3: üstündeki"]:::in
+    f4["task 4: çekmecesindeki"]:::in
+  end
+
+  subgraph C["6 koşul (her kare için)"]
+    direction LR
+    en["en: task.language (referans)"]:::in
+    pa["para: EN parafraz (grab / located / put)"]:::in
+    tr["tr: Türkçe, -daki yapısı, kase"]:::model
+    tr2["tr2: Türkçe, duran yapısı, kâse, kaldır"]:::model
+    di["distractor: öteki kâseyi tarif eden EN komut"]:::bad
+    em["empty: boş komut"]:::bad
+  end
+
+  F --> M
+  C --> M
+  M["OpenVLA-7B LIBERO-Spatial ckpt, bf16, MPS, greedy<br/>30 çağrı, ~2 s/çağrı (hipotez)"]:::model
+  M --> T["7 token → bin (0..254) → [-1,1] → q01/q99"]:::out
+  T --> A["actions.csv: 30 satır × 7 token/bin/action + süre"]:::out
+  A --> K["analyze_day15.py<br/>referans = en, çiftler: para / tr / tr2 / distractor / empty + tr→tr2"]:::model
+  K --> m1["L2 ve cosine, 6 boyut, normalize uzay"]:::out
+  K --> m2["gripper uyumu (ayrı)"]:::out
+  K --> m3["farklı token sayısı, max bin farkı, within-5"]:::out
+  K --> m4["L2 7 boyut gerçek birim (Tatar ile karşılaştırma)"]:::out

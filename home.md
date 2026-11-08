@@ -23,6 +23,7 @@ Bilgisayar Mühendisliği yüksek lisans tezimin açık kaydı: Vision-Language-
 <a href="#/lectures/lecture-12"><b>12</b><span>Colab T4'te VLANeXt: ilk success rate<small>Faz 2 · Klavye</small></span></a>
 <a href="#/lectures/lecture-13"><b>13</b><span>Kod okuma: komut → action → success<small>Faz 2 · Kod okuma</small></span></a>
 <a href="#/lectures/lecture-14"><b>14</b><span>OpenVLA-7B Mac'te: görüntü + komut → 7 token → action<small>Faz 2 · Klavye</small></span></a>
+<a href="#/lectures/lecture-15"><b>15</b><span>Tatar mini-reprodüksiyonu: 5 kare × 6 koşul, L2 + cosine<small>Faz 2 · Klavye</small></span></a>
 </div>
 
 ## Nasıl çalışıyorum
@@ -33,7 +34,7 @@ Her ders aynı iskelette: 35 dakikalık okuma (görsellerle), "kendini sına" a�
 
 | Aşama | Kapsam | Durum |
 |---|---|---|
-| 0. Hızlandırılmış giriş (Ders 1–30) | Kavramlar → ortam kurulumu → ilk deneyler → proje üzerine akıl yürütme | Ders 1–13 hazır |
+| 0. Hızlandırılmış giriş (Ders 1–30) | Kavramlar → ortam kurulumu → ilk deneyler → proje üzerine akıl yürütme | Ders 1–15 hazır |
 | 1. Literatür ve konu seçimi | Tez ekseninin danışmanla netleştirilmesi, kaynak taraması | — |
 | 2. Deney altyapısı | Benchmark, model, metrik ve veri setinin kurulması | — |
 | 3. Deneyler | Ana deneyler, ablasyonlar, sonuç analizi | — |

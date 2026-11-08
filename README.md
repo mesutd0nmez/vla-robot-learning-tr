@@ -14,7 +14,7 @@ bağlanması (language grounding). Türkçe kaynak çok az olduğu için notlar,
 
 | Aşama | Kapsam | Durum |
 |---|---|---|
-| 0. Başlangıç — Hızlandırılmış giriş (Ders 1–30) | Kavramlar → ortam kurulumu → ilk deneyler → proje üzerine akıl yürütme (`plan/lecture-plan.md`) | 🟡 Ders 1–13 hazır |
+| 0. Başlangıç — Hızlandırılmış giriş (Ders 1–30) | Kavramlar → ortam kurulumu → ilk deneyler → proje üzerine akıl yürütme (`plan/lecture-plan.md`) | 🟡 Ders 1–15 hazır |
 | 1. Literatür ve konu seçimi | Tez ekseninin danışmanla netleştirilmesi, kaynak taraması | ⬜ |
 | 2. Deney altyapısı | Benchmark, model, metrik ve veri setinin kurulması | ⬜ |
 | 3. Deneyler | Ana deneyler, ablasyonlar, sonuç analizi | ⬜ |
@@ -62,6 +62,7 @@ Aşamalar netleştikçe bu tablo ve `plan/` klasörü güncellenir.
 | [12](lectures/lecture-12.md) | Colab T4'te VLANeXt: ilk success rate | 2 |
 | [13](lectures/lecture-13.md) | Kod okuma: komut → action → success zinciri | 2 |
 | [14](lectures/lecture-14.md) | OpenVLA-7B Mac'te (MPS): görüntü + komut → 7 token → action | 2 |
+| [15](lectures/lecture-15.md) | Tatar mini-reprodüksiyonu: 5 kare × 6 koşul, L2 + cosine | 2 |
 - Her ders `lectures/lecture-NN.md` olarak, `plan/daily-log.md` ile birlikte commit'lenir; bir günde birden fazla ders çalışılabilir; böylece kaldığım yer hiçbir zaman kaybolmaz.
 - Takılınca plan kayar, atlanmaz.
 

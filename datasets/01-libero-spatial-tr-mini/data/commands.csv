@@ -1,0 +1,31 @@
+id,suite,task_id,lang,condition,instruction,relation,frame,suffixes,variant,note
+sp0_en,libero_spatial,0,en,en,pick up the black bowl between the plate and the ramekin and place it on the plate,arasında (2 referans),camera,,a,task.language (referans)
+sp0_para,libero_spatial,0,en,para,grab the black bowl located between the plate and the ramekin and put it on the plate,arasında (2 referans),camera,,b,EN parafraz: grab/located/put
+sp0_tr,libero_spatial,0,tr,tr,tabak ile ramekinin arasındaki siyah kaseyi al ve tabağın üstüne koy,arasında (2 referans),camera,-in;ara-sı-nda-ki;-ın;üst-ü-ne,a,"LIBERO stili, -daki yapısı, 'kase'"
+sp0_tr2,libero_spatial,0,tr,tr2,tabakla ramekin arasında duran siyah kâseyi kaldır ve tabağa yerleştir,arasında (2 referans),camera,-la;ara-sı-nda;-a,b,"'duran' yapısı, 'kâse', 'kaldır' (Tatar: Kal+dır)"
+sp0_distractor,libero_spatial,0,en,distractor,pick up the black bowl next to the ramekin and place it on the plate,arasında (2 referans),camera,,a,ayni sahnedeki akita_black_bowl_2'yi tarif eder (= görev 1 komutu)
+sp0_empty,libero_spatial,0,none,empty,,arasında (2 referans),camera,,a,bos komut (prompt: 'In: What action should the robot take to ?')
+sp1_en,libero_spatial,1,en,en,pick up the black bowl next to the ramekin and place it on the plate,yanında (mesafe),camera,,a,task.language (referans)
+sp1_para,libero_spatial,1,en,para,grab the black bowl located next to the ramekin and put it on the plate,yanında (mesafe),camera,,b,EN parafraz: grab/located/put
+sp1_tr,libero_spatial,1,tr,tr,ramekinin yanındaki siyah kaseyi al ve tabağın üstüne koy,yanında (mesafe),camera,-in;yan-ı-nda-ki;-ın;üst-ü-ne,a,"LIBERO stili, -daki yapısı, 'kase'"
+sp1_tr2,libero_spatial,1,tr,tr2,ramekinin yanında duran siyah kâseyi kaldır ve tabağa yerleştir,yanında (mesafe),camera,-in;yan-ı-nda;-a,b,"'duran' yapısı, 'kâse', 'kaldır' (Tatar: Kal+dır)"
+sp1_distractor,libero_spatial,1,en,distractor,pick up the black bowl next to the cookie box and place it on the plate,yanında (mesafe),camera,,a,ayni sahnedeki akita_black_bowl_2'yi tarif eder (= görev 6 komutu)
+sp1_empty,libero_spatial,1,none,empty,,yanında (mesafe),camera,,a,bos komut (prompt: 'In: What action should the robot take to ?')
+sp2_en,libero_spatial,2,en,en,pick up the black bowl from table center and place it on the plate,ortasında (bölge),camera,,a,task.language (referans)
+sp2_para,libero_spatial,2,en,para,grab the black bowl located at the center of the table and put it on the plate,ortasında (bölge),camera,,b,EN parafraz: grab/located/put
+sp2_tr,libero_spatial,2,tr,tr,masanın ortasındaki siyah kaseyi al ve tabağın üstüne koy,ortasında (bölge),camera,-nın;orta-sı-nda-ki;-ın;üst-ü-ne,a,"LIBERO stili, -daki yapısı, 'kase'"
+sp2_tr2,libero_spatial,2,tr,tr2,masanın ortasında duran siyah kâseyi kaldır ve tabağa yerleştir,ortasında (bölge),camera,-nın;orta-sı-nda;-a,b,"'duran' yapısı, 'kâse', 'kaldır' (Tatar: Kal+dır)"
+sp2_distractor,libero_spatial,2,en,distractor,pick up the black bowl next to the plate and place it on the plate,ortasında (bölge),camera,,a,ayni sahnedeki akita_black_bowl_2'yi tarif eder (= görev 8 komutu)
+sp2_empty,libero_spatial,2,none,empty,,ortasında (bölge),camera,,a,bos komut (prompt: 'In: What action should the robot take to ?')
+sp3_en,libero_spatial,3,en,en,pick up the black bowl on the cookie box and place it on the plate,üstünde (EC),camera,,a,task.language (referans)
+sp3_para,libero_spatial,3,en,para,grab the black bowl located on top of the cookie box and put it on the plate,üstünde (EC),camera,,b,EN parafraz: grab/located/put
+sp3_tr,libero_spatial,3,tr,tr,kurabiye kutusunun üstündeki siyah kaseyi al ve tabağın üstüne koy,üstünde (EC),camera,-nun;üst-ü-nde-ki;-ın;üst-ü-ne,a,"LIBERO stili, -daki yapısı, 'kase'"
+sp3_tr2,libero_spatial,3,tr,tr2,kurabiye kutusunun üzerinde duran siyah kâseyi kaldır ve tabağa yerleştir,üstünde (EC),camera,-nun;üzer-i-nde;-a,b,"'duran' yapısı, 'kâse', 'kaldır' (Tatar: Kal+dır)"
+sp3_distractor,libero_spatial,3,en,distractor,pick up the black bowl on the wooden cabinet and place it on the plate,üstünde (EC),camera,,a,ayni sahnedeki akita_black_bowl_2'yi tarif eder (= görev 9 komutu)
+sp3_empty,libero_spatial,3,none,empty,,üstünde (EC),camera,,a,bos komut (prompt: 'In: What action should the robot take to ?')
+sp4_en,libero_spatial,4,en,en,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,içinde (NTPP),camera,,a,task.language (referans)
+sp4_para,libero_spatial,4,en,para,grab the black bowl located in the upper drawer of the wooden cabinet and put it on the plate,içinde (NTPP),camera,,b,EN parafraz: grab/located/put
+sp4_tr,libero_spatial,4,tr,tr,ahşap dolabın üst çekmecesindeki siyah kaseyi al ve tabağın üstüne koy,içinde (NTPP),camera,-ın;çekmece-si-nde-ki;-ın;üst-ü-ne,a,"LIBERO stili, -daki yapısı, 'kase'"
+sp4_tr2,libero_spatial,4,tr,tr2,ahşap dolabın üst çekmecesinde duran siyah kâseyi kaldır ve tabağa yerleştir,içinde (NTPP),camera,-ın;çekmece-si-nde;-a,b,"'duran' yapısı, 'kâse', 'kaldır' (Tatar: Kal+dır)"
+sp4_distractor,libero_spatial,4,en,distractor,pick up the black bowl on the wooden cabinet and place it on the plate,içinde (NTPP),camera,,a,ayni sahnedeki akita_black_bowl_2'yi tarif eder (= görev 9 komutu)
+sp4_empty,libero_spatial,4,none,empty,,içinde (NTPP),camera,,a,bos komut (prompt: 'In: What action should the robot take to ?')
