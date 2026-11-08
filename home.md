@@ -22,6 +22,7 @@ Bilgisayar Mühendisliği yüksek lisans tezimin açık kaydı: Vision-Language-
 <a href="#/lectures/lecture-11"><b>11</b><span>LIBERO demo verisi: HDF5'in içi<small>Faz 2 · Klavye</small></span></a>
 <a href="#/lectures/lecture-12"><b>12</b><span>Colab T4'te VLANeXt: ilk success rate<small>Faz 2 · Klavye</small></span></a>
 <a href="#/lectures/lecture-13"><b>13</b><span>Kod okuma: komut → action → success<small>Faz 2 · Kod okuma</small></span></a>
+<a href="#/lectures/lecture-14"><b>14</b><span>OpenVLA-7B Mac'te: görüntü + komut → 7 token → action<small>Faz 2 · Klavye</small></span></a>
 </div>
 
 ## Nasıl çalışıyorum

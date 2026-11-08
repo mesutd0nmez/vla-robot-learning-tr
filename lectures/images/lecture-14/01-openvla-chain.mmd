@@ -1,0 +1,30 @@
+flowchart TD
+    classDef inp fill:#cfe8ff,stroke:#333,color:#000
+    classDef model fill:#ffd166,stroke:#333,color:#000
+    classDef out fill:#d4f5d4,stroke:#333,color:#000
+    classDef warn fill:#ffd6d6,stroke:#333,color:#000
+
+    subgraph IMG["Görüntü yolu"]
+        direction TB
+        A["agentview 256x256 (LIBERO obs)"]:::inp --> B["img[::-1, ::-1] 180° döndür · lanczos3 → 224x224<br/>center crop %90 → 224x224<br/><i>libero_utils.py:56 · openvla_utils.py:135</i>"]:::inp
+        B --> C["PrismaticImageProcessor → pixel_values [1, 6, 224, 224]<br/>(DINOv2 3 kanal + SigLIP 3 kanal)"]:::inp
+        C --> D["DINOv2 ViT-L/14 (~0.30 B) + SigLIP So400m/14 (~0.43 B)<br/>16x16 = 256 patch, kanal birleştir → 2176"]:::model
+        D --> E["Projector MLP 2176 → 8704 → 4096 → 4096 (~71 M)"]:::model
+    end
+    subgraph TXT["Komut yolu"]
+        direction TB
+        P["komut (string)"]:::inp --> Q["prompt = In: What action should the robot take to {komut}? ⏎ Out:<br/><i>openvla_utils.py:163</i>"]:::inp
+        Q --> R["LLaMA-2 tokenizer: BOS + 33 token; sona 29871 '▁' eklenir<br/><i>modeling_prismatic.py:512</i>"]:::inp
+    end
+    E --> S["dizi: [BOS] [256 patch] [33 metin] [▁] = 291 token<br/><i>modeling_prismatic.py:384</i>"]:::model
+    R --> S
+    S --> T["LLaMA-2 7B (6.74 B) · generate(max_new_tokens=7, do_sample=False)<br/>7 kez autoregressive forward"]:::model
+    Z["Mac'te yok: flash_attention_2, CUDA → attn=sdpa, device=mps, bf16 (macOS 14+)"]:::warn -.-> T
+    subgraph DEC["Decode (modeling_prismatic.py:518-534 · run_libero_eval.py:219-225)"]
+        direction LR
+        U["7 token id<br/>hepsi 31744..31999<br/>(dağarcığın son 256'sı)"]:::out --> V["bin = 32000 - id - 1<br/>clip 0..254<br/>bin_centers[bin] → [-1, 1]"]:::out
+        V --> W["ilk 6 boyut:<br/>0.5(x+1)(q99-q01)+q01<br/>gripper: mask=False, dokunulmaz"]:::out
+        W --> X["LIBERO gripper:<br/>2g-1 → sign → ters çevir"]:::out
+        X --> Y["env.step(action)<br/>7-DoF"]:::out
+    end
+    T --> U

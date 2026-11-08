@@ -61,6 +61,7 @@ Aşamalar netleştikçe bu tablo ve `plan/` klasörü güncellenir.
 | [11](lectures/lecture-11.md) | LIBERO HDF5 demo verisi | 2 |
 | [12](lectures/lecture-12.md) | Colab T4'te VLANeXt: ilk success rate | 2 |
 | [13](lectures/lecture-13.md) | Kod okuma: komut → action → success zinciri | 2 |
+| [14](lectures/lecture-14.md) | OpenVLA-7B Mac'te (MPS): görüntü + komut → 7 token → action | 2 |
 - Her ders `lectures/lecture-NN.md` olarak, `plan/daily-log.md` ile birlikte commit'lenir; bir günde birden fazla ders çalışılabilir; böylece kaldığım yer hiçbir zaman kaybolmaz.
 - Takılınca plan kayar, atlanmaz.
 

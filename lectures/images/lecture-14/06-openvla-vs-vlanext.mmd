@@ -1,0 +1,21 @@
+flowchart TB
+    classDef inp fill:#cfe8ff,stroke:#333,color:#000
+    classDef model fill:#ffd166,stroke:#333,color:#000
+    classDef out fill:#d4f5d4,stroke:#333,color:#000
+    classDef warn fill:#ffd6d6,stroke:#333,color:#000
+
+    subgraph O["OpenVLA-7B (Ders 14) — autoregressive token"]
+        direction LR
+        O1["1 görüntü 224x224<br/>agentview (bilek yok)<br/>proprio yok"]:::inp --> O2["DINOv2 + SigLIP → 256 patch token<br/>LLaMA-2 7B, 32k BPE dağarcık<br/>In: What action ... ? Out:"]:::model
+        O2 --> O3["7 token, sırayla üretilir<br/>(her token bir öncekine bağlı)<br/>7 LLM forward"]:::model
+        O3 --> O4["token → bin (255 merkez) → q01/q99<br/>TEK adım action (chunk yok)<br/>Spatial: 84.7 ± 0.9 (3 seed × 500)"]:::out
+    end
+    subgraph V["VLANeXt (Ders 12–13) — flow-matching"]
+        direction LR
+        V1["2 görüntü 256x256<br/>agentview + bilek<br/>8 adım proprio"]:::inp --> V2["Qwen3-VL-2B, 151k dağarcık<br/>chat şablonu, 29 katman çıktısı<br/>soft bağlantı"]:::model
+        V2 --> V3["29 bloklu diffusion policy<br/>5 Euler adımı, VLM 1 kez<br/>8×7 action chunk"]:::model
+        V3 --> V4["[-1,1] → min/max (legacy)<br/>8 adım yürütülür<br/>Spatial: 99.0 (makale, Ders 12)"]:::out
+    end
+    T["Tez için ortak soru: Türkçe komut token'ları nerede, kaç tane, etkisi ne?<br/>OpenVLA: 20 → 32 token (×1.6), ek sınırları parçalanıyor<br/>VLANeXt: Ders 13 görevi (show_prompt.py) ile ölç"]:::warn
+    O4 -.-> T
+    V4 -.-> T
