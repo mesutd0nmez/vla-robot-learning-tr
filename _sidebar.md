@@ -16,6 +16,7 @@
   - [<span class="nav-num">13</span>Kod Okuma Günü](/lectures/lecture-13.md)
   - [<span class="nav-num">14</span>Klavye Günü 5](/lectures/lecture-14.md)
   - [<span class="nav-num">15</span>Klavye Günü 6](/lectures/lecture-15.md)
+  - [<span class="nav-num">16</span>Faz 2 Sentezi + LIBERO-Plus](/lectures/lecture-16.md)
 
 - **Plan**
   - [<span class="nav-num">·</span>Günlük Çalışma Logu](/plan/daily-log.md)
@@ -40,3 +41,4 @@
   - [<span class="nav-num">13</span>Gün 13 kodu](/code/day13/README.md)
   - [<span class="nav-num">14</span>Gün 14 kodu](/code/day14/README.md)
   - [<span class="nav-num">15</span>Gün 15 kodu](/code/day15/README.md)
+  - [<span class="nav-num">16</span>Gün 16 kodu](/code/day16/README.md)

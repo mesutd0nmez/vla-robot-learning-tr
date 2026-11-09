@@ -24,6 +24,7 @@ Bilgisayar Mühendisliği yüksek lisans tezimin açık kaydı: Vision-Language-
 <a href="#/lectures/lecture-13"><b>13</b><span>Kod okuma: komut → action → success<small>Faz 2 · Kod okuma</small></span></a>
 <a href="#/lectures/lecture-14"><b>14</b><span>OpenVLA-7B Mac'te: görüntü + komut → 7 token → action<small>Faz 2 · Klavye</small></span></a>
 <a href="#/lectures/lecture-15"><b>15</b><span>Tatar mini-reprodüksiyonu: 5 kare × 6 koşul, L2 + cosine<small>Faz 2 · Klavye</small></span></a>
+<a href="#/lectures/lecture-16"><b>16</b><span>Faz 2 sentezi + LIBERO-Plus: ayrı runtime, komutun kod yolu, boş komut<small>Faz 2 · Sentez + Klavye</small></span></a>
 </div>
 
 ## Nasıl çalışıyorum

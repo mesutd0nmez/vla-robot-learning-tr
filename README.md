@@ -63,6 +63,7 @@ Aşamalar netleştikçe bu tablo ve `plan/` klasörü güncellenir.
 | [13](lectures/lecture-13.md) | Kod okuma: komut → action → success zinciri | 2 |
 | [14](lectures/lecture-14.md) | OpenVLA-7B Mac'te (MPS): görüntü + komut → 7 token → action | 2 |
 | [15](lectures/lecture-15.md) | Tatar mini-reprodüksiyonu: 5 kare × 6 koşul, L2 + cosine | 2 |
+| [16](lectures/lecture-16.md) | Faz 2 sentezi + LIBERO-Plus: ayrı runtime, komutun kod yolu, boş-komut denemesi | 2 |
 - Her ders `lectures/lecture-NN.md` olarak, `plan/daily-log.md` ile birlikte commit'lenir; bir günde birden fazla ders çalışılabilir; böylece kaldığım yer hiçbir zaman kaybolmaz.
 - Takılınca plan kayar, atlanmaz.
 

@@ -1,0 +1,27 @@
+# Ders 16 — VLANeXt LIBERO-Plus eval, ücretsiz T4 için küçük bütçe.
+# Orijinal: VLANeXt/config/libero_plus_bench_config.yaml (num_parallel_envs: 32, num_trials_per_task: 1, 2402 görev)
+# Kullanım (VLANeXt kökünde; PYTHONPATH=third_party/LIBERO-plus, LIBERO_CONFIG_PATH=~/.libero_plus):
+#   VLANEXT_TASK_IDS="988,994,995" python -m scripts.libero_plus_bench_eval --config config/t4_plus_config.yaml
+data:
+  augmentation:
+    center_crop: true
+    center_crop_ratio: 0.9
+
+model:
+  diffusion_steps: 5
+  scheduler_type: "flow_match"
+
+project:
+  use_wandb: false
+
+eval:
+  finetuned_checkpoint: "checkpoints/VLANeXt_libero_spatial.pt"   # Ders 12'deki dosya (LIBERO'da eğitildi)
+  task_suite_name: "libero_spatial"
+  num_steps_wait: 10
+  num_steps_execute: 8
+  num_parallel_envs: 1         # LIBERO-Plus env'leri ek asset yükler; T4 + 12.7 GB RAM'de 1 ile başla
+  num_trials_per_task: 1       # LIBERO-Plus'ta her görev zaten tek bir bozulma örneği; README: 50 → 1
+  seed: 42
+  image_size: 256
+  resume_episodes: 0
+  resume_successes: 0

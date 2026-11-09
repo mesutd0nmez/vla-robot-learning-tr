@@ -1,0 +1,33 @@
+flowchart LR
+  classDef in fill:#cfe8ff,stroke:#3d7fc4,color:#111
+  classDef model fill:#ffd166,stroke:#b07d00,color:#111
+  classDef out fill:#d4f5d4,stroke:#3a9a5c,color:#111
+  classDef bad fill:#ffd6d6,stroke:#c0392b,color:#111
+
+  subgraph MAC["Mac M2 32 GB (MPS) — Ders 9, 10, 11, 14, 15"]
+    direction TB
+    M1["LIBERO + robosuite 1.4.1<br/>mujoco 2.3.7 (env: vla)"]:::in
+    M2["HDF5 demo: 7-DoF action<br/>(Ders 11)"]:::in
+    M3["OpenVLA-7B bf16<br/>(env: openvla, transformers 4.40.1)"]:::model
+    M4["tek kare + komut<br/>7 token, 7-DoF action"]:::out
+    M5["Tatar mini: 5 kare x 6 kosul<br/>L2 / cosine (Ders 15)"]:::out
+    M1 --> M3 --> M4 --> M5
+    M2 -.-> M3
+  end
+
+  subgraph COLAB["Colab / Kaggle T4 (CUDA) — Ders 12, 13, 16"]
+    direction TB
+    C1["runtime A: LIBERO<br/>pip install (Ders 12)"]:::in
+    C2["runtime B: LIBERO-Plus<br/>PYTHONPATH + assets 6.4 GB (bugün)"]:::in
+    C3["VLANeXt-B (Qwen3-VL-2B)<br/>yamalar: sdpa, mmap, filtre, override"]:::model
+    C4["kapali dongu episode<br/>success rate"]:::out
+    C1 --> C3
+    C2 --> C3
+    C3 --> C4
+  end
+
+  M5 --> Q{"ayni soru:<br/>komut degisince<br/>davranis degisiyor mu?"}:::model
+  C4 --> Q
+  Q --> R["results/runs.csv<br/>datasets/ kartlari"]:::out
+  X["OpenVLA kapali dongu yok<br/>VLANeXt tek kare yok"]:::bad
+  Q -.-> X

@@ -1,0 +1,25 @@
+flowchart TB
+  classDef in fill:#cfe8ff,stroke:#3d7fc4,color:#111
+  classDef model fill:#ffd166,stroke:#b07d00,color:#111
+  classDef out fill:#d4f5d4,stroke:#3a9a5c,color:#111
+  classDef bad fill:#ffd6d6,stroke:#c0392b,color:#111
+
+  A["task_suite.get_task(988)<br/>ad: ..._on_the_plate_language_5_view_0_0_100_0_0_initstate_0"]:::in
+  A --> B{"adinda _language_ var mi?<br/>benchmark/__init__.py:46"}
+  B -- "hayir (Ders 13: orijinal LIBERO)" --> F["komut = dosya adi<br/>alt cizgi yerine bosluk"]:::in
+  B -- "evet" --> C["_view_ oncesini al<br/>..._language_5.bddl"]:::in
+  C --> D["bddl.parsing.scan_tokens<br/>';' sonrasi silinir, .lower(), parantez = yapi"]:::bad
+  D --> E["get_problem_info: (:language ...)<br/>kelimeler bosluklu birlestirilir"]:::in
+  E --> G["task.language<br/>'would you mind helping me by picking up ...'"]:::out
+  F --> G
+  A --> H["init state: _language_ oncesi<br/>orijinal .pruned_init (ayni sahne)"]:::in
+  A --> I["env_wrapper.py:207<br/>view_0_0_100_0_0 = varsayilan kamera"]:::in
+  G --> J{"VLANEXT_INSTR_OVERRIDE<br/>tanimli mi? (Ders 16 yamasi)"}:::model
+  J -- "hayir" --> K["spec.task_description = task.language"]:::out
+  J -- "evet" --> L["spec.task_description = override<br/>'' / temiz EN / Turkce"]:::out
+  K --> M["Qwen3-VL sohbet sablonu + 2 kamera + proprio<br/>8x7 action chunk (Ders 13)"]:::model
+  L --> M
+  H --> N["env.set_init_state"]:::in
+  I --> N
+  N --> M
+  M --> O["check_success: ayni BDDL hedefi<br/>(On akita_black_bowl_1 plate_1)"]:::out
