@@ -25,6 +25,7 @@ Bilgisayar Mühendisliği yüksek lisans tezimin açık kaydı: Vision-Language-
 <a href="#/lectures/lecture-14"><b>14</b><span>OpenVLA-7B Mac'te: görüntü + komut → 7 token → action<small>Faz 2 · Klavye</small></span></a>
 <a href="#/lectures/lecture-15"><b>15</b><span>Tatar mini-reprodüksiyonu: 5 kare × 6 koşul, L2 + cosine<small>Faz 2 · Klavye</small></span></a>
 <a href="#/lectures/lecture-16"><b>16</b><span>Faz 2 sentezi + LIBERO-Plus: ayrı runtime, komutun kod yolu, boş komut<small>Faz 2 · Sentez + Klavye</small></span></a>
+<a href="#/lectures/lecture-17"><b>17</b><span>LIBERO-Plus'ın yedi bozulması kodda: üç taşıyıcı, kamera, 500 Panda, R1/R2, Türkçe varyant<small>Faz 3 · Kod okuma + Klavye</small></span></a>
 </div>
 
 ## Nasıl çalışıyorum
@@ -35,7 +36,7 @@ Her ders aynı iskelette: 35 dakikalık okuma (görsellerle), "kendini sına" a�
 
 | Aşama | Kapsam | Durum |
 |---|---|---|
-| 0. Hızlandırılmış giriş (Ders 1–30) | Kavramlar → ortam kurulumu → ilk deneyler → proje üzerine akıl yürütme | Ders 1–15 hazır |
+| 0. Hızlandırılmış giriş (Ders 1–30) | Kavramlar → ortam kurulumu → ilk deneyler → proje üzerine akıl yürütme | Ders 1–17 hazır |
 | 1. Literatür ve konu seçimi | Tez ekseninin danışmanla netleştirilmesi, kaynak taraması | — |
 | 2. Deney altyapısı | Benchmark, model, metrik ve veri setinin kurulması | — |
 | 3. Deneyler | Ana deneyler, ablasyonlar, sonuç analizi | — |

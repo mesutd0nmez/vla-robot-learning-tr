@@ -17,6 +17,7 @@
   - [<span class="nav-num">14</span>Klavye Günü 5](/lectures/lecture-14.md)
   - [<span class="nav-num">15</span>Klavye Günü 6](/lectures/lecture-15.md)
   - [<span class="nav-num">16</span>Faz 2 Sentezi + LIBERO-Plus](/lectures/lecture-16.md)
+  - [<span class="nav-num">17</span>LIBERO-Plus'ın Yedi Bozulması Kodda](/lectures/lecture-17.md)
 
 - **Plan**
   - [<span class="nav-num">·</span>Günlük Çalışma Logu](/plan/daily-log.md)
@@ -32,6 +33,7 @@
 - **Veri setleri**
   - [<span class="nav-num">·</span>Genel bakış](/datasets/README.md)
   - [<span class="nav-num">01</span>LIBERO-Spatial TR mini — 5 görev × 6 komut koşulu](/datasets/01-libero-spatial-tr-mini/dataset-card.md)
+  - [<span class="nav-num">02</span>LIBERO-Plus Spatial görev 0 — 50 yeniden yazımın türü + 10 Türkçe BDDL varyantı](/datasets/02-libero-plus-spatial0-rewrites/dataset-card.md)
 
 - **Kod**
   - [<span class="nav-num">09</span>Gün 9 kodu](/code/day09/README.md)
@@ -42,3 +44,4 @@
   - [<span class="nav-num">14</span>Gün 14 kodu](/code/day14/README.md)
   - [<span class="nav-num">15</span>Gün 15 kodu](/code/day15/README.md)
   - [<span class="nav-num">16</span>Gün 16 kodu](/code/day16/README.md)
+  - [<span class="nav-num">17</span>Gün 17 kodu](/code/day17/README.md)

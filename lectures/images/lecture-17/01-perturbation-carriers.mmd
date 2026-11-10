@@ -1,0 +1,38 @@
+flowchart LR
+    classDef key fill:#ffd166,stroke:#b07d00,color:#000
+    classDef inp fill:#cfe8ff,stroke:#3a6ea5,color:#000
+    classDef out fill:#d4f5d4,stroke:#2e7d32,color:#000
+    classDef bad fill:#ffd6d6,stroke:#b00020,color:#000
+
+    T["task_classification.json<br/>görev adı, örn.<br/><i>base_language_5_view_0_0_100_0_0_initstate_0</i>"]:::inp
+
+    subgraph A["Taşıyıcı 1: görev ADI (BDDL değişmez, asset gerekmez)"]
+        A1["_view_H_V_S_ER_EV<br/>env_wrapper.py:207-218 parse<br/>→ _setup_camera: rotate z/y, scale, uç yaw/pitch"]:::key
+        A2["_initstate_I<br/>robots = ['Panda' + I]<br/>→ MountedPandaI.init_qpos (7 açı)"]:::key
+        A3["_noise_N (1..50)<br/>ControlEnv.step/reset:<br/>yalnızca agentview_image bozulur"]:::key
+    end
+
+    subgraph B["Taşıyıcı 2: BDDL DOSYASI (yeni .bddl, isim _view_ öncesinden)"]
+        B1["_language_K<br/>yalnızca (:language ...) farklı<br/>→ grab_language_from_filename else-dalı → .lower()"]:::key
+        B2["_add_K<br/>+ nesne, + add_object_region_K<br/>(3 çeldirici, 416 havuz)"]:::key
+        B3["_levelL_sampleM<br/>:regions aralıkları ±L cm kaymış"]:::key
+    end
+
+    subgraph C["Taşıyıcı 3: PROBLEM SINIFI → scene XML (asset şart)"]
+        C1["_light_K → (problem ..._light_sync_modified_K)<br/>scene_xml = scenes/lights/..._K.xml"]:::key
+        C2["_table_K / _tb_K → (problem ..._table_Doku[_Wall_x])<br/>scene_xml = scenes/tabletop_table_Doku.xml"]:::key
+    end
+
+    T --> A1 & A2 & A3
+    T --> B1 & B2 & B3
+    T --> C1 & C2
+
+    A1 --> O1["agentview kamerası<br/>pos/quat"]:::out
+    A2 --> O2["robot başlangıç qpos"]:::out
+    A3 --> O3["bozulmuş görüntü<br/>(bilek kamerası temiz)"]:::out
+    B1 --> O4["task.language<br/>(modele giden komut)"]:::out
+    B2 & B3 --> O5["nesne yerleşimi<br/>(placement initializer)"]:::out
+    C1 & C2 --> O6["ışık / doku<br/>(MuJoCo sahne XML)"]:::out
+
+    N["Hedef (:goal) ve başarı ölçütü<br/>7 bozulmanın HİÇBİRİNDE değişmez"]:::bad
+    O4 -.-> N

@@ -1,0 +1,11 @@
+base_index,tr_id,text,source_id
+0,1,tabak ile ramekinin arasındaki siyah kaseyi al ve tabağın üstüne koy,sp0_tr
+0,2,tabakla ramekin arasında duran siyah kâseyi kaldır ve tabağa yerleştir,sp0_tr2
+1,1,ramekinin yanındaki siyah kaseyi al ve tabağın üstüne koy,sp1_tr
+1,2,ramekinin yanında duran siyah kâseyi kaldır ve tabağa yerleştir,sp1_tr2
+2,1,masanın ortasındaki siyah kaseyi al ve tabağın üstüne koy,sp2_tr
+2,2,masanın ortasında duran siyah kâseyi kaldır ve tabağa yerleştir,sp2_tr2
+3,1,kurabiye kutusunun üstündeki siyah kaseyi al ve tabağın üstüne koy,sp3_tr
+3,2,kurabiye kutusunun üzerinde duran siyah kâseyi kaldır ve tabağa yerleştir,sp3_tr2
+4,1,ahşap dolabın üst çekmecesindeki siyah kaseyi al ve tabağın üstüne koy,sp4_tr
+4,2,ahşap dolabın üst çekmecesinde duran siyah kâseyi kaldır ve tabağa yerleştir,sp4_tr2

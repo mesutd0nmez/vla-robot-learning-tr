@@ -1,0 +1,22 @@
+flowchart TD
+    classDef key fill:#ffd166,stroke:#b07d00,color:#000
+    classDef inp fill:#cfe8ff,stroke:#3a6ea5,color:#000
+    classDef out fill:#d4f5d4,stroke:#2e7d32,color:#000
+    classDef bad fill:#ffd6d6,stroke:#b00020,color:#000
+
+    D["datasets/01 commands.csv<br/>sp0_tr: <i>tabak ile ramekinin arasındaki siyah kaseyi al ve tabağın üstüne koy</i>"]:::inp
+    K["Kural kontrolü (check_text)<br/>küçük harf? ';' yok? parantez yok? U+0307 yok?"]:::key
+    F["base.bddl kopyala, yalnızca (:language ...) değiştir<br/>→ base_language_tr1.bddl"]:::key
+    P["bddl.parsing.scan_tokens ile geri oku<br/>modele gidecek metin == yazılan?"]:::key
+    M["libero_suite_task_map.py<br/>listenin SONUNA:<br/>base_language_tr1_view_0_0_100_0_0_initstate_0"]:::key
+    J["task_classification.json<br/>id = son + 1, category = Language Instructions,<br/>difficulty_level = null"]:::key
+    E["VLANEXT_TASK_IDS = yeni indeksler<br/>(0 tabanlı = eski liste uzunluğu, +1, ...)<br/>libero_plus_bench_eval.py"]:::out
+    X["HATA: Missing close parenthesis / TypeError<br/>ya da 'Işığın' → 'işığın', 'İ' → 'i'+U+0307"]:::bad
+    ALT["Alternatif yol (Ders 16): BDDL'e dokunma,<br/>VLANEXT_INSTR_OVERRIDE ile eval katmanında ver<br/>(büyük/küçük harf korunur; 46 varyantla aynı protokol DEĞİL)"]:::inp
+
+    D --> K
+    K -- geçti --> F --> P
+    K -- geçmedi --> X
+    P -- aynı --> M --> J --> E
+    P -- farklı --> X
+    D -.-> ALT -.-> E

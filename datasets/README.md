@@ -10,3 +10,4 @@ Klasör adı: `NN-kisa-ad`. Her klasörde `dataset-card.md` zorunlu; `data/` yal
 | # | Veri seti | Tür | Durum | Özet |
 |---|---|---|---|---|
 | 01 | [LIBERO-Spatial TR mini](01-libero-spatial-tr-mini/dataset-card.md) | kendi ürettiğim | v0.1 (çeviri doğrulaması bekliyor) | 5 Spatial görevi × 6 komut koşulu (en/para/tr/tr2/distractor/empty), 30 satır + LLaMA-2 token sayıları — Ders 15 |
+| 02 | [LIBERO-Plus Spatial 0 yeniden yazımları + TR BDDL](02-libero-plus-spatial0-rewrites/dataset-card.md) | kendi ürettiğim (dış metin üstüne etiket) | v0.1 (tür etiketi kural tabanlı) | Görev 0'ın 50 `_language_K` yeniden yazımı: benchmark üyeliği, indeks, zorluk, R1/R2 türü, korunan kelimeler; 10 Türkçe `_language_trK.bddl` + task map satırları; 7 bozulmanın kod tablosu — Ders 17 |

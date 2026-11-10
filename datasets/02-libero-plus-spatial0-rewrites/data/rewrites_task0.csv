@@ -1,0 +1,51 @@
+k,in_benchmark,task_index,difficulty,type,words,keeps_bowl,keeps_plate,keeps_between,relation_word,conversational,descriptive,lowercase_changes,text
+1,True,984,2,R2 sağduyu (tam),32,False,False,True,situated between,False,True,0,grasp the darkhued rounded container situated between the flat dish used for serving food and the small glazed ceramic dish and set it down onto the flat dish used for serving food
+2,True,985,2,R1 dikkat dağıtma,21,True,True,True,between,True,False,2,Could you put the black bowl on the plate for me Its the one sitting between the plate and the ramekin
+3,True,986,2,R2 sağduyu (tam),34,False,False,True,between,False,True,0,pick up the darkcolored rounded container between the flat dish for main courses and the small ceramic dish typically used for baking and serving and place it on the flat dish for main courses
+4,True,987,2,R1 dikkat dağıtma,18,True,True,True,situated between,True,False,1,Please locate the black bowl situated between the plate and ramekin then carefully place it on the plate
+5,True,988,1,R1 dikkat dağıtma,22,True,True,True,between,True,False,1,Would you mind helping me by picking up the black bowl between the plate and ramekin and placing it on the plate
+6,True,989,4,R2 sağduyu (tam),26,False,False,False,separating,False,True,1,Grasp the darkhued curved container situated in the narrow space separating the flat dish and the small ceramic dish and position it atop the flat dish
+7,True,990,3,R0 düz parafraz,17,True,True,False,amid,False,False,1,Collect the black bowl located amid the plate and the ramekin and set it atop the plate
+8,True,991,4,R1 dikkat dağıtma,23,True,True,True,between,True,False,1,The table setting isnt quite right  please pick up the black bowl between the plate and ramekin and place it on the plate
+9,True,992,3,R1 dikkat dağıtma,20,True,True,True,between,True,False,1,Lets rearrange the table pick up the black bowl between the plate and ramekin and place it on the plate
+10,True,993,3,R1 dikkat dağıtma,18,True,True,True,between,True,False,1,Can you place the black bowl thats between the plate and the ramekin on top of the plate
+11,True,994,1,R2 sağduyu (hafif),17,True,True,True,situated between,False,True,1,Lift the dark bowl situated between the dish and the ramekin and set it on the plate
+12,True,995,1,R1 dikkat dağıtma,24,True,True,True,between,True,False,1,Would you be so kind as to pick up the black bowl thats between the plate and ramekin and place it on the plate
+13,True,996,3,R2 sağduyu (tam),34,False,False,True,between,False,True,1,Grasp the darkcolored vessel located between the item for holding a main course and the small dish designed for baking and serving and rest it upon the item designed to hold a main course
+14,True,997,1,R1 dikkat dağıtma,17,True,True,True,between,True,False,1,Could you move the black bowl thats between the plate and the ramekin onto the plate itself
+15,True,998,2,R2 sağduyu (tam),21,False,False,True,situated between,False,True,1,Lift the darkhued container situated between the flat dish and the small baking dish and set it upon the flat dish
+16,False,,,R2 sağduyu (tam),35,False,False,True,between,False,True,0,pick up the darkhued container located between the dish for the main course and the small ceramic dish often used for baking and condiments and position it on the dish used for serving main meals
+17,False,,,R2 sağduyu (hafif),19,True,True,True,situated between,False,True,1,Grasp the dark bowl situated between the dish and the small baking dish and position it atop the plate
+18,True,999,1,R2 sağduyu (hafif),17,True,True,True,situated between,False,True,1,Grasp the dark bowl situated between the dish and the ramekin and set it atop the plate
+19,True,1000,3,R1 dikkat dağıtma,24,True,True,True,positioned between,True,False,1,Could you please pick up the black bowl thats positioned between the plate and the ramekin then place it on top of the plate
+20,True,1001,2,R1 dikkat dağıtma,19,True,True,True,between,True,False,2,Can you place the black bowl on the plate for me Its currently between a plate and a ramekin
+21,True,1002,2,R2 sağduyu (hafif),17,True,True,True,situated between,False,True,1,Lift the dark bowl situated between the dish and the ramekin and position it on the plate
+22,True,1003,1,R1 dikkat dağıtma,21,True,True,True,between,True,False,1,The black bowl needs relocation  please pick it up from between the plate and ramekin and put it on the plate
+23,True,1004,1,R2 sağduyu (tam),21,False,False,True,situated between,False,True,1,Lift the darkhued dish situated between the flat dish and the small baking dish then set it atop the flat dish
+24,True,1005,2,R1 dikkat dağıtma,22,True,True,True,between,True,False,1,For better table organization would you pick up the black bowl between the plate and ramekin and move it to the plate
+25,True,1006,4,R2 sağduyu (tam),30,False,False,True,between,False,True,0,pick up the darkcolored concave dish located between the flat dish for serving food and the small round baking dish and place it on the flat dish for serving food
+26,True,1007,3,R1 dikkat dağıtma,16,True,True,True,between,True,False,1,Could you put the black bowl thats between the plate and the ramekin onto the plate
+27,True,1008,3,R1 dikkat dağıtma,21,True,True,True,between,True,False,1,Before our guests arrive please pick up the black bowl between the plate and ramekin and place it on the plate
+28,True,1009,3,R1 dikkat dağıtma,16,True,True,True,between,True,False,1,Could you move the black bowl thats between the plate and the ramekin onto the plate
+29,False,,,R1 dikkat dağıtma,20,True,True,True,between,True,False,1,I noticed the black bowl is between the plate and ramekin  could you move it onto the plate for me
+30,True,1010,3,R1 dikkat dağıtma,25,True,True,True,between,True,False,2,For our dining setup Id appreciate if you could pick up the black bowl between the plate and ramekin and move it to the plate
+31,True,1011,2,R2 sağduyu (hafif),17,True,True,True,situated between,False,True,1,Grasp the dark bowl situated between the dish and the ramekin then set it atop the plate
+32,True,1012,3,R1 dikkat dağıtma,18,True,True,True,between,True,False,1,Could you move the black bowl thats between the plate and the ramekin onto the plate for me
+33,True,1013,2,R2 sağduyu (tam),37,False,False,True,between,False,True,0,pick up the darkcolored curved dish located between the flat dish used for main courses and the small glazed dish typically used for baking and serving and place it on the flat dish used for main courses
+34,True,1014,2,R1 dikkat dağıtma,23,True,True,True,between,True,False,2,Remember how we organized the table Now pick up the black bowl between the plate and ramekin and put it on the plate
+35,False,,,R2 sağduyu (tam),24,False,False,True,situated between,True,True,1,Lift the darkcolored dish situated between the flat dish holder and the small cooking dish then set it down onto the flat dish holder
+36,True,1015,4,R1 dikkat dağıtma,19,True,True,True,between,True,False,1,Could you place the black bowl thats between the plate and the ramekin right on the plate for me
+37,True,1016,1,R2 sağduyu (tam),34,False,False,True,situated between,False,True,1,Lift the dark colored dish situated between the flat dish used for main courses and the small dish often used for baking desserts then set it atop the flat dish used for main courses
+38,True,1017,1,R1 dikkat dağıtma,22,True,True,True,between,True,False,1,Lets adjust the table arrangement pick up the black bowl located between the plate and ramekin and put it on the plate
+39,True,1018,1,R2 sağduyu (tam),23,False,False,True,situated between,False,True,1,Lift the darkcolored rounded vessel situated between the flat dish and the small ceramic baking dish and position it atop the flat dish
+40,True,1019,2,R2 sağduyu (tam),29,False,False,True,between,False,True,0,pick up the darkcolored rounded container between the flat dish for meals and the small dish used typically for baking and place it on the flat dish for meals
+41,True,1020,2,R2 sağduyu (tam),24,False,False,True,midway,False,True,1,Lift the darkcolored spherical vessel located midway between the flat dish and the small ceramic baking dish then position it atop the flat dish
+42,True,1021,3,R2 sağduyu (tam),33,False,False,True,situated between,False,True,0,pick up the darkcolored rounded dish situated between the flatbased dish for main meals and the small dish typically used for serving sauces then place it onto the flatbased dish for main meals
+43,True,1022,1,R1 dikkat dağıtma,23,True,True,True,between,True,False,1,The black bowl between the plate and ramekin needs to be moved  please place it on the plate when you have a moment
+44,True,1023,3,R1 dikkat dağıtma,21,True,True,True,between,True,False,2,Could you place the black bowl onto the plate for me Its the one sitting between another plate and a ramekin
+45,True,1024,3,R0 düz parafraz,17,True,True,True,between,False,False,1,Grasp the black bowl located between the plate and the ramekin and set it on the plate
+46,True,1025,3,R2 sağduyu (hafif),17,False,True,True,positioned between,False,True,1,Lift the black dish positioned between the plate and the ramekin and set it on the plate
+47,True,1026,4,R2 sağduyu (tam),33,False,False,True,between,False,True,1,Lift the darkcolored vessel located between the flat dish used for main courses and the small dish often used for baking desserts then set it upon the flat dish used for main courses
+48,True,1027,3,R1 dikkat dağıtma,24,True,True,True,between,True,False,2,For our dinner setup I need you to pick up the black bowl between the plate and ramekin and place it on the plate
+49,True,1028,2,R1 dikkat dağıtma,21,True,True,True,positioned between,True,False,1,For proper table arrangement pick up the black bowl positioned between the plate and ramekin and set it on the plate
+50,True,1029,2,R1 dikkat dağıtma,22,True,True,True,between,True,False,1,Before we start cooking could you pick up the black bowl between the plate and ramekin and transfer it to the plate
