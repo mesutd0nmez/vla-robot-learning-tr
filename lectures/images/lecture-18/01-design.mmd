@@ -1,0 +1,33 @@
+flowchart LR
+  classDef in fill:#cfe8ff,stroke:#3b6ea8,color:#111
+  classDef key fill:#ffd166,stroke:#c79a00,color:#111
+  classDef out fill:#d4f5d4,stroke:#2e8b57,color:#111
+  classDef bad fill:#ffd6d6,stroke:#c0392b,color:#111
+
+  subgraph SABIT["Sabit tutulanlar (tek görev, tek model)"]
+    T["LIBERO-Spatial görev 0<br/>between the plate and the ramekin"]:::in
+    I["10 init state: initial_states[0..9]<br/>(50'lik .pruned_init dosyasının ilk 10'u)"]:::in
+    M["VLANeXt-B, LIBERO-Spatial checkpoint<br/>seed 42, chunk 8, 5 Euler adımı, max 220 adım"]:::key
+    G["Başarı ölçütü değişmez:<br/>(On akita_black_bowl_1 plate_1)"]:::in
+  end
+
+  subgraph DEGISEN["Tek değişen: komut metni (VLANEXT_CONDITIONS)"]
+    C1["clean: task.language (null)"]:::key
+    C2["empty: ''"]:::bad
+    C3["wrong: öteki kâseyi tarif eden EN komut<br/>(next to the ramekin = akita_black_bowl_2)"]:::bad
+    C4["tr: tabak ile ramekinin arasındaki<br/>siyah kaseyi al ve tabağın üstüne koy"]:::key
+  end
+
+  T --> X
+  I --> X
+  M --> X
+  C1 --> X
+  C2 --> X
+  C3 --> X
+  C4 --> X
+  X{"10 init × 4 koşul = 40 episode<br/>tek süreç, tek model yüklemesi<br/>sıra: init0 × 4 koşul, init1 × 4 koşul, ..."}:::key
+  X --> L["eval.log: her satırda trial= ve condition="]:::out
+  L --> E["episodes.csv (40 satır)<br/>runs.csv (4 satır)"]:::out
+  L --> V["40 video: clean__..., empty__..., wrong__..., tr__..."]:::out
+  E --> R["4 satırlık tablo: k/n, Wilson %95,<br/>uyumsuz çiftler, McNemar / Fisher p"]:::out
+  G -.-> R

@@ -1,0 +1,3 @@
+run_id,suite,task_id,condition,init_state,success,rollout_steps,episode_time_s
+vlanext_sp0_4cond_01,libero_spatial,0,clean,0,1,96,91.0
+vlanext_sp0_4cond_01,libero_spatial,0,empty,0,0,220,184.0

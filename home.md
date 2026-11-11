@@ -26,6 +26,7 @@ Bilgisayar Mühendisliği yüksek lisans tezimin açık kaydı: Vision-Language-
 <a href="#/lectures/lecture-15"><b>15</b><span>Tatar mini-reprodüksiyonu: 5 kare × 6 koşul, L2 + cosine<small>Faz 2 · Klavye</small></span></a>
 <a href="#/lectures/lecture-16"><b>16</b><span>Faz 2 sentezi + LIBERO-Plus: ayrı runtime, komutun kod yolu, boş komut<small>Faz 2 · Sentez + Klavye</small></span></a>
 <a href="#/lectures/lecture-17"><b>17</b><span>LIBERO-Plus'ın yedi bozulması kodda: üç taşıyıcı, kamera, 500 Panda, R1/R2, Türkçe varyant<small>Faz 3 · Kod okuma + Klavye</small></span></a>
+<a href="#/lectures/lecture-18"><b>18</b><span>Aynı görev, dört komut: clean / empty / wrong / tr × 10 init state — deney tasarımı, yama, Wilson ve güç<small>Faz 3 · Deney + Klavye</small></span></a>
 </div>
 
 ## Nasıl çalışıyorum

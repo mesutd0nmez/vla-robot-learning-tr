@@ -1,0 +1,26 @@
+flowchart TB
+  classDef in fill:#cfe8ff,stroke:#3b6ea8,color:#111
+  classDef key fill:#ffd166,stroke:#c79a00,color:#111
+  classDef out fill:#d4f5d4,stroke:#2e8b57,color:#111
+  classDef bad fill:#ffd6d6,stroke:#c0392b,color:#111
+
+  A["Ders 12 notebook hücre 1-5<br/>T4, EGL, VLANeXt + LIBERO, Ders 12 yaması, checkpoint 16.4 GB"]:::in
+  B["Ders 18 yaması: vlanext_cond_patch.py<br/>EpisodeSpec.condition, init × koşul döngüsü,<br/>log satırına condition=, video adı, RUN_TAG"]:::key
+  C["conditions_task0.json<br/>make_conditions.py (datasets/01'den)"]:::in
+  D["t4_cond_config.yaml<br/>num_trials_per_task: 10, num_parallel_envs: 2 (Kaggle: 4)"]:::in
+  E["VLANEXT_TASK_IDS=0<br/>VLANEXT_CONDITIONS=(json)<br/>VLANEXT_RUN_TAG=_4cond"]:::key
+  F["python -m scripts.libero_bench_eval<br/>1 model yüklemesi + 40 episode"]:::key
+  G["eval.log + 40 mp4<br/>checkpoints/libero_spatial_checkpoint_..._libero_4cond_SRxx/"]:::out
+  H["analyze_4cond.py<br/>episodes.csv, runs.csv, table.md"]:::out
+  I["projects/05-spatial0-4kosul/<br/>README + results/ + 2 video"]:::out
+
+  P["B planı: Ders 16 yolu<br/>VLANEXT_INSTR_OVERRIDE ile 4 ayrı koşu<br/>4 model yüklemesi, analyze --logs clean=... empty=..."]:::bad
+  Q["Karşılaştırma (isteğe bağlı, LIBERO-Plus runtime'ı):<br/>Ders 17'nin _language_tr1.bddl'i ile aynı metin,<br/>aynı init 0 - override yoluyla aynı sonuç mu?"]:::bad
+
+  A --> B --> E
+  C --> E
+  D --> E
+  E --> F --> G --> H --> I
+  B -. yama bulunamazsa .-> P
+  P --> H
+  H -.-> Q
