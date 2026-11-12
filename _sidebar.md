@@ -19,6 +19,7 @@
   - [<span class="nav-num">16</span>Faz 2 Sentezi + LIBERO-Plus](/lectures/lecture-16.md)
   - [<span class="nav-num">17</span>LIBERO-Plus'ın Yedi Bozulması Kodda](/lectures/lecture-17.md)
   - [<span class="nav-num">18</span>Aynı Görev, Dört Komut](/lectures/lecture-18.md)
+  - [<span class="nav-num">19</span>Sonuç Analizi](/lectures/lecture-19.md)
 
 - **Plan**
   - [<span class="nav-num">·</span>Günlük Çalışma Logu](/plan/daily-log.md)
@@ -48,3 +49,4 @@
   - [<span class="nav-num">16</span>Gün 16 kodu](/code/day16/README.md)
   - [<span class="nav-num">17</span>Gün 17 kodu](/code/day17/README.md)
   - [<span class="nav-num">18</span>Gün 18 kodu](/code/day18/README.md)
+  - [<span class="nav-num">19</span>Gün 19 kodu](/code/day19/README.md)

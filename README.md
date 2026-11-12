@@ -66,6 +66,7 @@ Aşamalar netleştikçe bu tablo ve `plan/` klasörü güncellenir.
 | [16](lectures/lecture-16.md) | Faz 2 sentezi + LIBERO-Plus: ayrı runtime, komutun kod yolu, boş-komut denemesi | 2 |
 | [17](lectures/lecture-17.md) | LIBERO-Plus'ın yedi bozulması kodda: üç taşıyıcı, kamera matematiği, 500 Panda, R1/R2, Türkçe varyant | 3 |
 | [18](lectures/lecture-18.md) | Aynı görev, dört komut: clean / empty / wrong / tr × 10 init state — deney tasarımı, Ders 18 yaması, Wilson + güç hesabı | 3 |
+| [19](lectures/lecture-19.md) | Sonuç analizi: shortcut learning var mı, hangi suite'te? — okuma protokolü, BDDL'den yapısal üst sınır, 50 init state'in gerçek geometrisi | 3 |
 - Her ders `lectures/lecture-NN.md` olarak, `plan/daily-log.md` ile birlikte commit'lenir; bir günde birden fazla ders çalışılabilir; böylece kaldığım yer hiçbir zaman kaybolmaz.
 - Takılınca plan kayar, atlanmaz.
 

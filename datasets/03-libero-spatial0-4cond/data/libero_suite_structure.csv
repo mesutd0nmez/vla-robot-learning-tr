@@ -1,0 +1,5 @@
+suite,n_tasks,n_scenes,n_object_sets,max_tasks_per_scene,scene_determines_goal,blind_upper_bound
+libero_spatial,10,9,1,2,False,9/10
+libero_object,10,10,10,1,True,10/10
+libero_goal,10,1,1,10,False,1/10
+libero_10,10,9,9,2,False,9/10

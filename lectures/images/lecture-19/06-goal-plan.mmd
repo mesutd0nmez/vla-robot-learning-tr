@@ -1,0 +1,27 @@
+flowchart LR
+    subgraph P["Pilot (Ders 18): Spatial görev 0"]
+        direction TB
+        P1["10 init × 4 koşul = 40 episode<br/>~1 saat T4"]:::in
+        P2["read_patterns.py → örüntü + paragraf"]:::key
+        P1 --> P2
+    end
+    subgraph S["Spatial'da 50'lik koşu"]
+        direction TB
+        S1["num_trials_per_task: 50<br/>4 × 50 = 200 episode, 3–5 saat"]:::in
+        S2["Güç: Δ=29 için %96 (Fisher) / %100 (McNemar)<br/>ama sahne görevi söylüyor (9/10)"]:::bad
+        S1 --> S2
+    end
+    subgraph G["Goal görev 8: put the bowl on the plate"]
+        direction TB
+        G1["VLANeXt_libero_goal.pt (16.4 GB, ayrı indirme)<br/>t4_goal_config.yaml + conditions_goal8.json"]:::in
+        G2["clean / empty / wrong (= görev 1: on the stove) / tr<br/>aynı sahne, 10 hedef → komutsuz taban ≈ %10"]:::key
+        G3["wrong artık belirsiz değil:<br/>success(wrong) ≈ 0 ⇒ komut okunuyor<br/>success(wrong) ≈ clean ⇒ sahne eziyor"]:::out
+        G1 --> G2 --> G3
+    end
+    P2 -->|"A ya da C çıktıysa"| G
+    P2 -->|"B ya da D çıktıysa"| S
+    S2 -.->|"tez tablosu: her iki suite"| G
+    classDef in fill:#cfe8ff,stroke:#3b6fa0,color:#000
+    classDef key fill:#ffd166,stroke:#b8860b,color:#000
+    classDef out fill:#d4f5d4,stroke:#2e8b57,color:#000
+    classDef bad fill:#ffd6d6,stroke:#c0392b,color:#000

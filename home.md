@@ -27,6 +27,7 @@ Bilgisayar Mühendisliği yüksek lisans tezimin açık kaydı: Vision-Language-
 <a href="#/lectures/lecture-16"><b>16</b><span>Faz 2 sentezi + LIBERO-Plus: ayrı runtime, komutun kod yolu, boş komut<small>Faz 2 · Sentez + Klavye</small></span></a>
 <a href="#/lectures/lecture-17"><b>17</b><span>LIBERO-Plus'ın yedi bozulması kodda: üç taşıyıcı, kamera, 500 Panda, R1/R2, Türkçe varyant<small>Faz 3 · Kod okuma + Klavye</small></span></a>
 <a href="#/lectures/lecture-18"><b>18</b><span>Aynı görev, dört komut: clean / empty / wrong / tr × 10 init state — deney tasarımı, yama, Wilson ve güç<small>Faz 3 · Deney + Klavye</small></span></a>
+<a href="#/lectures/lecture-19"><b>19</b><span>Sonuç analizi: shortcut var mı, hangi suite'te? — okuma protokolü, BDDL'den yapısal üst sınır (Spatial 9/10, Goal 1/10), 50 init state'in geometrisi<small>Faz 3 · Analiz + Klavye</small></span></a>
 </div>
 
 ## Nasıl çalışıyorum

@@ -1,0 +1,31 @@
+# Ders 19 — aynı dört koşullu deney LIBERO-Goal görev 8'de ("put the bowl on the plate"): tek sahne, 10 hedef → komutsuz taban ≈ %10.
+# Ders 18'in t4_cond_config.yaml'ından yalnızca iki satır farklı: checkpoint ve task_suite_name. Yamalar aynı (Ders 12 + Ders 18).
+# Checkpoint: hf download DravenALG/VLANeXt VLANeXt_libero_goal.pt --local-dir checkpoints   (16.4 GB; Spatial checkpoint'i Goal'da KULLANILMAZ)
+# Kullanım (VLANeXt kökünde):
+#   VLANEXT_TASK_IDS=8 VLANEXT_CONDITIONS="$(cat conditions_goal8.json)" VLANEXT_RUN_TAG=_goal8_4cond \
+#   python -m scripts.libero_bench_eval --config config/t4_goal_config.yaml
+# wrong = Goal görev 1'in komutu ("put the bowl on the stove"): aynı sahnede uygulanabilir, hedef farklı → success(wrong) yalnızca
+# orijinal hedefi (bowl on plate) ölçer; ≈ 0 çıkarsa model komutu okuyor, ≈ clean çıkarsa sahne komutu eziyor (Ders 19 §6).
+data:
+  augmentation:
+    center_crop: true
+    center_crop_ratio: 0.9
+
+model:
+  diffusion_steps: 5
+  scheduler_type: "flow_match"
+
+project:
+  use_wandb: false
+
+eval:
+  finetuned_checkpoint: "checkpoints/VLANeXt_libero_goal.pt"
+  task_suite_name: "libero_goal"
+  num_steps_wait: 10
+  num_steps_execute: 8
+  num_parallel_envs: 2
+  num_trials_per_task: 10
+  seed: 42
+  image_size: 256
+  resume_episodes: 0
+  resume_successes: 0
