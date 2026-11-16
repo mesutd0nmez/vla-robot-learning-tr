@@ -50,7 +50,7 @@ Her ders ≤ 1 saat. Dersler sıra numarasıyla ilerler; her sabah 07:00'de (TR)
 | 15 | Tatar deneyi mini reprodüksiyon: 5 komut EN/TR, L2 + cosine | Mac | Mini tablo |
 | 16 | Haftalık sentez; LIBERO-Plus'ı Colab'da ayrı env'de kur (asset indirme) | Colab | LIBERO-Plus çalışıyor |
 
-## Faz 3 — Deney tasarımı ve robustness (Ders 17–24)
+## Faz 3 — Deney tasarımı ve robustness (Ders 17–25)
 
 | Ders | Konu | Çıktı |
 |---|---|---|
@@ -58,21 +58,22 @@ Her ders ≤ 1 saat. Dersler sıra numarasıyla ilerler; her sabah 07:00'de (TR)
 | 18 | Deney: aynı task, instruction = doğru / boş / yanlış / Türkçe → success rate (10 episode) | 4 satırlık sonuç tablosu |
 | 19 | Sonuç analizi: shortcut learning var mı? Hangi suite'te? | 1 paragraf yorum |
 | 20 | Türkçe mekânsal komut seti tasarımı (sağına/soluna/önüne/üstüne/içine; ek farkları) | 20 komutluk EN–TR eşli set |
-| 21 | Tokenizasyon analizi: VLANeXt/LLaMA tokenizer ile Türkçe komutlar (token sayısı, anlamsız bölünmeler) | Tablo |
-| 22 | Cohn makaleleri (abstract düzeyi): 2401.03991 AAAI-24, 2405.15064 IJCAI-24, 2406.16528 COSIT-24, 2410.03492, 2507.12059 QR-25, 2511.02627 TMLR, 2605.18380 | Her biri için 2 cümle |
-| 23 | Çözüm yaklaşımları: çeviri katmanı vs çok dilli VLM backbone vs Türkçe LoRA fine-tune — artı/eksi/maliyet | Karşılaştırma tablosu |
-| 24 | Haftalık sentez | Faz 3 özeti |
+| 21 | **Webots (Cyberbotics)** — danışmanın 16 Kas'ta gönderdiği ikinci simülatör: MuJoCo/robosuite/LIBERO yığınındaki yeri (fizik: ODE forku; renderer: wren; Python/ROS2 controller), macOS'ta kurulum, UR10e/TIAGo ile ilk sahne, webots.cloud ve robotbenchmark.net; tez için değerlendirme: oda ölçeğinde RoomSpace tarzı Türkçe mekânsal görevler ve ROS2 köprüsü için ortam adayı mı, yoksa LIBERO'da kalmak mı? | Karşılaştırma tablosu (MuJoCo vs Webots) + ilk sahne görüntüsü + karar notu |
+| 22 | Tokenizasyon analizi: VLANeXt/LLaMA tokenizer ile Türkçe komutlar (token sayısı, anlamsız bölünmeler) | Tablo |
+| 23 | Cohn makaleleri (abstract düzeyi): 2401.03991 AAAI-24, 2405.15064 IJCAI-24, 2406.16528 COSIT-24, 2410.03492, 2507.12059 QR-25, 2511.02627 TMLR, 2605.18380 | Her biri için 2 cümle |
+| 24 | Çözüm yaklaşımları: çeviri katmanı vs çok dilli VLM backbone vs Türkçe LoRA fine-tune — artı/eksi/maliyet | Karşılaştırma tablosu |
+| 25 | Haftalık sentez | Faz 3 özeti |
 
-## Faz 4 — Proje üzerine akıl yürütme (Ders 25–30)
+## Faz 4 — Proje üzerine akıl yürütme (Ders 26–31)
 
 | Ders | Konu | Çıktı |
 |---|---|---|
-| 25 | 3 aday araştırma sorusu (RQ) formüle et | RQ listesi |
-| 26 | Her RQ için: veri, model, benchmark, metrik, hesaplama maliyeti | Deney matrisi |
-| 27 | Baseline + ablation tasarımı | Ablation planı |
-| 28 | 1 sayfalık tez önerisi taslağı | Taslak (TR) |
-| 29 | Danışman toplantısı için soru/sunum listesi | Soru listesi |
-| 30 | Final: "bir proje yapalım" simülasyonu — Claude proje önerir, sen tasarlarsın | Değerlendirme + sonraki 30 gün |
+| 26 | 3 aday araştırma sorusu (RQ) formüle et | RQ listesi |
+| 27 | Her RQ için: veri, model, benchmark, metrik, hesaplama maliyeti | Deney matrisi |
+| 28 | Baseline + ablation tasarımı | Ablation planı |
+| 29 | 1 sayfalık tez önerisi taslağı | Taslak (TR) |
+| 30 | Danışman toplantısı için soru/sunum listesi | Soru listesi |
+| 31 | Final: "bir proje yapalım" simülasyonu — Claude proje önerir, sen tasarlarsın | Değerlendirme + sonraki aşama planı |
 
 ---
 

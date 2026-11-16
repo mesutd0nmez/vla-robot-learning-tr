@@ -8,6 +8,9 @@
 - [DravenALG/awesome-vla-wam](https://github.com/DravenALG/awesome-vla-wam) — VLA / World Action Model okuma listesi
 - [paperswithcode.co/methods/vla](https://paperswithcode.co/methods/vla)
 
+## Danışmanın sonradan gönderdikleri
+- [Webots — Cyberbotics](https://cyberbotics.com/) (16 Kas 2026) — açık kaynak robot simülatörü (1998'den beri; Windows/Linux/macOS). Fizik: ODE forku; renderer: wren (OpenGL 3.3); controller dilleri C/C++/Python/Java/MATLAB/ROS; ROS 2 (Vulcanexus ile). Hazır modeller: UR10e, ABB IRB 4600, KUKA youBot, TIAGo, TurtleBot3, PR2, Nao, OP3… Ek: [webots.cloud](https://webots.cloud) (paylaşım/yarışma), [robotbenchmark.net](https://robotbenchmark.net) (ücretsiz çevrim içi programlama görevleri), [GitHub](https://github.com/cyberbotics/webots). Plandaki yeri: Ders 21 — MuJoCo/LIBERO ile karşılaştırma ve tez için ortam kararı.
+
 ## Spatial reasoning (A. G. Cohn grubu)
 - [arXiv:2401.03991](https://arxiv.org/abs/2401.03991) — StepGame değerlendirme ve iyileştirme (AAAI-24)
 - [arXiv:2405.15064](https://arxiv.org/abs/2405.15064) — RoomSpace benchmark (IJCAI-24)
