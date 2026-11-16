@@ -16,3 +16,9 @@ __pycache__/
 *.pt
 *.pth
 *.npz
+
+# yerel klonlar (repo içine klonlanan dış depolar)
+LIBERO/
+VLANeXt/
+LIBERO-plus/
+openvla/

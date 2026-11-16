@@ -5,6 +5,7 @@ Derslerden bağımsız, elle yürütülen demo, deney ve araştırma çalışmal
 
 | # | Proje | Durum | Özet |
 |---|---|---|---|
-| — | — | — | Henüz proje yok |
+| 1 | [İlk MuJoCo sahnesi](project-1/README.md) | tamam | Mac'te conda + MuJoCo offscreen render doğrulaması, 4 deneme |
+| 2 | [LIBERO'da ilk episode'lar](project-2/README.md) | tamam | Spatial ve Goal görev 0–4, agentview + bilek kamerası kareleri |
 
 Durumlar: `fikir` → `devam` → `tamam` / `rafta`.

@@ -32,6 +32,8 @@
 
 - **Projeler**
   - [<span class="nav-num">·</span>Genel bakış](/projects/README.md)
+  - [<span class="nav-num">01</span>İlk MuJoCo sahnesi (Mac'te kurulum doğrulaması)](/projects/project-1/README.md)
+  - [<span class="nav-num">02</span>LIBERO'da ilk episode'lar (Spatial ve Goal, görev 0–4)](/projects/project-2/README.md)
 
 - **Veri setleri**
   - [<span class="nav-num">·</span>Genel bakış](/datasets/README.md)

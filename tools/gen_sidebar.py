@@ -27,7 +27,8 @@ if proj.exists():
     for d in sorted(x for x in proj.iterdir() if x.is_dir() and not x.name.startswith(("_", "."))):
         r = d/"README.md"
         if r.exists():
-            lines.append(f'  - [<span class="nav-num">{d.name[:2]}</span>{title(r)}](/projects/{d.name}/README.md)')
+            num = ''.join(ch for ch in d.name if ch.isdigit())[:2].zfill(2) or '·'
+            lines.append(f'  - [<span class="nav-num">{num}</span>{title(r).split(" — ")[-1]}](/projects/{d.name}/README.md)')
 ds = root/"datasets"
 if ds.exists():
     lines += ["", "- **Veri setleri**", f'  - [<span class="nav-num">·</span>Genel bakış](/datasets/README.md)']
