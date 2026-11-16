@@ -67,6 +67,7 @@ Aşamalar netleştikçe bu tablo ve `plan/` klasörü güncellenir.
 | [17](lectures/lecture-17.md) | LIBERO-Plus'ın yedi bozulması kodda: üç taşıyıcı, kamera matematiği, 500 Panda, R1/R2, Türkçe varyant | 3 |
 | [18](lectures/lecture-18.md) | Aynı görev, dört komut: clean / empty / wrong / tr × 10 init state — deney tasarımı, Ders 18 yaması, Wilson + güç hesabı | 3 |
 | [19](lectures/lecture-19.md) | Sonuç analizi: shortcut learning var mı, hangi suite'te? — okuma protokolü, BDDL'den yapısal üst sınır, 50 init state'in gerçek geometrisi | 3 |
+| [20](lectures/lecture-20.md) | Türkçe mekânsal komut seti: 20 EN–TR çift × 5 yüzey — ilişki adı + ek zinciri, üç referans çerçevesi (LIBERO / görüntü / robot), 50 init state'ten hesaplanan referans, karşı-olgusal BDDL | 3 |
 - Her ders `lectures/lecture-NN.md` olarak, `plan/daily-log.md` ile birlikte commit'lenir; bir günde birden fazla ders çalışılabilir; böylece kaldığım yer hiçbir zaman kaybolmaz.
 - Takılınca plan kayar, atlanmaz.
 

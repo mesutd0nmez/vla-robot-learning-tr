@@ -1,0 +1,6 @@
+pair_id,frames_pointing_to_bowl2,base_task_id,base_bddl,cf_bddl,instruction,language_roundtrip,goal_is_bowl2,init_unchanged
+B07,libero,1,pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate.bddl,B07_libero_bowl2.bddl,soldaki siyah kaseyi al ve tabağın üstüne koy,True,True,True
+B08,image-robot,1,pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate.bddl,B08_image-robot_bowl2.bddl,sağdaki siyah kaseyi al ve tabağın üstüne koy,True,True,True
+B09,robot,8,pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate.bddl,B09_robot_bowl2.bddl,öndeki siyah kaseyi al ve tabağın üstüne koy,True,True,True
+B10,all,8,pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate.bddl,B10_all_bowl2.bddl,robota daha yakın olan siyah kaseyi al ve tabağın üstüne koy,True,True,True
+B11,all,0,pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate.bddl,B11_all_bowl2.bddl,tabağa daha uzak olan siyah kaseyi al ve tabağın üstüne koy,True,True,True

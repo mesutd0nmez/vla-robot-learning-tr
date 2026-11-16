@@ -1,0 +1,101 @@
+id,pair_id,suite,task_id,lang,variant,instruction,relation,frame,suffixes,tier
+A01_en,A01,libero_spatial,0,en,en,pick up the black bowl between the plate and the ramekin and place it on the plate,2 referans,n/a,,1
+A01_tr_a,A01,libero_spatial,0,tr,tr_a,tabak ile ramekinin arasındaki siyah kaseyi al ve tabağın üstüne koy,2 referans,n/a,ara-sı-nda-ki,1
+A01_tr_b,A01,libero_spatial,0,tr,tr_b,tabakla ramekin arasında duran siyah kâseyi alıp tabağa koy,2 referans,n/a,,1
+A01_tr_ascii,A01,libero_spatial,0,tr,tr_ascii,tabak ile ramekinin arasindaki siyah kaseyi al ve tabagin ustune koy,2 referans,n/a,,1
+A01_tr_bare,A01,libero_spatial,0,tr,tr_bare,tabak ile ramekin ara siyah kase al ve tabak üst koy,2 referans,n/a,,1
+A02_en,A02,libero_spatial,1,en,en,pick up the black bowl next to the ramekin and place it on the plate,mesafe,n/a,,1
+A02_tr_a,A02,libero_spatial,1,tr,tr_a,ramekinin yanındaki siyah kaseyi al ve tabağın üstüne koy,mesafe,n/a,yan-ı-nda-ki,1
+A02_tr_b,A02,libero_spatial,1,tr,tr_b,ramekinin yanında duran siyah kâseyi alıp tabağa koy,mesafe,n/a,,1
+A02_tr_ascii,A02,libero_spatial,1,tr,tr_ascii,ramekinin yanindaki siyah kaseyi al ve tabagin ustune koy,mesafe,n/a,,1
+A02_tr_bare,A02,libero_spatial,1,tr,tr_bare,ramekin yan siyah kase al ve tabak üst koy,mesafe,n/a,,1
+A03_en,A03,libero_spatial,2,en,en,pick up the black bowl from table center and place it on the plate,bölge,n/a,,1
+A03_tr_a,A03,libero_spatial,2,tr,tr_a,masanın ortasındaki siyah kaseyi al ve tabağın üstüne koy,bölge,n/a,orta-sı-nda-ki,1
+A03_tr_b,A03,libero_spatial,2,tr,tr_b,siyah kâseyi masanın ortasından alıp tabağa koy,bölge,n/a,,1
+A03_tr_ascii,A03,libero_spatial,2,tr,tr_ascii,masanin ortasindaki siyah kaseyi al ve tabagin ustune koy,bölge,n/a,,1
+A03_tr_bare,A03,libero_spatial,2,tr,tr_bare,masa orta siyah kase al ve tabak üst koy,bölge,n/a,,1
+A04_en,A04,libero_spatial,4,en,en,pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate,NTPP (içinde),n/a,,1
+A04_tr_a,A04,libero_spatial,4,tr,tr_a,ahşap dolabın üst çekmecesindeki siyah kaseyi al ve tabağın üstüne koy,NTPP (içinde),n/a,üst çekmece-si-nde-ki,1
+A04_tr_b,A04,libero_spatial,4,tr,tr_b,ahşap dolabın üst çekmecesinin içindeki siyah kâseyi alıp tabağa koy,NTPP (içinde),n/a,,1
+A04_tr_ascii,A04,libero_spatial,4,tr,tr_ascii,ahsap dolabin ust cekmecesindeki siyah kaseyi al ve tabagin ustune koy,NTPP (içinde),n/a,,1
+A04_tr_bare,A04,libero_spatial,4,tr,tr_bare,ahşap dolap üst çekmece siyah kase al ve tabak üst koy,NTPP (içinde),n/a,,1
+A05_en,A05,libero_spatial,7,en,en,pick up the black bowl on the stove and place it on the plate,EC (üstünde),n/a,,1
+A05_tr_a,A05,libero_spatial,7,tr,tr_a,ocağın üstündeki siyah kaseyi al ve tabağın üstüne koy,EC (üstünde),n/a,üst-ü-nde-ki,1
+A05_tr_b,A05,libero_spatial,7,tr,tr_b,ocağın üzerinde duran siyah kâseyi alıp tabağa koy,EC (üstünde),n/a,,1
+A05_tr_ascii,A05,libero_spatial,7,tr,tr_ascii,ocagin ustundeki siyah kaseyi al ve tabagin ustune koy,EC (üstünde),n/a,,1
+A05_tr_bare,A05,libero_spatial,7,tr,tr_bare,ocak üst siyah kase al ve tabak üst koy,EC (üstünde),n/a,,1
+A06_en,A06,libero_spatial,9,en,en,pick up the black bowl on the wooden cabinet and place it on the plate,EC (üstünde),n/a,,1
+A06_tr_a,A06,libero_spatial,9,tr,tr_a,ahşap dolabın üstündeki siyah kaseyi al ve tabağın üstüne koy,EC (üstünde),n/a,üst-ü-nde-ki,1
+A06_tr_b,A06,libero_spatial,9,tr,tr_b,ahşap dolabın üzerinde duran siyah kâseyi alıp tabağa koy,EC (üstünde),n/a,,1
+A06_tr_ascii,A06,libero_spatial,9,tr,tr_ascii,ahsap dolabin ustundeki siyah kaseyi al ve tabagin ustune koy,EC (üstünde),n/a,,1
+A06_tr_bare,A06,libero_spatial,9,tr,tr_bare,ahşap dolap üst siyah kase al ve tabak üst koy,EC (üstünde),n/a,,1
+B07_en,B07,libero_spatial,1,en,en,pick up the black bowl on the left and place it on the plate,yön (sol),çerçeveye bağlı,,2
+B07_tr_a,B07,libero_spatial,1,tr,tr_a,soldaki siyah kaseyi al ve tabağın üstüne koy,yön (sol),çerçeveye bağlı,sol-da-ki,2
+B07_tr_b,B07,libero_spatial,1,tr,tr_b,sol taraftaki siyah kâseyi alıp tabağa koy,yön (sol),çerçeveye bağlı,,2
+B07_tr_ascii,B07,libero_spatial,1,tr,tr_ascii,soldaki siyah kaseyi al ve tabagin ustune koy,yön (sol),çerçeveye bağlı,,2
+B07_tr_bare,B07,libero_spatial,1,tr,tr_bare,sol siyah kase al ve tabak üst koy,yön (sol),çerçeveye bağlı,,2
+B08_en,B08,libero_spatial,1,en,en,pick up the black bowl on the right and place it on the plate,yön (sağ),çerçeveye bağlı,,2
+B08_tr_a,B08,libero_spatial,1,tr,tr_a,sağdaki siyah kaseyi al ve tabağın üstüne koy,yön (sağ),çerçeveye bağlı,sağ-da-ki,2
+B08_tr_b,B08,libero_spatial,1,tr,tr_b,sağ taraftaki siyah kâseyi alıp tabağa koy,yön (sağ),çerçeveye bağlı,,2
+B08_tr_ascii,B08,libero_spatial,1,tr,tr_ascii,sagdaki siyah kaseyi al ve tabagin ustune koy,yön (sağ),çerçeveye bağlı,,2
+B08_tr_bare,B08,libero_spatial,1,tr,tr_bare,sağ siyah kase al ve tabak üst koy,yön (sağ),çerçeveye bağlı,,2
+B09_en,B09,libero_spatial,8,en,en,pick up the black bowl in the front and place it on the plate,yön (ön),çerçeveye bağlı,,2
+B09_tr_a,B09,libero_spatial,8,tr,tr_a,öndeki siyah kaseyi al ve tabağın üstüne koy,yön (ön),çerçeveye bağlı,ön-de-ki,2
+B09_tr_b,B09,libero_spatial,8,tr,tr_b,ön taraftaki siyah kâseyi alıp tabağa koy,yön (ön),çerçeveye bağlı,,2
+B09_tr_ascii,B09,libero_spatial,8,tr,tr_ascii,ondeki siyah kaseyi al ve tabagin ustune koy,yön (ön),çerçeveye bağlı,,2
+B09_tr_bare,B09,libero_spatial,8,tr,tr_bare,ön siyah kase al ve tabak üst koy,yön (ön),çerçeveye bağlı,,2
+B10_en,B10,libero_spatial,8,en,en,pick up the black bowl closer to the robot and place it on the plate,mesafe (açık çerçeve),n/a,,2
+B10_tr_a,B10,libero_spatial,8,tr,tr_a,robota daha yakın olan siyah kaseyi al ve tabağın üstüne koy,mesafe (açık çerçeve),n/a,yakın,2
+B10_tr_b,B10,libero_spatial,8,tr,tr_b,robota yakın duran siyah kâseyi alıp tabağa koy,mesafe (açık çerçeve),n/a,,2
+B10_tr_ascii,B10,libero_spatial,8,tr,tr_ascii,robota daha yakin olan siyah kaseyi al ve tabagin ustune koy,mesafe (açık çerçeve),n/a,,2
+B10_tr_bare,B10,libero_spatial,8,tr,tr_bare,robot daha yakın olan siyah kase al ve tabak üst koy,mesafe (açık çerçeve),n/a,,2
+B11_en,B11,libero_spatial,0,en,en,pick up the black bowl farther from the plate and place it on the plate,mesafe,n/a,,2
+B11_tr_a,B11,libero_spatial,0,tr,tr_a,tabağa daha uzak olan siyah kaseyi al ve tabağın üstüne koy,mesafe,n/a,uzak,2
+B11_tr_b,B11,libero_spatial,0,tr,tr_b,tabaktan uzakta duran siyah kâseyi alıp tabağa koy,mesafe,n/a,,2
+B11_tr_ascii,B11,libero_spatial,0,tr,tr_ascii,tabaga daha uzak olan siyah kaseyi al ve tabagin ustune koy,mesafe,n/a,,2
+B11_tr_bare,B11,libero_spatial,0,tr,tr_bare,tabak daha uzak olan siyah kase al ve tabak üst koy,mesafe,n/a,,2
+B12_en,B12,libero_spatial,0,en,en,pick up the black bowl closer to the plate and place it on the plate,mesafe,n/a,,1
+B12_tr_a,B12,libero_spatial,0,tr,tr_a,tabağa daha yakın olan siyah kaseyi al ve tabağın üstüne koy,mesafe,n/a,yakın,1
+B12_tr_b,B12,libero_spatial,0,tr,tr_b,tabağın yakınındaki siyah kâseyi alıp tabağa koy,mesafe,n/a,,1
+B12_tr_ascii,B12,libero_spatial,0,tr,tr_ascii,tabaga daha yakin olan siyah kaseyi al ve tabagin ustune koy,mesafe,n/a,,1
+B12_tr_bare,B12,libero_spatial,0,tr,tr_bare,tabak daha yakın olan siyah kase al ve tabak üst koy,mesafe,n/a,,1
+C13_en,C13,libero_goal,8,en,en,put the bowl on the plate,EC (üstüne),n/a,,1
+C13_tr_a,C13,libero_goal,8,tr,tr_a,kaseyi tabağın üstüne koy,EC (üstüne),n/a,üst-ü-ne,1
+C13_tr_b,C13,libero_goal,8,tr,tr_b,tabağın üzerine kâseyi koy,EC (üstüne),n/a,,1
+C13_tr_ascii,C13,libero_goal,8,tr,tr_ascii,kaseyi tabagin ustune koy,EC (üstüne),n/a,,1
+C13_tr_bare,C13,libero_goal,8,tr,tr_bare,kase tabak üst koy,EC (üstüne),n/a,,1
+C14_en,C14,libero_goal,1,en,en,put the bowl on the stove,EC (üstüne),n/a,,1
+C14_tr_a,C14,libero_goal,1,tr,tr_a,kaseyi ocağın üstüne koy,EC (üstüne),n/a,üst-ü-ne,1
+C14_tr_b,C14,libero_goal,1,tr,tr_b,ocağın üzerine kâseyi koy,EC (üstüne),n/a,,1
+C14_tr_ascii,C14,libero_goal,1,tr,tr_ascii,kaseyi ocagin ustune koy,EC (üstüne),n/a,,1
+C14_tr_bare,C14,libero_goal,1,tr,tr_bare,kase ocak üst koy,EC (üstüne),n/a,,1
+C15_en,C15,libero_goal,4,en,en,put the bowl on top of the cabinet,EC (üstüne),n/a,,1
+C15_tr_a,C15,libero_goal,4,tr,tr_a,kaseyi dolabın üstüne koy,EC (üstüne),n/a,üst-ü-ne,1
+C15_tr_b,C15,libero_goal,4,tr,tr_b,dolabın üzerine kâseyi koy,EC (üstüne),n/a,,1
+C15_tr_ascii,C15,libero_goal,4,tr,tr_ascii,kaseyi dolabin ustune koy,EC (üstüne),n/a,,1
+C15_tr_bare,C15,libero_goal,4,tr,tr_bare,kase dolap üst koy,EC (üstüne),n/a,,1
+C16_en,C16,libero_goal,6,en,en,put the cream cheese in the bowl,NTPP (içine),n/a,,1
+C16_tr_a,C16,libero_goal,6,tr,tr_a,krem peyniri kasenin içine koy,NTPP (içine),n/a,iç-i-ne,1
+C16_tr_b,C16,libero_goal,6,tr,tr_b,kâsenin içine krem peyniri koy,NTPP (içine),n/a,,1
+C16_tr_ascii,C16,libero_goal,6,tr,tr_ascii,krem peyniri kasenin icine koy,NTPP (içine),n/a,,1
+C16_tr_bare,C16,libero_goal,6,tr,tr_bare,krem peynir kase iç koy,NTPP (içine),n/a,,1
+C17_en,C17,libero_goal,9,en,en,put the wine bottle on the rack,EC (üstüne),n/a,,1
+C17_tr_a,C17,libero_goal,9,tr,tr_a,şarap şişesini rafa koy,EC (üstüne),n/a,raf-a,1
+C17_tr_b,C17,libero_goal,9,tr,tr_b,şarap şişesini rafın üstüne yerleştir,EC (üstüne),n/a,,1
+C17_tr_ascii,C17,libero_goal,9,tr,tr_ascii,sarap sisesini rafa koy,EC (üstüne),n/a,,1
+C17_tr_bare,C17,libero_goal,9,tr,tr_bare,şarap şişesi raf koy,EC (üstüne),n/a,,1
+C18_en,C18,libero_goal,5,en,en,push the plate to the front of the stove,yön (ön),çerçeveye bağlı,,1
+C18_tr_a,C18,libero_goal,5,tr,tr_a,tabağı ocağın önüne it,yön (ön),çerçeveye bağlı,ön-ü-ne,1
+C18_tr_b,C18,libero_goal,5,tr,tr_b,ocağın önüne doğru tabağı it,yön (ön),çerçeveye bağlı,,1
+C18_tr_ascii,C18,libero_goal,5,tr,tr_ascii,tabagi ocagin onune it,yön (ön),çerçeveye bağlı,,1
+C18_tr_bare,C18,libero_goal,5,tr,tr_bare,tabak ocak ön it,yön (ön),çerçeveye bağlı,,1
+D19_en,D19,libero_goal,8,en,en,put the bowl to the right of the plate,yön (sağ),çerçeveye bağlı,,3
+D19_tr_a,D19,libero_goal,8,tr,tr_a,kaseyi tabağın sağına koy,yön (sağ),çerçeveye bağlı,sağ-ı-na,3
+D19_tr_b,D19,libero_goal,8,tr,tr_b,tabağın sağ tarafına kâseyi koy,yön (sağ),çerçeveye bağlı,,3
+D19_tr_ascii,D19,libero_goal,8,tr,tr_ascii,kaseyi tabagin sagina koy,yön (sağ),çerçeveye bağlı,,3
+D19_tr_bare,D19,libero_goal,8,tr,tr_bare,kase tabak sağ koy,yön (sağ),çerçeveye bağlı,,3
+D20_en,D20,libero_goal,8,en,en,put the bowl to the left of the plate,yön (sol),çerçeveye bağlı,,3
+D20_tr_a,D20,libero_goal,8,tr,tr_a,kaseyi tabağın soluna koy,yön (sol),çerçeveye bağlı,sol-u-na,3
+D20_tr_b,D20,libero_goal,8,tr,tr_b,tabağın sol tarafına kâseyi koy,yön (sol),çerçeveye bağlı,,3
+D20_tr_ascii,D20,libero_goal,8,tr,tr_ascii,kaseyi tabagin soluna koy,yön (sol),çerçeveye bağlı,,3
+D20_tr_bare,D20,libero_goal,8,tr,tr_bare,kase tabak sol koy,yön (sol),çerçeveye bağlı,,3

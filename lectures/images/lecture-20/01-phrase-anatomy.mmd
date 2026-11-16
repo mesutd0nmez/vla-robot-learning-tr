@@ -1,0 +1,14 @@
+flowchart LR
+  subgraph EN["İngilizce: ilişki ayrı bir sözcük, addan ÖNCE"]
+    e1["on / next to / between<br/>(preposition)"]:::key --> e2["the stove"]:::inp
+  end
+  subgraph TR["Türkçe: ilişki bir ADIN üstüne eklenen üç ek"]
+    t1["ocağ-ın<br/>referans ad + GEN"]:::inp --> t2["üst<br/>ilişki adı"]:::key --> t3["-ü<br/>POSS3: 'onun üstü'"]:::key --> t4{"hâl eki<br/>= ROL"}:::key
+  end
+  t4 -->|"-nde + ki"| r1["üstündeki kase<br/>SEÇİM: nerede duran?<br/>(Spatial: pick up the bowl ON ...)"]:::out
+  t4 -->|"-ne"| r2["üstüne koy<br/>HEDEF: nereye?<br/>(Goal: put the bowl ON ...)"]:::out
+  t4 -->|"-nden"| r3["üstünden al<br/>KAYNAK: nereden?<br/>(from table center)"]:::out
+  e2 -.->|"aynı 'on' üç rolde de değişmez;<br/>rolü fiil ve sözcük sırası taşır"| r2
+  classDef key fill:#ffd166,stroke:#333,color:#000
+  classDef inp fill:#cfe8ff,stroke:#333,color:#000
+  classDef out fill:#d4f5d4,stroke:#333,color:#000

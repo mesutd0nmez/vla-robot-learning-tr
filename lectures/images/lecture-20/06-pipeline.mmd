@@ -1,0 +1,17 @@
+flowchart TD
+  A["LIBERO dosyaları<br/>BDDL + .pruned_init (50 sahne)"]:::inp --> B["scene_frames.py<br/>3 çerçevede 'hangi kâse?'"]:::key
+  B --> C["referents.csv<br/>10 sahne x 9 tarif"]:::out
+  L["sözlük + şablon<br/>(ad, ilişki adı, hâl)"]:::inp --> M["tr_morph.py<br/>ünlü uyumu, yumuşama, zamir n'si"]:::key
+  M --> S["make_tr_set.py<br/>20 çift x 5 yüzey"]:::key
+  C --> S
+  S --> P["pairs.csv (20) + commands.csv (100)"]:::out
+  P --> V["validate_set.py<br/>BDDL-güvenli, denge, minimal çift, allomorf"]:::key
+  P --> F["make_cf_bddl.py<br/>hedef = bowl_2 olan 5 BDDL"]:::key
+  F --> X["bddl paketiyle geri okuma<br/>dil birebir, sahne aynı"]:::out
+  V --> H["Mesut: anadil okuması<br/>human_check.csv"]:::bad
+  H --> D21["Ders 21: tokenizasyon<br/>rel_span ve rel_seg sütunları"]:::out
+  X --> D26["Ders 26-27: deney matrisi<br/>tier 1 / 2 / 3"]:::out
+  classDef key fill:#ffd166,stroke:#333,color:#000
+  classDef inp fill:#cfe8ff,stroke:#333,color:#000
+  classDef out fill:#d4f5d4,stroke:#333,color:#000
+  classDef bad fill:#ffd6d6,stroke:#333,color:#000
