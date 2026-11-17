@@ -1,0 +1,77 @@
+#VRML_SIM R2025a utf8
+# Ders 21 — Webots'ta LIBERO-Spatial'a benzeyen bir masa sahnesi:
+# UR10e kol (bilek kamerasıyla) + masa + siyah kâse, tabak, ocak, mısır gevreği kutusu, elma, kutu içecek.
+# Açmak için: Webots > File > Open World... > bu dosya. Kol controller'ı <extern>: terminalden başlatılır (bkz. README).
+
+EXTERNPROTO "webots://projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "webots://projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "webots://projects/objects/floors/protos/Floor.proto"
+EXTERNPROTO "webots://projects/objects/tables/protos/Table.proto"
+EXTERNPROTO "webots://projects/robots/universal_robots/protos/UR10e.proto"
+EXTERNPROTO "webots://projects/objects/fruits/protos/FruitBowl.proto"
+EXTERNPROTO "webots://projects/objects/fruits/protos/Apple.proto"
+EXTERNPROTO "webots://projects/objects/kitchen/utensils/protos/Plate.proto"
+EXTERNPROTO "webots://projects/objects/kitchen/components/protos/HotPlate.proto"
+EXTERNPROTO "webots://projects/objects/kitchen/breakfast/protos/CerealBox.proto"
+EXTERNPROTO "webots://projects/objects/drinks/protos/Can.proto"
+
+WorldInfo {
+  info [
+    "Ders 21: UR10e + masa + nesneler. Türkçe mekânsal komutlar için Webots deneme sahnesi."
+  ]
+  title "Ders 21 masa sahnesi"
+  basicTimeStep 16
+}
+Viewpoint {
+  # agentview benzeri: robotun karşısından, masaya bakan sabit bakış (vp.py ile hesaplandı)
+  orientation 0 0.558702 0.829369 3.141593
+  position 0 1.75 1.55
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+Floor {
+  size 6 6
+}
+Table {
+  translation 0 0 0
+  size 1 1.8 0.74
+}
+DEF ROBOT UR10e {
+  translation 0 -0.65 0.74
+  rotation 0 0 1 -1.5708
+  controller "<extern>"
+  supervisor TRUE
+  toolSlot [
+    DEF WRIST_CAM Camera {
+      translation 0 0.02 0
+      rotation 0 0 1 1.5708
+      name "wrist_camera"
+      fieldOfView 1.2
+      width 256
+      height 256
+    }
+  ]
+}
+DEF BOWL FruitBowl {
+  translation -0.22 0.0 0.74
+  name "black bowl"
+  color 0.05 0.05 0.05
+}
+DEF PLATE Plate {
+  translation 0.22 0.02 0.74
+}
+DEF STOVE HotPlate {
+  translation 0 0.5 0.74
+}
+DEF CEREAL CerealBox {
+  translation -0.35 0.45 0.74
+  rotation 0 0 1 0.3
+}
+DEF APPLE Apple {
+  translation 0.05 0.27 0.79
+}
+DEF CAN Can {
+  translation 0.36 0.4 0.8
+}

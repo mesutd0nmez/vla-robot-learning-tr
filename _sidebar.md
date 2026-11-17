@@ -21,6 +21,7 @@
   - [<span class="nav-num">18</span>Aynı Görev, Dört Komut](/lectures/lecture-18.md)
   - [<span class="nav-num">19</span>Sonuç Analizi](/lectures/lecture-19.md)
   - [<span class="nav-num">20</span>Türkçe Mekânsal Komut Seti](/lectures/lecture-20.md)
+  - [<span class="nav-num">21</span>Webots](/lectures/lecture-21.md)
 
 - **Plan**
   - [<span class="nav-num">·</span>Günlük Çalışma Logu](/plan/daily-log.md)
@@ -55,3 +56,4 @@
   - [<span class="nav-num">18</span>Gün 18 kodu](/code/day18/README.md)
   - [<span class="nav-num">19</span>Gün 19 kodu](/code/day19/README.md)
   - [<span class="nav-num">20</span>Gün 20 kodu](/code/day20/README.md)
+  - [<span class="nav-num">21</span>Gün 21 kodu](/code/day21/README.md)

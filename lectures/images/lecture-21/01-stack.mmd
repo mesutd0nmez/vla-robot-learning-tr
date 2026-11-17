@@ -1,0 +1,25 @@
+flowchart TB
+  subgraph L["Şimdiye kadarki yığın (Ders 3, 9, 10)"]
+    direction TB
+    L1["<b>LIBERO</b><br/>benchmark: BDDL görev, 50 init state,<br/>success predicate, 50 demo/görev"]:::yellow
+    L2["<b>robosuite 1.4.1</b><br/>Panda + OSC_POSE kontrolcü,<br/>agentview / bilek kamerası, obs sözlüğü"]:::blue
+    L3["<b>MuJoCo 2.3.7</b><br/>fizik (yumuşak temas, konveks çözücü)<br/>+ kendi OpenGL render'ı"]:::blue
+    L1 --> L2 --> L3
+  end
+  subgraph W["Webots R2025a (danışmanın önerisi)"]
+    direction TB
+    W1["<b>Benchmark katmanı: YOK</b><br/>(robotbenchmark.net görevleri VLA için değil;<br/>görev + success'i sen yazarsın: Supervisor)"]:::red
+    W2["<b>Robot katmanı: Robot node + PROTO</b><br/>UR10e, Panda, TIAGo… motor / sensör / Camera<br/>controller: Python (ctypes), C/C++, ROS 2"]:::blue
+    W3["<b>Fizik: ODE forku</b> &nbsp;·&nbsp; <b>Render: WREN</b> (OpenGL 3.3)<br/>.wbt dünya (VRML97 türevi), basicTimeStep (ms)"]:::blue
+    W1 --> W2 --> W3
+  end
+  P["<b>VLA policy</b> (OpenVLA / VLANeXt)<br/>girdi: görüntü + komut &nbsp;→&nbsp; çıktı: 7-DoF action"]:::yellow
+  P -- "LIBERO eval döngüsü:<br/>obs → action → env.step()" --> L1
+  P -. "yazılacak köprü:<br/>Camera.getImage() → policy →<br/>Motor.setPosition() / IK" .-> W2
+  G["<b>Tez sorusu</b><br/>Türkçe mekânsal komut doğru nesneye gidiyor mu?"]:::green
+  L1 -- "hazır: 10 Spatial görev,<br/>liderlik tablosu, LIBERO-Plus" --> G
+  W1 -. "mümkün: oda ölçeği, RoomSpace tarzı<br/>sahne üretimi, ama her şey sıfırdan" .-> G
+  classDef yellow fill:#ffd166,stroke:#8a6d00,color:#000
+  classDef blue fill:#cfe8ff,stroke:#2a5d9f,color:#000
+  classDef green fill:#d4f5d4,stroke:#2e7d32,color:#000
+  classDef red fill:#ffd6d6,stroke:#b23b3b,color:#000

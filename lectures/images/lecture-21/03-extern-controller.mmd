@@ -1,0 +1,25 @@
+sequenceDiagram
+  autonumber
+  participant M as Mesut (Terminal, conda vla)
+  participant L as webots-controller (launcher)
+  participant P as python3 ders21_kol.py
+  participant W as Webots.app (GUI, ders21_masa.wbt)
+  Note over W: Dünya açılır. Robot.controller = extern olduğu için<br/>Webots bir controller BEKLER (synchronization TRUE)
+  W->>W: /tmp/webots/kullanici/PID klasörü (IPC kanalı)
+  M->>L: export WEBOTS_HOME=/Applications/Webots.app<br/>$WEBOTS_HOME/Contents/MacOS/webots-controller ders21_kol.py
+  L->>L: WEBOTS_CONTROLLER_URL=ipc://1234<br/>PYTHONPATH += $WEBOTS_HOME/Contents/lib/controller/python<br/>DYLD_LIBRARY_PATH += .../Contents/lib/controller
+  L->>P: exec python3 -u ders21_kol.py (PATH'teki python3 = vla ortami)
+  P->>P: import controller (ctypes ile libController.dylib yüklenir)
+  P->>W: Supervisor() : en son Webots örneğine IPC ile bağlan
+  loop her duruş için (4 kez)
+    P->>W: Motor.setPosition(q)
+    loop 60 adım
+      P->>W: robot.step(16)
+      W-->>P: fizik 16 ms ilerledi, sensörler güncel
+    end
+    P->>W: Camera.saveImage(wrist_*.png) / exportImage(view_*.jpg)
+    P->>W: getFromDef('BOWL').getPosition()
+    W-->>P: dünya koordinatları
+  end
+  P->>P: objects.csv, pairs.csv (robota göre sol/sağ/ön)
+  Note over M,W: Launcher olmadan da olur: WEBOTS_HOME + PYTHONPATH elle,<br/>python ders21_kol.py — libController /tmp/webots altındaki en yeni örneği bulur
