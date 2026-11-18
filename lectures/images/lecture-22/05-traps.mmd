@@ -1,0 +1,31 @@
+flowchart TD
+  classDef in fill:#cfe8ff,stroke:#333,color:#000
+  classDef key fill:#ffd166,stroke:#333,color:#000
+  classDef out fill:#d4f5d4,stroke:#333,color:#000
+  classDef bad fill:#ffd6d6,stroke:#333,color:#000
+
+  C["Türkçe komut (datasets/04, 100 satır)"]:::in
+  C --> T1
+  C --> T2
+  C --> T3
+  C --> T4
+  C --> T5
+  C --> T6
+
+  T1["Şişme<br/>LLaMA-2 tr_a/en = 1,63×, Qwen3 = 1,41×<br/>(fertility 3,1 vs 2,4 token/sözcük)"]:::key
+  T1 --> R1["her iki modelde de gerçek;<br/>LLaMA-2'de yarısı Türkçe harflerden<br/>(tr_ascii: −4,9 vs −0,9 token)"]:::bad
+
+  T2["İlişki eki kararsız<br/>-ki: 3 biçim (L) / 5 biçim (Q)<br/>-nA: 5 / 6 biçim"]:::key
+  T2 --> R2["'soldaki' → ▁sold | aki (ikisinde de)<br/>'sağına' ▁sa ğ ı na vs 'soluna' ▁sol una:<br/>ortak ek, ortak token yok"]:::bad
+
+  T3["Sözcük başı boşluk<br/>LLaMA: ▁ç ▁ş ▁ğ ▁ı vocab'da yok →<br/>14 tek başına ▁ token'ı"]:::key
+  T3 --> R3["▁ | ç | ek | m | ec | es | inde | ki<br/>(çekmecesindeki = 8 parça)"]:::bad
+
+  T4["Konum etkisi (yalnızca Qwen3)<br/>cümle başı boşluksuz → 31 sözcük<br/>farklı bölünüyor"]:::key
+  T4 --> R4["'arasındaki' ortada 1 token,<br/>başta aras | ındaki;<br/>B07–B09 (soldaki/sağdaki/öndeki) başta"]:::bad
+
+  T5["lower() tuzağı (yalnızca OpenVLA)<br/>Python: 'İ'.lower() = 'i' + U+0307"]:::key
+  T5 --> R5["'İçine koy' → ▁i &lt;0xCC&gt; &lt;0x87&gt; ç ine<br/>iki bayt-kırıntısı; setteki 100 satır<br/>küçük harf olduğu için etkilenmedi"]:::bad
+
+  T6["Action aralığı çakışması<br/>LLaMA-2 id 31744–31999 = OpenVLA bin'leri"]:::key
+  T6 --> R6["100 komutta 0 çakışma<br/>(ko/ja/zh/ru/ar denemelerinde de 0;<br/>aralık nadir CJK karakterleri)"]:::out

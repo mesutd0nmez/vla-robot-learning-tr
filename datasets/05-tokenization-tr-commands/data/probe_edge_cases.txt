@@ -1,0 +1,81 @@
+1) lower() ve İ
+  'İçine koy'
+  [llama2]  6  ▁ | İ | ç | ine | ▁ko | y   
+  [qwen3 ]  5  İ | ç | ine | ▁k | oy   
+  'i̇çine koy'
+  [llama2]  7  ▁i | <0xCC> | <0x87> | ç | ine | ▁ko | y   
+  [qwen3 ]  7  i | <Ì> | <ĩ> | ç | ine | ▁k | oy   
+  'içine koy'
+  [llama2]  5  ▁i | ç | ine | ▁ko | y   
+  [qwen3 ]  5  i | ç | ine | ▁k | oy   
+
+2) Türkçe harfler: tek başına id / sözcük başında (▁+harf) var mı?
+  ç: LLaMA 'ç'=30019  '▁ç' YOK → tek başına ▁ + ç   Qwen ' ç' → ['▁ç']
+  ğ: LLaMA 'ğ'=30200  '▁ğ' YOK → tek başına ▁ + ğ   Qwen ' ğ' → ['<ĠÄ>', '<Ł>']
+  ı: LLaMA 'ı'=30130  '▁ı' YOK → tek başına ▁ + ı   Qwen ' ı' → ['▁', 'ı']
+  ö: LLaMA 'ö'=29997  '▁ö' VAR   Qwen ' ö' → ['▁ö']
+  ş: LLaMA 'ş'=30169  '▁ş' YOK → tek başına ▁ + ş   Qwen ' ş' → ['▁ş']
+  ü: LLaMA 'ü'=29993  '▁ü' VAR   Qwen ' ü' → ['▁ü']
+  â: LLaMA 'â'=30057  '▁â' VAR   Qwen ' â' → ['▁â']
+
+3) Qwen3 cümle başı / ortası
+  arasındaki   başta ['aras', 'ındaki']   ortada ['▁arasındaki']
+  soldaki      başta ['sold', 'aki']   ortada ['▁sold', 'aki']
+  öndeki       başta ['ö', 'nd', 'eki']   ortada ['▁ö', 'nd', 'eki']
+  kaseyi       başta ['k', 'ase', 'yi']   ortada ['▁k', 'ase', 'yi']
+  tabağın      başta ['tab', 'ağ', 'ın']   ortada ['▁tab', 'ağ', 'ın']
+  kaldır       başta ['k', 'ald', 'ır']   ortada ['▁kaldır']
+
+4) Action aralığı (31744–31999) çakışması
+  tr: LLaMA 14 token, action aralığında 0 []   Qwen 11 token
+  ko: LLaMA 28 token, action aralığında 0 []   Qwen 14 token
+  ja: LLaMA 20 token, action aralığında 0 []   Qwen 13 token
+  zh: LLaMA 19 token, action aralığında 0 []   Qwen 8 token
+  ru: LLaMA 12 token, action aralığında 0 []   Qwen 14 token
+  ar: LLaMA 21 token, action aralığında 0 []   Qwen 9 token
+  en: LLaMA  7 token, action aralığında 0 []   Qwen 6 token
+  aralığın ilk 10 parçası: 忠 错 단 면 ķ 桥 雲 该 ṯ 岩
+
+5) Tatar vd. 'Kal|dır'
+  'Kırmızı küpü kaldır'
+  [llama2] 14  ▁K | ı | rm | ı | z | ı | ▁k | ü | p | ü | ▁k | ald | ı | r   
+  [qwen3 ]  9  K | ı | rm | ız | ı | ▁kü | p | ü | ▁kaldır   
+  'Kırmızı küpü Kaldır'
+  [llama2] 14  ▁K | ı | rm | ı | z | ı | ▁k | ü | p | ü | ▁K | ald | ı | r   
+  [qwen3 ] 11  K | ı | rm | ız | ı | ▁kü | p | ü | ▁K | ald | ır   
+  'kaldır'
+  [llama2]  4  ▁k | ald | ı | r   
+  [qwen3 ]  3  k | ald | ır   
+  'Kaldır'
+  [llama2]  4  ▁K | ald | ı | r   
+  [qwen3 ]  3  K | ald | ır   
+
+6) Yanlış arkadaşlar
+  'tabağı ocağın önüne it'
+  [llama2] 14  ▁tab | a | ğ | ı | ▁o | ca | ğ | ı | n | ▁ | ön | ü | ne | ▁it   
+           LLaMA id'leri [4434, 29874, 30200, 30130, 288, 1113, 30200, 30130, 29876, 29871, 3042, 29993, 484, 372]
+  [qwen3 ]  8  tab | ağı | ▁o | ca | ğ | ın | ▁önüne | ▁it   
+  'place it on the plate'
+  [llama2]  5  ▁place | ▁it | ▁on | ▁the | ▁plate   
+           LLaMA id'leri [2058, 372, 373, 278, 15284]
+  [qwen3 ]  5  place | ▁it | ▁on | ▁the | ▁plate   
+  'soldaki'
+  [llama2]  2  ▁sold | aki   
+           LLaMA id'leri [5239, 9940]
+  [qwen3 ]  2  sold | aki   
+  'sold'
+  [llama2]  1  ▁sold   
+           LLaMA id'leri [5239]
+  [qwen3 ]  1  sold   
+  'sol'
+  [llama2]  1  ▁sol   
+           LLaMA id'leri [899]
+  [qwen3 ]  1  sol   
+  'al'
+  [llama2]  1  ▁al   
+           LLaMA id'leri [394]
+  [qwen3 ]  1  al   
+  'et al.'
+  [llama2]  3  ▁et | ▁al | .   
+           LLaMA id'leri [634, 394, 29889]
+  [qwen3 ]  3  et | ▁al | .   

@@ -30,6 +30,7 @@ Bilgisayar Mühendisliği yüksek lisans tezimin açık kaydı: Vision-Language-
 <a href="#/lectures/lecture-19"><b>19</b><span>Sonuç analizi: shortcut var mı, hangi suite'te? — okuma protokolü, BDDL'den yapısal üst sınır (Spatial 9/10, Goal 1/10), 50 init state'in geometrisi<small>Faz 3 · Analiz + Klavye</small></span></a>
 <a href="#/lectures/lecture-20"><b>20</b><span>Türkçe mekânsal komut seti: 20 EN–TR çift — ilişki adı + üç ek, "soldaki" kime göre (üç çerçeve), 50 init state'ten referans, karşı-olgusal BDDL<small>Faz 3 · Tasarım + Veri</small></span></a>
 <a href="#/lectures/lecture-21"><b>21</b><span>Webots: danışmanın ikinci simülatörü — yığındaki yeri (benchmark değil, simülatör), Mac'te kurulum + conda vla, UR10e ile ilk sahne, tez için karar notu<small>Faz 3 · Araç + Karar</small></span></a>
+<a href="#/lectures/lecture-22"><b>22</b><span>Tokenizasyon analizi: aynı 100 komut, iki tokenizer — LLaMA-2 1,6× / Qwen3 1,4× şişme, ilişki eki kararsız, "soldaki" = sold+aki, cümle başı tuzağı, action aralığı temiz<small>Faz 3 · Analiz + Veri</small></span></a>
 </div>
 
 ## Nasıl çalışıyorum

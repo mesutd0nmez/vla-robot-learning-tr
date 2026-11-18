@@ -22,6 +22,7 @@
   - [<span class="nav-num">19</span>Sonuç Analizi](/lectures/lecture-19.md)
   - [<span class="nav-num">20</span>Türkçe Mekânsal Komut Seti](/lectures/lecture-20.md)
   - [<span class="nav-num">21</span>Webots](/lectures/lecture-21.md)
+  - [<span class="nav-num">22</span>Tokenizasyon Analizi](/lectures/lecture-22.md)
 
 - **Plan**
   - [<span class="nav-num">·</span>Günlük Çalışma Logu](/plan/daily-log.md)
@@ -42,6 +43,7 @@
   - [<span class="nav-num">02</span>LIBERO-Plus Spatial görev 0 — 50 yeniden yazımın türü + 10 Türkçe BDDL varyantı](/datasets/02-libero-plus-spatial0-rewrites/dataset-card.md)
   - [<span class="nav-num">03</span>LIBERO-Spatial görev 0 — 4 koşullu komut deneyi (clean / empty / wrong / tr): koşul tanımı + sonuç şeması](/datasets/03-libero-spatial0-4cond/dataset-card.md)
   - [<span class="nav-num">04</span>TR mekânsal komut seti — 20 EN–TR çift × 5 yüzey](/datasets/04-tr-spatial-commands/dataset-card.md)
+  - [<span class="nav-num">05</span>TR komut setinin tokenizasyonu — 100 komut × 2 tokenizer (LLaMA-2 / Qwen3)](/datasets/05-tokenization-tr-commands/dataset-card.md)
 
 - **Kod**
   - [<span class="nav-num">09</span>Gün 9 kodu](/code/day09/README.md)
@@ -57,3 +59,4 @@
   - [<span class="nav-num">19</span>Gün 19 kodu](/code/day19/README.md)
   - [<span class="nav-num">20</span>Gün 20 kodu](/code/day20/README.md)
   - [<span class="nav-num">21</span>Gün 21 kodu](/code/day21/README.md)
+  - [<span class="nav-num">22</span>Gün 22 kodu](/code/day22/README.md)

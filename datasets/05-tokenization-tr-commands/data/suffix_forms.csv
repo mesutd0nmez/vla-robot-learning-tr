@@ -1,0 +1,20 @@
+tokenizer,suffix,token_form,count
+llama2,ki,aki,5
+llama2,ki,i,3
+llama2,ki,ki,1
+llama2,ne/na/a (DAT),ne,4
+llama2,ne/na/a (DAT),ine,1
+llama2,ne/na/a (DAT),fa,1
+llama2,ne/na/a (DAT),na,1
+llama2,ne/na/a (DAT),una,1
+qwen3,ki,eki,3
+qwen3,ki,ındaki,2
+qwen3,ki,aki,2
+qwen3,ki,▁arasındaki,1
+qwen3,ki,ki,1
+qwen3,ne/na/a (DAT),ne,3
+qwen3,ne/na/a (DAT),ine,1
+qwen3,ne/na/a (DAT),afa,1
+qwen3,ne/na/a (DAT),▁önüne,1
+qwen3,ne/na/a (DAT),na,1
+qwen3,ne/na/a (DAT),una,1

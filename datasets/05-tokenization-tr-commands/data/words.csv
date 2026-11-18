@@ -1,0 +1,275 @@
+lang,word,count,tokenizer,n_pieces_mid,pieces_mid,ids_mid,n_pieces_initial,pieces_initial,occurs_initial
+en,and,13,llama2,1,▁and,322,1,▁and,hayır
+en,and,13,qwen3,1,▁and,323,1,and,hayır
+en,between,1,llama2,1,▁between,1546,1,▁between,hayır
+en,between,1,qwen3,1,▁between,1948,1,between,hayır
+en,black,12,llama2,1,▁black,4628,1,▁black,hayır
+en,black,12,qwen3,1,▁black,3691,1,black,hayır
+en,bottle,1,llama2,2,▁bott|le,18046 280,2,▁bott|le,hayır
+en,bottle,1,qwen3,1,▁bottle,16486,2,b|ottle,hayır
+en,bowl,18,llama2,2,▁bow|l,12580 29880,2,▁bow|l,hayır
+en,bowl,18,qwen3,1,▁bowl,19212,2,b|owl,hayır
+en,cabinet,3,llama2,1,▁cabinet,28966,1,▁cabinet,hayır
+en,cabinet,3,qwen3,1,▁cabinet,21921,2,c|abinet,hayır
+en,center,1,llama2,1,▁center,4818,1,▁center,hayır
+en,center,1,qwen3,1,▁center,4126,1,center,hayır
+en,cheese,1,llama2,2,▁che|ese,923 968,2,▁che|ese,hayır
+en,cheese,1,qwen3,1,▁cheese,17163,2,che|ese,hayır
+en,closer,2,llama2,1,▁closer,17649,1,▁closer,hayır
+en,closer,2,qwen3,1,▁closer,12128,2,clo|ser,hayır
+en,cream,1,llama2,2,▁cre|am,907 314,2,▁cre|am,hayır
+en,cream,1,qwen3,1,▁cream,12644,1,cream,hayır
+en,drawer,1,llama2,2,▁dra|wer,7482 556,2,▁dra|wer,hayır
+en,drawer,1,qwen3,1,▁drawer,26482,1,drawer,hayır
+en,farther,1,llama2,1,▁farther,26645,1,▁farther,hayır
+en,farther,1,qwen3,1,▁farther,42626,2,far|ther,hayır
+en,from,2,llama2,1,▁from,515,1,▁from,hayır
+en,from,2,qwen3,1,▁from,504,1,from,hayır
+en,front,2,llama2,1,▁front,4565,1,▁front,hayır
+en,front,2,qwen3,1,▁front,4065,1,front,hayır
+en,in,3,llama2,1,▁in,297,1,▁in,hayır
+en,in,3,qwen3,1,▁in,304,1,in,hayır
+en,it,12,llama2,1,▁it,372,1,▁it,hayır
+en,it,12,qwen3,1,▁it,432,1,it,hayır
+en,left,2,llama2,1,▁left,2175,1,▁left,hayır
+en,left,2,qwen3,1,▁left,2115,1,left,hayır
+en,next,1,llama2,1,▁next,2446,1,▁next,hayır
+en,next,1,qwen3,1,▁next,1790,1,next,hayır
+en,of,5,llama2,1,▁of,310,1,▁of,hayır
+en,of,5,qwen3,1,▁of,315,1,of,hayır
+en,on,20,llama2,1,▁on,373,1,▁on,hayır
+en,on,20,qwen3,1,▁on,389,1,on,hayır
+en,pick,12,llama2,1,▁pick,5839,1,▁pick,evet
+en,pick,12,qwen3,1,▁pick,3735,1,pick,evet
+en,place,12,llama2,1,▁place,2058,1,▁place,hayır
+en,place,12,qwen3,1,▁place,1992,1,place,hayır
+en,plate,19,llama2,1,▁plate,15284,1,▁plate,hayır
+en,plate,19,qwen3,1,▁plate,11968,1,plate,hayır
+en,push,1,llama2,1,▁push,5503,1,▁push,evet
+en,push,1,qwen3,1,▁push,4484,1,push,evet
+en,put,7,llama2,1,▁put,1925,1,▁put,evet
+en,put,7,qwen3,1,▁put,2182,1,put,evet
+en,rack,1,llama2,2,▁ra|ck,1153 384,2,▁ra|ck,hayır
+en,rack,1,qwen3,1,▁rack,29659,1,rack,hayır
+en,ramekin,2,llama2,3,▁r|ame|kin,364 420 9089,3,▁r|ame|kin,hayır
+en,ramekin,2,qwen3,3,▁r|ame|kin,435 373 7989,2,rame|kin,hayır
+en,right,2,llama2,1,▁right,1492,1,▁right,hayır
+en,right,2,qwen3,1,▁right,1290,1,right,hayır
+en,robot,1,llama2,1,▁robot,19964,1,▁robot,hayır
+en,robot,1,qwen3,1,▁robot,12305,1,robot,hayır
+en,stove,3,llama2,2,▁st|ove,380 994,2,▁st|ove,hayır
+en,stove,3,qwen3,1,▁stove,44015,2,st|ove,hayır
+en,table,1,llama2,1,▁table,1591,1,▁table,hayır
+en,table,1,qwen3,1,▁table,1965,1,table,hayır
+en,the,56,llama2,1,▁the,278,1,▁the,hayır
+en,the,56,qwen3,1,▁the,279,1,the,hayır
+en,to,6,llama2,1,▁to,304,1,▁to,hayır
+en,to,6,qwen3,1,▁to,311,1,to,hayır
+en,top,2,llama2,1,▁top,2246,1,▁top,hayır
+en,top,2,qwen3,1,▁top,1909,1,top,hayır
+en,up,12,llama2,1,▁up,701,1,▁up,hayır
+en,up,12,qwen3,1,▁up,705,1,up,hayır
+en,wine,1,llama2,1,▁wine,19006,1,▁wine,hayır
+en,wine,1,qwen3,1,▁wine,13078,1,wine,hayır
+en,wooden,2,llama2,1,▁wooden,27278,1,▁wooden,hayır
+en,wooden,2,qwen3,1,▁wooden,22360,2,wood|en,hayır
+tr,ahsap,2,llama2,3,▁a|hs|ap,263 9499 481,3,▁a|hs|ap,evet
+tr,ahsap,2,qwen3,3,▁a|hs|ap,264 4997 391,2,ah|sap,evet
+tr,ahşap,6,llama2,3,▁ah|ş|ap,21023 30169 481,3,▁ah|ş|ap,evet
+tr,ahşap,6,qwen3,3,▁ah|ş|ap,22327 7222 391,3,ah|ş|ap,evet
+tr,al,36,llama2,1,▁al,394,1,▁al,hayır
+tr,al,36,qwen3,1,▁al,452,1,al,hayır
+tr,alıp,12,llama2,3,▁al|ı|p,394 30130 29886,3,▁al|ı|p,hayır
+tr,alıp,12,qwen3,2,▁al|ıp,452 128824,2,al|ıp,hayır
+tr,ara,1,llama2,1,▁ara,24418,1,▁ara,hayır
+tr,ara,1,qwen3,1,▁ara,127238,1,ara,hayır
+tr,arasindaki,1,llama2,4,▁ar|as|ind|aki,564 294 513 9940,4,▁ar|as|ind|aki,hayır
+tr,arasindaki,1,qwen3,3,▁aras|ind|aki,126448 484 14624,3,aras|ind|aki,hayır
+tr,arasında,1,llama2,5,▁ar|as|ı|nd|a,564 294 30130 299 29874,5,▁ar|as|ı|nd|a,hayır
+tr,arasında,1,qwen3,1,▁arasında,129010,2,aras|ında,hayır
+tr,arasındaki,1,llama2,5,▁ar|as|ı|nd|aki,564 294 30130 299 9940,5,▁ar|as|ı|nd|aki,hayır
+tr,arasındaki,1,qwen3,1,▁arasındaki,138451,2,aras|ındaki,hayır
+tr,cekmecesindeki,1,llama2,7,▁c|ek|m|ec|es|inde|ki,274 1416 29885 687 267 25201 1984,7,▁c|ek|m|ec|es|inde|ki,hayır
+tr,cekmecesindeki,1,qwen3,7,▁c|ek|m|ec|es|inde|ki,272 1225 76 757 288 26976 6642,6,ce|km|ec|es|inde|ki,hayır
+tr,daha,9,llama2,2,▁dah|a,20694 29874,2,▁dah|a,hayır
+tr,daha,9,qwen3,1,▁daha,61494,2,d|aha,hayır
+tr,dolabin,3,llama2,3,▁dol|ab|in,8828 370 262,3,▁dol|ab|in,hayır
+tr,dolabin,3,qwen3,2,▁dol|abin,21270 8892,3,d|ol|abin,hayır
+tr,dolabın,6,llama2,4,▁dol|ab|ı|n,8828 370 30130 29876,4,▁dol|ab|ı|n,evet
+tr,dolabın,6,qwen3,3,▁dol|ab|ın,21270 370 16116,4,d|ol|ab|ın,evet
+tr,dolap,3,llama2,2,▁dol|ap,8828 481,2,▁dol|ap,hayır
+tr,dolap,3,qwen3,2,▁dol|ap,21270 391,3,d|ol|ap,hayır
+tr,doğru,1,llama2,3,▁do|ğ|ru,437 30200 582,3,▁do|ğ|ru,hayır
+tr,doğru,1,qwen3,1,▁doğru,129204,2,doğ|ru,hayır
+tr,duran,6,llama2,2,▁dur|an,1411 273,2,▁dur|an,hayır
+tr,duran,6,qwen3,2,▁dur|an,10651 276,2,d|uran,hayır
+tr,icine,1,llama2,2,▁ic|ine,16077 457,2,▁ic|ine,hayır
+tr,icine,1,qwen3,2,▁ic|ine,17902 482,1,icine,hayır
+tr,ile,3,llama2,2,▁i|le,474 280,2,▁i|le,hayır
+tr,ile,3,qwen3,1,▁ile,30805,1,ile,hayır
+tr,it,4,llama2,1,▁it,372,1,▁it,hayır
+tr,it,4,qwen3,1,▁it,432,1,it,hayır
+tr,iç,1,llama2,2,▁i|ç,474 30019,2,▁i|ç,hayır
+tr,iç,1,qwen3,1,▁iç,26517,2,i|ç,hayır
+tr,içindeki,1,llama2,4,▁i|ç|inde|ki,474 30019 25201 1984,4,▁i|ç|inde|ki,hayır
+tr,içindeki,1,qwen3,2,▁içinde|ki,128972 6642,4,i|ç|inde|ki,hayır
+tr,içine,2,llama2,3,▁i|ç|ine,474 30019 457,3,▁i|ç|ine,hayır
+tr,içine,2,qwen3,2,▁iç|ine,26517 482,3,i|ç|ine,hayır
+tr,kase,18,llama2,2,▁k|ase,413 559,2,▁k|ase,evet
+tr,kase,18,qwen3,2,▁k|ase,595 519,2,k|ase,evet
+tr,kasenin,2,llama2,4,▁k|as|en|in,413 294 264 262,4,▁k|as|en|in,hayır
+tr,kasenin,2,qwen3,3,▁kas|en|in,47656 268 258,3,kas|en|in,hayır
+tr,kaseyi,34,llama2,3,▁k|ase|yi,413 559 25675,3,▁k|ase|yi,evet
+tr,kaseyi,34,qwen3,3,▁k|ase|yi,595 519 38072,3,k|ase|yi,evet
+tr,koy,75,llama2,2,▁ko|y,5812 29891,2,▁ko|y,hayır
+tr,koy,75,qwen3,2,▁k|oy,595 2253,2,k|oy,hayır
+tr,krem,4,llama2,2,▁k|rem,413 1745,2,▁k|rem,evet
+tr,krem,4,qwen3,2,▁k|rem,595 1826,2,k|rem,evet
+tr,kâsenin,1,llama2,4,▁k|â|sen|in,413 30057 4881 262,4,▁k|â|sen|in,evet
+tr,kâsenin,1,qwen3,4,▁k|â|sen|in,595 8835 11759 258,4,k|â|sen|in,evet
+tr,kâseyi,17,llama2,4,▁k|â|sey|i,413 30057 7759 29875,4,▁k|â|sey|i,hayır
+tr,kâseyi,17,qwen3,4,▁k|â|sey|i,595 8835 8506 72,4,k|â|sey|i,hayır
+tr,masa,1,llama2,2,▁mas|a,5516 29874,2,▁mas|a,evet
+tr,masa,1,qwen3,1,▁masa,70689,2,mas|a,evet
+tr,masanin,1,llama2,3,▁mas|an|in,5516 273 262,3,▁mas|an|in,evet
+tr,masanin,1,qwen3,3,▁mas|an|in,9243 276 258,3,mas|an|in,evet
+tr,masanın,2,llama2,4,▁mas|an|ı|n,5516 273 30130 29876,4,▁mas|an|ı|n,evet
+tr,masanın,2,qwen3,3,▁mas|an|ın,9243 276 16116,3,mas|an|ın,evet
+tr,ocagin,3,llama2,2,▁oc|agin,12954 26584,2,▁oc|agin,evet
+tr,ocagin,3,qwen3,3,▁oc|ag|in,17796 351 258,3,oc|ag|in,evet
+tr,ocak,3,llama2,2,▁oc|ak,12954 557,2,▁oc|ak,evet
+tr,ocak,3,qwen3,2,▁oc|ak,17796 585,2,oc|ak,evet
+tr,ocağın,6,llama2,5,▁o|ca|ğ|ı|n,288 1113 30200 30130 29876,5,▁o|ca|ğ|ı|n,evet
+tr,ocağın,6,qwen3,4,▁o|ca|ğ|ın,297 924 11011 16116,3,oca|ğ|ın,evet
+tr,olan,9,llama2,2,▁o|lan,288 6468,2,▁o|lan,hayır
+tr,olan,9,qwen3,1,▁olan,56298,1,olan,hayır
+tr,ondeki,1,llama2,2,▁onde|ki,16504 1984,2,▁onde|ki,evet
+tr,ondeki,1,qwen3,2,▁onde|ki,49003 6642,2,onde|ki,evet
+tr,onune,1,llama2,2,▁on|une,373 1540,2,▁on|une,hayır
+tr,onune,1,qwen3,2,▁on|une,389 2886,2,on|une,hayır
+tr,orta,1,llama2,2,▁ort|a,20289 29874,2,▁ort|a,hayır
+tr,orta,1,qwen3,2,▁ort|a,63509 64,1,orta,hayır
+tr,ortasindaki,1,llama2,4,▁ort|as|ind|aki,20289 294 513 9940,4,▁ort|as|ind|aki,hayır
+tr,ortasindaki,1,qwen3,4,▁ort|as|ind|aki,63509 300 484 14624,4,ort|as|ind|aki,hayır
+tr,ortasındaki,1,llama2,5,▁ort|as|ı|nd|aki,20289 294 30130 299 9940,5,▁ort|as|ı|nd|aki,hayır
+tr,ortasındaki,1,qwen3,3,▁ort|as|ındaki,63509 300 127551,3,ort|as|ındaki,hayır
+tr,ortasından,1,llama2,5,▁ort|as|ı|nd|an,20289 294 30130 299 273,5,▁ort|as|ı|nd|an,hayır
+tr,ortasından,1,qwen3,3,▁ort|as|ından,63509 300 67133,3,ort|as|ından,hayır
+tr,peynir,1,llama2,3,▁pe|yn|ir,1236 948 381,3,▁pe|yn|ir,hayır
+tr,peynir,1,qwen3,3,▁pe|yn|ir,1051 1872 404,3,pe|yn|ir,hayır
+tr,peyniri,3,llama2,3,▁pe|yn|iri,1236 948 12737,3,▁pe|yn|iri,hayır
+tr,peyniri,3,qwen3,3,▁pe|yn|iri,1051 1872 20679,3,pe|yn|iri,hayır
+tr,raf,1,llama2,2,▁ra|f,1153 29888,2,▁ra|f,hayır
+tr,raf,1,qwen3,2,▁r|af,435 2577,1,raf,hayır
+tr,rafa,2,llama2,2,▁ra|fa,1153 5444,2,▁ra|fa,hayır
+tr,rafa,2,qwen3,2,▁r|afa,435 35834,2,ra|fa,hayır
+tr,rafın,1,llama2,4,▁ra|f|ı|n,1153 29888 30130 29876,4,▁ra|f|ı|n,hayır
+tr,rafın,1,qwen3,3,▁r|af|ın,435 2577 16116,2,raf|ın,hayır
+tr,ramekin,3,llama2,3,▁r|ame|kin,364 420 9089,3,▁r|ame|kin,evet
+tr,ramekin,3,qwen3,3,▁r|ame|kin,435 373 7989,2,rame|kin,evet
+tr,ramekinin,5,llama2,4,▁r|ame|kin|in,364 420 9089 262,4,▁r|ame|kin|in,evet
+tr,ramekinin,5,qwen3,4,▁r|ame|kin|in,435 373 7989 258,3,rame|kin|in,evet
+tr,robot,1,llama2,1,▁robot,19964,1,▁robot,evet
+tr,robot,1,qwen3,1,▁robot,12305,1,robot,evet
+tr,robota,3,llama2,2,▁rob|ota,10832 4616,2,▁rob|ota,evet
+tr,robota,3,qwen3,2,▁rob|ota,10550 6089,2,rob|ota,evet
+tr,sagdaki,1,llama2,3,▁sag|d|aki,17233 29881 9940,3,▁sag|d|aki,evet
+tr,sagdaki,1,qwen3,3,▁sag|d|aki,29711 67 14624,4,s|ag|d|aki,evet
+tr,sagina,1,llama2,2,▁sag|ina,17233 1099,2,▁sag|ina,hayır
+tr,sagina,1,qwen3,2,▁sag|ina,29711 2210,2,s|agina,hayır
+tr,sarap,1,llama2,2,▁sar|ap,22887 481,2,▁sar|ap,evet
+tr,sarap,1,qwen3,2,▁sar|ap,28047 391,2,sar|ap,evet
+tr,sağ,4,llama2,2,▁sa|ğ,872 30200,2,▁sa|ğ,evet
+tr,sağ,4,qwen3,1,▁sağ,84839,2,sa|ğ,evet
+tr,sağdaki,1,llama2,4,▁sa|ğ|d|aki,872 30200 29881 9940,4,▁sa|ğ|d|aki,evet
+tr,sağdaki,1,qwen3,3,▁sağ|d|aki,84839 67 14624,4,sa|ğ|d|aki,evet
+tr,sağına,1,llama2,4,▁sa|ğ|ı|na,872 30200 30130 1056,4,▁sa|ğ|ı|na,hayır
+tr,sağına,1,qwen3,3,▁sa|ğı|na,822 43286 3376,3,sa|ğı|na,hayır
+tr,sisesini,1,llama2,3,▁s|ises|ini,269 4637 2172,3,▁s|ises|ini,hayır
+tr,sisesini,1,qwen3,3,▁s|ises|ini,274 4909 6591,3,s|ises|ini,hayır
+tr,siyah,48,llama2,3,▁si|y|ah,1354 29891 801,3,▁si|y|ah,evet
+tr,siyah,48,qwen3,2,▁si|yah,4403 94680,2,si|yah,evet
+tr,sol,4,llama2,1,▁sol,899,1,▁sol,evet
+tr,sol,4,qwen3,1,▁sol,2048,1,sol,evet
+tr,soldaki,2,llama2,2,▁sold|aki,5239 9940,2,▁sold|aki,evet
+tr,soldaki,2,qwen3,2,▁sold|aki,6088 14624,2,sold|aki,evet
+tr,soluna,2,llama2,2,▁sol|una,899 4347,2,▁sol|una,hayır
+tr,soluna,2,qwen3,2,▁sol|una,2048 8565,2,sol|una,hayır
+tr,tabaga,2,llama2,2,▁tab|aga,4434 7781,2,▁tab|aga,evet
+tr,tabaga,2,qwen3,2,▁tab|aga,5651 12466,2,tab|aga,evet
+tr,tabagi,1,llama2,2,▁tab|agi,4434 17698,2,▁tab|agi,evet
+tr,tabagi,1,qwen3,2,▁tab|agi,5651 36035,2,tab|agi,evet
+tr,tabagin,15,llama2,2,▁tab|agin,4434 26584,2,▁tab|agin,hayır
+tr,tabagin,15,qwen3,3,▁tab|ag|in,5651 351 258,3,tab|ag|in,hayır
+tr,tabak,21,llama2,2,▁tab|ak,4434 557,2,▁tab|ak,evet
+tr,tabak,21,qwen3,2,▁tab|ak,5651 585,2,tab|ak,evet
+tr,tabakla,1,llama2,3,▁tab|ak|la,4434 557 433,3,▁tab|ak|la,evet
+tr,tabakla,1,qwen3,3,▁tab|ak|la,5651 585 4260,3,tab|ak|la,evet
+tr,tabaktan,1,llama2,3,▁tab|akt|an,4434 5867 273,3,▁tab|akt|an,evet
+tr,tabaktan,1,qwen3,3,▁tab|akt|an,5651 9913 276,3,tab|akt|an,evet
+tr,tabağa,14,llama2,4,▁tab|a|ğ|a,4434 29874 30200 29874,4,▁tab|a|ğ|a,evet
+tr,tabağa,14,qwen3,2,▁tab|ağa,5651 131106,2,tab|ağa,evet
+tr,tabağı,2,llama2,4,▁tab|a|ğ|ı,4434 29874 30200 30130,4,▁tab|a|ğ|ı,evet
+tr,tabağı,2,qwen3,2,▁tab|ağı,5651 125494,2,tab|ağı,evet
+tr,tabağın,19,llama2,5,▁tab|a|ğ|ı|n,4434 29874 30200 30130 29876,5,▁tab|a|ğ|ı|n,evet
+tr,tabağın,19,qwen3,3,▁tab|ağ|ın,5651 143786 16116,3,tab|ağ|ın,evet
+tr,taraftaki,3,llama2,3,▁tar|aft|aki,9913 2051 9940,3,▁tar|aft|aki,hayır
+tr,taraftaki,3,qwen3,4,▁t|ara|ft|aki,259 5059 723 14624,4,t|ara|ft|aki,hayır
+tr,tarafına,2,llama2,4,▁tar|af|ı|na,9913 2142 30130 1056,4,▁tar|af|ı|na,hayır
+tr,tarafına,2,qwen3,2,▁taraf|ına,95798 63466,3,tar|af|ına,hayır
+tr,ust,1,llama2,2,▁u|st,318 303,2,▁u|st,hayır
+tr,ust,1,qwen3,1,▁ust,87589,1,ust,hayır
+tr,ustundeki,2,llama2,5,▁u|st|und|ek|i,318 303 870 1416 29875,5,▁u|st|und|ek|i,hayır
+tr,ustundeki,2,qwen3,3,▁ust|und|eki,87589 1241 78753,3,ust|und|eki,hayır
+tr,ustune,15,llama2,3,▁u|st|une,318 303 1540,3,▁u|st|une,hayır
+tr,ustune,15,qwen3,2,▁ust|une,87589 2886,2,ust|une,hayır
+tr,uzak,3,llama2,2,▁uz|ak,27296 557,2,▁uz|ak,hayır
+tr,uzak,3,qwen3,2,▁uz|ak,44476 585,2,uz|ak,hayır
+tr,uzakta,1,llama2,3,▁uz|ak|ta,27296 557 941,3,▁uz|ak|ta,hayır
+tr,uzakta,1,qwen3,3,▁uz|ak|ta,44476 585 2565,3,uz|ak|ta,hayır
+tr,ve,36,llama2,1,▁ve,2453,1,▁ve,hayır
+tr,ve,36,qwen3,1,▁ve,5208,1,ve,hayır
+tr,yakin,2,llama2,3,▁y|ak|in,343 557 262,3,▁y|ak|in,hayır
+tr,yakin,2,qwen3,2,▁y|akin,379 42230,2,y|akin,hayır
+tr,yakın,5,llama2,4,▁y|ak|ı|n,343 557 30130 29876,4,▁y|ak|ı|n,hayır
+tr,yakın,5,qwen3,1,▁yakın,130009,3,y|ak|ın,hayır
+tr,yakınındaki,1,llama2,7,▁y|ak|ı|n|ı|nd|aki,343 557 30130 29876 30130 299 9940,7,▁y|ak|ı|n|ı|nd|aki,hayır
+tr,yakınındaki,1,qwen3,4,▁yak|ını|nd|aki,73678 37411 303 14624,5,y|ak|ını|nd|aki,hayır
+tr,yan,1,llama2,2,▁y|an,343 273,2,▁y|an,hayır
+tr,yan,1,qwen3,1,▁yan,82792,1,yan,hayır
+tr,yanindaki,1,llama2,4,▁y|an|ind|aki,343 273 513 9940,4,▁y|an|ind|aki,hayır
+tr,yanindaki,1,qwen3,3,▁yan|ind|aki,82792 484 14624,3,yan|ind|aki,hayır
+tr,yanında,1,llama2,5,▁y|an|ı|nd|a,343 273 30130 299 29874,5,▁y|an|ı|nd|a,hayır
+tr,yanında,1,qwen3,1,▁yanında,134800,2,yan|ında,hayır
+tr,yanındaki,1,llama2,5,▁y|an|ı|nd|aki,343 273 30130 299 9940,5,▁y|an|ı|nd|aki,hayır
+tr,yanındaki,1,qwen3,2,▁yan|ındaki,82792 127551,2,yan|ındaki,hayır
+tr,yerleştir,1,llama2,6,▁y|er|le|ş|t|ir,343 261 280 30169 29873 381,6,▁y|er|le|ş|t|ir,hayır
+tr,yerleştir,1,qwen3,2,▁yer|leştir,54195 125269,2,yer|leştir,hayır
+tr,çekmece,1,llama2,5,▁|ç|ek|me|ce,29871 30019 1416 1004 346,5,▁|ç|ek|me|ce,hayır
+tr,çekmece,1,qwen3,3,▁çek|me|ce,126428 2660 346,3,çek|me|ce,hayır
+tr,çekmecesindeki,1,llama2,8,▁|ç|ek|m|ec|es|inde|ki,29871 30019 1416 29885 687 267 25201 1984,8,▁|ç|ek|m|ec|es|inde|ki,hayır
+tr,çekmecesindeki,1,qwen3,6,▁çek|m|ec|es|inde|ki,126428 76 757 288 26976 6642,6,çek|m|ec|es|inde|ki,hayır
+tr,çekmecesinin,1,llama2,8,▁|ç|ek|m|ec|es|in|in,29871 30019 1416 29885 687 267 262 262,8,▁|ç|ek|m|ec|es|in|in,hayır
+tr,çekmecesinin,1,qwen3,5,▁çek|m|ec|es|inin,126428 76 757 288 64444,5,çek|m|ec|es|inin,hayır
+tr,ön,3,llama2,2,▁|ön,29871 3042,2,▁|ön,evet
+tr,ön,3,qwen3,1,▁ön,78605,1,ön,evet
+tr,öndeki,1,llama2,4,▁ö|nd|ek|i,3963 299 1416 29875,4,▁ö|nd|ek|i,evet
+tr,öndeki,1,qwen3,3,▁ö|nd|eki,16942 303 78753,3,ö|nd|eki,evet
+tr,önüne,2,llama2,4,▁|ön|ü|ne,29871 3042 29993 484,4,▁|ön|ü|ne,hayır
+tr,önüne,2,qwen3,1,▁önüne,143018,2,önü|ne,hayır
+tr,üst,20,llama2,2,▁ü|st,2505 303,2,▁ü|st,hayır
+tr,üst,20,qwen3,1,▁üst,127242,1,üst,hayır
+tr,üstündeki,2,llama2,5,▁ü|st|ünd|ek|i,2505 303 5284 1416 29875,5,▁ü|st|ünd|ek|i,hayır
+tr,üstündeki,2,qwen3,3,▁üst|ünd|eki,127242 34271 78753,3,üst|ünd|eki,hayır
+tr,üstüne,16,llama2,4,▁ü|st|ü|ne,2505 303 29993 484,4,▁ü|st|ü|ne,hayır
+tr,üstüne,16,qwen3,3,▁üst|ü|ne,127242 2391 811,2,üstü|ne,hayır
+tr,üzerinde,2,llama2,3,▁ü|zer|inde,2505 3298 25201,3,▁ü|zer|inde,hayır
+tr,üzerinde,2,qwen3,1,▁üzerinde,129947,3,ü|zer|inde,hayır
+tr,üzerine,3,llama2,3,▁ü|zer|ine,2505 3298 457,3,▁ü|zer|ine,hayır
+tr,üzerine,3,qwen3,1,▁üzerine,130563,3,ü|zer|ine,hayır
+tr,şarap,3,llama2,4,▁|ş|ar|ap,29871 30169 279 481,4,▁|ş|ar|ap,evet
+tr,şarap,3,qwen3,3,▁ş|ar|ap,22066 277 391,3,ş|ar|ap,evet
+tr,şişesi,1,llama2,5,▁|ş|i|ş|esi,29871 30169 29875 30169 10100,5,▁|ş|i|ş|esi,hayır
+tr,şişesi,1,qwen3,3,▁şi|ş|esi,35350 7222 33083,3,şi|ş|esi,hayır
+tr,şişesini,2,llama2,6,▁|ş|i|ş|es|ini,29871 30169 29875 30169 267 2172,6,▁|ş|i|ş|es|ini,hayır
+tr,şişesini,2,qwen3,4,▁şi|ş|es|ini,35350 7222 288 6591,4,şi|ş|es|ini,hayır

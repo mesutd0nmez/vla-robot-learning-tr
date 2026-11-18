@@ -22,3 +22,9 @@ LIBERO/
 VLANeXt/
 LIBERO-plus/
 openvla/
+
+# Ders 22: tokenizer dosyaları ve node modülleri repoya girmez
+code/day22/tokenizer.model
+code/day22/tokenizer.json
+code/day22/node_modules/
+code/day22/package*.json
