@@ -31,6 +31,7 @@ Bilgisayar Mühendisliği yüksek lisans tezimin açık kaydı: Vision-Language-
 <a href="#/lectures/lecture-20"><b>20</b><span>Türkçe mekânsal komut seti: 20 EN–TR çift — ilişki adı + üç ek, "soldaki" kime göre (üç çerçeve), 50 init state'ten referans, karşı-olgusal BDDL<small>Faz 3 · Tasarım + Veri</small></span></a>
 <a href="#/lectures/lecture-21"><b>21</b><span>Webots: danışmanın ikinci simülatörü — yığındaki yeri (benchmark değil, simülatör), Mac'te kurulum + conda vla, UR10e ile ilk sahne, tez için karar notu<small>Faz 3 · Araç + Karar</small></span></a>
 <a href="#/lectures/lecture-22"><b>22</b><span>Tokenizasyon analizi: aynı 100 komut, iki tokenizer — LLaMA-2 1,6× / Qwen3 1,4× şişme, ilişki eki kararsız, "soldaki" = sold+aki, cümle başı tuzağı, action aralığı temiz<small>Faz 3 · Analiz + Veri</small></span></a>
+<a href="#/lectures/lecture-23"><b>23</b><span>Cohn hattı: yedi makale, abstract düzeyinde — StepGame düzeltmesi, RoomSpace, kardinal yön (2024→2025), skor belirsizliği (PI), DecompSR, QSTRBench; derinlikle çöküş (LIBERO'da k=1), yüzey değişince düşüş, tek skor rapor etme<small>Faz 3 · Literatür + Metodoloji</small></span></a>
 </div>
 
 ## Nasıl çalışıyorum

@@ -1,0 +1,30 @@
+flowchart TB
+  classDef idea fill:#ffd166,stroke:#333,color:#000
+  classDef ours fill:#d4f5d4,stroke:#333,color:#000
+  classDef gap fill:#ffd6d6,stroke:#333,color:#000
+  classDef in fill:#cfe8ff,stroke:#333,color:#000
+
+  I1["COHN: Iliski aileleri sistematik<br/>yon / topoloji / mesafe<br/>(RoomSpace, QSTRBench)"]:::idea
+  I2["COHN: Bakis acisi acikca secilir<br/>top-down vs north-facing<br/>(RoomSpace)"]:::idea
+  I3["COHN: Ayni soru, baska yuzey<br/>dil EN/HI/SV, nonce sozcuk,<br/>kisi/hareket sablonu<br/>(DecompSR, kardinal yon)"]:::idea
+  I4["COHN: Derinlik ekseni k<br/>1 hop -> 10 hop<br/>(StepGame, DecompSR)"]:::idea
+  I5["COHN: Tekrar + tahmin araligi<br/>temp 0 yetmez<br/>(Blackwell vd.)"]:::idea
+  I6["COHN: Altin etiket cozucuden,<br/>modelden degil<br/>(ASP / yapim kurali)"]:::idea
+
+  O1["BIZ: datasets/04<br/>CDC 6 / RCC 8 / mesafe 4 / bolge 2<br/>(gorsel 04)"]:::ours
+  O2["BIZ: Ders 20 cerceveleri<br/>libero / goruntu / robot;<br/>B07-B09, C18, D19-D20 cerceveye bagli"]:::ours
+  O3["BIZ: Ders 18 kosullari<br/>clean / para / tr / tr_ascii / tr_bare / empty<br/>= ayni init state, baska yuzey"]:::ours
+  O4["BOSLUK: LIBERO komutlari k = 1<br/>(tek iliski); LIBERO-Long bile<br/>zincir degil, sira"]:::gap
+  O5["BIZ: Ders 18 Wilson (episode ici)<br/>+ bugun PI (kosudan kosuya:<br/>seed / flow-matching / env)"]:::ours
+  O6["BIZ: BDDL predicate = simulatorden<br/>altin etiket; D19/D20 icin<br/>yeni bolge predicate'i gerek"]:::ours
+
+  I1 --> O1
+  I2 --> O2
+  I3 --> O3
+  I4 --> O4
+  I5 --> O5
+  I6 --> O6
+
+  X["Ders 24: cozum yaklasimlari<br/>ceviri katmani / cok dilli omurga / Turkce LoRA<br/>+ Ders 6'nin 'parser + sembolik' adayi"]:::in
+  O3 --> X
+  O4 --> X

@@ -1,0 +1,32 @@
+flowchart TB
+  classDef bench fill:#ffd166,stroke:#333,color:#000
+  classDef probe fill:#cfe8ff,stroke:#333,color:#000
+  classDef method fill:#d4f5d4,stroke:#333,color:#000
+  classDef core fill:#ffd6d6,stroke:#333,color:#000
+
+  subgraph A["Damar 1 - Benchmark insasi (altin etiket yapisal olarak garantili)"]
+    direction LR
+    P1["2401.03991 - AAAI-24<br/>StepGame duzeltmesi<br/>214 sablonun 14'u hatali; GPT + ASP = %100<br/>GPT-4 duz: k=1 %100 -> k=10 %25"]:::bench
+    P2["2405.15064 - IJCAI-24<br/>RoomSpace (Ders 7)<br/>ProcTHOR 3D oda; 9 yon + TPP/NTPP + yakin/uzak<br/>top-down / north-facing; ASP tutarlilik"]:::bench
+    P6["2511.02627 - 2025/26 (TMLR'ye sunuldu)<br/>DecompSR<br/>5,2 M ornek, k = 1..100, dil (EN/HI/SV), nonce, siralama, celdirici<br/>GPT-4o k=1 0,99 -> k=10 0,21"]:::bench
+    P7["2605.18380 - Mayis 2026<br/>QSTRBench<br/>9 kalkulus, 102 temel iliski, 1.806 soru<br/>en iyi GPT-5.2 ~0,92; RCC-22 en zor"]:::bench
+    P1 --> P2 --> P6 --> P7
+  end
+
+  subgraph B["Damar 2 - Tek yetenek sondasi: kardinal yon"]
+    direction LR
+    P3["2406.16528 - COSIT-24<br/>5.760 sablon sorusu, 8 model<br/>en iyi gpt-3.5-turbo 0,595; rastgele 0,125"]:::probe
+    P5["2507.12059 - QR-25 (plan etiketi)<br/>Revisited: 28 model<br/>en iyi o1 0,92; T4 'yol' sablonu herkesin zayif noktasi"]:::probe
+    P3 --> P5
+  end
+
+  subgraph C["Damar 3 - Olcum metodolojisi"]
+    direction LR
+    P4["2410.03492 - 2024/25<br/>Uncertainty in benchmark scores<br/>temp 0 + seed bile deterministik degil<br/>tahmin araligi x ± t s sqrt(2/n); genislik <= 0,01"]:::method
+  end
+
+  K["Ortak omurga<br/>1. derinlik (hop) arttikca cokus<br/>2. yuzey degisince (dil, sozcuk, sablon) dusus<br/>3. tek skor rapor etme; tekrar + aralik"]:::core
+
+  A --> K
+  B --> K
+  C --> K
