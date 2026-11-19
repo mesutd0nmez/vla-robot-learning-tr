@@ -7,14 +7,6 @@
 
 ---
 
-## 0. Dürüstlük notu
-
-Bu ortamda GPU yok, LIBERO-Plus asset'leri (6.4 GB) yine indirilemedi ve LIBERO deposunun kodu bu oturumda **çalıştırılamadı** (dış depodan kod çalıştırma kısıtı; yalnızca metin olarak okundu). Gerçekten yapılanlar: LIBERO-plus (`4976dc3`) klonlanıp `env_wrapper.py`, `problems/libero_tabletop_manipulation.py` (31.665 satır, 1.525 kayıtlı problem sınıfı), `robots/mounted_panda.py` (500 sınıf), `task_classification.json` ve Spatial'ın 2.031 BDDL dosyası satır satır/istatistiksel olarak okundu; `perturbation_table.py`, `robot_init_spread.py`, `layout_shift.py`, `classify_rewrites.py` bu dosyalardan **gerçek sayılar** üretti (görsel 03, 05, 06). `camera_geometry.py` LIBERO-plus'ın üç saf matematik fonksiyonunu (`rotate_around_y/z`, `scale_distance_from_pivot`) dosyadan çekip çalıştırdı (görsel 02). Görsel 04 **gerçek render**: robosuite 1.4.1 + mujoco 2.3.7 (PyPI, EGL) ile — ama LIBERO sahnesi değil, robosuite'in `Stack` sahnesi; kamera pozları LIBERO-plus'ın matematiğiyle, robot pozları `mounted_panda.py`'deki gerçek `init_qpos` değerleriyle. Görsel 07'deki gürültü fonksiyonları depodan çalıştırılmadı; `env_wrapper.py`'deki **parametre tabloları birebir aktarılarak** yeniden yazıldı (algoritmalar ImageNet-C'nin bilinen uygulamaları). `make_tr_variant.py` gerçek `bddl==1.0.1` paketiyle koştu (10/10 Türkçe varyant birebir geri okundu; kötü örneklerde Ders 16'nın öngördüğü hatalar çıktı). **Hipotez** olanlar: ışık XML'lerinin içeriği (asset yok; makalenin Ek A.3 tanımı), R1/R2 tür etiketleri (kural tabanlı okuma), makale Tablo 7 ile JSON arasındaki satır karışıklığının nedeni (Bölüm 5), ve JSON'a girdi eklemeden eval'in Türkçe görevde ne yaptığı (Bölüm 6).
-
-`plan/daily-log.md`'de bıraktığın soru yok; ders Ders 16'nın "Sonraki ders" vaadini izliyor.
-
----
-
 ## 1. Üç taşıyıcı: bozulma nerede kodlanmış?
 
 Ders 16'da görev adının `<temel>_<bozulma>_<parametreler>` biçiminde olduğunu görmüştün. Bugün soruyu tersine çeviriyoruz: eval `get_task(i)` dediğinde bu ad **hangi kod yolundan** geçip sahneyi değiştiriyor? Cevap üç farklı taşıyıcı:
@@ -54,7 +46,7 @@ Okuma:
 - **Zoom görevleri** (76) pivot'tan ×1.15–×2.0 uzaklaşır (yan görünüşte düz çizgi); nesneler 128×128 karede 2 kat küçülür. 
 - **Endpoint görevleri** (62) konumu hiç değiştirmez; ±2–10° yaw/pitch bakış noktasını masa üstünde 10–30 cm kaydırır (panel c'deki yeşil ızgara). İnsan gözüne en masum bozulma budur, ama görsel 09'da göreceğin gibi Camera kategorisi OpenVLA-OFT'yi Spatial'da 97.6 → 88.3'e düşürüyor; hangi alt türün ne kadar kırdığı makalede ayrıştırılmamış — `camera_poses.csv`'deki `kind` sütunuyla sen ayrıştırabilirsin (görev).
 
-Görsel 04'ün üst iki satırı aynı matematiği gerçek bir render'da gösteriyor (robosuite `Stack` sahnesi; LIBERO sahnesi değil, Bölüm 0):
+Görsel 04'ün üst iki satırı aynı matematiği gerçek bir render'da gösteriyor (robosuite `Stack` sahnesi; LIBERO sahnesi değil):
 
 ![Kamera ve robot bozulmaları render](images/lecture-17/04-camera-robot-renders.png)
 

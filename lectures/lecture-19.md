@@ -7,12 +7,6 @@
 
 ---
 
-## 0. Dürüstlük notu
-
-Senin Ders 18 koşun bu oturum başladığında repoda yoktu (`projects/05-spatial0-4kosul/` açılmamış), dolayısıyla analiz edilecek **gerçek tablo yok**. Bu yüzden ders üç şeyi gerçekten yapıp dördüncüyü sana bırakıyor. Gerçekten yapılanlar: (1) LIBERO deposu (`Lifelong-Robot-Learning/LIBERO`, `--depth 1`) klonlanıp **yalnızca dosyaları** okundu — dört suite'in 40 BDDL'i ve `libero_suite_task_map.py` sırası (`suite_structure.py`); (2) LIBERO-Spatial görev 0'ın `.pruned_init` dosyası torch/LIBERO/MuJoCo kurulmadan, kısıtlı bir numpy unpickler'la açıldı; 50 init state'in nesne konumları çıkarıldı ve beş nesnenin ellisi de BDDL bölgesinin ±1.5 cm içinde bulunarak nesne sırası doğrulandı (`init_state_geometry.py`; görsel 03 gerçek); (3) `read_patterns.py` Ders 18 görsel 07'nin dört temsili örüntüsünü ve Ders 18 selftest tablosunu doğru sınıflandırdı, sahne özellikleri ve `grasped_bowl` etiketleriyle uçtan uca çalıştı. Görsel 02 ve 05 üç makalenin tablolarından elle aktarılmış gerçek değerler. **Hipotez** olanlar: state vektörünün son 47 değerinin "4 fixture eklemi + 43 hız" olduğu (sayı tutuyor, model yüklenmedi); Bölüm 2'nin "yapısal üst sınır"ının ölçülen komutsuz başarıyla ilişkisi (bir yorum çerçevesi, nedensellik kanıtı değil); VLANeXt'in `wrong` ve `tr` koşullarındaki davranışı; Goal checkpoint'inin T4'te Spatial'daki yamalarla sorunsuz çalışması. `plan/daily-log.md`'de bıraktığın soru yok.
-
----
-
 ## 1. Tabloyu okumadan önce: yön mü, bulgu mu?
 
 Ders 18'in `analyze_4cond.py`'si sana dört satır verdi (ya da verecek). Satırları karşılaştırmadan önce tek bir soru: her satırın Wilson %95 aralığı `clean`'inkiyle **çakışıyor mu**? n = 10'da hemen her zaman çakışır (9/10 → 60–98, 4/10 → 17–69). Çakışıyorsa yazacağın cümlenin kipi değişir: "düşüş yönünde", "anlamlı düşüş" değil. Bu kip farkı istatistiksel titizlik değil, tez savunmasında ilk sorulacak sorunun cevabıdır.

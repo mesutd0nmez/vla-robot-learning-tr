@@ -7,12 +7,6 @@
 
 ---
 
-## 0. Dürüstlük notu
-
-Bu ortamda GPU ve Hugging Face erişimi yok; OpenVLA bugün de **çalıştırılamadı**. Gerçek olanlar: (1) komut seti ve LLaMA-2 token sayıları (`count_tokens.mjs`, llama-tokenizer-js; Ders 14'teki 34/46 sayılarıyla birebir tutarlı), (2) LIBERO BDDL dosyalarından okunan "öteki kâse" bölgeleri (çeldirici koşulun temeli), (3) `libero_spatial` q01/q99 ile hesaplanan metrik geometrisi (görsel 02), (4) analiz hattı `analyze_day15.py` — **sentetik** veriyle uçtan uca koşturuldu; görsel 04 bu sentetik çıktıdır ve başlığında öyle yazar, (5) Haziran 2026'nın iki makalesinden alınan sayılar (görsel 05). Hipotez olarak işaretli: Mac'te 30 çağrının süresi, ve Tatar vd.'nin bildirdiği `Kal+dır` bölünmesi (ben `k|ald|ı|r` buldum; Bölüm 4). `run_tatar_mini.py` ve `render_frames.py` yalnızca `py_compile`'dan geçti — ilk gerçek koşu senin.
-
----
-
 ## 1. Neden "reprodüksiyon", neden "mini"?
 
 Ders 5'te Tatar vd. için üç zayıf yön saymıştın: tek sentetik görüntü, action-vektör ≠ görev başarısı, kontrol koşulu yok (EN–EN tekrarı bile raporlanmamış). Bugün ilkini ve üçüncüsünü kapatıyoruz; ikincisi Ders 18'in işi (kapalı döngü, success rate, Colab).

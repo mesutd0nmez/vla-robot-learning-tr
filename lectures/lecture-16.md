@@ -7,14 +7,6 @@
 
 ---
 
-## 0. Dürüstlük notu
-
-Bu ortamda GPU yok ve Hugging Face'e erişim kapalı; bu yüzden LIBERO-Plus asset'leri (6.4 GB) indirilemedi ve VLANeXt eval'i **çalıştırılamadı**. Gerçekten yapılanlar: LIBERO-Plus (`4976dc3`, 21 Oca 2026) ve VLANeXt (`d911e6b`, 28 Eyl 2026) klonlanıp ilgili kod satır satır okundu; `select_plus_tasks.py` iki depo dosyasını (`task_classification.json`, `libero_suite_task_map.py`) okuyarak görsel 02 ve 04'ü ve Bölüm 6'daki görev seçimini **gerçek veriden** üretti; `bddl_lang_probe.py` gerçek `bddl==1.0.1` paketiyle koşturuldu (görsel 05 gerçek çıktı); `vlanext_plus_patch.py`, Ders 12 yamasından sonra VLANeXt + LIBERO-plus kopyasına iki kez uygulandı (idempotent, `py_compile` temiz); `parse_plus_log.py` eval script'inin kendi format string'iyle üretilmiş sentetik log'la sınandı (`--selftest`). Dil varyantı BDDL dosyalarının orijinalden **yalnızca** `:language` satırında ayrıldığı `diff` ile doğrulandı. **Hipotez** olanlar: asset'lerin açılmış boyutu, Colab'da kurulum/indirme süreleri, T4'te episode süresi, duman testi hücresinin (8) gerçekten geçmesi. Notebook'u ilk koşan sensin; takıldığın hücrenin tam çıktısını chat'e yapıştır.
-
-`plan/daily-log.md`'de bıraktığın soru yok; bu ders doğrudan Ders 15'in "Sonraki ders" vaadini izliyor.
-
----
-
 ## 1. Faz 2'nin haritası: iki boru hattı, tek soru
 
 Ders 9'dan bu yana iki ayrı makine kurdun. İkisi aynı soruyu farklı derinlikte soruyor: *komut değişince davranış değişiyor mu?*

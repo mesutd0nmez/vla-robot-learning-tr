@@ -7,12 +7,6 @@
 
 ---
 
-## 0. Dürüstlük notu
-
-Bu ders için VLANeXt (`d911e6b`, 28 Eyl 2026) ve LIBERO `master` depoları klonlanıp eval zinciri satır satır okundu; `trace_eval_chain.py` iki depo üzerinde çalıştırıldı ve aşağıdaki tablodaki **satır numaraları gerçek çıktıdır**. Makale sayıları (`04` grafiği) ICML metninin Tablo 1'inden. Flow-matching sigma takvimi diffusers kaynağından doğrulandı. Çalıştıramadığım tek şey `show_prompt.py`: bu ortamdan Hugging Face'e erişim yoktu, bu yüzden Qwen3-VL chat şablonunun **tam string'i** aşağıda "beklenen biçim" olarak yazılı ve hipotez; bugünkü görevin bir parçası onu senin basman. Ders 12'de "16 query token'lık policy head" demiştim; bugün göreceğin gibi bu eksik bir anlatımdı — 16 meta query var ama policy *yalnızca* onlara değil, VLM dizisinin tamamına bakıyor (Bölüm 4).
-
----
-
 ## 1. Harita: dört dosya, üç soru
 
 Ders 12'de koştuğun komut `python scripts/libero_bench_eval.py --config t4_bench_config.yaml` idi. O tek komutun arkasındaki çağrı zinciri:

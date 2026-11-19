@@ -7,14 +7,6 @@
 
 ---
 
-## 0. Dürüstlük notu (önce bunu oku)
-
-Bu dersi hazırlarken elimde GPU yoktu. Aşağıdakiler **gerçekten çalıştırıldı ve doğrulandı**: VLANeXt deposu klonlanıp eval kodu satır satır okundu; `vlanext_t4_patch.py` depo kopyasına uygulanıp iki kez çalıştırıldı (idempotent, `py_compile` temiz); `parse_eval_log.py` eval script'inin kendi format string'inden üretilmiş bir log'la test edildi; `robosuite==1.4.1 + mujoco==3.8.1 + numpy 2.2` birleşimi Linux'ta (render'sız) 40 kontrol adımı koştu. Aşağıdakiler ise **hipotez**, çünkü T4'te denenmedi: eval'in T4'te gerçekten bitmesi, süreler, bellek tepe değerleri, bf16 emülasyonunun hız maliyeti. Senin notebook çıktın bu hipotezleri test edecek; takıldığın yerin tam çıktısını chat'e yapıştır, dersi birlikte düzeltiriz.
-
-Bir de düzeltme: Ders 8'de VLANeXt'i "Tang vd." diye yazmıştım; makalenin yazarları **Wu vd.** (Xiao-Ming Wu, Chen Change Loy ekibi, NTU S-Lab + Sun Yat-sen). Kaynaklar'da doğrusu var.
-
----
-
 ## 1. Neden bu model, neden bu platform?
 
 Faz 2'nin amacı Ders 18'deki deneyi (aynı görev; komut = doğru / boş / yanlış / parafraz / Türkçe → success rate) **koşabilecek bir makineye** sahip olmak. VLANeXt-B bunun için üç nedenle ilk aday: LIBERO'da en yüksek açık sonuçlardan biri (ortalama %97.4), Qwen3-VL omurgası sayesinde Türkçe'yi anlamlı token'lara bölen bir tokenizer (Ders 8'deki kontrol deneyi), ve eval kodunun komutu **tek bir string değişkeniyle** alması (bugün göreceksin: `spec.task_description`).
@@ -228,4 +220,4 @@ Kod okuma günü (Mac'te, GPU gerekmez): bugün koştuğun `libero_bench_eval.py
 - LIBERO: [github.com/Lifelong-Robot-Learning/LIBERO](https://github.com/Lifelong-Robot-Learning/LIBERO) · LIBERO-plus: [github.com/sylvestf/LIBERO-plus](https://github.com/sylvestf/LIBERO-plus)
 - FlashAttention-2 donanım gereksinimi (Ampere+): [github.com/Dao-AILab/flash-attention](https://github.com/Dao-AILab/flash-attention)
 - PyTorch `torch.load(mmap=True)`: [docs.pytorch.org — torch.load](https://docs.pytorch.org/docs/stable/generated/torch.load.html)
-- Kod: `code/day12/` (notebook, yama, config, log ayrıştırıcı, grafik script'i). Görseller: 01–02 Mermaid (`.mmd` yanında), 03–04 `plot_paper_results.py` ile makale sayılarından; sandbox doğrulamaları (patch, parser, robosuite+mujoco 3.8.1) Bölüm 0'da.
+- Kod: `code/day12/` (notebook, yama, config, log ayrıştırıcı, grafik script'i). Görseller: 01–02 Mermaid (`.mmd` yanında), 03–04 `plot_paper_results.py` ile makale sayılarından.

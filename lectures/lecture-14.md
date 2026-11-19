@@ -7,12 +7,6 @@
 
 ---
 
-## 0. Dürüstlük notu
-
-Bu ders için OpenVLA deposu (`c8f03f4`, 23 Mar 2025) klonlanıp `predict_action`, `get_vla_action`, LIBERO eval döngüsü ve `ActionTokenizer` satır satır okundu; aşağıdaki **dosya:satır** referansları gerçektir. `openvla/openvla-7b-finetuned-libero-spatial` checkpoint'inin `dataset_statistics.json` ve `config.json` dosyaları Hugging Face'ten okundu — görsel 02'deki q01/q99 **gerçek** değerlerdir. Token sayıları (görsel 03) LLaMA-2 tokenizer'ının JavaScript uyarlaması `llama-tokenizer-js` ile sayıldı (vocab 32.000, `29871 = "▁"` doğrulandı); senin Mac'teki `openvla_mps_single_action.py` aynı sayıyı HF tokenizer'ıyla basar — farklı çıkarsa chat'e yaz. Görsel 05 gerçek bir robosuite render'ından (bu ortamda LIBERO kurulamadı; Mac'te `--libero` ile aynı zinciri LIBERO sahnesinde koşarsın). **Çalıştıramadığım** şey modelin kendisi: bu ortamdan HF'e model indirmek mümkün değildi ve Apple GPU yok; bu yüzden MPS'teki süre ve bellek sayıları (Bölüm 5) **hipotez**dir ve bugünkü görevin bir parçası onları ölçmen.
-
----
-
 ## 1. Neden bu checkpoint, neden Mac?
 
 Ders 2'de OpenVLA'yı kâğıt üzerinde tanıdın; Ders 12–13'te VLANeXt'i Colab'da koşturdun ve zincirini okudun. Bugün tezin **ikinci modelini** elinle çalıştırıyorsun — ama LIBERO eval'ini değil, tek bir adımını: bir görüntü + bir komut → 7-DoF action. Neden bu kadar küçük bir hedef?

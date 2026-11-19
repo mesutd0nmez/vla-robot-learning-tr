@@ -12,6 +12,7 @@ Bu dosya, `lectures/lecture-NN.md` dosyalarının nasıl yazılacağını tanım
 2. Meta satırı: `**Faz X / Gün N** · **Okuma süresi:** ~40 dk` · ön koşul · kaynak/kod yolu
 3. `> **Bugünün tek cümlesi:** …` (tek cümle, anahtar fikir)
 4. `---` ile ayrılmış 5–8 numaralı bölüm; her bölümde en az bir somut örnek; toplam okuma ≤ 40 dk, uygulama günlerinde ≤ 60 dk toplam
+   - `## 0. Dürüstlük notu` (ne çalıştırıldı / ne hipotez dökümü) bölümü YAZMA; bölümler 1'den başlar. Mesut her şeyi kendisi deniyor. Çalıştırılamayan bir şey varsa ilgili bölümde tek cümleyle söyle.
 5. `## N. Yazılımcı için köprüler` (Mesut 10 yıllık C#/.NET backend geliştirici; benzetmeler buradan)
 6. `## N. Kendini sına (cevaplar aşağıda)` — 5 açık uçlu soru
 7. `## N. Bugünün görevi (15 dk)` — tek somut görev; "çıktı doldurma" bölümü KOYMA

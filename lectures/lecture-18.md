@@ -7,12 +7,6 @@
 
 ---
 
-## 0. Dürüstlük notu
-
-Bu ortamda GPU ve Hugging Face erişimi yok; deney **koşulmadı**. Gerçekten yapılanlar: VLANeXt (`d911e6b`) klonlanıp `libero_bench_eval.py` ve `parallel_eval_utils.py` satır satır okundu; `vlanext_cond_patch.py` depo kopyasının üç hâline (temiz / Ders 12 yamalı / Ders 12 + 16 yamalı) uygulandı, ikinci çalıştırmada 10/10 "zaten yamalı" dedi, yamalı dosyalar `py_compile`'dan geçti; `analyze_4cond.py` eval script'inin **kendi format string'inden** üretilmiş 40 satırlık sentetik log'la uçtan uca sınandı (`--selftest`; sayılar temsili); `power_day18.py` Wilson ve güç eğrilerini **kesin hesapla** üretti (görsel 03–04); `make_conditions.py` ve `spec_order_demo.py` çalıştırıldı. Görsel 02 ve 06 üç makalenin tablolarından elle aktarılmış gerçek değerler; görsel 07 **temsili** (başlıkta yazılı). **Hipotez** olanlar: T4 süreleri (episode başına ~1–1.5 dk; toplam 35–65 dk), bellek, yamalı eval'in T4'te hatasız bitmesi, ve Bölüm 2'deki "override yolu ile BDDL yolu aynı sonucu verir" iddiası. İlk gerçek sayılar senin koşundan gelecek; `plan/daily-log.md`'de bıraktığın soru yok.
-
----
-
 ## 1. Dört satır neyi ölçüyor?
 
 Ders 4'te beş koşullu ablation matrisini kâğıt üstünde kurmuştun, Ders 15'te aynı koşulları **açık döngüde** (tek kare → tek action, L2/cosine) ölçmüştün. Bugün kapalı döngü: policy 220 adıma kadar robotu sürüyor ve tek sayı var — hedef `(On akita_black_bowl_1 plate_1)` sağlandı mı. Dört koşul:

@@ -7,14 +7,6 @@
 
 ---
 
-## 0. Dürüstlük notu
-
-Bu oturumda model, MuJoCo ve LIBERO ortamı **yok**; hiçbir komut bir modele verilmedi. Gerçekten yapılanlar: (1) LIBERO deposu (`--depth 1`) klonlanıp yalnızca dosyaları okundu; 10 Spatial görevinin 50'şer init state'i Ders 19'un kısıtlı unpickler'ıyla açıldı ve iki kâsenin konumundan "hangi kâse solda / önde / tabağa yakın" tablosu hesaplandı (`scene_frames.py`, görsel 04). (2) agentview kamerasının pozu `libero_tabletop_manipulation.py`'den alınıp nesneler 256×256 görüntüye **izdüşürüldü**; sonuç senin `projects/project-2/` altına koyduğun gerçek render'la örtüşüyor (görsel 02a — daireler hesap, zemin senin karen). (3) LIBERO-90/10 BDDL'lerinde adı left/right/front/back olan bölge çiftleri tarandı: 5/5'inde left = −y, 2/2'sinde front = +x. (4) `tr_morph.py` 42 biçimlik testini geçti; 20 komutun ana Türkçe yüzeyi bu üreticiden çıkıyor. (5) Beş karşı-olgusal BDDL üretilip gerçek `bddl==1.0.1` ayrıştırıcısından geçirildi. **Hipotez** olanlar: modelin eğitim görüntülerinin de eval'deki 180° döndürmeyle üretildiği (Ders 10/12'deki kod okumasına dayanıyor; veri setinin kendisine bakmadım); herhangi bir modelin "sol"u hangi çerçevede yorumlayacağı; `tr_b` yüzeylerinin doğallığı (tek yazarlı, senin okuman bekliyor); karşı-olgusal BDDL'lerin gerçek LIBERO ortamında sorunsuz yüklenmesi.
-
-Bir gözlem: `project-2`'deki `…-task-2.png`, `-task-3.png`, `-task-4.png` dosyalarının sahneleri BDDL'e göre sırasıyla görev **3** (kâse kurabiye kutusunda), **4** (çekmecede) ve **5**'e (ramekinin üstünde) benziyor; `task-0` ve `task-1` doğru. Dosyaları elle adlandırırken bir kayma olmuş olabilir — `list_tasks.py` çıktınla karşılaştır; görev 2'nin (*from table center*) sahnesinde ikinci kâse **tabağın yanında** olmalı. `plan/daily-log.md`'de bıraktığın soru yok.
-
----
-
 ## 1. Türkçe'de mekân bir edat değil, bir adın üstündeki üç ektir
 
 İngilizce "on the stove"da ilişki ayrı bir sözcüktür ve addan **önce** gelir. Türkçe'de ilişkiyi bir **ilişki adı** taşır (*üst, alt, yan, ön, arka, iç, ara, orta, sağ, sol*); bu ad referans nesneye iyelikle bağlanır ve cümledeki rolünü hâl ekiyle alır (Göksel & Kerslake 2005 bunları iyelik ekli ilgeçler olarak sınıflar):

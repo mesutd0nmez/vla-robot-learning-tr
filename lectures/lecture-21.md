@@ -7,11 +7,9 @@
 
 ---
 
-## 0. Dürüstlük notu ve plan değişikliği
+## 0. Plan değişikliği
 
 Ders 20 "Sonraki ders: tokenizasyon" diye bitmişti. 16 Kasım'da danışmanın Webots bağlantısını gönderdi ve sen `plan/lecture-plan.md`'de **Ders 21 = Webots** yazıp eski 21–30'u 22–31'e kaydırdın, log'a da istediğin içeriği madde madde bıraktın. Bu ders o notu birebir takip ediyor: yığındaki yer + tablo (§1), sahne yapısı (§2), macOS Apple Silicon kurulumu ve `vla` bağlantısı (§3), UR10e ile masa sahnesi + kol hareketi + kamera kaydı (§4), webots.cloud / robotbenchmark (§5), "tez için ne anlama geliyor" + karar notu + danışmana üç soru (§6). Tokenizasyon analizi Ders 22'ye kaydı; `datasets/04` üzerinde koşacak.
-
-Bu oturumda gerçekten yapılanlar: Webots deposu (`cyberbotics/webots`, 16 Kas 2026 tarihli `e5d1122`) seyrek klonlanıp **dokümantasyon, UR10e / Panda / TIAGo PROTO'ları, Python API kaynağı, launcher'ın C kodu ve `libController`'ın bağlanma kodu** okundu; R2025a Linux tarball'ı (150 MB sıkıştırılmış, açılınca 460 MB) indirilip açıldı ve `check_webots_env.py` ona karşı çalıştırıldı — **`import controller` başarılı** (ctypes ile `libController.so` yüklendi, Python 3.13 ile bile). `ur10e_fk.py` PROTO'daki eklem zincirinden dört duruşun tool konumunu hesapladı; `ders21_kol.py` sahte bir `controller` modülüyle uçtan uca kuru koşturuldu (CSV'ler üretildi). **Yapılamayan:** Webots'un kendisi bu bulut oturumunda **çalıştırılamadı** (ikilinin başlatılmasına kum havuzu izin vermedi; sanal ekran hazırdı). Dolayısıyla görsel 04 gerçek render değil, geometrik hesaptır; gerçek render senin görevin. **Hipotez** olarak işaretli olanlar: eklem açılarının gerçek fizikte aynı noktaya gelmesi (FK'de sürtünme/yerçekimi yok, motorlar konum kontrollü olduğu için fark küçük olmalı), `HotPlate`/`CerealBox`'ın masa yüzeyine tam oturması (PROTO'ların referans noktası taban değilse 1–3 cm kayabilir), R2025a launcher'ının senin Mac'inde çalışıp çalışmayacağı (§3).
 
 ---
 
