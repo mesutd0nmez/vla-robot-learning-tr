@@ -1,0 +1,28 @@
+flowchart LR
+    classDef in fill:#cfe8ff,stroke:#4a86c8,color:#000
+    classDef model fill:#ffd166,stroke:#c9961a,color:#000
+    classDef out fill:#d4f5d4,stroke:#3f9d5a,color:#000
+    classDef fix fill:#ffd6d6,stroke:#d45c5c,color:#000
+
+    TR["Türkçe komut<br/><i>soldaki siyah kaseyi al ve tabağın üstüne koy</i>"]:::in
+    IMG["Görüntü 224x224"]:::in
+    TOK["Tokenizer<br/>LLaMA-2 / Qwen3"]:::model
+    VLM["VLM omurgası<br/>görüntü + metin → hidden state"]:::model
+    HEAD["Policy başı<br/>256-bin token / flow-matching"]:::model
+    ACT["7-DoF action"]:::out
+
+    TR --> TOK --> VLM --> HEAD --> ACT
+    IMG --> VLM
+
+    A1["1 · Çeviri katmanı (MT)<br/>NLLB / Opus-MT / Google<br/>TR → serbest EN cümle<br/><b>modele dokunmaz</b>"]:::fix
+    A5["4 · Parser + sembolik<br/>kural / LLM → (fiil, hedef, ilişki, referans)<br/>→ EN şablon ya da BDDL predicate<br/><b>modele dokunmaz, doğrulanabilir</b>"]:::fix
+    A2["2 · Çok dilli omurga<br/>Qwen3-VL (119 dil) gibi<br/>önceden TR görmüş VLM<br/><b>model seçimi</b>"]:::fix
+    A3["3 · Türkçe LoRA / co-training<br/>aynı demo, komut TR<br/>r=32, %1,4 parametre<br/><b>ağırlıklar değişir</b>"]:::fix
+    A4["5 · Hidden-state hizalama<br/>step-wise shift (Dong) / MPCA (Chen)<br/><b>temsil düzeyinde çeviri</b>"]:::fix
+
+    A1 -. "girdi" .-> TR
+    A5 -. "girdi" .-> TR
+    A2 -. "omurga" .-> VLM
+    A3 -. "omurga + baş (LoRA)" .-> VLM
+    A3 -. " " .-> HEAD
+    A4 -. "ara katman" .-> VLM

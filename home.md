@@ -32,6 +32,7 @@ Bilgisayar Mühendisliği yüksek lisans tezimin açık kaydı: Vision-Language-
 <a href="#/lectures/lecture-21"><b>21</b><span>Webots: danışmanın ikinci simülatörü — yığındaki yeri (benchmark değil, simülatör), Mac'te kurulum + conda vla, UR10e ile ilk sahne, tez için karar notu<small>Faz 3 · Araç + Karar</small></span></a>
 <a href="#/lectures/lecture-22"><b>22</b><span>Tokenizasyon analizi: aynı 100 komut, iki tokenizer — LLaMA-2 1,6× / Qwen3 1,4× şişme, ilişki eki kararsız, "soldaki" = sold+aki, cümle başı tuzağı, action aralığı temiz<small>Faz 3 · Analiz + Veri</small></span></a>
 <a href="#/lectures/lecture-23"><b>23</b><span>Cohn hattı: yedi makale, abstract düzeyinde — StepGame düzeltmesi, RoomSpace, kardinal yön (2024→2025), skor belirsizliği (PI), DecompSR, QSTRBench; derinlikle çöküş (LIBERO'da k=1), yüzey değişince düşüş, tek skor rapor etme<small>Faz 3 · Literatür + Metodoloji</small></span></a>
+<a href="#/lectures/lecture-24"><b>24</b><span>Çözüm yaklaşımları: MT çeviri / parser + sembolik / çok dilli omurga / Türkçe LoRA / hidden-state hizalama — Dong & Chen (Haz 2026) sayılarıyla artı-eksi, Mac–T4 bütçesi, Ders 18 örüntüsüne göre karar ağacı; parser gerçekten koştu (set içi 79/80, dışı 5/12)<small>Faz 3 · Karar + Klavye</small></span></a>
 </div>
 
 ## Nasıl çalışıyorum
@@ -42,7 +43,7 @@ Her ders aynı iskelette: 35 dakikalık okuma (görsellerle), "kendini sına" a�
 
 | Aşama | Kapsam | Durum |
 |---|---|---|
-| 0. Hızlandırılmış giriş (Ders 1–30) | Kavramlar → ortam kurulumu → ilk deneyler → proje üzerine akıl yürütme | Ders 1–17 hazır |
+| 0. Hızlandırılmış giriş (Ders 1–30) | Kavramlar → ortam kurulumu → ilk deneyler → proje üzerine akıl yürütme | Ders 1–24 hazır |
 | 1. Literatür ve konu seçimi | Tez ekseninin danışmanla netleştirilmesi, kaynak taraması | — |
 | 2. Deney altyapısı | Benchmark, model, metrik ve veri setinin kurulması | — |
 | 3. Deneyler | Ana deneyler, ablasyonlar, sonuç analizi | — |

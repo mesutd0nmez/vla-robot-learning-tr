@@ -24,6 +24,7 @@
   - [<span class="nav-num">21</span>Webots](/lectures/lecture-21.md)
   - [<span class="nav-num">22</span>Tokenizasyon Analizi](/lectures/lecture-22.md)
   - [<span class="nav-num">23</span>Cohn Hattı](/lectures/lecture-23.md)
+  - [<span class="nav-num">24</span>Çözüm Yaklaşımları](/lectures/lecture-24.md)
 
 - **Plan**
   - [<span class="nav-num">·</span>Günlük Çalışma Logu](/plan/daily-log.md)
@@ -62,3 +63,4 @@
   - [<span class="nav-num">21</span>Gün 21 kodu](/code/day21/README.md)
   - [<span class="nav-num">22</span>Gün 22 kodu](/code/day22/README.md)
   - [<span class="nav-num">23</span>Gün 23 kodu](/code/day23/README.md)
+  - [<span class="nav-num">24</span>Gün 24 kodu](/code/day24/README.md)

@@ -1,6 +1,6 @@
 # TR mekânsal komut seti — 20 EN–TR çift × 5 yüzey
 
-**Tür:** kendi ürettiğim · **Sürüm:** v0.1 (anadil okuması bekliyor) · **Tarih:** Ders 20 · **Lisans:** MIT (komut metinleri; İngilizce eğitim komutları ve BDDL şablonları LIBERO'nun MIT lisansı altında) · **İlgili proje/ders:** Ders 20, `code/day20/`; devamı Ders 21 (tokenizasyon), Ders 26–27 (deney matrisi)
+**Tür:** kendi ürettiğim · **Sürüm:** v0.2 (anadil okuması bekliyor; Ders 24 parser çıktıları eklendi) · **Tarih:** Ders 20 · **Lisans:** MIT (komut metinleri; İngilizce eğitim komutları ve BDDL şablonları LIBERO'nun MIT lisansı altında) · **İlgili proje/ders:** Ders 20, `code/day20/`; devamı Ders 21 (tokenizasyon), Ders 26–27 (deney matrisi)
 
 ## Ne içeriyor
 20 EN–TR komut çifti, dört blokta: **A** (6) LIBERO-Spatial'ın eğitilmiş *seçim* komutları (`…-ndeki siyah kaseyi al`), **B** (6) aynı Spatial sahnelerinde hiçbir eğitim cümlesine denk düşmeyen tarifler (sol/sağ/ön; robota/tabağa yakın–uzak), **C** (6) LIBERO-Goal'ın eğitilmiş *yerleştirme* komutları (`…-nın üstüne koy`), **D** (2) eğitilmemiş yerleştirme (sağına/soluna; predicate yok). Her çift 5 yüzeyle gelir → `commands.csv` 100 satır: `en`, `tr_a` (ek üreticiyle üretilmiş ana biçim), `tr_b` (elle yazılmış ikinci biçim: *duran / üzerine / alıp*, farklı sözcük sırası, *kâse*), `tr_ascii` (Türkçe karaktersiz), `tr_bare` (ekleri atılmış sözcük torbası). B bloğunda komutun **hangi kâseyi** kastettiği üç çerçevede (LIBERO adlandırması / modelin gördüğü görüntü / robot) 50 init state'in gerçek koordinatlarından hesaplanmıştır.
@@ -13,6 +13,8 @@
 | `data/referents.csv` | 10 Spatial sahnesi × 9 tarif (sol/ön × 3 çerçeve, tabağa yakın, robota yakın, daha yüksekte): kastedilen kâse, 50 sahnedeki en küçük fark, eşik üstü mü |
 | `data/bddl_cf/*.bddl` + `index.csv` | 5 karşı-olgusal BDDL: hedef `(On akita_black_bowl_2 plate_1)`; sahne ve bölgeler orijinalle aynı |
 | `data/human_check.csv` | Mesut'un dolduracağı anadil okuması şablonu (doğallık 1–5, düzeltme, B07–B09 için "sen hangisini alırdın") |
+| `data/parse_roundtrip.csv` | Ders 24: 80 Türkçe yüzeyin kural tabanlı parser'dan (`code/day24/tr_parse.py`) geçirilip İngilizce şablona döndürülmesi: çerçeve (JSON), üretilen EN, altın EN, sonuç (`ok` / `wrong_en` / `parse_fail`) — 79/80 (parser bu sete bakılarak yazıldı, üst sınır) |
+| `data/heldout_tr.csv` | Ders 24: parser dondurulduktan sonra yazılmış 12 yeni Türkçe cümle + altın EN + not; parser 5/12 (set dışı davranış) |
 
 ## Kaynak ve elde etme
 - `en` (A, C): LIBERO görev adları (`libero_suite_task_map.py`; modele giden metin dosya adından türetilir — Ders 13). `en` (B, D): Claude tarafından yazıldı; LIBERO'nun 130 görev adının hiçbirinde geçmediği `make_tr_set.py --libero` ile doğrulandı (`en_seen_libero = hayır`).
@@ -76,3 +78,4 @@ c[(c.pair_id == "C13")][["variant", "instruction"]]
 
 ## Değişiklik günlüğü
 - v0.1 — ilk sürüm (Ders 20): 20 çift, 100 yüzey, 90 referans satırı, 5 karşı-olgusal BDDL.
+- v0.2 — Ders 24: `parse_roundtrip.csv` (80 satır) ve `heldout_tr.csv` (12 satır) eklendi; komut metinleri değişmedi.
