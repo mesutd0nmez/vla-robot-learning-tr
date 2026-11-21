@@ -1,0 +1,41 @@
+flowchart LR
+  classDef model fill:#ffd166,stroke:#333,color:#000
+  classDef input fill:#cfe8ff,stroke:#333,color:#000
+  classDef output fill:#d4f5d4,stroke:#333,color:#000
+  classDef problem fill:#ffd6d6,stroke:#333,color:#000
+
+  subgraph M["Mesut'un koşusu bekliyor (script hazır)"]
+    M1["S1 · Ders 18 tablosu<br/>clean/empty/wrong/tr × 10 — hangi örüntü?"]:::problem
+    M2["S2 · MT round-trip<br/>mt_layer_mac.py: birebir eşleşme, gecikme"]:::problem
+    M3["S3 · Qwen3-VL tokenizer kimliği<br/>tokens.csv diff (HF vs npm)"]:::problem
+    M4["S4 · human_check.csv<br/>'soldaki' hangi kâse; tr_a/tr_b doğallık"]:::problem
+    M5["S5 · Webots gerçek render<br/>view_01_bowl.jpg, launcher M2'de?"]:::problem
+    M6["S6 · Parser held-out +5<br/>kendi Türkçenle hata türleri"]:::problem
+  end
+
+  subgraph D["Danışmana (karar)"]
+    D1["S7 · Suite ağırlığı<br/>Spatial (CDC) mi Goal (topoloji) mi?"]:::input
+    D2["S8 · Webots<br/>ikinci ortam gerekli mi, ROS 2 planı var mı?"]:::input
+    D3["S9 · Türkçe LoRA bütçesi<br/>Kaggle 2–3 hafta kabul mü, yoksa eval-only tez mi?"]:::input
+    D4["S10 · Katkı ölçütü<br/>zayıf okuma (çıktı) yeter mi, güçlü okuma (B bloğu) şart mı?"]:::input
+  end
+
+  subgraph R["Ders 26'ya giden RQ tohumları"]
+    R1["RQ-a · Fark var mı?<br/>OpenVLA vs VLANeXt, tr − clean ve tr − empty"]:::model
+    R2["RQ-b · Nerede kırılıyor?<br/>ilişki ailesi × yüzey × çerçeve (datasets/04)"]:::model
+    R3["RQ-c · Nasıl kapanır?<br/>parser tabanı vs TR co-training, B bloğunda"]:::model
+  end
+
+  M1 --> R1
+  M3 --> R1
+  M2 --> R3
+  M6 --> R3
+  M4 --> R2
+  D1 --> R2
+  D4 --> R3
+  D3 --> R3
+  D2 -.-> R2
+  M5 -.-> D2
+  R1 --> OUT["Ders 26: 3 RQ · Ders 27: deney matrisi"]:::output
+  R2 --> OUT
+  R3 --> OUT

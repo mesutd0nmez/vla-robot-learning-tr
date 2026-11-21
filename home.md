@@ -33,6 +33,7 @@ Bilgisayar Mühendisliği yüksek lisans tezimin açık kaydı: Vision-Language-
 <a href="#/lectures/lecture-22"><b>22</b><span>Tokenizasyon analizi: aynı 100 komut, iki tokenizer — LLaMA-2 1,6× / Qwen3 1,4× şişme, ilişki eki kararsız, "soldaki" = sold+aki, cümle başı tuzağı, action aralığı temiz<small>Faz 3 · Analiz + Veri</small></span></a>
 <a href="#/lectures/lecture-23"><b>23</b><span>Cohn hattı: yedi makale, abstract düzeyinde — StepGame düzeltmesi, RoomSpace, kardinal yön (2024→2025), skor belirsizliği (PI), DecompSR, QSTRBench; derinlikle çöküş (LIBERO'da k=1), yüzey değişince düşüş, tek skor rapor etme<small>Faz 3 · Literatür + Metodoloji</small></span></a>
 <a href="#/lectures/lecture-24"><b>24</b><span>Çözüm yaklaşımları: MT çeviri / parser + sembolik / çok dilli omurga / Türkçe LoRA / hidden-state hizalama — Dong & Chen (Haz 2026) sayılarıyla artı-eksi, Mac–T4 bütçesi, Ders 18 örüntüsüne göre karar ağacı; parser gerçekten koştu (set içi 79/80, dışı 5/12)<small>Faz 3 · Karar + Klavye</small></span></a>
+<a href="#/lectures/lecture-25"><b>25</b><span>Faz 3 sentezi: sekiz ders tek sayfada — bilanço 21 ölçüm = 11 gerçek / 6 Mesut'ta / 4 hipotez; phase3_smoke.py 30 script 28 OK (Ders 22 tokens.csv birebir yeniden üretildi); LangGap (aynı sahne, Spatial 97 → 5,9); açık sorular S1–S10 → üç RQ tohumu<small>Faz 3 · Sentez</small></span></a>
 </div>
 
 ## Nasıl çalışıyorum

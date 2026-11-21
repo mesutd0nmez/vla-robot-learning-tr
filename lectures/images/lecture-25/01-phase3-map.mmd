@@ -1,0 +1,42 @@
+flowchart TB
+  classDef model fill:#ffd166,stroke:#333,color:#000
+  classDef input fill:#cfe8ff,stroke:#333,color:#000
+  classDef output fill:#d4f5d4,stroke:#333,color:#000
+  classDef problem fill:#ffd6d6,stroke:#333,color:#000
+
+  Q["Faz 3'ün tek sorusu<br/>Komut değişince davranış değişiyor mu —<br/>ve Türkçe komut modele ne kadar ulaşıyor?"]:::model
+
+  subgraph BENCH["Benchmark tarafı: ne ölçülebilir?"]
+    D17["Ders 17 · LIBERO-Plus kodda<br/>7 bozulma, 3 taşıyıcı; Language = 50 yeniden yazım<br/>R1 26 / R2 16+6 / R0 2 — 'between' 48/50 duruyor:<br/>ilişki ifadesi test edilmiyor"]:::problem
+    D19["Ders 19 · Yapısal üst sınır (BDDL)<br/>komutsuz tavan: Spatial 9/10, Object 10/10,<br/>Goal 1/10, Long 9/10; 50 init state yayılımı ≤ 3 cm<br/>→ okuma protokolü A/B/C/D"]:::input
+  end
+
+  subgraph EXP["Deney tarafı: nasıl ölçülür?"]
+    D18["Ders 18 · Dört koşul, eşli<br/>clean / empty / wrong / tr × 10 init state<br/>Wilson 9/10 = 60–98 (n=10) → pilot;<br/>tez için 50 + ≥3 tekrar"]:::output
+    D23["Ders 23 · Cohn hattı, 3 bulgu<br/>derinlikle çöküş (LIBERO'da k=1 yok),<br/>yüzey değişince düşüş, tek skor rapor etme<br/>→ Wilson + PI yan yana"]:::input
+  end
+
+  subgraph TR["Türkçe tarafı: komut nedir?"]
+    D20["Ders 20 · datasets/04<br/>20 EN–TR çift × 5 yüzey; ilişki = ad + 3 ek;<br/>üç çerçeve (libero / görüntü / robot);<br/>B bloğu = eğitimde olmayan tarif"]:::input
+    D22["Ders 22 · Tokenizasyon<br/>tr_a/en şişme LLaMA-2 1,63× vs Qwen3 1,41×;<br/>Türkçe harf bedeli 4,9 vs 0,9 token;<br/>-ki eki 3 / 5 biçim; action aralığı temiz"]:::problem
+  end
+
+  subgraph SOL["Çözüm tarafı: ne yapılır?"]
+    D24["Ders 24 · Beş yaklaşım<br/>MT / parser (indirir) · omurga / TR LoRA (aday)<br/>· hidden-state (teşhis); parser held-out 5/12;<br/>QLoRA T4 ≈ 7,7 GB, 65–98 sa (tahmin)"]:::model
+  end
+
+  D21["Ders 21 · Webots (yan dal)<br/>fizik + sarmalayıcı var, benchmark yok;<br/>karar: ana deney LIBERO'da, Webots iki koşulla"]:::input
+
+  Q --> BENCH
+  Q --> EXP
+  Q --> TR
+  D17 --> D18
+  D19 --> D18
+  D18 --> D23
+  D20 --> D22
+  D20 --> D24
+  D22 --> D24
+  D23 --> D24
+  D19 -. "üst sınır → okuma" .-> D24
+  D21 -. "ikinci ortam?" .-> OUT
+  D24 --> OUT["Faz 4 girdisi (Ders 26)<br/>açık sorular → 3 aday RQ"]:::output

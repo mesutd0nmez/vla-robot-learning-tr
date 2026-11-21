@@ -25,9 +25,11 @@
   - [<span class="nav-num">22</span>Tokenizasyon Analizi](/lectures/lecture-22.md)
   - [<span class="nav-num">23</span>Cohn Hattı](/lectures/lecture-23.md)
   - [<span class="nav-num">24</span>Çözüm Yaklaşımları](/lectures/lecture-24.md)
+  - [<span class="nav-num">25</span>Faz 3 Sentezi](/lectures/lecture-25.md)
 
 - **Plan**
   - [<span class="nav-num">·</span>Günlük Çalışma Logu](/plan/daily-log.md)
+  - [<span class="nav-num">·</span>Faz 3 açık soruları (Ders 25)](/plan/faz3-open-questions.md)
   - [<span class="nav-num">·</span>Ders Planı](/plan/lecture-plan.md)
 
 - **Kaynaklar**
@@ -64,3 +66,4 @@
   - [<span class="nav-num">22</span>Gün 22 kodu](/code/day22/README.md)
   - [<span class="nav-num">23</span>Gün 23 kodu](/code/day23/README.md)
   - [<span class="nav-num">24</span>Gün 24 kodu](/code/day24/README.md)
+  - [<span class="nav-num">25</span>Gün 25 kodu](/code/day25/README.md)
