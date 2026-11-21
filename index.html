@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/site.css?v=4">
+  <link rel="stylesheet" href="assets/site.css?v=5">
 </head>
 <body>
   <div id="app"></div>
@@ -29,6 +29,70 @@
       pagination: { previousText: 'Önceki', nextText: 'Sonraki', crossChapter: true, crossChapterText: true },
       plugins: [
         function (hook, vm) {
+          // 0) Kenar çubuğu: açılır-kapanır gruplar. Açık/kapalı tercih localStorage'da;
+          //    içinde bulunulan sayfanın grubu her gezinmede kendiliğinden açılır.
+          var NAV_KEY = 'vla-nav-v1';
+          function navState() { try { return JSON.parse(localStorage.getItem(NAV_KEY)) || {}; } catch (e) { return {}; } }
+          function navSave(s) { try { localStorage.setItem(NAV_KEY, JSON.stringify(s)); } catch (e) {} }
+          function navSet(li, open) {
+            li.querySelector(':scope > .nav-group').setAttribute('aria-expanded', open ? 'true' : 'false');
+            li.querySelector(':scope > ul').hidden = !open;
+          }
+          function navGroups(nav) {
+            return Array.prototype.filter.call(nav.querySelectorAll('li'), function (li) { return li.querySelector(':scope > ul'); });
+          }
+          function navSyncTool(nav) {
+            var tool = nav.querySelector('.nav-tools button'); if (!tool) return;
+            var anyClosed = navGroups(nav).some(function (li) { return li.querySelector(':scope > ul').hidden; });
+            tool.textContent = anyClosed ? 'Tümünü aç' : 'Tümünü kapat';
+            tool.dataset.action = anyClosed ? 'open' : 'close';
+          }
+          function enhanceNav() {
+            var nav = document.querySelector('.sidebar-nav'); if (!nav) return;
+            var state = navState(), seq = 0;
+            navGroups(nav).forEach(function (li) {
+              var ul = li.querySelector(':scope > ul');
+              var btn = li.querySelector(':scope > .nav-group');
+              if (!btn) {
+                var head = li.firstElementChild;                 // <p><strong>…</strong></p> ya da <strong>…</strong>
+                if (!head || head === ul) return;
+                var label = head.textContent.trim();
+                var parent = li.parentElement.closest('li');
+                var key = (parent && parent.dataset.navKey ? parent.dataset.navKey + ' / ' : '') + label;
+                li.dataset.navKey = key;
+                ul.id = 'nav-group-' + (seq++);
+                btn = document.createElement('button');
+                btn.type = 'button'; btn.className = 'nav-group'; btn.setAttribute('aria-controls', ul.id);
+                var l = document.createElement('span'); l.className = 'nav-group-label'; l.textContent = label;
+                var c = document.createElement('span'); c.className = 'nav-group-count'; c.textContent = ul.querySelectorAll('a').length;
+                c.setAttribute('aria-label', c.textContent + ' sayfa');
+                btn.appendChild(l); btn.appendChild(c);
+                btn.addEventListener('click', function () {
+                  var open = btn.getAttribute('aria-expanded') !== 'true';
+                  navSet(li, open);
+                  var st = navState(); st[key] = open; navSave(st);
+                  navSyncTool(nav);
+                });
+                li.replaceChild(btn, head);
+              }
+              var hasActive = !!ul.querySelector('li.active');
+              btn.classList.toggle('has-active', hasActive);
+              navSet(li, hasActive || state[li.dataset.navKey] === true);
+            });
+            if (!nav.querySelector('.nav-tools')) {
+              var tools = document.createElement('div'); tools.className = 'nav-tools';
+              var tool = document.createElement('button'); tool.type = 'button';
+              tool.addEventListener('click', function () {
+                var open = tool.dataset.action === 'open', st = {};
+                navGroups(nav).forEach(function (li) { navSet(li, open); st[li.dataset.navKey] = open; });
+                navSave(st); navSyncTool(nav);
+              });
+              tools.appendChild(tool); nav.insertBefore(tools, nav.firstChild);
+            }
+            navSyncTool(nav);
+            var act = nav.querySelector('li.active > a');
+            if (act) { try { act.scrollIntoView({ block: 'nearest' }); } catch (e) {} }
+          }
           // 1) Ders başlığı: "Ders N — Başlık" → büyük numara + başlık
           hook.afterEach(function (html, next) {
             var m = html.match(/<h1 id="([^"]+)"[^>]*>([\s\S]*?)<\/h1>/);
@@ -45,6 +109,7 @@
           });
           // 2) Sayfa içi başlıklar (sağ sütun) + onay kutularını aç + dış bağlantılar yeni sekme
           hook.doneEach(function () {
+            enhanceNav();
             document.querySelectorAll('.task-list-item input[type=checkbox]').forEach(function (c) { c.disabled = false; });
             document.querySelectorAll('.markdown-section a[href^="http"]').forEach(function (a) { a.target = '_blank'; a.rel = 'noopener'; });
             var old = document.querySelector('.page-toc'); if (old) old.remove();

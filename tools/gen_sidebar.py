@@ -8,11 +8,29 @@ def title(p):
         if line.startswith("# "): return line[2:].strip()
     return p.stem
 lines = ["- [Ana sayfa](/)", "", "- **Dersler**"]
+# Faz adları plan/lecture-plan.md başlıklarından ("## Faz 1 — Kavramlar (Ders 1–8)")
+phase_names = {}
+plan = root/"plan"/"lecture-plan.md"
+if plan.exists():
+    for m in re.finditer(r"^## Faz (\d+) — (.+?)\s*\(", plan.read_text(encoding="utf-8"), re.M):
+        phase_names[int(m.group(1))] = m.group(2).strip()
+def phase(p):
+    """Dersin fazı: meta satırındaki '**Faz X / Gün N**' (ilk 8 satır)."""
+    m = re.search(r"Faz\s+(\d+)\s*/", "\n".join(p.read_text(encoding="utf-8").splitlines()[:8]))
+    return int(m.group(1)) if m else None
+by_phase, loose = {}, []
 for p in sorted((root/"lectures").glob("lecture-*.md")):
     n = int(re.search(r"(\d+)", p.stem).group(1))
     t = title(p).replace(f"Ders {n} — ", "")
     t = t.split(":")[0].strip()          # kısa başlık: iki noktadan öncesi
-    lines.append(f'  - [<span class="nav-num">{n:02d}</span>{t}](/lectures/{p.name})')
+    item = f'[<span class="nav-num">{n:02d}</span>{t}](/lectures/{p.name})'
+    ph = phase(p)
+    (by_phase.setdefault(ph, []) if ph else loose).append(item)
+for ph in sorted(by_phase):              # menüde açılır-kapanır alt grup olur (index.html)
+    name = f" · {phase_names[ph]}" if ph in phase_names else ""
+    lines.append(f"  - **Faz {ph}{name}**")
+    lines += [f"    - {item}" for item in by_phase[ph]]
+lines += [f"  - {item}" for item in loose]
 for folder, label in [("plan","Plan"),("resources","Kaynaklar"),("literature","VLA ve Çok Dilli VLA Literatürü"),("notes","Notlar"),("experiments","Deneyler"),("thesis","Tez")]:
     d = root/folder
     if not d.exists(): continue
