@@ -13,7 +13,7 @@ for p in sorted((root/"lectures").glob("lecture-*.md")):
     t = title(p).replace(f"Ders {n} — ", "")
     t = t.split(":")[0].strip()          # kısa başlık: iki noktadan öncesi
     lines.append(f'  - [<span class="nav-num">{n:02d}</span>{t}](/lectures/{p.name})')
-for folder, label in [("plan","Plan"),("resources","Kaynaklar"),("notes","Notlar"),("experiments","Deneyler"),("thesis","Tez")]:
+for folder, label in [("plan","Plan"),("resources","Kaynaklar"),("literature","VLA ve Çok Dilli VLA Literatürü"),("notes","Notlar"),("experiments","Deneyler"),("thesis","Tez")]:
     d = root/folder
     if not d.exists(): continue
     files = sorted(d.glob("*.md"))

@@ -15,6 +15,7 @@ Türkçe açık kaynak; site: https://mesutd0nmez.github.io/vla-robot-learning-t
 - `code/dayNN/` — o dersin script'leri + README.md (her script `## ad.py` + python bloğu)
 - `projects/NN-kisa-ad/` — Mesut'un yerelde Claude Code ile yaptığı demo/deney/araştırma projeleri; `projects/_template/README.md` şablonuyla başlanır, `projects/README.md` tablosuna satır eklenir. Dersler burayı değiştirmez; projeler derslere atıf yapabilir.
 - `datasets/NN-kisa-ad/` — veri kartı (`dataset-card.md`, zorunlu) + küçük veri dosyaları (`data/`, <10 MB). Kendi ürettiğimiz Türkçe komut setleri ve sonuç tabloları burada; dış veriler (LIBERO HDF5, checkpoint) yalnızca kartla (kaynak, sürüm, lisans, sha256, dönüşümler).
+- `literature/` — VLA ve çok dilli VLA literatürü: `makaleler.md` (15 hakemli makale + 2 ön baskı, yayın sayfasından doğrulanmış künyeler) ve `rapor.md` (≤ 2 sayfa). Listeye makale ekleme/çıkarma Mesut'un kararı.
 - `resources/`, `notes/`, `plan/`; ileride `thesis/`, `slides/`
 - Site: `index.html` + `assets/site.css` (Docsify, derleme yok), `home.md` (ana sayfa), `_sidebar.md` (üretilir)
 

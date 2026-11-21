@@ -29,6 +29,7 @@ Aşamalar netleştikçe bu tablo ve `plan/` klasörü güncellenir.
 | `plan/` | Ders planı (`lecture-plan.md`) ve `daily-log.md` (her çalışma gününün durumu, görevi, çıktısı) |
 | `lectures/` | Dersler `lecture-NN.md` (görseller `lectures/images/lecture-NN/`); her dersin sonunda kendini sına soruları ve cevapları |
 | `resources/` | Kaynak listesi ve Türkçe giriş notları (telifli PDF'ler yerine bağlantılar) |
+| `literature/` | VLA ve çok dilli VLA literatürü: 15 hakemli makalenin listesi (`makaleler.md`) ve 2 sayfalık rapor (`rapor.md`) |
 | `notes/` | Konu bazlı birikimli notlar (OpenVLA, LIBERO, spatial reasoning, tokenizasyon…) |
 | `projects/` | Elle yürütülen demo, deney ve araştırma projeleri (klasör başına bir proje, `_template` şablonu) |
 | `datasets/` | Veri kartları ve küçük veri dosyaları (Türkçe komut setleri, sonuç tabloları; dış veriler yalnızca kartla) |

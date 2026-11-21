@@ -36,6 +36,10 @@
   - [<span class="nav-num">·</span>Genel bakış](/resources/README.md)
   - [<span class="nav-num">·</span>Robot Learning ve VLA Alanına Giriş](/resources/robot-learning-vla-intro-tr.md)
 
+- **VLA ve Çok Dilli VLA Literatürü**
+  - [<span class="nav-num">·</span>Makale listesi: 15 hakemli çalışma ve 2 ön baskı](/literature/makaleler.md)
+  - [<span class="nav-num">·</span>Rapor: VLA ve çok dilli VLA'da mevcut durum](/literature/rapor.md)
+
 - **Projeler**
   - [<span class="nav-num">·</span>Genel bakış](/projects/README.md)
   - [<span class="nav-num">01</span>İlk MuJoCo sahnesi (Mac'te kurulum doğrulaması)](/projects/project-1/README.md)

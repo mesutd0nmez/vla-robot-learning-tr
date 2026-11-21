@@ -36,6 +36,13 @@ Bilgisayar Mühendisliği yüksek lisans tezimin açık kaydı: Vision-Language-
 <a href="#/lectures/lecture-25"><b>25</b><span>Faz 3 sentezi: sekiz ders tek sayfada — bilanço 21 ölçüm = 11 gerçek / 6 Mesut'ta / 4 hipotez; phase3_smoke.py 30 script 28 OK (Ders 22 tokens.csv birebir yeniden üretildi); LangGap (aynı sahne, Spatial 97 → 5,9); açık sorular S1–S10 → üç RQ tohumu<small>Faz 3 · Sentez</small></span></a>
 </div>
 
+## VLA ve Çok Dilli VLA Literatürü
+
+<div class="home-grid">
+<a href="#/literature/makaleler"><b>01</b><span>Makale listesi: 15 hakemli çalışma ve 2 ön baskı<small>Literatür · Liste</small></span></a>
+<a href="#/literature/rapor"><b>02</b><span>Rapor: VLA ve çok dilli VLA'da mevcut durum<small>Literatür · 2 sayfa</small></span></a>
+</div>
+
 ## Nasıl çalışıyorum
 
 Her ders aynı iskelette: 35 dakikalık okuma (görsellerle), "kendini sına" açık uçlu sorular (cevapları dersin sonunda), çoktan seçmeli sorular ve 15 dakikalık bir görev. Plan ve günlük ilerleme `Plan` bölümünde; kurulum ve deney script'leri `Kod` bölümünde.
