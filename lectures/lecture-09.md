@@ -116,15 +116,7 @@ XML'de bir değer değiştir, tekrar çalıştır, farkı gör:
 
 ---
 
-## 5. Kendini sına (cevaplar aşağıda)
-
-1. `conda activate vla` yapmadan `python first_scene.py` çalıştırsan ne olur?
-2. `mj_step` ile `env.step` arasındaki fark ne?
-3. MJCF'de `freejoint` olmayan masa neden düşmüyor?
-4. Script'teki kameraya neden `agentview` adını verdik?
-5. `numpy<2` kısıtı neden var?
-
-## 6. Takılırsan
+## 5. Takılırsan
 | Belirti | Çözüm |
 |---|---|
 | `conda: command not found` | Terminal'i yeniden aç; olmadıysa `source ~/miniconda3/bin/activate` |
@@ -134,82 +126,8 @@ XML'de bir değer değiştir, tekrar çalıştır, farkı gör:
 
 Hata mesajının **tamamını** (ilk satırdan son satıra) chat'e yapıştır; "çalışmadı" yeterli değil.
 
-## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
-
-**1. `conda activate vla` yapmadan script çalıştırırsan?**  _(tek seçim)_
-- [ ] A) Daha hızlı çalışır
-- [ ] B) Sistem Python'u çalışır, mujoco bulunamaz
-- [ ] C) Otomatik aktive olur
-- [ ] D) MPS kapanır
-
-<details><summary>Cevap</summary>
-
-**B.** 
-
-</details>
-
-**2. `mj_step` ile `env.step` farkı?**  _(tek seçim)_
-- [ ] A) Aynı şey
-- [ ] B) mj_step tek fizik adımı; env.step kontrolcü + ~25 fizik adımı + render + success
-- [ ] C) env.step daha düşük seviye
-- [ ] D) mj_step action alır
-
-<details><summary>Cevap</summary>
-
-**B.** 
-
-</details>
-
-**3. `numpy<2` kısıtının nedeni?**  _(tek seçim)_
-- [ ] A) numpy 2 Apple Silicon'da yok
-- [ ] B) robosuite/LIBERO numpy 2'de kaldırılan np.float_ kullanır
-- [ ] C) mujoco numpy 2 ile uyumsuz
-- [ ] D) torch numpy 2 istemez
-
-<details><summary>Cevap</summary>
-
-**B.** 
-
-</details>
-
-**4. Mac'e özgü doğrular? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) Offscreen render MUJOCO_GL ayarı olmadan çalışır
-- [ ] B) Etkileşimli viewer için mjpython gerekir
-- [ ] C) CUDA kullanılır
-- [ ] D) Miniconda arm64 olmalı
-
-<details><summary>Cevap</summary>
-
-**A, B, D.** 
-
-</details>
-
-**5. MJCF'de hareket edebilen body için gerekenler? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) freejoint ya da başka bir joint
-- [ ] B) mass/kütle (geom'da)
-- [ ] C) camera
-- [ ] D) light
-
-<details><summary>Cevap</summary>
-
-**A, B.** Eklemi olmayan body statiktir.
-
-</details>
-
----
-
 ## Sonraki ders (Ders 10)
 robosuite + LIBERO kurulumu; bir LIBERO görevini açıp `reset()` / `step()` ile robotu hareket ettirme, agentview ve bilek kamerası görüntülerini kaydetme. Mac'te takılırsa Docker/Colab yedek yolu hazır.
-
----
-
-## Cevaplar
-
-1. Sistem Python'u çalışır; `mujoco` orada kurulu olmadığı için `ModuleNotFoundError`. Ortam aktif değilken kurduğun hiçbir paket `vla`'ya gitmez.
-2. `mj_step` fizik motorunun tek zaman adımı (2 ms). `env.step(action)` robosuite/LIBERO katmanında: action'ı kontrolcüye verir, birden çok `mj_step` çağırır (kontrol frekansı 20 Hz ⇒ ~25 fizik adımı), kameraları render eder, success'i hesaplar ve `(obs, reward, done, info)` döner.
-3. Eklemi olmayan `body` dünyaya sabitlenmiştir (statik). `freejoint` 6 serbestlik derecesi verir; yalnızca top hareket eder.
-4. LIBERO'nun üçüncü-şahıs kamerasının adı `agentview`; yarın `obs["agentview_image"]` anahtarını göreceksin. Aynı adı kullanmak zihinsel köprü kurar.
-5. robosuite 1.4 / LIBERO, numpy 2.0'da kaldırılan `np.float_` gibi adları kullanır; numpy 2 ile import hatası verir.
 
 ---
 

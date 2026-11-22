@@ -209,80 +209,9 @@ Spatial suite'te (Tablo 1 ablation'ları Spatial üzerinde) fark küçük (90.0 
 
 ---
 
-## 8. Kendini sına (cevaplar aşağıda)
-
-1. BDDL dosyasındaki `(:language …)` alanını Türkçe yazsan eval'de ne değişir? Neden?
-2. `loose` bağlantıda komut policy'ye hangi yoldan ulaşır; `soft`'ta ek olarak hangi yol açılır? Türkçe komutun "boğazda kaybolma" riski hangisinde daha yüksek?
-3. `diffusion_steps`'i 5'ten 20'ye çıkarırsan episode süresi kabaca ne kadar artar? Hangi bileşen kaç kez çalışır?
-4. `action_min/max` tablosunu yanlışlıkla `spatial` yerine `mixed` ile (ya da tersi) kullansan hangi eksenlerde ne olur? Success rate'e etkisini nasıl test edersin?
-5. Spatial'da boş komutla koşan bir model %50 başarı alıyor. Bu sayıyı `check_ontop` ve iki kâse gerçeğiyle birlikte nasıl yorumlarsın?
-
-## 9. Bugünün görevi (15 dk)
+## 8. Bugünün görevi (15 dk)
 
 Mac'te `conda activate vla`, VLANeXt'i klonla (`git clone --depth 1 https://github.com/DravenALG/VLANeXt ~/vla-work/VLANeXt`), `code/day13/trace_eval_chain.py`'yi indirip `python trace_eval_chain.py ~/vla-work/VLANeXt ~/vla-work/LIBERO` çalıştır; 22 satırın hepsinin bulunduğunu doğrula (upstream değiştiyse "BULUNAMADI" satırlarını chat'e yaz). Sonra `show_prompt.py`'yi çalıştır ve üç şeyi not et: (1) şablonun tam string'i — başta bir `system` mesajı var mı? (2) üç EN/TR çiftinin token sayıları, (3) "arasındaki" ve "üstüne" kelimelerinin parçalanışı. Bu notları `notes/` altına değil, Ders 21'de kullanmak üzere `projects/01-vlanext-t4-ilk-eval/README.md`'nin sonuna "Ders 13 notu" diye ekle.
-
-## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
-
-**1. VLANeXt eval'inde modele giden komut metni nereden gelir?**  _(tek seçim)_
-- [ ] A) BDDL dosyasındaki `(:language …)` alanından
-- [ ] B) HDF5 demo dosyasındaki `language_instruction`'dan
-- [ ] C) BDDL **dosya adından** (alt çizgiler boşluğa)
-- [ ] D) `libero_bench_config.yaml`'daki bir listeden
-
-<details><summary>Cevap</summary>
-
-**C.** `grab_language_from_filename` dosya adını böler; `:language` alanı okunmaz, HDF5 eval'de hiç açılmaz.
-
-</details>
-
-**2. `soft` bağlantıda policy'nin i. bloğu neye cross-attention yapar?**  _(tek seçim)_
-- [ ] A) Yalnızca 16 meta query'nin son katman çıktısına
-- [ ] B) VLM'in i. katmanının tüm token çıktılarına (proprio + görüntü + komut + query)
-- [ ] C) Yalnızca komut token'larına
-- [ ] D) Görüntü token'larına; komut `adaLN` ile girer
-
-<details><summary>Cevap</summary>
-
-**B.** `relevant_vlm_states = vlm_hidden_states[-29:]` ve `zip(blocks, states)`; `adaLN` yalnızca zaman adımını taşır.
-
-</details>
-
-**3. `done=True` LIBERO'da ne demektir?**  _(tek seçim)_
-- [ ] A) 220 adım doldu
-- [ ] B) Ödül eşiği aşıldı
-- [ ] C) BDDL goal predicate'lerinin tamamı sağlandı (`_check_success()`)
-- [ ] D) Robot durdu
-
-<details><summary>Cevap</summary>
-
-**C.** `bddl_base_domain.step` içinde `done = self._check_success()`; zaman aşımını eval döngüsü ayrıca sayar.
-
-</details>
-
-**4. Flow-matching döngüsü için doğru olanlar? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) VLM her adımda yeniden çalışır
-- [ ] B) Sigma takvimi 1.0 → 0.75 → 0.50 → 0.25 → 0.001 → 0'dır
-- [ ] C) Her adım `sample + dt · velocity` biçiminde bir Euler adımıdır
-- [ ] D) Başlangıç `torch.randn` ile saf gürültüdür
-- [ ] E) Adım sayısı eval config'inde 5'tir
-
-<details><summary>Cevap</summary>
-
-**B, C, D, E.** A değil: `get_vlm_condition` döngünün dışında, bir kez çalışır.
-
-</details>
-
-**5. `check_ontop` için doğru olanlar? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) Kâse ile tabağın merkezleri yatayda 3 cm'den yakın olmalı
-- [ ] B) Temas şart
-- [ ] C) Hangi kâse olduğu önemsiz, herhangi bir siyah kâse yeter
-- [ ] D) Predicate nesneyi adıyla (`akita_black_bowl_1`) ister
-
-<details><summary>Cevap</summary>
-
-**A, B, D.** C yanlış: `_2` tabağa konursa `done` gelmez — Spatial'ı dil testi yapan şey bu.
-
-</details>
 
 ## Takılırsan
 | Belirti | Çözüm |
@@ -297,16 +226,6 @@ Mac'te `conda activate vla`, VLANeXt'i klonla (`git clone --depth 1 https://gith
 
 ## Sonraki ders (Ders 14)
 Klavye günü, Mac'te: OpenVLA-7B'yi MPS ile yükleyip tek bir LIBERO görüntüsü + İngilizce prompt'tan 7-DoF action alacağız. Bugünkü zincirin OpenVLA karşılığını göreceksin: komut `In: What action should the robot take to {instruction}?\nOut:` şablonuna girer, action 256-bin'lik **token** olarak üretilir (flow-matching yok), decode `bin → [-1,1] → min/max` ile yapılır. İki modelin "komut → action" yolunu yan yana koyduğunda Ders 15'teki Tatar mini-reprodüksiyonunun neyi ölçtüğü netleşecek.
-
----
-
-## Cevaplar
-
-1. Hiçbir şey değişmez. `task.language` dosya adından türetilir (`grab_language_from_filename`), `:language` alanı yalnızca BDDL'nin içinde kalır. Türkçe komutu ya dosya adını değiştirerek (kötü: `problem_folder`/`init_states` eşlemesi dosya adına bağlı) ya da `build_episode_specs`'te `task_description`'ı override ederek verirsin — ikincisi doğru yol.
-2. `loose`: komut → VLM → yalnızca 16 query'nin son katman çıktısı → `connector` → **ortalama alınıp tek vektör** → policy'ye koşul. `soft`: query'ler yine dizide, ama policy'nin 29 bloğu VLM'in her katmanının **tüm** token çıktılarına (komut token'ları dahil) cross-attention yapar. Boğazda kaybolma riski `loose`'ta: Türkçe'nin taşıdığı bilgi 16 vektörün ortalamasında silikleşebilir. Makalenin LIBERO-plus Language sonuçları (74.6 → 89.2) bu farkla tutarlı.
-3. Episode süresi yaklaşık değil, **az** artar: VLM forward'ı (asıl maliyet, ~2B parametre, ~180 token) model çağrısı başına 1 kez; policy (29 blok, hidden 1024, 8 query token) 5 yerine 20 kez. Policy forward'ı VLM'in küçük bir kesri olduğu için toplam artış muhtemelen %20–40 (hipotez; ölç). Action kalitesine etkisi makalede raporlanmıyor.
-4. Konum eksenlerinde hiçbir şey (`±0.9375` ikisinde de aynı); dönme eksenlerinde ölçek farkı: `droll` için `mixed` `[-0.242, 0.356]`, `spatial` `[-0.189, 0.197]` — yanlış tablo dönüşleri ~%50 büyütür/küçültür. Exception yok, sessiz hata. Test: aynı 10 başlangıçta iki tabloyla koş, success rate ve ortalama episode adımı karşılaştır; ayrıca `action_history`'nin dönme eksenlerinin dağılımını demo verisiyle (Ders 11) üst üste çiz.
-5. Boş komutla %50, "yazı-tura" ile uyumlu: iki siyah kâse var, predicate `_1`'i istiyor; komut olmadan model sahneden birini seçiyorsa beklenti ~%50 (artı/eksi tutma-bırakma hataları). Dolayısıyla Spatial'da anlamlı taban %50 civarıdır, %0 değil; "Türkçe komut %70 aldı" ancak bu tabanın belirgin üstündeyse "komut okunuyor" demektir. Ayrıca `check_ontop`'ın 3 cm toleransı başarısızlıkların bir kısmını "doğru kâse, kötü bırakma" yapar — videoları izleyip "yanlış kâse" ile "kötü bırakma"yı ayrı say (Ders 12 görevi).
 
 ---
 

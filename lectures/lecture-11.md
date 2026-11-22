@@ -91,15 +91,7 @@ Script'in yazdığı `gripper benzersiz değerler` satırına bak. LIBERO ham de
 
 ---
 
-## 6. Kendini sına (cevaplar aşağıda)
-
-1. `(T, 7)` action dizisinde T neden episode'dan episode'a değişir; bu BC için sorun mu?
-2. `ee_states` ile `actions` arasındaki ilişki ne? Birinden diğerini türetebilir misin?
-3. Dosyadaki komut tek bir sabit string. Türkçe deneyi için bu dosyayı değiştirmen gerekir mi?
-4. 50 demonun hepsi başarılı mı? Nereden anlarsın?
-5. 128×128 görüntü mekânsal komutlar için neden bir sınırlılık olabilir?
-
-## 7. Takılırsan
+## 6. Takılırsan
 | Belirti | Çözüm |
 |---|---|
 | İndirme 403 / çok yavaş | `--use-huggingface` bayrağını kaldır ya da ekle (iki kaynak var) |
@@ -107,83 +99,8 @@ Script'in yazdığı `gripper benzersiz değerler` satırına bak. LIBERO ham de
 | Bellek dolu | `imgs[i]` tek kare okur; tüm diziyi (`imgs[:]`) yükleme |
 | PNG'de görüntü ters | `[::-1, ::-1]` satırını kontrol et; LIBERO ham görüntüsü ters gelir |
 
-## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
-
-**1. Episode uzunluğu T neden değişir?**  _(tek seçim)_
-- [ ] A) Kamera hızı
-- [ ] B) İnsan her denemede farklı hızda hareket eder
-- [ ] C) Görev değişir
-- [ ] D) HDF5 sınırı
-
-<details><summary>Cevap</summary>
-
-**B.** 
-
-</details>
-
-**2. Komut (language_instruction) HDF5'te nerede?**  _(tek seçim)_
-- [ ] A) Her demo'nun obs'unda
-- [ ] B) data.attrs['problem_info'] JSON'unda
-- [ ] C) actions dizisinde
-- [ ] D) Dosya adında değil, yok
-
-<details><summary>Cevap</summary>
-
-**B.** 
-
-</details>
-
-**3. Türkçe eval için demo dosyasını değiştirmek gerekir mi?**  _(tek seçim)_
-- [ ] A) Evet, her zaman
-- [ ] B) Hayır; eval'de komutu sen verirsin. Fine-tune için evet
-- [ ] C) Evet, görüntüleri de
-- [ ] D) Hayır, hiçbir durumda
-
-<details><summary>Cevap</summary>
-
-**B.** 
-
-</details>
-
-**4. `obs/` altında bulunanlar? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) agentview_rgb
-- [ ] B) eye_in_hand_rgb
-- [ ] C) ee_states
-- [ ] D) actions
-- [ ] E) gripper_states
-
-<details><summary>Cevap</summary>
-
-**A, B, C, E.** actions demo düzeyindedir, obs altında değil.
-
-</details>
-
-**5. Gripper işareti uyarısı hakkında doğrular? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) LIBERO ham: -1 açık, +1 kapalı
-- [ ] B) OpenVLA RLDS verisinde dönüştürülmüştür
-- [ ] C) Eval'de geri çevirmek gerekir
-- [ ] D) İşaret önemsizdir
-
-<details><summary>Cevap</summary>
-
-**A, B, C.** 
-
-</details>
-
----
-
 ## Sonraki ders (Ders 12)
 Colab T4'e geçiş: VLANeXt kurulumu, Hugging Face checkpoint'i, `libero_bench_eval` ile 2–3 episode — ilk success rate sayın. Hazır bir notebook iskeletiyle.
-
----
-
-## Cevaplar
-
-1. İnsan her denemede farklı hızda hareket eder; episode süresi sabit değildir. BC için sorun değil: eğitim `(o_t, a_t)` çiftleri üzerinde, episode uzunluğundan bağımsızdır (OFT/ACT'ta chunk'lar episode içinde kayan pencereyle alınır).
-2. `ee_states[t+1] − ee_states[t]` ≈ action'ın OSC_POSE tarafından ölçeklenmiş ve kontrolcü dinamiğiyle süzülmüş hâli; kabaca orantılı ama birebir değil (kontrolcü hedefe tam ulaşamaz, temas kuvvetleri vardır). Tersine, action'dan `ee_states`'i yalnızca simülatörü çalıştırarak bulursun.
-3. Eğitim için hayır — model İngilizce demolarla fine-tune edilmiş checkpoint'tir; eval'de komutu sen verirsin (`task.language` yerine Türkçe string). Türkçe **fine-tune** yapacaksan (Gün 23) evet: `problem_info.language_instruction`'ı değiştirilmiş kopyalar üretmen gerekir.
-4. LIBERO demoları başarılı denemelerden derlenmiştir (başarısızlar atılmış); `rewards`'ın son adımda 1 olması ve `dones` bunu gösterir. Kendi kontrolün: `states`'i replay edip `check_success()` çağırmak.
-5. 128 pikselde masa üstündeki iki kâse arasındaki birkaç cm'lik fark 2–3 piksele düşer; "ramekin'in yanındaki" ile "tabağın yanındaki" kâse görsel olarak ayırt edilemez hâle gelebilir. Bu durumda başarısızlık dilden değil algıdan gelir — deneyde çözünürlüğü sabit tutup raporlamak gerekir.
 
 ---
 

@@ -163,81 +163,9 @@ Tez bağlantısı: Bölüm 5'teki bulgu — LIBERO-Plus'ın yeniden yazımları 
 
 ---
 
-## 8. Kendini sına (cevaplar aşağıda)
-
-1. Bir arkadaşın "LIBERO-Plus'ı asset indirmeden kısmen çalıştırdım" diyor. Hangi bozulmalar için bu mümkün, hangileri için imkânsız; kodun hangi satırları bunu belirler?
-2. `_view_0_0_150_0_0` ile `_view_0_0_100_0_0` arasındaki fark ne, ve bu farkı yaratmak için sahneden hangi bilgiye ihtiyaç var?
-3. `MountedPanda237`'nin ‖Δ‖'si 0.3 rad. Bu sayı modele kaç farklı kanaldan ulaşır ve neden "görüntüyü kırpıp düzeltelim" tarzı bir çözüm yetmez?
-4. R1 ile R2 yeniden yazımları arasındaki fark, tezin "mekânsal ilişki grounding'i" sorusu açısından neden önemli? Görev 0 verisinden hangi sayı bunu gösteriyor?
-5. Türkçe varyantı `VLANEXT_INSTR_OVERRIDE` yerine BDDL ile eklemenin tez açısından kazancı ve bedeli nedir?
-
-## 9. Bugünün görevi (15 dk)
+## 8. Bugünün görevi (15 dk)
 
 Mac'te (`vla` env, model gerekmez) LIBERO-plus klonunla `classify_rewrites.py`'yi çalıştır ve `rewrites.csv`'deki **6 "R2 hafif" + 2 "R0" satırını** kendin oku: hangileri gerçekten R2 (nesne adı değişmiş), hangileri düz parafraz? Kararlarını `datasets/02-libero-plus-spatial0-rewrites/data/rewrites_task0.csv`'ye yeni bir `type_mesut` sütunu olarak ekle, kartı v0.2 yap. Sonra `camera_poses.csv`'den şunu çıkar: Spatial kamera görevlerinde `kind` (rotation/zoom/endpoint) başına zorluk dağılımı — hangi alt tür en çok L4–L5 üretiyor? Bir cümle olarak karta "Notlar"a yaz. Vaktin kalırsa görev 0 için iki yeni Türkçe komut yaz (`tr3`: robota-göre yön kullanan, Ders 7'deki şema; `tr4`: *kâse* yerine *çanak*) ve `make_tr_variant.py` ile BDDL'lerini üret — hata vermeden geçmeleri yeterli, çalıştırma Ders 18'de.
-
-## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
-
-**1. `..._light_12.bddl` dosyası temel BDDL'den nerede ayrılır?**  _(tek seçim)_
-- [ ] A) `:language` satırında
-- [ ] B) `:regions` aralıklarında
-- [ ] C) Yalnızca ilk satırdaki `(problem …)` adında; ad bir alt sınıfı, alt sınıf bir sahne XML'ini seçer
-- [ ] D) Hiçbir yerde; ışık görev adındaki parametreden gelir
-
-<details><summary>Cevap</summary>
-
-**C.** `diff` tek satır gösterir: `(problem Libero_Tabletop_Manipulation_tabletop_light_sync_modified_12)`. `TASK_MAPPING` bu adı `scene_xml = scenes/lights/..._12.xml` ayarlayan alt sınıfa götürür; XML asset paketindedir. D kamera/robot/gürültü için doğru olurdu.
-
-</details>
-
-**2. `_setup_camera` beş kamera parametresini hangi sırayla uygular?**  _(tek seçim)_
-- [ ] A) Yatay → dikey → ölçek → uç yaw → uç pitch
-- [ ] B) Dikey → yatay → ölçek → uç yaw → uç pitch
-- [ ] C) Ölçek → yatay → dikey → uç pitch → uç yaw
-- [ ] D) Sıra önemsiz; dönüşümler değişmeli
-
-<details><summary>Cevap</summary>
-
-**B.** Satır 319-345: önce `rotate_around_y` (dikey, pivot'tan geçen eksen), sonra `rotate_around_z` (yatay), `scale_distance_from_pivot`, sonra yalnızca quaternion'a uç yaw ve uç pitch. 3B dönüşler değişmeli değildir (D yanlış).
-
-</details>
-
-**3. LIBERO-Plus'ta robot başlangıç pozu bozulmasının ‖Δ init_qpos‖ değerleri nasıl dağılır?**  _(tek seçim)_
-- [ ] A) 0 ile 0.5 rad arasında düzgün sürekli
-- [ ] B) Tam olarak {0.1, 0.2, 0.3, 0.4, 0.5} rad, her birinden 100 sınıf
-- [ ] C) Eklem başına ±5° sabit
-- [ ] D) Her görevde çalışma zamanında rastgele
-
-<details><summary>Cevap</summary>
-
-**B.** `mounted_panda.py`'deki 500 `init_qpos` okununca tabandan farkların normu beş değerde kümeleniyor (görsel 03 panel b notu). D yanlış: değerler dosyada sabittir, görev adı `_initstate_I` hangisinin kullanılacağını seçer.
-
-</details>
-
-**4. Hangileri doğru? Sensor Noise bozulması… (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) `ControlEnv.step` ve `reset` içinde, görüntü üretildikten sonra uygulanır
-- [ ] B) Hem agentview hem bilek kamerasını bozar
-- [ ] C) `_noise_N` kodunda N'nin onlar basamağı aileyi (motion/gaussian/zoom/fog/glass), birler basamağı şiddeti verir
-- [ ] D) Yeni asset gerektirmez ama motion blur için ImageMagick (`wand`) gerektirir
-- [ ] E) BDDL dosyasını değiştirir
-
-<details><summary>Cevap</summary>
-
-**A, C, D.** B yanlış: yalnızca `obs["agentview_image"]` (env_wrapper.py:290, 324); bilek kamerası temiz kalır. E yanlış: taşıyıcı görev adıdır. C'nin kesin hâli: N ≤ 10 motion, ≤ 20 gaussian, ≤ 30 zoom, ≤ 40 fog, ≤ 50 glass; şiddet = N − 10·(aile−1).
-
-</details>
-
-**5. Türkçe bir `_language_trK` görevini benchmark'a eklerken hangileri zorunlu? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) Görev adının `_language_` içermesi ve `_view_0_0_100_0_0_initstate_0` ile bitmesi
-- [ ] B) Task map listesinin sonuna eklemek
-- [ ] C) Komutu küçük harfle, `;` ve parantezsiz yazmak
-- [ ] D) Temel görevin `.pruned_init` dosyasını Türkçe adla kopyalamak
-- [ ] E) LIBERO-Plus asset'lerini indirmek
-
-<details><summary>Cevap</summary>
-
-**A, B, C.** D gereksiz: `get_task_init_states` adı `_language_`'den bölüp temel görevin init dosyasını kendisi bulur. E gereksiz: Language taşıyıcısı asset istemez (temel sahne orijinal LIBERO asset'leriyle yüklenir) — gerçi VLANeXt'in LIBERO-plus kurulumu asset'leri zaten istiyor (Ders 16), ama Türkçe varyantın kendisi için değil.
-
-</details>
 
 ## Takılırsan
 
@@ -256,16 +184,6 @@ Mac'te (`vla` env, model gerekmez) LIBERO-plus klonunla `classify_rewrites.py`'y
 
 ## Sonraki ders (Ders 18)
 Plan tablosundaki deney günü: **aynı görev, komut = doğru / boş / yanlış / Türkçe → success rate**. Ders 16'nın notebook'u ve bugünkü Türkçe BDDL'lerle Colab/Kaggle T4'te tasarım: Spatial görev 0'da **10 farklı init state** × 4 koşul (`clean` = orijinal komut, `empty` = `""`, `wrong` = `datasets/01`'deki `distractor` komutu — öteki kâseyi tarif eden, `tr` = `sp0_tr`), episode başına süre bütçesi ve `VLANEXT_TASK_IDS`/`VLANEXT_INSTR_OVERRIDE` ile BDDL yolunun karşılaştırılması; `results/runs.csv` şeması ve Wilson aralıklarıyla 4 satırlık sonuç tablosu. Ders 12'deki T4 süre hipotezleri ilk kez gerçek sayılarla yer değiştirecek (koşu sende); analiz Ders 19'da.
-
----
-
-## Cevaplar
-
-1. **Mümkün:** Camera Viewpoints, Robot Initial States, Sensor Noise — üçü de görev adından okunur (`env_wrapper.py:207-218`), BDDL temel görevinki, sahne temel LIBERO asset'leriyle yüklenir; gürültü için yalnızca `wand`/skimage gerekir. **İmkânsız:** Light ve Background (`scene_xml` asset paketindeki `scenes/lights/*.xml`, `scenes/tabletop_table_*.xml`'i ister; `problems/*.py` alt sınıfları), Objects Layout'un `_add_` yarısı (yeni nesne mesh'leri: `bottle_of_antihistamines` vb. `new_objects/`'ta). `_level` dosyaları ve Language teknik olarak asset istemez; ama VLANeXt'in LIBERO-plus kurulumu tüm paketi birlikte ister (Ders 16).
-2. İlki `scale_factor = 1.5`: kamera konumu pivot `(0, 0, 0.8)`'den geçen ışın üzerinde 1.5 kat uzağa taşınır (1.044 m → 1.566 m), quaternion aynı kalır — yani bakış doğrultusu değişmez, nesneler ~1.5 kat küçülür. Gereken bilgi yalnızca varsayılan kamera pozu ve pivot noktası; sahneden hiçbir şey okunmaz (kodda sabitler). Bu yüzden asset'siz uygulanabilir ve görsel 04'te robosuite sahnesinde birebir yeniden üretilebildi.
-3. İki kanal: (a) görüntü — kol agentview ve bilek kamerasında farklı yerde/açıda görünür (bilek kamerası tamamen başka bir yere bakar); (b) proprio — `robot0_eef_pos`/`gripper_qpos` gibi durum vektörü (Ders 13'te 8 proprio token) eğitim dağılımının dışına çıkar. Görüntüyü düzeltsen bile proprio hâlâ "alışılmadık" der; ayrıca policy'nin ilk adımlarda üreteceği action, eğitimde görülmemiş bir eklem konfigürasyonundan başlar. Bu yüzden Robot bozulması Spatial'da OpenVLA-OFT'yi 40'a düşürür (görsel 09).
-4. R1 çevre cümle ekler ama dayanakları korur: görev 0'da 26 R1'in 26'sında *between*, *bowl*, *plate* duruyor. R2 nesne adını betimlemeyle değiştirir (*bowl* ve *plate* 16/16 silinmiş) ama ilişki kelimesine yine dokunmaz (*between* 15/16). Dolayısıyla LIBERO-Plus'ın Language bozulması "ilişki ifadesi anlaşılıyor mu" sorusunu test etmez; nesne-adı grounding'ini ve sohbet gürültüsüne dayanıklılığı test eder. Tezin sorusu ilişki ifadesidir (*arasındaki/yanındaki/üstündeki*); Türkçe varyant hem nesne adını hem ilişkiyi hem kelime sırasını değiştirdiği için benchmark'ın boş bıraktığı hücreyi doldurur — ama tam da bu yüzden sonucu yorumlarken "Türkçe mi, ilişki ifadesi mi, nesne adı mı" ayrımı için kontrol koşulları (Ders 15'teki `para`, `distractor`) gerekir.
-5. **Kazanç:** Türkçe görev LIBERO-Plus'ın kendi kod yolundan geçer (`grab_language_from_filename` → `scan_tokens`), JSON'da kategori girdisi olur, liderlik tablosundaki Language sütunuyla aynı protokolle karşılaştırılabilir; tezde "LIBERO-Plus protokolüne uygun Türkçe Language görevi" diye savunulur. **Bedel:** komut baştan küçük harf, noktalamasız ve parantezsiz yazılmak zorunda (`scan_tokens.lower()`, `;`, `()`), task map/JSON düzenlemesi gerekir (klona dokunursun), ve indeksler listenin sonuna eklenerek korunmalıdır. Override yolu bunların hiçbirini istemez, büyük/küçük harfi korur ama benchmark dışında kalır; ikisini aynı komutla bir kez karşılaştırmak (Ders 18) metodoloji bölümüne bir cümle kazandırır.
 
 ---
 

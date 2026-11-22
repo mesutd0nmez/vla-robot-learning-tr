@@ -103,94 +103,11 @@ Tezin için anlam: "VLA dili yok sayıyor" artık bilinen bir bulgu; yeni katkı
 
 ---
 
-## 7. Kendini sına (cevaplar aşağıda)
-
-1. Bir VLA Goal suite'te %95, boş komutla %93 alıyor. Bu model için "dil grounding'i var" diyebilir misin?
-2. Shortcut learning modelin mi, verinin mi özelliğidir? LIBERO'da kısayolu *imkânsız* kılan bir suite tasarlasan ne değiştirirdin?
-3. Türkçe komutla başarı %40'a düşüyor. Bu tek başına "model Türkçe anlamıyor" demek midir? Hangi ek koşul gerekir?
-4. Parafraz koşulu (④) ne ölçer, Türkçe koşulundan (⑤) farkı ne?
-5. Tatar vd.'nin action-vektör farkı ölçmesi ile senin success-rate ölçmen arasında hangi durumda sonuçlar *ters* çıkabilir?
-
-## 8. Bugünün görevi (15 dk)
+## 7. Bugünün görevi (15 dk)
 Ders 3'te yazdığın Spatial suite tablosuna iki sütun ekle: "shortcut riski (düşük/orta/yüksek)" ve "boş-komut tabanı beklentin (%)". Ardından Goal suite'in 10 komutu için aynı iki sütunu doldur. Hangi suite'te Türkçe deneyi daha yorumlanabilir olur?
-
-## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
-
-**1. Bir VLA Goal suite'te doğru komutla %95, boş komutla %93 alıyor. Sonuç?**  _(tek seçim)_
-- [ ] A) Dil grounding'i güçlü
-- [ ] B) Dil kullanılmıyor (boş ≈ doğru)
-- [ ] C) Türkçe iyi anlaşılıyor
-- [ ] D) Model overfit değil
-
-<details><summary>Cevap</summary>
-
-**B.** Komut olmadan da görev yapılıyorsa komut okunmuyor demektir.
-
-</details>
-
-**2. Shortcut learning kimin özelliğidir?**  _(tek seçim)_
-- [ ] A) Yalnızca modelin
-- [ ] B) Veri/benchmark tasarımının (model en ucuz çözümü bulur)
-- [ ] C) Yalnızca tokenizer'ın
-- [ ] D) Simülatörün
-
-<details><summary>Cevap</summary>
-
-**B.** Sahne–görev %100 korelasyonluysa dili kullanmamak modele hiçbir şeye mal olmaz.
-
-</details>
-
-**3. Türkçe komutla %40, boş komutla da %40: ne diyebilirsin?**  _(tek seçim)_
-- [ ] A) Türkçe anlaşılıyor
-- [ ] B) Türkçe model için gürültüden farksız
-- [ ] C) Model dili hiç kullanmıyor
-- [ ] D) Deney hatalı
-
-<details><summary>Cevap</summary>
-
-**B.** Türkçe ≈ boş → Türkçe komut etkisiz; model dili kullanıyor (doğru komut daha yüksekse) ama Türkçe'yi değil.
-
-</details>
-
-**4. 'Dili gerçekten kullanıyor mu' deneyinin koşulları? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) Doğru komut
-- [ ] B) Boş komut
-- [ ] C) Yanlış görevin komutu
-- [ ] D) Parafraz
-- [ ] E) Daha büyük model
-
-<details><summary>Cevap</summary>
-
-**A, B, C, D.** Model boyutu bir koşul değil, ayrı bir değişkendir.
-
-</details>
-
-**5. Türkçe düşüşünün 'anlamsal' mı 'tokenizasyon' mu olduğunu ayırt etmeye yardım edenler? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) Türkçe→İngilizce çeviri katmanı
-- [ ] B) Farklı tokenizer'lı model (Qwen vs LLaMA-2) karşılaştırması
-- [ ] C) Daha çok episode
-- [ ] D) Success yerine L2 ölçmek
-
-<details><summary>Cevap</summary>
-
-**A, B.** Çeviri toparlıyorsa sorun anlamsal/dil; tokenizer değişince düzeliyorsa tokenizasyon.
-
-</details>
-
----
 
 ## Sonraki ders (Ders 5)
 Tatar vd. makalesinin derin okuması: deney düzeni, L2/cosine, gripper etkisi, tokenizasyon bulgusu; sonra üç güçlü, üç zayıf yön — ve senin tezinin bu makaleden nerede ayrıştığı.
-
----
-
-## Cevaplar
-
-1. Hayır. %95 → %93 farkı istatistiksel gürültü içinde; model komut olmadan da görevi yapıyor, yani dil kullanılmıyor. Goal suite'te bunun olması ayrıca şaşırtıcı olurdu — kontrol etmeye değer: belki init state görevle korelasyonlu.
-2. Verinin. Model yalnızca en ucuz çözümü bulur. Kısayolu imkânsız kılmak için: aynı sahne + aynı başlangıç durumu için birden fazla görev (Goal mantığı), sahne–görev eşleşmesini rastgeleleştirme, dikkat dağıtıcı nesnelerle sahneyi belirsizleştirme.
-3. Hayır. Boş-komut tabanı gerekir. Boş komut da %40 veriyorsa Türkçe = gürültü (dil anlaşılmıyor); boş komut %10 veriyorsa Türkçe kısmen anlaşılıyor; boş komut %90 veriyorsa Türkçe aktif olarak *bozuyor* (ilginç ve ayrı bir bulgu).
-4. Parafraz İngilizce içinde anlam korunarak yüzey formu değişir: model kalıbı mı anlamı mı öğrenmiş onu ölçer. Türkçe ise hem yüzey hem dil değişir; parafrazda düşüş varsa Türkçe'deki düşüşün bir kısmı zaten "kalıp dışına çıkma" etkisidir, Türkçe'ye özgü değildir. Parafraz, Türkçe sonucunu yorumlamak için gereken ikinci kontrol.
-5. Örüntü A dünyasında: action vektörleri farklı (Tatar fark görür) ama görev yine başarılı (success rate aynı). Ya da tersi: vektörler yakın ama gripper'daki tek bir bit farkı görevi başarısız kılar (vektör benzerliği yüksek, success düşük). İki metrik aynı şeyi ölçmez; tezinde ikisini birlikte raporlamak en güçlüsü.
 
 ---
 

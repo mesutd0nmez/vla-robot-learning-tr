@@ -138,81 +138,9 @@ Sıra önerisi: **önce 1 ve 4** (bedava; Ders 18 koşusuna `tr_mt` ve `tr_parse
 
 ---
 
-## 9. Kendini sına (cevaplar aşağıda)
-
-1. "Türkçe anlamak" ile "Türkçe'yi İngilizce'ye indirmek" ayrımını yap; beş çözümden hangileri hangi tarafta ve bu ayrımı **ölçmek** için `datasets/04`'ün hangi bloğu gerekli?
-2. Chen vd. Tablo 1'de Qwen3-VL + OFT Çince'de −7,3 ama Fransızca'da −39,1 puan (OpenVLA-OFT −28,6). Bu sayı "çok dilli omurga Türkçe'yi çözer" beklentisini nasıl etkiler ve OpenVLA vs VLANeXt karşılaştırmasını tezde nasıl adlandırmak gerekir?
-3. Held-out H04'te parser *ocağın üstünde duran kâseyi tabağa koy* için `put the bowl on the stove` üretti. Bu hata neden MT çevirisinin bir hatasından **daha az** tehlikeli ve Ders 18'in hangi koşuluyla aynı şekil?
-4. Türkçe LoRA'yı T4'te koşmanın tek kapısı ne, kaba bellek hesabı nasıl 7,7 GB'a çıkıyor ve bu hesabın hangi parçaları tahmin? Eğitimde yalnız Türkçe komut kullanmak neden yanlış tasarım?
-5. Dong vd.'nin EN-CoT'u 9 dilin 7'sinde taban çizgisinin altında, step-wise shift π0.5'te +21…+26 puan. İkisi de "İngilizce'ye yaslanma" fikri; farkı yaratan ne ve bu fark çeviri katmanını nereye yerleştirmemiz gerektiğini nasıl söylüyor?
-
-## 10. Bugünün görevi (15 dk)
+## 9. Bugünün görevi (15 dk)
 
 Mac'te `vla` env'inde `cd code/day24 && python tr_parse.py` — set içi tablo ve held-out listesini gör. Sonra `heldout_tr.csv`'ye **kendi Türkçenle** 5 yeni satır ekle: LIBERO görevlerinden birini bir arkadaşına söyler gibi yaz (nezaket, farklı fiil, farklı sözcük sırası, *kâse* yerine aklına gelen ad), `en_gold` sütununa LIBERO'nun İngilizce görev adını koy, `note`'a neyi denediğini yaz; tekrar koş, kaç tanesi geçti ve **hangi hata türü** (parse yok / yanlış ama geçerli) çıktı, bir satırla `projects/` altındaki uygun README'ye ya da `notes/cohn-7-makale.md`'nin altına "Ders 24 notu" diye yaz. Vakit kalırsa `pip install transformers sentencepiece sacrebleu && python mt_layer_mac.py --model Helsinki-NLP/opus-mt-tr-en` — birebir eşleşme sayısını ve medyan gecikmeyi aynı nota ekle (bu dersin ölçemediği tek sayı). Commit.
-
-## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
-
-**1. Dong vd. (2606.11906) Tablo 2'ye göre "İngilizce adım adım düşün" (EN-CoT) prompt'u OpenVLA-OFT'de ne yaptı?**  _(tek seçim)_
-- [ ] A) Bütün dillerde açığı kapattı
-- [ ] B) 9 dilin 7'sinde taban çizgisinin altında kaldı; işe yaramadı
-- [ ] C) Yalnızca Çince'de +17 puan verdi
-- [ ] D) Modeli deterministik yaptı
-
-<details><summary>Cevap</summary>
-
-**B.** JA 59,4 → 54,8, VI 59,6 → 55,1 gibi düşüşler; işe yarayan step-wise hidden-state kaydırması (+5,6…+17,1; π0.5'te +20,8…+26,1). C'deki +17 step-wise'ın ZH kazancı.
-
-</details>
-
-**2. Chen vd. (2606.15714) Tablo 5'te E-FT (Qwen3-VL'yi yalnız İngilizce VQA ile ek eğitmek) ne yaptı?**  _(tek seçim)_
-- [ ] A) Çok dilli skorları yükseltti
-- [ ] B) Fransızca/Rusça/Arapça ortalamasını taban modelin altına düşürdü (62,3/56,5/59,3 → 55,0/48,5/52,8)
-- [ ] C) İngilizce'yi 92,6'ya düşürdü
-- [ ] D) Hiçbir şey değiştirmedi
-
-<details><summary>Cevap</summary>
-
-**B.** İngilizce veriyle her eğitim adımı çok dilli yeteneği törpülüyor. C, M-CT'nin İngilizce bedeli (95,3 → 92,6).
-
-</details>
-
-**3. OpenVLA deposuna göre LoRA r=32 fine-tune için bellek ve T4'te tek yol?**  _(tek seçim)_
-- [ ] A) Batch 16 ≈ 72 GB, alt sınır ~27 GB; T4'te yalnızca `--use_quantization` (4-bit omurga) ile
-- [ ] B) 7 GB yeter, T4'te batch 16 koşar
-- [ ] C) Mac'te MPS ile bitsandbytes üzerinden koşar
-- [ ] D) LoRA desteklenmez, yalnız tam fine-tune var
-
-<details><summary>Cevap</summary>
-
-**A.** `finetune.py` başlığı: 48 GB → batch 12, 80 GB → batch 24; README "≥ ~27 GB". 4-bit + batch 1 için kaba hesap ≈ 7,7 GB (tahmin). bitsandbytes MPS'te yok (C yanlış).
-
-</details>
-
-**4. Bugünkü kural tabanlı parser hakkında doğru olanlar? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) Set içi 79/80 bir üst sınırdır; sözlük sete bakılarak yazıldı
-- [ ] B) Held-out 12 cümlede 5 geçti; düşenler sözlük dışı fiil/ad, rica kipi, ilişki adının varış rolü
-- [ ] C) H04'te "yanlış ama geçerli" bir LIBERO komutu üretti — Ders 18'in `wrong` koşulu
-- [ ] D) `tr_ascii` yüzeyi parser için ayrı bir zorluk çıkardı
-- [ ] E) Parser çıktısı Türkçe'nin modelde anlaşıldığını kanıtlar
-
-<details><summary>Cevap</summary>
-
-**A, B, C.** D yanlış: ASCII katlama ile `tr_ascii` = `tr_a` (20/20). E yanlış: parser Türkçe'yi modele hiç göstermez; zayıf okumanın tabanıdır.
-
-</details>
-
-**5. "Türkçe anlıyor mu, İngilizce'ye mi indiriyor?" sorusunda İngilizce'ye indiren çözümler hangileri? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) MT çeviri katmanı
-- [ ] B) Parser + şablon
-- [ ] C) Hidden-state hizalama (İngilizce banka)
-- [ ] D) Türkçe LoRA / co-training
-- [ ] E) Çok dilli omurga
-
-<details><summary>Cevap</summary>
-
-**A, B, C.** D ve E güçlü okumanın adayları — ama kanıt için B bloğu (eğitimde olmayan tarifler) gerekir; A bloğunda `clean`'e ulaşmak ezber olabilir.
-
-</details>
 
 ## Takılırsan
 
@@ -228,16 +156,6 @@ Mac'te `vla` env'inde `cd code/day24 && python tr_parse.py` — set içi tablo v
 
 ## Sonraki ders (Ders 25)
 **Haftalık sentez — Faz 3 özeti.** Ders 17–24 tek sayfaya iner: LIBERO-Plus'ın yedi bozulması ve Language'ın ilişkiyi test etmemesi (17), dört koşul + eşli tasarım + Wilson/PI (18, 23), yapısal üst sınır Spatial 9/10 – Goal 1/10 ve A/B/C/D okuma protokolü (19), `datasets/04`'ün 20 çifti ve üç çerçeve (20), Webots karar notu (21), tokenizasyon sayıları (22), Cohn hattının üç bulgusu (23) ve bugünkü beş çözümün karar ağacı (24). Çıktı: Faz 4'e (RQ formülasyonu, Ders 26) giren **açık sorular listesi** — hangileri Mesut'un koşularını bekliyor (Ders 18 tablosu, MT round-trip, Qwen3-VL tokenizer kimliği), hangileri danışmana gidecek (Goal/topoloji ağırlığı, Webots, Türkçe LoRA bütçesi). Mesut'un Ders 18 koşusu repoya girdiyse sentez o tabloyla başlar.
-
----
-
-## Cevaplar
-
-1. **Zayıf okuma** (çıktı ölçütü: Türkçe komutla doğru iş yapılıyor) ile **güçlü okuma** (Türkçe'nin mekân kodlaması içeride görüntüye bağlanıyor, İngilizce ara durak yok). İngilizce'ye indirenler: MT (1), parser (4), hidden-state hizalama (5; İngilizce bankaya kaydırma). Güçlü okuma adayları: omurga (2), Türkçe LoRA (3). Ayrımı ölçmek için eğitimde olmayan tarifler gerekir — **B bloğu** (*soldaki*, *robota daha yakın olan*; EN karşılığı da LIBERO görev adlarında yok) ve karşı-olgusal BDDL'ler: A bloğunda `clean`'e ulaşmak 10 cümleyi ezberlemekle açıklanabilir, B bloğunda `empty`'nin üstüne çıkmak açıklanamaz.
-2. "Çok dilli" etiketi omurganın **o dili** ne kadar gördüğünü söylemez: Qwen3-VL Çince'de güçlü, Fransızca/Rusça/Arapça'da LLaMA-2 tabanlı OFT'den kötü. Türkçe'nin Qwen3-VL'de Çince tarafında mı Arapça tarafında mı olduğu ölçülmedi — Ders 18'in `tr` satırı bunu ölçer. Tezde karşılaştırma **sistem farkı** diye adlandırılmalı (omurga + action başı + eğitim verisi birlikte değişiyor; Chen'in Finding 4'ü başın tek başına −33 ile −71 arasında fark yarattığını gösteriyor); "omurga farkı" demek için aynı başla iki omurga gerekir, bütçede yok.
-3. Parser'ın çıktısı yapısal: çerçevede `dest = the stove`, `relation = None` görünür; Spatial sahnesinde varış ocak olamaz, sahne bilgisiyle çalıştırmadan reddedilebilir (strongly-typed DTO). MT'nin serbest İngilizce çıktısında aynı hata görünmez, model yanlış görevi "başarıyla" yapar. Şekil olarak Ders 18'in **`wrong`** koşulu: geçerli ama sahneye yanlış komut — LIBERO-CF'nin *biased* davranışı (Ders 19) çeviri katmanının ürettiği `wrong` ile tetiklenir ve tabloda "Türkçe başarısız" diye yanlış okunur.
-4. Tek kapı `finetune.py --use_quantization True` (bitsandbytes 4-bit omurga + LoRA; MPS'te bitsandbytes yok, CUDA gerek). Hesap: 7,19 milyar parametre × 0,5 bayt × 1,06 ≈ 3,6 GB + görüntü omurgası ~1,2 + LoRA 97,6 M × (4 ağırlık + 4 grad + 8 Adam bayt) ≈ 1,5 + batch 1 aktivasyon ~1,5 → ≈ 7,7 GB. Gerçek olanlar: parametre sayıları, 72/27 GB eşikleri, bayrağın varlığı; **tahmin** olanlar: aktivasyon, görüntü omurgası payı, dequant hızı, 65–98 saat (A100 10–15 saat × 5 × 1,3). Yalnız Türkçe eğitmek: Chen Tablo 5 — hedef dil verisi İngilizce'den puan alır (95,3 → 92,6 M-CT'de bile); yalnız TR ile `clean` düşer ve "Türkçe öğrendi" yerine "İngilizce'yi unuttu" ölçülür; EN+TR karışık (co-training) gerekir.
-5. İkisi de modeli İngilizce temsiline yaslıyor, ama EN-CoT bunu **metin girişinden** istiyor — policy başı serbest düşünce üretmek için eğitilmedi, prompt'taki talimat action token/flow üretimini değiştirmiyor; step-wise shift ise **hidden-state'te**, dilin gradyan oranının yüksek olduğu adımlarda, doğrudan müdahale ediyor (her adımda yapmak π0.5'te zarar veriyor). Ders: "İngilizce'ye çevir" işi modelin *içinde* ya da *önünde* yapılmalı, prompt'la değil — çeviri katmanı girişe (MT/parser, §2–3) ya da temsile (§6) konur; §2'nin "prompt'a İngilizce tanım ekle" fikri (QSTRBench'ten) saf metin LLM'de çalışsa da VLA policy başı için kanıtsız.
 
 ---
 

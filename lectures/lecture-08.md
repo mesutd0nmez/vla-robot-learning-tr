@@ -103,94 +103,11 @@ Kural: her gün 1 saat; kurulum takılırsa o gün "hata ayıklama" günüdür, 
 
 ---
 
-## 6. Kendini sına (cevaplar aşağıda)
-
-1. VLA ile WAM'ın farkı ne? Bir model ikisi birden olabilir mi?
-2. VLANeXt'in Qwen3-VL omurgası tezin için neden OpenVLA'dan daha ilginç bir test ortamı?
-3. "Türkçe düşüşü VLANeXt'te de aynı" çıkarsa Tatar vd.'nin tokenizer hipotezi için ne söylersin?
-4. Diffusion Policy "VLA" sayılmıyor; neden? Deneyinde baseline olarak ne işe yarar?
-5. LAM fikri (etiketsiz videodan gizli action) Türkçe veri azlığı sorununa nasıl bir kapı açabilir?
-
-## 7. Bugünün görevi (20 dk)
+## 6. Bugünün görevi (20 dk)
 Hafta 1 haritasını (yukarıdaki mindmap) **kendi** düzeninle, kâğıda ya da bir araçla yeniden çiz; en az iki kutuyu kendi cümlenle yeniden adlandır. Sonra `awesome-vla-wam` README'sini aç, VLA Models bölümünden başlıkları tezinle ilgili görünen 3 makale seç, her biri için "neden ilgili" bir cümle yaz.
-
-## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
-
-**1. WAM'ı VLA'dan ayıran şey?**  _(tek seçim)_
-- [ ] A) VLM kullanmaz
-- [ ] B) Geleceğin durumunu/temsilini tahmin ederek action üretir
-- [ ] C) Yalnızca videoyla eğitilir
-- [ ] D) Dil almaz
-
-<details><summary>Cevap</summary>
-
-**B.** İkisi birden olabilir.
-
-</details>
-
-**2. VLANeXt'in omurgası?**  _(tek seçim)_
-- [ ] A) LLaMA-2 7B
-- [ ] B) PaliGemma
-- [ ] C) Qwen3-VL-2B
-- [ ] D) SigLIP+DINOv2+Vicuna
-
-<details><summary>Cevap</summary>
-
-**C.** 
-
-</details>
-
-**3. Türkçe düşüşü VLANeXt'te de OpenVLA kadarsa ne anlama gelir?**  _(tek seçim)_
-- [ ] A) Tokenizer hipotezi güçlenir
-- [ ] B) Tokenizer hipotezi zayıflar; sorun dil–action eşlemesinin yalnızca İngilizce görülmesi olabilir
-- [ ] C) Qwen Türkçe bilmiyor
-- [ ] D) Deney yanlış
-
-<details><summary>Cevap</summary>
-
-**B.** 
-
-</details>
-
-**4. awesome-vla-wam kategorileri? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) VLA
-- [ ] B) WAM
-- [ ] C) LAM
-- [ ] D) HAP
-- [ ] E) CNN
-
-<details><summary>Cevap</summary>
-
-**A, B, C, D.** 
-
-</details>
-
-**5. LAM fikri neden tez için ilginç olabilir? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) Gerçek action etiketi istemez
-- [ ] B) Türkçe konuşan insan videolarıyla ön-eğitim hayal edilebilir
-- [ ] C) LIBERO'da en yüksek skoru alır
-- [ ] D) Tokenizer sorununu doğrudan çözer
-
-<details><summary>Cevap</summary>
-
-**A, B.** 
-
-</details>
-
----
 
 ## Sonraki ders (Ders 9)
 Klavye günü: Mac'te Miniconda (arm64), Python 3.10 ortamı, `pip install mujoco`, ilk MuJoCo sahnesini render etme. Adım adım, kopyala-yapıştır komutlarla.
-
----
-
-## Cevaplar
-
-1. VLA: VLM temsilinden doğrudan action üretir. WAM: önce ortamın gelecek durumunu/temsilini tahmin eder, action'ı onunla birlikte ya da ona dayanarak üretir. Evet — VLM üstüne kurulu bir WAM (VLANeXt-JEPA / WAM) ikisi birden.
-2. Omurga Qwen3-VL: çok dilli, geniş tokenizer; Türkçe'yi LLaMA-2'den çok daha iyi parçalar. Aynı benchmark'ta iki modeli karşılaştırmak "sorun tokenizer mı" sorusunu doğrudan test eder. Ayrıca kod tabanı hazır, LIBERO ve LIBERO-Plus eval'i yerleşik, küçük varyantı (S) tek GPU'da fine-tune edilebilir.
-3. Hipotez zayıflar: tokenizer iyi olsa bile düşüş sürüyorsa sorun, dil–action eşlemesinin fine-tune verisinde yalnızca İngilizce görülmüş olmasıdır (VLM'in Türkçe bilmesi action'a aktarılmıyor). Çözüm o zaman tokenizer değil, Türkçe komutlu fine-tune ya da çeviri katmanı olur.
-4. VLM yok; yalnızca robot verisiyle sıfırdan eğitilir, çoğunlukla dil girdisi almaz. Baseline olarak: "dilsiz bir policy LIBERO'da ne kadar başarılı?" sorusunun cevabı, VLA'nın dilden ne kadar yararlandığının üst/alt sınırını verir (Ders 4'teki boş-komut tabanının model tarafındaki karşılığı).
-5. LAM gerçek action etiketi istemez; video yeter. Türkçe konuşan insanların görev videoları + Türkçe komut metinleriyle dil–gizli-action eşlemesi ön-eğitilebilir, sonra az miktarda robot verisiyle fine-tune — Türkçe etiketli robot verisi olmadan Türkçe grounding kazandırma yolu. Uzak ama tez "gelecek çalışma" bölümü için güçlü bir fikir.
 
 ---
 

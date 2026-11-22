@@ -102,95 +102,11 @@ Dikkat edilecekler: 3–6 bakış açısına bağlı; 8 iki referans (2 hop benz
 
 ---
 
-## 6. Kendini sına (cevaplar aşağıda)
-
-1. Figure 1'deki "Find Relation" sorusu kaç hop? Hangi ara ilişkiler zincirleniyor?
-2. RoomSpace neden insan etiketi yerine mantıksal çözücü kullanıyor? LIBERO'da aynı sorunu ne çözer?
-3. m = n−1 neden en zor konfigürasyon? m artınca metin uzadığı hâlde doğruluk neden artıyor?
-4. "Kâseyi tabağın sağına koy" için success predicate'ini nasıl tanımlarsın; neden tek nokta değil?
-5. Taslak komut setindeki hangi komutlar bakış açısına bağlı; bunu deneyde nasıl kontrol edersin?
-
-## 7. Bugünün görevi (15 dk)
+## 6. Bugünün görevi (15 dk)
 Yukarıdaki 10 komutu kendi kelimelerinle yeniden yaz (eş anlamlılar: *koy / yerleştir / bırak*; *üstüne / üzerine*). Her komut için iki yüzey formu olsun. Bu, Gün 20'deki parafraz koşulunun Türkçe tarafı olacak. Ayrıca 3–6 için "robota göre" versiyonlarını not et.
-
-## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
-
-**1. RoomSpace altın etiketleri neden mantıksal çözücüyle üretir?**  _(tek seçim)_
-- [ ] A) İnsan etiketi pahalıdır
-- [ ] B) Mekânsal kısıtlar birden fazla geçerli cevaba izin verir
-- [ ] C) LLM'ler etiketleyemez
-- [ ] D) Çözücü daha hızlıdır
-
-<details><summary>Cevap</summary>
-
-**B.** Tüm tutarlı cevaplar kabul edilir.
-
-</details>
-
-**2. m = n−1 konfigürasyonu neden en zor?**  _(tek seçim)_
-- [ ] A) Metin en uzun
-- [ ] B) Zincir: her kısıt zorunlu, n−1 hop
-- [ ] C) En çok nesne
-- [ ] D) Bakış açısı değişir
-
-<details><summary>Cevap</summary>
-
-**B.** m artınca kısa yollar çıkar, hop azalır.
-
-</details>
-
-**3. LIBERO'da 'tabağın sağına koy' success predicate'i nasıl olmalı?**  _(tek seçim)_
-- [ ] A) Tek bir hedef koordinat
-- [ ] B) Bölge: x eşiğin ötesinde, y sınırlı, kâse masada
-- [ ] C) Kameradan görsel kontrol
-- [ ] D) İnsan onayı
-
-<details><summary>Cevap</summary>
-
-**B.** 'Sağına' sonsuz geçerli konum içerir.
-
-</details>
-
-**4. RoomSpace'ten LIBERO'ya taşınabilecek tasarım ilkeleri? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) İlişki türlerini sistematik tarama
-- [ ] B) Bakış açısını sabitleme ve belirtme
-- [ ] C) ProcTHOR odalarını kullanma
-- [ ] D) Zorluğu parametreyle kontrol
-- [ ] E) Bölge tabanlı success
-
-<details><summary>Cevap</summary>
-
-**A, B, D, E.** ProcTHOR odaları LLM metin benchmark'ı için; LIBERO masa üstü.
-
-</details>
-
-**5. Taslak komut setinde bakış açısına bağlı olanlar? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) tabağın sağına
-- [ ] B) sepetin içine
-- [ ] C) tabağın önüne
-- [ ] D) tabağın yanına
-- [ ] E) tabağın arkasına
-
-<details><summary>Cevap</summary>
-
-**A, C, E.** 
-
-</details>
-
----
 
 ## Sonraki ders (Ders 8)
 Haftalık sentez ve VLA model aileleri haritası: awesome-vla-wam'ın kategorileri (VLA / WAM / Policy / LAM / HAP), VLANeXt ailesi (Qwen3-VL omurgası — Türkçe için neden önemli), π0, OpenVLA-OFT. Sonra Faz 2'ye geçiş: Mac'te kurulum planı.
-
----
-
-## Cevaplar
-
-1. Üç hop: fridge→counter (front-right), counter→table (front-left), table→shelving (front-right). Göreli yönlerin bileşimi tek bir cevaba indirgenmeyebilir; bu yüzden ASP çözücü tüm tutarlı cevapları üretir.
-2. Mekânsal kısıtlar genellikle birden fazla konfigürasyonla tutarlıdır; tek insan etiketi doğru alternatifleri yanlış sayar. LIBERO'da simülatör geometriyi bilir: success predicate'i bölge olarak yazarsan tüm geçerli konumlar otomatik kabul edilir — çözücüye gerek yok.
-3. m = n−1 bir zincirdir; her kısıt cevaba giden yolda zorunlu, atlanamaz (n−1 hop). m artınca cevaba daha kısa yollar (hatta doğrudan ilişki) ortaya çıkar; zorluk "hop" yerine "ilgili kısıtı bulma"ya kayar, bu LLM'ler için daha kolay.
-4. Bölge: `bowl.x > plate.x + δ` ve `|bowl.y − plate.y| < w` (kameraya göre "sağ" ekseninde; δ ve w tanımlı eşikler), ayrıca kâse masanın üstünde ve devrilmemiş. Tek nokta tanımlanamaz çünkü "sağına" sonsuz geçerli konum içerir — RoomSpace'in "tüm geçerli cevaplar" ilkesi.
-5. 3, 4, 5, 6 (sağ/sol/ön/arka). Kontrol: komut setinde frame'i belirt; iki ayrı deney kolu (kameraya göre / robota göre) koş; ya da yalnızca bakış açısından bağımsız ilişkilerle (üstüne, içine, yanına, arasına) başlayıp sonra yön ekle.
 
 ---
 

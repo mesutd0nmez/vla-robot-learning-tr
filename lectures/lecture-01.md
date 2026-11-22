@@ -141,94 +141,12 @@ Türkçe'de mekânsal ilişkiler ek sistemiyle taşınır: *tabağ-**ın** üst-
 
 ---
 
-## 8. Kendini sına (cevaplar ders sonunda)
+## 8. Bugünün görevi (15 dk)
 
-1. Observation ile state aynı şey midir?
-2. "VLA = OpenVLA" demek neden yanlış?
-3. Behavior cloning'in temel zayıflığı nedir ve neden RL bunu her zaman çözmez?
-4. Tatar vd.'deki L2 = 0.50 sonucu "Türkçe komutla robot %50 daha kötü çalışıyor" anlamına gelir mi?
-
----
-
-## 9. Bugünün görevi (15 dk)
-
-"Kendini sına" sorularını önce cevaplara bakmadan kendi cümlelerinle cevapla, sonra karşılaştır. Takıldığın ya da katılmadığın yeri chat'e yaz; yarının dersine not düşülür.
-
-## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
-
-**1. Robot learning döngüsünde 'policy' nedir?**  _(tek seçim)_
-- [ ] A) Robotun fiziksel sensörleri
-- [ ] B) Gözleme bakıp action seçen fonksiyon
-- [ ] C) Dünyayı simüle eden fizik motoru
-- [ ] D) Başarı oranını hesaplayan metrik
-
-<details><summary>Cevap</summary>
-
-**B.** Policy, observation → action eşlemesini yapan fonksiyondur; öğrenilen model burada yaşar.
-
-</details>
-
-**2. Görüntü sınıflandırmadan robot learning'i yapısal olarak ayıran şey hangisi?**  _(tek seçim)_
-- [ ] A) Daha büyük model gerekir
-- [ ] B) Çıktı dünyayı değiştirir ve bir sonraki girdiyi belirler (kapalı döngü)
-- [ ] C) Görüntü çözünürlüğü daha yüksektir
-- [ ] D) Etiket sayısı daha fazladır
-
-<details><summary>Cevap</summary>
-
-**B.** Action dünyayı değiştirir, yeni gözlem üretir; hatalar birikir (compounding error).
-
-</details>
-
-**3. Manipülasyonda imitation learning'in RL'den daha yaygın olmasının temel nedeni?**  _(tek seçim)_
-- [ ] A) RL teorik olarak çalışmaz
-- [ ] B) Gerçek robotta deneme-yanılma pahalı ve tehlikelidir
-- [ ] C) İnsan demosu toplamak imkânsızdır
-- [ ] D) RL dil girdisi alamaz
-
-<details><summary>Cevap</summary>
-
-**B.** RL binlerce deneme ister; gerçek robotta bu yavaş, pahalı ve riskli. BC insan demosundan supervised öğrenir.
-
-</details>
-
-**4. Observation içinde hangileri olabilir? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) RGB kamera görüntüsü
-- [ ] B) Eklem açıları
-- [ ] C) Dil komutu
-- [ ] D) Success rate
-
-<details><summary>Cevap</summary>
-
-**A, B, C.** Success rate bir değerlendirme metriğidir, gözlem değil.
-
-</details>
-
-**5. Tatar vd. makalesi hakkında doğru olanlar? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) OpenVLA-7B'ye aynı komutlar EN ve TR verildi
-- [ ] B) Kapalı döngü success rate ölçüldü
-- [ ] C) Tek bir sabit sentetik görüntü kullanıldı
-- [ ] D) Tokenizer 'Kaldır'ı 'Kal'+'dır' diye böldü
-
-<details><summary>Cevap</summary>
-
-**A, C, D.** Success rate ölçülmedi; action-vektör farkı (L2, cosine) ölçüldü.
-
-</details>
-
----
+Takıldığın ya da katılmadığın yeri chat'e yaz; yarının dersine not düşülür.
 
 ## Sonraki ders (Ders 2)
 OpenVLA'nın içini açacağız: SigLIP + DINOv2 görsel kodlayıcıları, projector, LLaMA-2 7B omurgası ve action'ın nasıl 256 "kutuya" bölünüp token olarak üretildiği. Tatar vd.'nin "Kal + dır" bulgusu tam bu mekanizmanın içinde yaşıyor.
-
----
-
-## Cevaplar
-
-1. Hayır. **State** dünyanın gerçek durumu (tüm nesne konumları, hızlar); **observation** robotun sensörlerinin gördüğü kısmı. Robot genellikle kısmi gözleme sahiptir (partially observable).
-2. VLA bir model ailesi/kategorisi; OpenVLA o kategorideki belirli bir modeldir. RT-2, π0, VLANeXt de VLA'dır. OpenVLA-OFT ise aynı modelin farklı bir fine-tuning tarifiyle eğitilmiş versiyonu; ikisi aynı davranmaz.
-3. Compounding error: demo verisinde hatadan toparlanma örneği yoktur, küçük sapma büyür. RL bunu deneme-yanılmayla çözebilir ama gerçek robotta deneme pahalı/tehlikeli; simülasyonda çözersen bu kez sim-to-real gap'e takılırsın.
-4. Hayır. Ölçülen şey, aynı görüntü için İngilizce ve Türkçe komutun ürettiği 7-DoF action vektörleri arasındaki fark. Görev başarısı (success rate) ölçülmemiş; vektörler farklı olup görev yine de başarılabilir ya da tersi. Ayrıca gripper boyutundaki tek bir uyumsuzluk L2'yi tek başına ~1.0'a çıkarıyor; ortalama 0.50 büyük ölçüde bu ikili boyuttan geliyor.
 
 ---
 

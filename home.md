@@ -46,7 +46,7 @@ Bilgisayar Mühendisliği yüksek lisans tezimin açık kaydı: Vision-Language-
 
 ## Nasıl çalışıyorum
 
-Her ders aynı iskelette: 35 dakikalık okuma (görsellerle), "kendini sına" açık uçlu sorular (cevapları dersin sonunda), çoktan seçmeli sorular ve 15 dakikalık bir görev. Plan ve günlük ilerleme `Plan` bölümünde; kurulum ve deney script'leri `Kod` bölümünde.
+Her ders aynı iskelette: 35 dakikalık okuma (görsellerle) ve 15 dakikalık bir görev. Plan ve günlük ilerleme `Plan` bölümünde; kurulum ve deney script'leri `Kod` bölümünde.
 
 ## Aşamalar
 

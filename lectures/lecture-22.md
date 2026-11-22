@@ -111,81 +111,9 @@ Tez metninde bu dersin yeri muhtemelen bir alt bölüm: "Türkçe komutların ik
 
 ---
 
-## 7. Kendini sına (cevaplar aşağıda)
-
-1. `tr_ascii` yüzeyi LLaMA-2'de token sayısını ortalama 4,9 düşürürken Qwen3'te 0,9 düşürüyor, A01'de ise artırıyor. İki tokenizer'ın yapısından bu farkı açıkla.
-2. "Qwen3 Türkçe'yi LLaMA-2'den iyi böler" cümlesi hangi ölçütlerde doğru, hangilerinde değil? En az üç ölçüt kullan (§2–3'teki sayılarla).
-3. *soldaki* için her iki tokenizer `sold|aki` veriyor. Bunun Tatar vd.'nin "yanlış ipucu" argümanından farkı ne, ve bu argümanı Ders 18 düzeneğinde nasıl test edersin?
-4. VLANeXt şablonunda komut `<|vision_end|>`'den hemen sonra geliyor. Bu, `datasets/04`'ün hangi bloğunu ve neden en çok etkiler; ne yapardın?
-5. Bugünkü tabloda Türkçe her yerde daha çok token alıyor; buna rağmen "token sayısı anlama değildir" dedik. OpenVLA'nın kendi İngilizce komutlarından bir örnekle bu cümleyi savun ve asıl açıklayıcı değişkenin ne olduğunu yaz.
-
-## 8. Bugünün görevi (15 dk)
+## 7. Bugünün görevi (15 dk)
 
 Mac'te, `vla` ortamında, model indirmeden: `code/day22/README.md`'deki komutları sırayla koş — `tokenizer.model`'i indirip sha256'sını kontrol et, `tokenize_set.py`'yi **iki kez** çalıştır: bir kez `--llama tokenizer.model --qwen Qwen/Qwen3-VL-2B-Instruct` (HF'den yalnızca tokenizer dosyaları iner), bir kez `--llama openvla/openvla-7b --qwen Qwen/Qwen3-VL-2B-Instruct --out /tmp/d22_hf`. Sonra `diff <(cut -d, -f1-7 datasets/05-tokenization-tr-commands/data/tokens.csv) <(cut -d, -f1-7 /tmp/d22_hf/tokens.csv)` — boşsa iki hipotez birden kapanır (Qwen3-VL tokenizer'ı = bugünkü dosya; OpenVLA'nın HF tokenizer'ı = Meta SentencePiece). Fark varsa farklı satırları `datasets/05-tokenization-tr-commands/dataset-card.md`'nin "Bilinen sınırlılıklar" bölümüne yaz ve kartı v0.2 yap. Ek 3 dakika: Ders 13'ün `show_prompt.py`'sini çalıştırıp `<|vision_end|>` ile komut arasında boşluk/`\n` olup olmadığını kesinleştir — §4'ün 2. tuzağı buna bağlı; sonucu `plan/daily-log.md`'ye bir satır not düş.
-
-## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
-
-**1. 80 Türkçe satırda LLaMA-2'nin 14 kez tek başına `▁` token'ı üretmesinin sebebi hangisi?**  _(tek seçim)_
-- [ ] A) Türkçe komutlarda çift boşluk var
-- [ ] B) `▁ç`, `▁ş`, `▁ğ`, `▁ı` gibi "boşluk + harf" parçaları vocab'da yok; `▁` ayrı kalıp harf tek başına geliyor
-- [ ] C) SentencePiece her sözcükten önce bir `▁` token'ı eklemek zorundadır
-- [ ] D) OpenVLA prompt'unun sonundaki `▁` (29871) komutun içine kopyalanıyor
-
-<details><summary>Cevap</summary>
-
-**B.** `probe_edge_cases.py` §2: `▁ç/▁ş/▁ğ/▁ı` için id yok (`▁ö`, `▁ü`, `▁â` var). Dummy prefix (C) normalde sözcüğün ilk parçasına yapışır (`▁sold`); yapışacak birleşme yoksa tek kalır. 14 vakanın dağılımı: `▁|ş` 6, `▁|ön` 5, `▁|ç` 3.
-
-</details>
-
-**2. Qwen3 için doğru olan hangisi?**  _(tek seçim)_
-- [ ] A) Türkçe komutu her zaman sözcük başına tek token'a böler
-- [ ] B) Aynı sözcük cümle başında (boşluksuz) ve ortasında (boşluklu) farklı parçalanabilir; setteki 31 Türkçe sözcük böyle
-- [ ] C) Bilinmeyen Türkçe karakterleri `<unk>` yapar
-- [ ] D) `-ki` ekini her zaman ayrı bir token olarak verir
-
-<details><summary>Cevap</summary>
-
-**B.** Regex ön-bölme boşluğu sözcüğe yapıştırır (`' ?harfler'`); `▁arasındaki` tek token, `arasındaki` (başta) `aras|ındaki`. A yanlış (fertility 2,36), C yanlış (byte-level BPE'de bilinmeyen yoktur), D yanlış (`-ki` beş biçimde).
-
-</details>
-
-**3. OpenVLA'nın action bin'leri LLaMA-2 vocab'ının son 256 id'sindedir. Bugünkü kontrolün sonucu?**  _(tek seçim)_
-- [ ] A) Türkçe komutların %10'u o aralığa düşüyor; bu, Türkçe düşüşünün ana nedeni
-- [ ] B) Yalnızca `ğ` ve `ı` o aralıkta
-- [ ] C) 100 komutta hiçbir token o aralığa düşmüyor; aralık nadir CJK karakterleri ve benzeri parçalardan oluşuyor
-- [ ] D) Kontrol yapılamadı çünkü HF erişimi yoktu
-
-<details><summary>Cevap</summary>
-
-**C.** `action_collision.csv` boş; `ğ`=30200, `ı`=30130 aralığın (31744–31999) altında. Korece/Japonca/Çince denemelerinde de sıfır. HF gerekmedi: Meta `tokenizer.model` sha256 ile doğrulandı.
-
-</details>
-
-**4. İlişki eki hakkında bugün ölçülenlerden doğru olanlar? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) `-ki` LLaMA-2'de 3, Qwen3'te 5 farklı token biçiminde görünüyor
-- [ ] B) *üstüne*'nin yönelme eki iki tokenizer'da da ayrı parça (`…|ne`) ve sınırlar birebir
-- [ ] C) *soldaki* iki tokenizer'da da `sold|aki`; *sol* kendi başına parça değil
-- [ ] D) LLaMA-2 biçimbirim sınırlarını Qwen3'ten daha yüksek precision ile buluyor
-- [ ] E) *sağına* ile *soluna* ortak ek taşıdığı için ortak bir ek token'ı paylaşıyor
-
-<details><summary>Cevap</summary>
-
-**A, B, C.** D ters: LLaMA-2 recall 0,78 ama precision 0,29 (296 kesim); Qwen3 0,70 / 0,41. E yanlış: `▁sa|ğ|ı|na` vs `▁sol|una` — paylaşılan parça yok.
-
-</details>
-
-**5. Bu dersin sayılarından Ders 18 / tez için çıkan doğru sonuçlar hangileri? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) `tokens.csv`'deki `n_tokens` / `fertility` sütunları success rate analizinde komut başına ortak değişken olarak kullanılabilir
-- [ ] B) `tr_ascii` yüzeyinin OpenVLA'da rahatlatıcı, VLANeXt'te bozucu olması beklenir (hipotez)
-- [ ] C) Token sayısı Türkçe'de yüksek olduğu için Türkçe komutların başarısız olacağı kanıtlanmıştır
-- [ ] D) Qwen3'ün daha iyi tokenizasyonu, VLANeXt policy başının Türkçe komut vektörünü İngilizce karşılığına yakın görmesini garanti eder
-- [ ] E) Büyük harfle başlayan Türkçe komutlar OpenVLA'da `lower()` yüzünden bayt kırıntısı üretir; set küçük harf olduğu için etkilenmedi
-
-<details><summary>Cevap</summary>
-
-**A, B, E.** C ve D §5'in "söylemedikleri": token sayısı anlama değildir (OpenVLA'nın *bowl*'u da iki parça), tokenizasyon temsil yakınlığını garanti etmez (policy başı yalnızca İngilizce gördü).
-
-</details>
 
 ## Takılırsan
 
@@ -203,16 +131,6 @@ Mac'te, `vla` ortamında, model indirmeden: `code/day22/README.md`'deki komutlar
 
 ## Sonraki ders (Ders 23)
 **Cohn makaleleri, abstract düzeyinde: 2401.03991 (AAAI-24), 2405.15064 (IJCAI-24), 2406.16528 (COSIT-24), 2410.03492, 2507.12059 (QR-25), 2511.02627 (TMLR), 2605.18380.** Danışmanın Hallac'a gönderdiği yedi makale; her biri için iki cümle — ne soruyor, bizim LIBERO/Türkçe eksenine hangi ilişki türü ya da değerlendirme fikriyle dokunuyor. Bugünkü dersin bir ucu oraya uzanıyor: Cohn'un LLM'lerde niteliksel mekânsal akıl yürütme çalışmaları "dil ≠ dünya" tezinin metin tarafı; bizim bugün gördüğümüz şey ise dilin daha modele ulaşmadan, token tarafında nasıl inceldiği.
-
----
-
-## Cevaplar
-
-1. LLaMA-2'nin 32 binlik, İngilizce ağırlıklı vocab'ında Türkçe harfler var ama onlarla kurulmuş birleşmeler yok: *ç ğ ı ş* tek karakterlik parça olarak kalıyor, üstelik `▁ç/▁ş` yoksa önlerine boş `▁` düşüyor. ASCII'leştirince (*c g i s*) sözcükler İngilizce/Latince birleşmelerden yararlanıyor (*tabagin* → `▁tab|agin`, *üst* `▁ü|st` → *ust* `▁u|st`… hatta *ustune* `▁u|st|une`), ortalama 4,9 token kazanç. Qwen3'ün 151 binlik, 119 dilli vocab'ında Türkçe harfler birleşmelerin **içinde** (`▁üst`, `ağ`, `ın`, `▁arasındaki`); ASCII'leştirmek bu birleşmeleri bozuyor — A01'de *arasındaki* 1 token iken *arasindaki* `▁aras|ind|aki` 3 token. Dolayısıyla aynı yüzey biri için rahatlama, öteki için bozulma.
-2. Doğru olduğu ölçütler: toplam token (`tr_a` 16,9 vs 22,4), fertility (2,36 vs 3,09), TR/EN şişme (1,41 vs 1,63), tek başına `▁` (0 vs 14), tam-sözcük token'lar (*arasındaki, yakın, önüne, kaldır*), sınır precision (0,41 vs 0,29). Doğru olmadığı ölçütler: ilişki ekinin kararlılığı (`-ki` 5 biçim, LLaMA'da 3), sınır recall (0,70 < 0,78), *soldaki* → `sold|aki` ve *sağdaki* → `sa|ğ|d|aki` aynı, *kâse* aynı, ve LLaMA'da olmayan bir tuzak: cümle başı/ortası farkı (31 sözcük). "Daha az parçalar" doğru, "ek sınırını bulur" yanlış.
-3. Tatar'ın argümanı "kök anlamsız yerden kırılıyor ve ortaya çıkan parça (`Kal`) başka bir Türkçe anlam taşıyor" idi; gerçek tokenizer `Kal` üretmiyor. *soldaki* → `▁sold` ise farklı türden bir sorun: parça Türkçe değil **İngilizce** anlamlı (*sold*), yani modelin ön eğitiminde güçlü, ama Türkçe komutla alakasız bir temsil taşıyor; sol bilgisi kayboluyor. Test: Ders 18 düzeneğinde B07/B08 (soldaki/sağdaki) ile D19/D20 (sağına/soluna) çiftlerini aynı sahnede koş; *soldaki* "sol"u kaybediyorsa `empty`'den ayırt edilemez, *sağdaki* (`sa|ğ|d|aki`) de öyle; ikisinden biri ayrışıyorsa fark parçalanmadan değil başka yerden. Ek olarak `tr_b` (*sol taraftaki*: `▁sol|▁tar|aft|aki`) `sol`u ayrı token yapıyor — `tr_a` vs `tr_b` farkı bu çiftte doğrudan "sold etkisi"ni ölçer.
-4. **B bloğunu** (B07–B09: *soldaki / sağdaki / öndeki siyah kaseyi…*): ilişki sözcüğü komutun ilk sözcüğü ve şablonda boşluksuz geliyorsa Qwen onu cümle-başı biçimiyle böler (*öndeki* → `ö|nd|eki`; *arasındaki* gibi tam-sözcük token'lar başta kaybolur). A bloğunda ilişki sözcüğü ortada (*ramekinin **yanındaki***), etkilenmez. Yapılacak: `show_prompt.py` ile gerçek şablonu kesinleştir; boşluk yoksa B bloğunun komutlarını hem olduğu gibi hem başına bir boşlukla koş ve `tokens.csv`'ye `initial` sütunu ekle; farkı tez metninde "şablon etkisi" diye ayrı raporla.
-5. *pick up the black **bowl*** OpenVLA'da `▁bow|l`, *drawer* `▁dra|wer`, *stove* `▁st|ove` — LIBERO-Spatial'ın on komutunun onunda *bowl* geçiyor, yani OpenVLA'nın her Spatial komutu kırık bir sözcük içeriyor ve model yine %97'ye çıkıyor, çünkü bu parça dizilerini 50 demo × 10 görevde binlerce kez gördü. Asıl değişken parçanın uzunluğu değil, **parça dizisinin eğitim dağılımında olup olmadığı**: LLaMA-2 ön eğitiminde Türkçe %0,005'in altında, LIBERO fine-tune'unda sıfır; VLANeXt'te omurga Türkçe görmüş ama policy başı yalnızca İngilizce komut–eylem çiftleri görmüş. Token tablosu bize girdinin biçimini verir; etkisini ancak success rate (Ders 18) ve temsil mesafesi (Ders 15) söyler.
 
 ---
 

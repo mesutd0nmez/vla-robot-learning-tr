@@ -124,81 +124,9 @@ Liste canlı bir dosya olarak `plan/faz3-open-questions.md`'de; `Durum` sütunu 
 
 ---
 
-## 8. Kendini sına (cevaplar aşağıda)
-
-1. Faz 3'ün 21 ölçümü üç kutuya ayrıldı (gerçek / sende / hipotez). "Gerçek" için bugün kullanılan ölçüt neydi ve bu ölçüt neden "script'i yazdım ve py_compile geçti"den daha güçlü?
-2. Görsel 03(a)'da Goal'da bütün modeller 9–11 bandında, Spatial'da 34–83 arasında dağılıyor. Bu iki gözlemi tek bir yapısal nedenle açıkla ve Türkçe deneyinin suite seçimine nasıl yansıdığını söyle.
-3. LangGap'in "Spatial Description" hücresi (π0.5 %11, 5 görev) ile `datasets/04`'ün B bloğu arasındaki ilişki ne? LangGap'te eksik olan ve bizim tasarımımızda bulunan iki koşul hangileri?
-4. S1 (Ders 18 tablosu) neden listenin "kritik yolunda"? Açılmadan yazılabilen ve yazılamayan şeyleri ayır.
-5. Ders 24'ün beşli çözüm tablosundan Faz 4'e hangi ikili ayrım taşınıyor ve S10 danışmana neden ayrı bir soru olarak gidiyor?
-
-## 9. Bugünün görevi (15 dk)
+## 8. Bugünün görevi (15 dk)
 
 Mac'te `vla` env'inde `cd code/day25 && python phase3_smoke.py --libero <LIBERO klonun> --plus <LIBERO-plus klonun> --llama ../day22/tokenizer.model --qwen <tokenizer.json>` (klonlar yoksa parametresiz koş; o zaman yalnızca "bağımlılık yok" satırları çalışır). `results/smoke.md`'deki OK sayısını, varsa HATA satırlarını ve `tokens.csv == datasets/05?` satırının sonucunu `plan/faz3-open-questions.md`'nin altındaki "Ders 25 görevi" bloğuna yapıştır. Sonra aynı dosyanın S1–S10 tablosunda `Durum` sütununu kendi bildiğinle doldur (yapıldı / tarih / bekliyor / danışmana soruldu) ve üçünü **öncelik 1** diye işaretle — hangisi önce kapanırsa Ders 26'nın RQ sıralaması netleşir. Commit.
-
-## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
-
-**1. `phase3_smoke.py` bu oturumda ne buldu?**  _(tek seçim)_
-- [ ] A) 30 script'in hepsi model olmadan koştu
-- [ ] B) 28 OK / 0 HATA / 2 atlandı; atlananlar Webots ikilisi ve HF'ten MT modeli isteyen iki script
-- [ ] C) Ders 22'nin tokenizasyon sayıları yeniden üretilemedi
-- [ ] D) LIBERO klonu olmadan Ders 19 script'leri de koştu
-
-<details><summary>Cevap</summary>
-
-**B.** Dış girdiler: LIBERO + LIBERO-plus klonu, Meta `tokenizer.model`, npm Qwen3 `tokenizer.json`, `bddl==1.0.1` + `future`. C yanlış: `tokens.csv` ilk 7 sütun 201/201 birebir. D yanlış: `suite_structure.py` / `init_state_geometry.py` `--libero` ister.
-
-</details>
-
-**2. Komutsuz üst sınır (BDDL) dört suite için?**  _(tek seçim)_
-- [ ] A) Spatial 9/10, Object 10/10, Goal 1/10, Long 9/10
-- [ ] B) Hepsinde 10/10
-- [ ] C) Spatial 1/10, Goal 9/10
-- [ ] D) Üst sınır modele göre değişir
-
-<details><summary>Cevap</summary>
-
-**A.** Üst sınır modelden bağımsız, benchmark'ın yapısal özelliğidir (D yanlış); modele göre değişen şey *kullanımı* (OFT Spatial'da 80–83, Qwen3-VL+OFT 34).
-
-</details>
-
-**3. LangGap (2603.00592) hakkında doğru olan?**  _(tek seçim)_
-- [ ] A) Türkçe dahil 9 dilde LIBERO ölçtü
-- [ ] B) Aynı sahnede komutun bir bileşenini değiştirdi; π0.5 orijinalde 93,8, genişletilmişte 21,4; mekânsal tarif değişince 11,0
-- [ ] C) Boş komut ve yanlış komut tabanlarını raporladı
-- [ ] D) Veriyle onarma 56 görevde %90'a çıktı
-
-<details><summary>Cevap</summary>
-
-**B.** Yalnızca İngilizce (A yanlış), `empty`/`wrong` koşulu yok (C yanlış), %90 yalnız tek görevli eğitimde; 56 görevde 27,5 (D yanlış).
-
-</details>
-
-**4. Faz 3'te "gerçek" kutusuna girenler? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) LIBERO-Plus görev 0'ın 50 yeniden yazımının R0/R1/R2 sınıflaması
-- [ ] B) Dört koşul × 10 init state success tablosu
-- [ ] C) 100 komut × 2 tokenizer sayıları
-- [ ] D) QLoRA'nın T4'te 7,7 GB tutması
-- [ ] E) Parser set içi 79/80, held-out 5/12
-
-<details><summary>Cevap</summary>
-
-**A, C, E.** B senin T4 koşunda (sarı), D hesap/tahmin (kırmızı).
-
-</details>
-
-**5. Açık sorulardan danışmana gidenler? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) Suite ağırlığı: Spatial mi Goal mi
-- [ ] B) Qwen3-VL tokenizer kimliği
-- [ ] C) Türkçe LoRA bütçesinin kabul edilebilirliği
-- [ ] D) Katkı ölçütü: zayıf mı güçlü okuma mı
-- [ ] E) MT round-trip eşleşme oranı
-
-<details><summary>Cevap</summary>
-
-**A, C, D** (ve S8 Webots). B ve E senin Mac'te koşacağın ölçümler; danışman kararı değil.
-
-</details>
 
 ## Takılırsan
 
@@ -215,16 +143,6 @@ Mac'te `vla` env'inde `cd code/day25 && python phase3_smoke.py --libero <LIBERO 
 
 ## Sonraki ders (Ders 26)
 **Faz 4 başlıyor: üç aday araştırma sorusu.** Bugünkü üç tohum (RQ-a fark var mı / RQ-b nerede kırılıyor / RQ-c nasıl kapanır) birer *sınanabilir* soruya çevrilir: her biri için null hipotez, bağımsız/bağımlı değişken, ölçüt (success rate + `empty` tabanı + Wilson/PI), hangi suite ve hangi blok (`datasets/04` A/B/C/D), hangi sistemler (OpenVLA-Spatial LoRA, VLANeXt-B) ve "cevap evet/hayır çıkarsa tez ne der" cümlesi. Ders 24'ün zayıf/güçlü okuma ayrımı RQ-c'nin ölçütüne, Ders 19'un suite kuralı RQ-b'nin kapsamına girer; LangGap'in 1/k argümanı ve Chen'in "sistem farkı" uyarısı RQ-a'nın sınırlarını çizer. Mesut'un S1 tablosu repoya girdiyse Ders 26 RQ'ları o örüntüye göre *sıralar*; girmediyse üçünü koşullu bırakır. Çıktı: `thesis/rq-candidates.md` taslağı (3 RQ × 6 alan).
-
----
-
-## Cevaplar
-
-1. Ölçüt: **bu oturumda, sıfırdan kurulan ortamda script'i koşturup aynı sayıyı almak** (`phase3_smoke.py`; Ders 22 için ayrıca `tokens.csv` ilk 7 sütun 201/201 birebir). `py_compile` yalnızca sözdizimini doğrular — dosya yolları, bağımlılıklar, veri formatı ve sayının kendisi hakkında hiçbir şey söylemez; kuru koşu bunların dördünü birden test eder ve dış girdi listesini (iki klon, iki tokenizer dosyası, bddl + future) üretir. Yeniden üretilemeyen sayı "benim makinemde çalışıyor" sayısıdır.
-2. Neden: komutsuz üst sınır. Goal'da 10 görev tek sahneyi paylaşır → komut okunmadan en çok 1/10, herkes oraya yapışır (9–11). Spatial'da 10 görevin 9'u sahneden ayrışır → tavan 9/10, ama modeller bu shortcut'ı farklı ölçüde *kullanır* (OFT 80–83, π0.5 65–68, Qwen3-VL+OFT 34); dağılım tavanın değil kullanımın dağılımıdır. Yansıma: Spatial'da `tr` düşüşü `empty`'ye göre okunmalı ve tavana yakın modelde (OFT) "Türkçe okunmadı" ile "okunmasa da olurdu" ayrılamaz; Goal bu belirsizlikten arınmış — Ders 19 kuralı: örüntü B/D ise Spatial 50'lik, A/C ise önce Goal (S7 danışmana).
-3. İkisi de **aynı sahnede, eğitimde olmayan mekânsal tarif**: LangGap bunu İngilizce 5 görevle yaptı (π0.5 %11), B bloğu Türkçe 6 çiftle (*soldaki, robota daha yakın olan*; EN karşılıkları da LIBERO'nun 130 görev adında yok). LangGap'te eksik, bizde olan: **boş komut tabanı** (`empty`) ve **yanlış/karşı-olgusal komut** (`wrong`, `bddl_cf/`) — onlar yalnızca 1/k argümanıyla yetiniyor; biz tabanı ölçüyoruz. (Ek: onlarda çok dilli satır yok.)
-4. Ders 24'ün karar ağacı Ders 18'in örüntüsüne bağlı: B (tr ≈ empty) → omurgayı değiştir / MT-parser hemen işe yarar; C (wrong biased) → çeviri katmanı tehlikeli; D (dil okunuyor) → Qwen3-VL yolu açık; A → Spatial'da ölçülemez, Goal'a geç. Açılmadan **yazılabilen:** üç RQ'nun metni, deney matrisi, ablation planı, veri kartları, istatistik protokolü. **Yazılamayan:** RQ'ların önceliği, hangi suite'in ana deney olacağı, çözüm tarafında hangi dalın tez katkısı olacağı — yani Ders 27–29'un seçimleri.
-5. **Zayıf okuma** (Türkçe komutla doğru iş; çıktı ölçütü; MT/parser/hidden-state buraya kadar gider) vs **güçlü okuma** (Türkçe'nin mekân kodlaması içeride görüntüye bağlanır; ölçütü B bloğu + karşı-olgusal BDDL'de `empty` üstü). Faz 4'e taşınan şey RQ-c'nin ölçütü ve tezin "katkı" cümlesinin hangisinde yazılacağı. S10 ayrı soru çünkü bu bir *ölçüm* değil *kabul kriteri* kararıdır: zayıf okuma yeterse tez 1–2 ayda eval-only biter (parser + iki sistem), güçlü okuma şartsa Türkçe co-training (S9 bütçesi) ve B bloğu zorunlu olur — kapsamı danışman belirler.
 
 ---
 

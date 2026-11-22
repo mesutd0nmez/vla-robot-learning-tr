@@ -102,94 +102,11 @@ Tez metninde bu makale şöyle konumlanır: "Tatar vd. (2026), OpenVLA-7B'nin T�
 
 ---
 
-## 6. Kendini sına (cevaplar aşağıda)
-
-1. L2 = 0.50 ortalaması neden "her boyutta %50 sapma" anlamına gelmez?
-2. Kosinüs benzerliğinin −0.33'e düşmesi L2'den farklı olarak ne söyler?
-3. Makalede olmayan hangi tek kontrol koşulu, 0.50'lik L2'nin ne kadarının gerçekten "dil" etkisi olduğunu gösterirdi?
-4. "Komut karmaşıklığı hatayı etkilemiyor" bulgusu tokenizer hipotezini nasıl destekler?
-5. Aynı deneyi VLANeXt ile yapsan ve L2 çok daha düşük çıksa, bu hangi hipotezi destekler, hangisini desteklemez?
-
-## 7. Bugünün görevi (15 dk)
+## 6. Bugünün görevi (15 dk)
 Makalenin 50 komutundan en az 5'ini (örnekler metinde: "Kırmızı küpü kaldır", "Bardağı tabağa koy", "En yakın nesneyi al ve ortaya yerleştir") LIBERO-Spatial görevlerine benzer biçimde yeniden yaz: her biri için EN ve TR versiyonu, ve TR'de hangi *ekin* mekânsal ilişkiyi taşıdığını işaretle (ör. tabağ-**a**, tabağ-**ın üstü-ne**).
-
-## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
-
-**1. Tatar vd. deneyinde 'environment' neydi?**  _(tek seçim)_
-- [ ] A) LIBERO simülasyonu
-- [ ] B) Gerçek WidowX robotu
-- [ ] C) Tek bir sabit sentetik görüntü
-- [ ] D) BridgeData V2 videoları
-
-<details><summary>Cevap</summary>
-
-**C.** Robot ve env.step yok; yalnızca inference.
-
-</details>
-
-**2. L2 > 0.99 olan 14 görevin ortak noktası?**  _(tek seçim)_
-- [ ] A) Hepsi uzun komut
-- [ ] B) Hepsinde gripper boyutu farklı
-- [ ] C) Hepsi itme kategorisi
-- [ ] D) Hepsi makine çevirisi
-
-<details><summary>Cevap</summary>
-
-**B.** Gripper 0/1 olduğu için tek uyumsuzluk L2'yi 1.0'a taşır.
-
-</details>
-
-**3. Makalede olmayan ve 0.50'lik L2'nin ne kadarının gürültü olduğunu gösterecek kontrol?**  _(tek seçim)_
-- [ ] A) Daha fazla Türkçe komut
-- [ ] B) EN–EN tekrar kontrolü (aynı komut iki kez)
-- [ ] C) Daha yüksek sıcaklık
-- [ ] D) Daha büyük görüntü
-
-<details><summary>Cevap</summary>
-
-**B.** Sıcaklık 0.3 ile örnekleme gürültüsü var; EN–EN farkı taban çizgisidir.
-
-</details>
-
-**4. Makalenin güçlü yönleri? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) Türkçe+VLA sorusunu ilk soran
-- [ ] B) Tokenizer teşhisi
-- [ ] C) Kapalı döngü success ölçümü
-- [ ] D) Etki büyüklüğü ve parametrik olmayan test
-
-<details><summary>Cevap</summary>
-
-**A, B, D.** Success ölçülmedi.
-
-</details>
-
-**5. Tezin bu makaleden ayrıştığı noktalar? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) Success rate ölçmek
-- [ ] B) Boş-komut tabanı
-- [ ] C) Tek görüntü yerine LIBERO sahneleri
-- [ ] D) OpenVLA ve VLANeXt'i karşılaştırmak
-- [ ] E) Türkçe yerine Almanca
-
-<details><summary>Cevap</summary>
-
-**A, B, C, D.** 
-
-</details>
-
----
 
 ## Sonraki ders (Ders 6)
 Mekânsal akıl yürütmenin temelleri: niteliksel mekânsal ilişkiler (yön, mesafe, topoloji; CDC, RCC-8, 1-cross), StepGame, ve Cohn'un "dil dünyanın sıkıştırmasıdır" cümlesinin anlamı. Li'nin tezi Bölüm 1–2.
-
----
-
-## Cevaplar
-
-1. L2 tüm boyutların kare farklarının toplamının kökü; gripper 0/1 olduğu için tek bir gripper uyumsuzluğu tek başına 1.0 üretir. Ortalama 0.50, yaklaşık görevlerin yarısında gripper'ın ters olduğu, diğerlerinde farkın küçük olduğu bir dağılımla tutarlı — eşit yayılmış bir sapmayla değil.
-2. L2 büyüklük farkını, kosinüs yön farkını ölçer. Negatif kosinüs vektörün *ters yöne* döndüğünü gösterir: robot sağa gidecekken sola gidiyor. Yüksek L2 + yüksek kosinüs "ölçek" sorunu olurdu; yüksek L2 + düşük/negatif kosinüs "yön" sorunu. Makale ikincisini buluyor.
-3. EN–EN tekrar kontrolü: aynı İngilizce komutu iki kez (sıcaklık 0.3) verip L2'ye bakmak. Bu, örnekleme gürültüsünün tabanını verir; EN–TR L2'si bu tabandan ne kadar yüksekse dil etkisi odur. (İkinci aday: boş komut.)
-4. Hata cümle uzunluğuyla değil, tek tek kelimelerin parçalanmasıyla belirleniyorsa, kısa komut da uzun komut kadar bozulur — tam gözlenen şey. Anlamsal bir "Türkçe bilmeme" sorunu olsaydı daha uzun/karmaşık komutların daha çok bozulması beklenirdi.
-5. Tokenizer hipotezini destekler (Qwen Türkçe'yi daha iyi parçalar). Ama tek başına "VLANeXt Türkçe'yi anlıyor" demez: fark backbone'un genel çok dilli yeteneğinden de gelebilir; ayırt etmek için tokenizer analizini (Gün 21) ve boş-komut tabanını birlikte raporlamak gerekir.
 
 ---
 

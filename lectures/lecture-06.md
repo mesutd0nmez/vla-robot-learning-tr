@@ -93,94 +93,11 @@ Son satır önemli: LIBERO'da "tabağın sağına koydu mu" sorusunun cevabı si
 
 ---
 
-## 6. Kendini sına (cevaplar aşağıda)
-
-1. "Bardağı tabağın üstüne koy" ve "elmayı kâsenin içine koy" komutları RCC-8'de hangi ilişkilere karşılık gelir? Türkçe'de hangi ek bunu ayırt eder?
-2. Projection-based ve cone-based CDC aynı nokta çifti için neden farklı sonuç verebilir? Benchmark için bu neden sorun?
-3. "Sağ" neden ikili değil üçlü bir ilişkidir? LIBERO'da hangi bakış açısı belirsizliği doğar?
-4. Li'nin StepGame'de LLM + ASP ile ~%100 alması, VLA için ne öneriyor?
-5. Slayttaki cümleye göre VLA'nın saf LLM'den avantajı ve dezavantajı ne?
-
-## 7. Bugünün görevi (15 dk)
+## 6. Bugünün görevi (15 dk)
 Aşağıdaki Türkçe ekleri bir tabloya koy ve her birini CDC / RCC-8 / 1-cross / mesafe eksenlerinden birine yerleştir: *-ın üstüne, -ın içine, -ın yanına, -ın sağına, -ın soluna, -ın önüne, -ın arkasına, -ın arasına, -a doğru, -dan uzağa*. Hangileri bakış açısına bağlı? (Yarın bu tablodan komut üreteceğiz.)
-
-## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
-
-**1. 'Bardağı tabağın üstüne koy' RCC-8'de hangi ilişki?**  _(tek seçim)_
-- [ ] A) DC (ayrık)
-- [ ] B) EC (dıştan temas)
-- [ ] C) NTPP (iç parça)
-- [ ] D) EQ
-
-<details><summary>Cevap</summary>
-
-**B.** Temas var, içerme yok.
-
-</details>
-
-**2. 'Sağ/sol' neden üçlü ilişkidir?**  _(tek seçim)_
-- [ ] A) Üç nesne gerekir
-- [ ] B) Gözlemci (bakış yönü), referans ve hedef gerekir
-- [ ] C) Üç boyutludur
-- [ ] D) Üç kalkülüs kullanılır
-
-<details><summary>Cevap</summary>
-
-**B.** 1-cross: A'ya göre C'nin B ile ilişkisi.
-
-</details>
-
-**3. Li'nin StepGame'de ~%100'e ulaşma yöntemi?**  _(tek seçim)_
-- [ ] A) Daha büyük LLM
-- [ ] B) LLM'i parser olarak kullanıp çıkarımı ASP çözücüye bırakmak
-- [ ] C) Daha çok fine-tune
-- [ ] D) Görüntü eklemek
-
-<details><summary>Cevap</summary>
-
-**B.** Neuro-symbolic: dil → mantık → deterministik çözüm.
-
-</details>
-
-**4. Bakış açısına bağlı Türkçe ekler? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) -ın sağına
-- [ ] B) -ın üstüne
-- [ ] C) -ın önüne
-- [ ] D) -ın içine
-- [ ] E) -ın arkasına
-
-<details><summary>Cevap</summary>
-
-**A, C, E.** Üstüne/içine topolojik, gözlemciden bağımsız.
-
-</details>
-
-**5. Projection-based ve cone-based CDC hakkında doğrular? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) Aynı nokta çifti için farklı sonuç verebilirler
-- [ ] B) Her ikisi de 9/8 yön bölgesi tanımlar
-- [ ] C) Cone-based açıya (atan2) dayanır
-- [ ] D) Her benchmark otomatik olarak cone-based kullanır
-
-<details><summary>Cevap</summary>
-
-**A, B, C.** Benchmark hangisini kullandığını belirtmek zorundadır.
-
-</details>
-
----
 
 ## Sonraki ders (Ders 7)
 RoomSpace benchmark'ının tasarımı (ProcTHOR odalar, CSP tabanlı hikâye üretimi, bakış açısı, mantıksal altın etiket) ve bu tasarımın LIBERO'ya nasıl taşınacağı: Türkçe mekânsal komut seti için ilk 10 aday.
-
----
-
-## Cevaplar
-
-1. "Üstüne" → EC (dıştan temas: bardak tabağa değiyor, içinde değil). "İçine" → NTPP (elma kâsenin iç parçası). Türkçe'de *üst-* ve *iç-* gövdeleri + *-ne* yönelme eki; ayırt eden şey gövde, ama her ikisi de aynı yapısal kalıpta (-ın X-i-ne) olduğu için tokenizer'ın bu farkı koruması gerekir.
-2. Projection: kutu sınırlarına göre; cone: açıya göre. Sınıra yakın bir nokta (ör. Δx küçük, Δz büyük) projection'da N, cone'da NE olabilir. Benchmark hangi tanımı kullandığını söylemezse "doğru cevap" belirsizleşir; StepGame'in şablon hatalarının bir kaynağı bu.
-3. Sağ/sol bir gözlemci (bakış yönü) gerektirir: A'ya göre B'nin C ile ilişkisi. LIBERO'da gözlemci kamera mı (masanın karşısından), robot mu (kameranın karşısından), yoksa komutu veren hayali insan mı? Komut setinde bunu sabitlemek ve belirtmek gerekir.
-4. Dilden yapısal gösterime çeviri + deterministik çözüm, uçtan uca LLM'den daha güvenilir olabilir. VLA için: Türkçe komutu önce (nesne, ilişki, referans) üçlüsüne çevirip bunu İngilizce standart komuta ya da doğrudan hedef koordinata dönüştürmek — Gün 23'teki "çeviri/yapısal ara katman" seçeneği.
-5. Avantaj: VLA dünyayı (görüntüyü) görür, saf LLM görmez; sıkıştırmayı açacak bağlam elinde. Dezavantaj: dil ile görüntü arasında kısayol bulursa (Ders 4) dili hiç açmaz; ve dil Türkçe ise sıkıştırma zaten bozuk gelir.
 
 ---
 

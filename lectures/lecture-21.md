@@ -168,81 +168,9 @@ Soruyu doğru koyalım. İki seçenek "Webots mu LIBERO mu" değil; **"tezin ana
 
 ---
 
-## 8. Kendini sına (cevaplar aşağıda)
-
-1. "LIBERO MuJoCo'da çalışır" cümlesindeki iki rolü (Ders 3) Webots'a uygula: Webots hangisinin yerine geçebilir, hangisinin geçemez ve neden?
-2. conda `vla` ortamındaki Python'un Webots controller'ı olabilmesi için gereken en az iki şey nedir, ve bu neden R2023a'dan önce bu kadar kolay değildi?
-3. `ders21_masa.wbt`'de UR10e tabanını z ekseninde +90° yerine −90° döndürmemin sebebi ne; bu hatayı Webots'u açmadan nasıl yakaladım?
-4. LIBERO'da eğitilmiş bir VLANeXt'i doğrudan Webots sahnesinde Türkçe komutla koşturup success rate ölçersen bu ölçüm neden yorumlanamaz? Ders 17–19'dan en az iki gerekçe ver.
-5. Webots'un tezde "ikinci ortam" olarak anlamlı olduğu iki koşulu yaz ve her biri için Webots'ta **ilk** yapılacak işin ne olduğunu söyle.
-
-## 9. Bugünün görevi (15 dk)
+## 8. Bugünün görevi (15 dk)
 
 Webots'u kur ve gerçek render'ı sen üret: §3'teki dört komutu çalıştır (`check_webots_env.py` → `import controller : OK`), Webots'ta `code/day21/worlds/ders21_masa.wbt`'yi aç (ilk açılışta varlıkların inmesini bekle), ▶ ile oynat, ikinci terminalde `ders21_kol.py --out out` çalıştır (launcher hata verirse PYTHONPATH yolu). `out/view_01_bowl.jpg`, `out/wrist_01_bowl.png`, `joints.csv`'deki `max_err_rad` sütunu ve `pairs.csv`'nin ilk 5 satırını `projects/06-webots-ilk-sahne/README.md`'ye koy (şablon `projects/_template`); README'nin başına üç cümle: Webots sürümün, launcher çalıştı mı (evet / hayır → hangi hata), ilk açılış kaç saniye sürdü. Ekstra 5 dakikan varsa: world'e tabanı sabit bir `Robot { translation 0 1.2 1.3 children [ Camera { name "agentview" width 256 height 256 } ] controller "<none>" }` ekleyip robotun karşısından gerçek bir agentview karesi al ve LIBERO'nun `…-task-1.png` karenle yan yana koy — Ders 22'de ikisini aynı komutla etiketleyeceğiz.
-
-## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
-
-**1. Webots, Ders 3'teki üç katmanlı yığında (benchmark / robot sarmalayıcı / fizik) hangilerinin yerine geçebilir?**  _(tek seçim)_
-- [ ] A) Yalnızca fizik katmanının (MuJoCo)
-- [ ] B) Fizik + robot sarmalayıcı katmanlarının (MuJoCo + robosuite); benchmark katmanını vermez
-- [ ] C) Üçünün de; robotbenchmark.net LIBERO'nun karşılığıdır
-- [ ] D) Hiçbirinin; Webots yalnızca bir 3B görüntüleyicidir
-
-<details><summary>Cevap</summary>
-
-**B.** Webots fizik (ODE forku), render (WREN), robot modelleri (PROTO), kamera ve controller çalıştırma işlerini üstlenir; görev tanımı, init state'ler, success predicate'leri, demolar ve liderlik tablosu — LIBERO'nun katmanı — yoktur, Supervisor ile kendin yazarsın. robotbenchmark.net klasik programlama görevleridir, VLA benchmark'ı değil.
-
-</details>
-
-**2. Webots R2025a'nın Python controller API'si hakkında doğru olan hangisi?**  _(tek seçim)_
-- [ ] A) Webots belirli bir Python sürümüyle derlenir; conda ortamın o sürüme eşit olmalı
-- [ ] B) API ctypes tabanlıdır; `WEBOTS_HOME` ve `PYTHONPATH` doğruysa herhangi bir Python ≥ 3.8 `controller` paketini import edip `libController`'ı yükler
-- [ ] C) Python controller'lar yalnızca Webots'un içindeki editörden çalıştırılabilir
-- [ ] D) Python için ayrı bir `pip install webots` paketi gerekir
-
-<details><summary>Cevap</summary>
-
-**B.** R2023a'dan beri (PR #5297) API saf Python + ctypes'tır; bu oturumda Python 3.13 ile bile `import controller` başarılı oldu. Extern controller'lar Webots dışından, kendi ortamında başlatılır (launcher ya da elle env değişkenleri).
-
-</details>
-
-**3. `controller "<extern>"` ve `synchronization TRUE` olan bir robotla world'ü açıp ▶'a bastın, hiçbir controller başlatmadın. Ne olur?**  _(tek seçim)_
-- [ ] A) Simülasyon normal akar, robot hareketsiz durur
-- [ ] B) Webots hata verip world'ü kapatır
-- [ ] C) Fizik ilerlemez; Webots controller bağlanana kadar bekler
-- [ ] D) Webots varsayılan `<generic>` controller'ı otomatik başlatır
-
-<details><summary>Cevap</summary>
-
-**C.** Doküman: `synchronization TRUE` ise Webots extern controller başlatılana kadar bekler; `FALSE` olsaydı simülasyon controller olmadan da akardı (A). Bu, LIBERO'daki "`env.step()` çağrılmadan dünya ilerlemez" davranışının aynısıdır.
-
-</details>
-
-**4. Webots'un LIBERO'ya göre gerçek avantajı olanlar hangileri? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) Oda ölçeğinde sahne ve mobil taban (TIAGo) kurulabilmesi
-- [ ] B) Hazır VLA eval kodu ve eğitilmiş checkpoint'ler
-- [ ] C) `webots_ros2` ile gerçek robota uzanan ROS 2 yolu
-- [ ] D) Apple Silicon'da yerel, GUI'li, kararlı çalışma
-- [ ] E) Sonuçların LIBERO-Plus / LIBERO-CF / Dong vd. ile doğrudan karşılaştırılabilmesi
-
-<details><summary>Cevap</summary>
-
-**A, C, D.** B ve E tam tersine LIBERO'nun avantajlarıdır: Webots'ta politika da, karşılaştırma tablosu da yoktur.
-
-</details>
-
-**5. `ders21_kol.py` hakkında doğru olanlar hangileri? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) Nesne konumlarını Supervisor API ile okur; bunu bir politikaya girdi olarak vermek "altın etiketi" girdiye sızdırmak olur
-- [ ] B) Action olarak 7-DoF uç-nokta deltası uygular
-- [ ] C) `pairs.csv`'deki sol/sağ etiketleri robota göre çerçevede hesaplanır (robot dünya +y'ye bakar, solu −x)
-- [ ] D) Bu oturumda gerçek Webots'ta koşturuldu
-- [ ] E) Kamera görüntüsü `saveImage()` ile PNG'ye yazılır; ham veri `getImage()` BGRA baytlarıdır
-
-<details><summary>Cevap</summary>
-
-**A, C, E.** B yanlış: eklem başına hedef açı verir, IK/uç-nokta kontrolcüsü yoktur. D yanlış: yalnızca sahte `controller` modülüyle kuru koşu yapıldı; gerçek koşu senin görevin.
-
-</details>
 
 ## Takılırsan
 
@@ -265,16 +193,6 @@ Webots'u kur ve gerçek render'ı sen üret: §3'teki dört komutu çalıştır 
 
 ## Sonraki ders (Ders 22)
 **Tokenizasyon analizi: aynı 100 satır, iki tokenizer** — Ders 20'nin sonunda söz verilen ders, bir gün gecikmeyle. `datasets/04-tr-spatial-commands/commands.csv`'yi LLaMA-2 (OpenVLA) ve Qwen3-VL (VLANeXt) tokenizer'larından geçireceğiz: satır başına token sayısı, `rel_span`'in kaç parçaya bölündüğü, ilişki ekinin (`-nde-ki`, `-ne`) ayrı parça olup olmadığı, `tr_ascii`'nin etkisi, *sağına / soluna* ortak parça paylaşıyor mu. Bugünkü Webots sahnesinin `pairs.csv` etiketleri de o derste bir kez daha karşına çıkacak: aynı Türkçe ilişki adlarının token tarafındaki görünümü. `human_check.csv` düzeltmelerin girdiyse analiz v0.2 üzerinde koşar.
-
----
-
-## Cevaplar
-
-1. İki rol: simülatör (fizik + render + robot modeli) ve benchmark (görev, init state, success, demo, protokol). Webots birincisinin yerine geçebilir — ODE forku + WREN + PROTO robotlar + Camera + controller API, robosuite'in işinin çoğunu da (kamera, robot sarmalama) üstlenir, uç-nokta kontrolcüsü hariç. İkincisinin yerine geçemez: Webots'ta görev seti, 50 sabit başlangıç, predicate'ler, demolar, liderlik tablosu ve VLA eval kodu yoktur; Supervisor ile hepsini kendin yazarsın. Ders 3'ün "LIBERO PyBullet'a taşınsa benchmark değişmez" cümlesinin tersi: LIBERO'yu Webots'a taşımak benchmark'ı yeniden yazmaktır.
-2. En az: `WEBOTS_HOME` (ctypes'ın `libController.dylib`'i bulması için) ve `PYTHONPATH`'te `$WEBOTS_HOME/Contents/lib/controller/python` (ya da launcher'ın bunları set etmesi + `PATH`'teki `python3`'ün `vla` olması); ayrıca Webots'un Rosetta altında **açılmamış** olması (dylib mimarisi arm64 olmalı). R2023a öncesinde Python API SWIG ile belirli Python sürümlerine karşı derleniyordu; sürüm uyuşmazsa import başarısız olurdu. Şimdi API saf Python + ctypes olduğundan Python ≥ 3.8 her sürüm çalışır (bu oturumda 3.13 ile doğrulandı).
-3. UR10e PROTO'sunda `shoulder_lift = −90°` kolu taban çerçevesinin **−x** yönüne uzatır; tabanı +90° döndürünce −x dünya −y'ye, yani masadan uzağa bakar. `ur10e_fk.py` PROTO'daki anchor/axis değerleriyle dört duruşun tool konumunu hesapladı; ilk koşuda tool y ≈ −1.1…−1.8 m çıktı (masa y ∈ [−0.9, 0.9] dışında, `masa_üstü = False`). −90°'ye çevirince tool nesnelerin üstüne geldi. Yani hata geometrik bir kontrolle, render'a gerek kalmadan yakalandı.
-4. (i) Ders 17: kamera konumu/zoom ve robot başlangıç duruşu tek başına Spatial başarısını yarıya indirir; Webots render'ı, UR10e (ya da farklı eklem sıfırlı Panda) ve yeni kamera bunların hepsini aynı anda değiştirir — düşüş dilden mi görünümden mi ayrılamaz. (ii) Ders 19: LIBERO Spatial'da sahne imzası görevi 9/10 söylüyordu; Webots sahnesinde eğitimde görülmüş hiçbir imza yok, boş-komut tabanı (`empty`) muhtemelen sıfıra yakın çıkar ve `tr` ile `empty` farkı ölçülemez. (iii) Ders 18: literatür karşılaştırması (π0.5 blank 65, OFT CF biased 84.7 vb.) LIBERO'ya bağlıdır; Webots sayıları kimseyle yan yana konamaz. Ölçüm ancak Webots'ta toplanmış veriyle uyarlanmış bir politika ve kendi `empty/wrong` tabanlarıyla anlam kazanır.
-5. (a) Tezin katkısında oda ölçeği / robota göre yön / mobil robot boyutu temel ise: ilk iş TIAGo ile RoomSpace tarzı 3–5 görevlik küçük bir sahne seti ve Supervisor tabanlı altın etiket + success predicate üretimi (bugünkü `pairs.csv` mantığının genelleştirilmesi); model sonra. (b) Gerçek robot / ROS 2 planı varsa: ilk iş `webots_ros2_universal_robot` ya da `_tiago` ile macOS'ta Webots-yerel + ROS 2-Docker düzeneğini ayağa kaldırıp kamera/eklem topic'lerini görmek; politika köprüsü ROS düğümü olarak yazılır. İkisi de yoksa Webots tezin dışında kalır, bugünkü ders bir "neden olmadı" paragrafı olur.
 
 ---
 

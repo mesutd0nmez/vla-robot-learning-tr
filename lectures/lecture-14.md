@@ -186,81 +186,9 @@ Tez açısından kritik satır tokenizer'dır, ama tablo gösteriyor ki iki mode
 
 ---
 
-## 9. Kendini sına (cevaplar aşağıda)
-
-1. `predict_action` neden `input_ids`'in sonuna `29871` ekliyor; eklemezse teknik olarak hata alır mısın, ne olur?
-2. Token `31872` (bin 127) yedi boyutun hepsinde üretilse LIBERO'ya giden action vektörü ne olur? Gripper ne yapar?
-3. OpenVLA'da bir action için LLM kaç kez, VLANeXt'te VLM kaç kez çalışır? Bu, `diffusion_steps`/`max_new_tokens` değişince süreyi nasıl etkiler?
-4. Center crop'u atlarsan (`--no-center-crop`) ne beklersin, nasıl ölçersin? Bu neden exception değil?
-5. Aynı LIBERO karesi için EN komut 33, TR komut 45 token. Bu fark tek başına action farkını açıklar mı? Hangi iki kontrol deneyi gerekir?
-
-## 10. Bugünün görevi (15 dk)
+## 9. Bugünün görevi (15 dk)
 
 `openvla` env'ini kur, indirmeyi başlat (arka planda sürerken Bölüm 2–4'ü oku). İndirme bitince `frame_task0.png` ile üç çağrı yap: görev 0 komutu, görev 8 komutu (*next to the plate*), ve görev 0'ın Türkçesi. Her çağrı için `action_tokens.json`'ı sakla (`--out tokens_t0_en.json` vb.) ve `projects/02-openvla-mac-tek-kare/` diye yeni bir proje aç (`projects/_template`); README'ye şu tabloyu yaz: koşul × 7 token id × 7 action değeri × süre (s). Ayrıca `model_input_224.png`'yi ve ilk çağrının `predict_action süresi`ni ekle. Ders 15 bu üç satırı 5 komut çiftine genişletip L2/cosine hesaplayacak.
-
-## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
-
-**1. OpenVLA'nın action token'ları LLaMA-2 dağarcığında nerede?**  _(tek seçim)_
-- [ ] A) Dağarcığa eklenen 256 yeni token (`32000..32255`)
-- [ ] B) Dağarcığın **son 256 token'ı** (`31744..31999`), embedding'leri fine-tune'da üzerine yazılmış
-- [ ] C) Sayı token'ları (`"0"`…`"255"`)
-- [ ] D) Özel `<act_i>` token'ları
-
-<details><summary>Cevap</summary>
-
-**B.** `ActionTokenizer`: `vocab_size − d`, `d ∈ 1..256`; `config.vocab_size = 32064` yalnızca 64'e yuvarlama pad'idir, kod `32000`'e geri döner (`modeling_prismatic.py:504`).
-
-</details>
-
-**2. `mask[6] = False` ne demek?**  _(tek seçim)_
-- [ ] A) Gripper boyutu üretilmez
-- [ ] B) Gripper'a q01/q99 açılımı uygulanmaz; bin merkezi olduğu gibi kalır, sonra eval kodu `2g−1 → sign → ×(−1)` yapar
-- [ ] C) Gripper her zaman +1'dir
-- [ ] D) Gripper loss'a girmez
-
-<details><summary>Cevap</summary>
-
-**B.** `np.where(mask, unnormalize, normalized)` (`:530-534`); LIBERO dönüşümü `run_libero_eval.py:219-225`.
-
-</details>
-
-**3. Mac'te `attn_implementation="flash_attention_2"` bırakırsan ne olur?**  _(tek seçim)_
-- [ ] A) Otomatik olarak sdpa'ya düşer
-- [ ] B) `flash_attn` paketi import edilemediği için yüklemede hata alırsın; `"sdpa"` ya da `"eager"` vermelisin
-- [ ] C) CPU'da çalışır
-- [ ] D) Yalnızca yavaşlar
-
-<details><summary>Cevap</summary>
-
-**B.** flash-attn CUDA-only; HF yüklemede `ImportError` verir. Prismatic kodu `_supports_sdpa`'yı LLaMA'dan devraldığı için `"sdpa"` çalışır (`:208-210`).
-
-</details>
-
-**4. Görüntü ön işleme için doğru olanlar? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) `agentview_image` 180° döndürülür (`img[::-1, ::-1]`)
-- [ ] B) 224×224'e lanczos3 ile küçültülür
-- [ ] C) LIBERO fine-tune checkpoint'lerinde %90 alanlı center crop zorunludur
-- [ ] D) `pixel_values` 6 kanallıdır (DINOv2 + SigLIP ayrı normalizasyon)
-- [ ] E) Bilek kamerası da modele verilir
-
-<details><summary>Cevap</summary>
-
-**A, B, C, D.** E yanlış: OpenVLA tek görüntü alır; bilek kamerası OpenVLA-OFT ve VLANeXt'te var.
-
-</details>
-
-**5. OpenVLA vs VLANeXt için doğru olanlar? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) OpenVLA bir action için LLM'i 7 kez, VLANeXt VLM'i 1 kez çalıştırır
-- [ ] B) İkisi de q01/q99 ile denormalize eder
-- [ ] C) OpenVLA tek adımlık action, VLANeXt 8 adımlık chunk üretir
-- [ ] D) İki modelin tokenizer'ı farklıdır (LLaMA-2 32k vs Qwen 151k)
-- [ ] E) İkisinde de gripper eşiği 0 ve ters çevirme yoktur
-
-<details><summary>Cevap</summary>
-
-**A, C, D.** B yanlış: VLANeXt min/max (legacy). E yanlış: OpenVLA'da `2g−1 → sign → invert`.
-
-</details>
 
 ## Takılırsan
 | Belirti | Çözüm |
@@ -279,16 +207,6 @@ Tez açısından kritik satır tokenizer'dır, ama tablo gösteriyor ki iki mode
 
 ## Sonraki ders (Ders 15)
 Tatar vd.'nin deneyinin mini-reprodüksiyonu, bugünkü boru hattıyla: LIBERO Spatial'dan 5 kare, her biri için EN komut ve Türkçe karşılığı (Ders 7–10'daki ek-yoğun çeviriler), OpenVLA'dan 7-DoF action; çiftler arası L2 ve cosine, artı iki kontrol — aynı EN komutun **parafrazı** (tokenizer dışı bir fark) ve **boş komut** (Ders 4'ün tabanı). Sonuçlar `datasets/` altında ilk Türkçe komut kartı ve `results/runs.csv`'nin ilk satırları olacak. Makalenin yöntemini yalnızca tekrarlamayacak, Ders 5'te saydığın 3 zayıf yönünden ikisini (tek kare, kontrol yok) kapatmayı deneyeceğiz.
-
----
-
-## Cevaplar
-
-1. Eğitimde prompt `"Out: "` ile bitiyordu ve SentencePiece sondaki boşluğu `▁` (`29871`) token'ı yapar; action token'ları hep bu token'dan sonra geldi. Eval'de boşluksuz `"Out:"` yazılınca eksik kalan token elle eklenir ki dizi eğitimle birebir aynı olsun. Eklemezsen **hata almazsın**: model yine 7 token üretir, ama hiç görmediği bir bağlamdan — ilk token'ın dağılımı kayar, action bozulur. Sessiz hata; Ders 13'teki `check_ontop` toleransı gibi, bilmeden yorumlayamazsın.
-2. `[-1,1]`'de 0 → konum/dönüş için `(q01+q99)/2`: `dx +0.096, dy +0.107, dz −0.003, droll −0.002, dpitch −0.015, dyaw −0.019` (görsel 02 sağ panel). Yani "nötr token" robotu ileri-sağa kaydırır. Gripper: bin 127 merkezi tam 0.0 → `2·0−1 = −1` → `sign = −1` → ters çevir → **+1 = kapat**. Eğitim verisinde gripper 0 (kapat) `np.digitize` ile tam bu token'a (`31872`) düşüyordu; tutarlı.
-3. OpenVLA: ViT'ler 1 kez, LLM **7 kez** (prefill + 6 decode adımı, KV cache ile); `max_new_tokens` sabit 7, değiştirilemez (action boyutu). VLANeXt: VLM **1 kez**, 29 bloklu policy `diffusion_steps` kez (5). `diffusion_steps` 5→20 süreyi az artırır (policy küçük); OpenVLA'da ise süre LLM'e bağlı ve ayarlanabilir bir düğme yok — hızlandırmanın yolu paralel decode (OpenVLA-OFT'nin yaptığı, Ders 4).
-4. Model eğitimde her kareyi rastgele %90 crop ile gördü; crop'suz kare "biraz daha uzak" bir kameradır — dağılım dışı ama hâlâ geçerli bir görüntü. Beklenti: action'lar değişir, çoğu zaman biraz, bazen çok; success rate düşer (OpenVLA ekibi bunu `assert` ile zorlamış). Ölçüm: aynı 5 karede crop'lu/crop'suz 7 token'ı ve L2'yi karşılaştır; episode düzeyinde ise 10 episode success. Exception değil çünkü tensör boyutu (224×224) aynı; yanlışlık **içerikte**, tipte değil.
-5. Hayır. Token sayısı farkı *mekanizmalardan biri* (daha uzun dizi, dağılım dışı parçalar) ama action farkının başka kaynakları var: komutun semantik içeriği (çeviri birebir mi?), modelin Türkçe'yi hiç görmemiş olması (fine-tune verisi %100 EN), ve bu farkın bir kısmının *herhangi* bir metin değişikliğinden kaynaklanması. Kontroller: (a) **EN parafraz** (anlam aynı, token'lar farklı, dil aynı) — tokenizer dışı gürültüyü ölçer; (b) **boş/rastgele komut** — dilden tamamen bağımsız tabanı verir. TR farkı ancak (a)'dan belirgin büyükse "dil etkisi" denir; (b)'ye yakınsa model TR'yi gürültü gibi işliyor demektir. Ders 15'in tasarımı budur.
 
 ---
 

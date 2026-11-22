@@ -124,81 +124,9 @@ Taşıma maliyeti düşük: `code/day19/t4_goal_config.yaml` Ders 18'in config'i
 
 ---
 
-## 8. Kendini sına (cevaplar aşağıda)
-
-1. `suite_structure.py` neden nesne **adlarını** değil **türlerini** sahne imzasına koyuyor, ve bu seçim Spatial'ın 10/10 yerine 9/10 çıkmasını nasıl belirliyor?
-2. Goal suite'te üç makalenin komutsuz başarıyı %4–11 bulması ile BDDL'den çıkan 1/10 üst sınırı arasındaki ilişki nedir; bu ilişki "model Goal'da dili okuyor" cümlesini kanıtlar mı?
-3. Senin tablonda `clean✗ empty✓` hücresi 2 çıktı (clean'in başaramadığı iki sahnede boş komut başardı). Ders 18 bunu "sahne-gürültü sinyali" demişti; bugünkü Bölüm 4'e göre bu yorumu nasıl düzeltirsin?
-4. `wrong` koşulunda model 10 sahnenin 8'inde `bowl_2`'yi alıp tabağa koydu (success 2/10). Bu "model komutu anlıyor" demek midir? Hangi alternatif açıklama var ve hangi deney ayırır?
-5. Spatial görev 0'da `tr ≈ empty ≈ clean` çıktı (örüntü A). Türkçe için bundan hangi sonuç **çıkmaz** ve bir sonraki koşuyu nerede yaparsın?
-
-## 9. Bugünün görevi (15 dk)
+## 8. Bugünün görevi (15 dk)
 
 Mac'te LIBERO'yu yalnızca dosyaları için klonla (`git clone --depth 1 https://github.com/Lifelong-Robot-Learning/LIBERO ~/src/LIBERO`; kurulum yok) ve `code/day19`'da sırayla `python read_patterns.py --demo`, `python suite_structure.py --libero ~/src/LIBERO`, `python init_state_geometry.py --libero ~/src/LIBERO --task 0` çalıştır; üçünün de çıktısındaki bir satırı (örüntü harfi, Spatial'ın 9/10'u, kâse–kâse mesafe aralığı) `projects/05-spatial0-4kosul/README.md`'ye "Ders 19 notu" olarak yaz. Ders 18 koşun bittiyse: `python read_patterns.py <episodes.csv> --features ../../datasets/03-libero-spatial0-4cond/data/init_features_task0.csv` çıktısındaki paragraf taslağını kendi cümlelerinle **tek paragrafa** çevir (kip cümlesi dahil), 10 `wrong` videosunu `grasped.csv` olarak etiketle ve `--labels` ile yeniden çalıştır; örüntü harfini README'nin başına koy. Koşu bitmediyse paragrafı Ders 18 selftest tablosu için yaz ve "temsili" diye işaretle.
-
-## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
-
-**1. BDDL'e göre LIBERO-Spatial'da hangi iki görev aynı sahneyi paylaşır (yalnızca komut ayırır)?**  _(tek seçim)_
-- [ ] A) 0 (*between the plate and the ramekin*) ve 1 (*next to the ramekin*)
-- [ ] B) 7 (*on the stove*) ve 9 (*on the wooden cabinet*)
-- [ ] C) 2 (*from table center*) ve 8 (*next to the plate*)
-- [ ] D) Hiçbiri; 10 görevin sahnesi farklıdır
-
-<details><summary>Cevap</summary>
-
-**B.** Görev 7: bowl_1 ocakta, bowl_2 dolap üstünde; görev 9: tam tersi. İki kâse görüntüde ayırt edilemediği için sahne imzası aynıdır. A'daki iki görev `next_to_ramekin` bölgesini paylaşır ama öteki kâse farklı yerdedir (between vs next_to_box).
-
-</details>
-
-**2. Goal suite'te komutu okumayan ama sahneyi mükemmel tanıyan bir policy'nin success rate üst sınırı?**  _(tek seçim)_
-- [ ] A) %0
-- [ ] B) %10
-- [ ] C) %50
-- [ ] D) %90
-
-<details><summary>Cevap</summary>
-
-**B.** 10 görev tek sahneyi paylaşır; policy tek bir hedefi seçer → 10 görevden 1'i. Üç makalenin komutsuz ölçümleri (%4–11) tam bu sınırdadır (görsel 02).
-
-</details>
-
-**3. Görev 0'ın 50 init state'inde hedef kâse ile öteki kâse arasındaki mesafe hangi aralıkta?**  _(tek seçim)_
-- [ ] A) 2–5 cm (bazı sahnelerde değiyorlar)
-- [ ] B) 14–21 cm
-- [ ] C) 30–50 cm
-- [ ] D) Sabit, 17.6 cm (init state'ler yalnızca robotu değiştirir)
-
-<details><summary>Cevap</summary>
-
-**B.** Gerçek `.pruned_init` verisi: 14.4–21.1 cm, ortalama 17.6. D yanlış: nesneler 2 cm'lik bölgelerde örneklenir (±1.5 cm yayılım), tamamen sabit değil; sabit olan kâse yönelimidir.
-
-</details>
-
-**4. `read_patterns.py` bir tabloyu **C** (wrong biased) diye sınıflandırdı. Hangileri doğru? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) `clean − empty ≥ 25` ve `clean − wrong ≤ 15` sağlanmıştır
-- [ ] B) Model komutun eylem kısmını okuyor, hedef nesneyi sahneden seçiyor olabilir
-- [ ] C) Sonuç `grasped_bowl` etiketleriyle doğrulanmadan kesinleşmez
-- [ ] D) `tr` satırı artık yorumlanamaz
-- [ ] E) Bu örüntü OpenVLA-OFT'nin LIBERO-CF davranışıyla (biased %84.7) uyumludur
-
-<details><summary>Cevap</summary>
-
-**A, B, C, E.** D yanlış: tr ekseni bağımsızdır; script `C+B` / `C+D` yazar. C: success yalnızca biased'ın alt sınırıdır; videoda bowl_2 çoğunluksa yorum tersine döner.
-
-</details>
-
-**5. Deneyi Goal görev 8'e taşımak için Ders 18 kurulumunda neler değişir? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) Checkpoint: `VLANeXt_libero_goal.pt` (16.4 GB, ayrı indirme)
-- [ ] B) `task_suite_name: libero_goal`, `VLANEXT_TASK_IDS=8`
-- [ ] C) Ders 12 ve Ders 18 yamaları yeniden yazılır
-- [ ] D) `wrong` komutu aynı sahnede uygulanabilir başka bir Goal görevinin komutu olur (*put the bowl on the stove*)
-- [ ] E) `grasped_bowl` etiketi `wrong` için zorunlu kalır
-
-<details><summary>Cevap</summary>
-
-**A, B, D.** C yanlış: yamalar koşul mekanizmasına aittir, suite'e değil. E yanlış: Goal'da iki hedef (tabak / ocak) uzaktır; success(wrong) ≈ 0 zaten "komut okundu" demektir — etiket isteğe bağlı teşhis olur.
-
-</details>
 
 ## Takılırsan
 
@@ -216,16 +144,6 @@ Mac'te LIBERO'yu yalnızca dosyaları için klonla (`git clone --depth 1 https:/
 
 ## Sonraki ders (Ders 20)
 **Türkçe mekânsal komut seti tasarımı: 20 EN–TR çift.** Bugünün iki bulgusu tasarımın iki kuralı olacak: (1) komutlar **sahnenin söylemediği** bir şey söylemeli — görev 7/9 gibi aynı sahnede iki hedefin olduğu ya da `distractor`'un hiçbir eğitim komutuna denk düşmediği durumlar; (2) ilişki Türkçe'de **ekle** taşınır, kelime sırasıyla değil — her çiftte ek (-ın yanındaki / -ın arasındaki / -ın üstündeki / -ın önündeki / -ın içindeki) ayrı sütun olarak işaretlenir ki Ders 21'in tokenizasyon analizi eki tek başına izleyebilsin. Ders 7'nin 10 taslağı ve `datasets/01`'in tr/tr2 yüzey formları başlangıç noktası; çıktı `datasets/04-tr-spatial-commands/` kartı olur.
-
----
-
-## Cevaplar
-
-1. İki siyah kâse görüntüde ayırt edilemez; policy "akita_black_bowl_1" etiketini görmez, iki kâsenin **nerede** olduğunu görür. İmzaya adları koysaydın görev 7 ve 9 farklı görünürdü (bowl_1 ocakta vs bowl_1 dolapta) ve Spatial 10/10 çıkardı — ama bu, policy'nin göremeyeceği bir bilgiyle ayırmak olurdu. Türlerle imza "{kâse@ocak, kâse@dolap üstü}" olur, iki görevde aynı; göreli hedef (kâse@ocak → tabak vs kâse@dolap → tabak) farklı; sahne→hedef fonksiyon değil; üst sınır 9/10.
-2. Üst sınır, sahneyi mükemmel tanıyan komutsuz bir policy'nin yapabileceğinin en iyisidir: 10 görevden 1. Ölçülen %4–11 bu sınırın hemen altındadır — modeller komutsuz Goal'da tek bir görevi (muhtemelen en sık/doğal olanı) yapıyor. Bu, "dil okunuyor"u kanıtlamaz; dilin **gerekli** olduğunu gösterir (komutsuz ∼10, komutla ∼95; aradaki fark komuttan gelir). Dilin *nasıl* okunduğu (kelime torbası mı — Zhan vd.'nin karışık sıra bulgusu — yoksa sözdizimiyle mi) ayrı sorudur.
-3. 50 init state'te nesneler ±1.5 cm, yönelim sabit, robot 1°: "zor sahne" diye bir şey yok. `clean✗ empty✓` iki sahnenin özel bir sahne özelliğini değil, politikanın aynı sahnede iki koşuda farklı sonuç verebildiğini gösterir (flow-matching gürültüsü + temas dinamiği). Doğru yorum: bu hücre eşli testin **gürültü tabanı**dır; `clean✓ x✗` hücresi ondan belirgin büyükse koşul etkisi vardır, değilse yoktur. `--features` ile `robot_q_dev`'in uyumsuz sahnelerde farklı olup olmadığına bakarsın; beklenti fark yok.
-4. Hayır, tek başına değil. Alternatif: `bowl_2` görev 1'de hedef olan bölgede (`next_to_ramekin`) duruyor ve "next to the ramekin" cümlesi eğitimde 50 demo ile o bölgeye bağlanmış; model cümle→bölge eşlemesini hatırlıyor olabilir, "yanında" ilişkisini çözüyor olmayabilir. Ayıran deney: aynı sahnede hiçbir eğitim komutuna denk düşmeyen bir tarif (*the bowl farther from the plate*, ya da Türkçe'si) — ezber eşlemesi yok, yalnızca ilişki var. LIBERO-CF'in "görülmemiş komut" kurgusu tam budur; Ders 20'de komut setine girer.
-5. Çıkmayan sonuç: "model Türkçe anlıyor". Sahne görevi söylediğinde komutun dili önemsizdir; `tr`'nin düşmemesi Türkçe'nin okunduğunu değil, okunmasına gerek kalmadığını gösterir (tavan etkisi). Bir sonraki koşu Goal görev 8'de (`t4_goal_config.yaml`, `conditions_goal8.json`): komutsuz taban ≈ %10 olduğu için `tr`'nin tabanın üstüne çıkıp çıkmadığı görülebilir. Mekânsal ilişki sorusu için Spatial'a geri dönülür ama görev 7/9 gibi sahnenin söylemediği çiftlerle.
 
 ---
 

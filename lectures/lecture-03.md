@@ -127,94 +127,11 @@ Kural: makale LIBERO'da %97 diyorsa, aynı modelin CALVIN ya da gerçek robotta 
 
 ---
 
-## 7. Kendini sına (cevaplar aşağıda)
-
-1. "LIBERO MuJoCo'da çalışır" cümlesindeki iki şeyin rolleri nedir? LIBERO PyBullet'a taşınsa benchmark değişmiş olur mu?
-2. Policy'nin ürettiği 7-DoF action doğrudan motorlara mı gider? Arada ne var?
-3. Spatial ve Goal suite'lerinden hangisi "model dili gerçekten kullanıyor mu" sorusuna daha iyi cevap verir, neden?
-4. LIBERO-Plus'ta dil bozulmasının *az* zarar vermesi iyi haber midir?
-5. Tatar vd.'nin Türkçe deneyini LIBERO üzerinde tekrarlasan hangi kontrol koşullarını eklerdin?
-
-## 8. Bugünün görevi (15 dk)
+## 7. Bugünün görevi (15 dk)
 Dört suite için bir tablo yaz: suite adı, sabit olan, değişen, Türkçe mekânsal komut sorusuna uygunluk (1–5). Sonra şunu düşün: Spatial suite'in 10 komutunu Türkçe'ye çevirirken hangi İngilizce ilişki kelimeleri Türkçe'de *ek* olur? (Bu listeyi Gün 20'de kullanacağız.)
-
-## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
-
-**1. 'LIBERO MuJoCo üstünde çalışır' cümlesinde LIBERO'nun rolü?**  _(tek seçim)_
-- [ ] A) Fizik motoru
-- [ ] B) Görevler, demolar, başlangıç durumları ve success kriteri (benchmark)
-- [ ] C) Robot kontrolcüsü
-- [ ] D) VLA modeli
-
-<details><summary>Cevap</summary>
-
-**B.** MuJoCo fiziği, robosuite robotu, LIBERO sınavı tanımlar.
-
-</details>
-
-**2. Hangi suite'te aynı sahne için 10 farklı komut vardır (dil zorunlu)?**  _(tek seçim)_
-- [ ] A) Spatial
-- [ ] B) Object
-- [ ] C) Goal
-- [ ] D) Long
-
-<details><summary>Cevap</summary>
-
-**C.** Goal: nesneler ve yerleşim aynı, görev değişir; sahneden görev tahmin edilemez.
-
-</details>
-
-**3. LIBERO-Plus'ta OpenVLA-OFT için en büyük düşüşü hangi bozulma yarattı?**  _(tek seçim)_
-- [ ] A) Dil komutu
-- [ ] B) Arka plan dokusu
-- [ ] C) Robot başlangıç durumu
-- [ ] D) Sensör gürültüsü
-
-<details><summary>Cevap</summary>
-
-**C.** %97.1 → %37.2 (robot init state); kamera %59.7; dil ortalama −25 ile en az zarar verenlerden.
-
-</details>
-
-**4. LIBERO'nun yedi bozulma ekseninden olanlar? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) Kamera bakış açısı
-- [ ] B) Işık
-- [ ] C) Robot morfolojisi (farklı kol)
-- [ ] D) Dil komutu
-- [ ] E) Sensör gürültüsü
-
-<details><summary>Cevap</summary>
-
-**A, B, D, E.** Robot morfolojisi LIBERO-Plus'ta yok; nesne yerleşimi, kamera, robot init state, dil, ışık, arka plan, gürültü.
-
-</details>
-
-**5. Standart LIBERO eval protokolü hakkında doğrular? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) Görev başına 50 episode
-- [ ] B) Her episode sabit bir başlangıç durumundan başlar
-- [ ] C) Success insan tarafından değerlendirilir
-- [ ] D) Dört suite ortalaması raporlanır
-
-<details><summary>Cevap</summary>
-
-**A, B, D.** Success BDDL predicate ile otomatik hesaplanır.
-
-</details>
-
----
 
 ## Sonraki ders (Ders 4)
 Language grounding ve shortcut learning: bir VLA'nın dili gerçekten kullandığını nasıl ispatlarsın? Ablation mantığı, counterfactual komutlar, OpenVLA ≠ OFT ayrımı ve "dili gerçekten kullanıyor mu" için beş deney tasarımı.
-
----
-
-## Cevaplar
-
-1. MuJoCo fiziği hesaplar (temas, yerçekimi); LIBERO görevleri, demoları, başlangıç durumlarını ve başarı kriterini tanımlar. Benchmark aynı görev tanımlarıyla başka bir fizik motoruna taşınabilir — ama sonuçlar birebir karşılaştırılamaz, çünkü fizik (sürtünme, temas) farklı davranır.
-2. Hayır. robosuite'in OSC_POSE kontrolcüsü delta pozu alır, ters kinematik + tork hesabı yapar, eklem torklarını MuJoCo'ya verir. Policy "nereye" der, kontrolcü "nasıl"ı çözer.
-3. Goal. Spatial'da sahne görevi büyük ölçüde ele verir (hangi kâse nerede → ne yapılacağı belli). Goal'de aynı sahne için 10 farklı komut vardır; sahneden görevi tahmin etmek imkânsız, dil zorunlu. (Yine de Long suite'in boş komutta düşmesi, çok adımlı görevlerde dilin kullanıldığını gösteriyor.)
-4. Hayır, kötü haber. Dil değişince başarı düşmüyorsa model dili okumuyor demektir; VLA'nın "L"si çalışmıyor. Hedef değiştirme testinin sıfıra inmesi bunu doğruluyor: model komutu değil sahneyi takip ediyor.
-5. En az: (a) doğru İngilizce komut (üst sınır), (b) boş komut (sahne-ezber taban çizgisi), (c) yanlış/başka görevin İngilizce komutu (dil gerçekten yönlendiriyor mu), (d) Türkçe komut. Türkçe'nin "boş"tan farkı asıl ölçüm. Ayrıca action-vektör farkı yerine *success rate* ölçmek, birden fazla görüntü/başlangıç durumu kullanmak.
 
 ---
 

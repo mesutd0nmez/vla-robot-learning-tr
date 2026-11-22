@@ -137,81 +137,9 @@ Ders 5'te Tatar vd. "Türkçe + VLA" sorusunu soran tek çalışmaydı. Haziran 
 
 ---
 
-## 9. Kendini sına (cevaplar aşağıda)
-
-1. `distractor` koşulu olmadan `d(en, tr)` küçük çıkarsa neden "Türkçe sorun değil" diyemezsin? İki rakip açıklama ver.
-2. Aynı 7 token çiftinin normalize uzayda L2'si 0.30, gerçek birimde 0.25 çıktı; başka bir çiftte normalize 0.30, gerçek 1.60. İkinci çifte ne olmuş olabilir?
-3. Greedy decode ile EN–EN tekrarı sıfır fark veriyorsa Tatar vd.'nin sıcaklık 0.3 ile 3 tekrar almasının yerine koyduğumuz kontrol hangisi, ve neyi *ölçemez*?
-4. `within5` metriği neden `tok_mismatch`'ten daha bilgilendirici olabilir? Shin (2026)'in sayılarıyla gerekçelendir.
-5. Chen vd.'nin OpenVLA-OFT için "yabancı dil ≈ komut yok" bulgusunu kendi 5 karende görürsen Bölüm 6'nın hangi dalındasın ve bir sonraki adım ne olur?
-
-## 10. Bugünün görevi (15 dk)
+## 9. Bugünün görevi (15 dk)
 
 Bölüm 5'teki üç komutu koş (model yüklemesi hariç ~5 dk). `projects/03-tatar-mini/` klasörünü `projects/_template`'ten aç; `results/` altına `actions.csv`, `metrics.csv`, `summary.md`, `metrics.png` ve `frames/contact_sheet.png`'i koy; README'ye `summary.md`'deki tabloyu yapıştır ve altına Bölüm 6 ağacından **hangi dalda** olduğunu bir paragrafla yaz (kare kare: 5 satır). Ayrıca `openvla` env'inde şu tek satırı çalıştırıp çıktısını README'ye ekle: `python -c "from transformers import AutoTokenizer; t=AutoTokenizer.from_pretrained('openvla/openvla-7b-finetuned-libero-spatial'); print(t.tokenize('Kırmızı küpü kaldır'), t.tokenize('kurabiye kutusunun üstündeki'))"` — Bölüm 4'teki `Kal|dır` hipotezi böyle kapanır. `datasets/01-libero-spatial-tr-mini/dataset-card.md`'de çeviri doğrulaması sana bırakıldı: beğenmediğin TR cümleyi düzelt, kartta v0.2 yaz. (`runs.csv` şeması success rate ister; tek-kare ölçümü oraya girmez — `actions.csv` bu projenin tablosudur, `runs.csv`'nin ilk satırları Ders 18'de gelir.)
-
-## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
-
-**1. `distractor` koşulu nasıl türetildi?**  _(tek seçim)_
-- [ ] A) Rastgele başka bir LIBERO suite'inden komut
-- [ ] B) Aynı sahnenin BDDL `:init` bloğundaki ikinci siyah kâsenin bölgesini tarif eden Spatial komutu
-- [ ] C) EN komutun kelime sırası karıştırılarak
-- [ ] D) Makine çevirisiyle bozulmuş komut
-
-<details><summary>Cevap</summary>
-
-**B.** Her Spatial sahnesinde `akita_black_bowl_1` (hedef) ve `akita_black_bowl_2` (çeldirici) var; `bowl_2`'nin bölgesi başka bir görevin komutuna karşılık geliyor (0→1, 1→6, 2→8, 3→9, 4→9).
-
-</details>
-
-**2. Normalize uzayda bir gripper flip'i L2'ye yaklaşık ne katar?**  _(tek seçim)_
-- [ ] A) 0.0078 (bir bin)
-- [ ] B) 1.0
-- [ ] C) ≈ 2.0 (bin merkezi ±0.996)
-- [ ] D) q99−q01 = 1.0
-
-<details><summary>Cevap</summary>
-
-**C.** `mask[6]=False`: gripper açılmaz, ±0.996 kalır; fark ≈ 1.99. Bu yüzden gripper ayrı raporlanır, ana metrik 6 boyutludur.
-
-</details>
-
-**3. n=5 eşli örneklemle iki yönlü kesin Wilcoxon'un en küçük p değeri?**  _(tek seçim)_
-- [ ] A) 0.05
-- [ ] B) 0.0625
-- [ ] C) 0.01
-- [ ] D) n'ye bağlı değildir
-
-<details><summary>Cevap</summary>
-
-**B.** 2⁵ = 32 işaret düzeninden en uç ikisi → 2/32 = 0.0625 (tek yönlü 0.03125). "Anlamlı" cümlesi bu deneyden çıkamaz; n=8'de 0.0078.
-
-</details>
-
-**4. Hangi koşullar "dil-dışı" kontroldür? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) `para` — EN parafraz
-- [ ] B) `tr2` — ikinci Türkçe form
-- [ ] C) `distractor` — öteki kâse
-- [ ] D) `empty` — boş komut
-- [ ] E) `tr` — Türkçe çeviri
-
-<details><summary>Cevap</summary>
-
-**A, C, D.** Üçü de İngilizce ya da dilsizdir; `tr` ve `tr2` dil koşullarıdır (`tr2`, TR-içi parafraz kontrolüdür ama yine Türkçe).
-
-</details>
-
-**5. Haziran 2026 makaleleri hakkında doğru olanlar? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) Chen vd.'de OpenVLA-OFT için "komut yok" düşüşü yabancı dil düşüşüne yakındır (−27.5 vs −27.8…−29.8)
-- [ ] B) İkisi de Türkçe içerir
-- [ ] C) Dong vd. dil etkisinin adımlar boyunca eşit dağılmadığını bulur
-- [ ] D) İkisi de metrik olarak success rate kullanır, Tatar vd. gibi action-vektör L2 değil
-- [ ] E) İkisi de temel OpenVLA-7B'yi değerlendirir
-
-<details><summary>Cevap</summary>
-
-**A, C, D.** B yanlış: Türkçe yok. E yanlış: OpenVLA-OFT (ve π0.5, GR00T…) var, temel OpenVLA yok.
-
-</details>
 
 ## Takılırsan
 | Belirti | Çözüm |
@@ -229,16 +157,6 @@ Bölüm 5'teki üç komutu koş (model yüklemesi hariç ~5 dk). `projects/03-ta
 
 ## Sonraki ders (Ders 16)
 Faz 2'nin haftalık sentezi ve LIBERO-Plus kurulumu: Ders 9–15'te kurduğun iki boru hattını (Mac: LIBERO + OpenVLA tek kare; Colab: VLANeXt eval) tek bir şemada toplayıp "ne ölçebiliyorum, ne ölçemiyorum" tablosunu çıkaracağız; sonra Colab'da ayrı bir env'de LIBERO-Plus'ı (asset indirme, 7 bozulma türü, language perturbation'ın kod yolu) kurup VLANeXt'in boş-komut koşulunu 2–3 episode ile deneyeceğiz. Bugünkü 30 satırlık tablo, o sentezin "tek kare" sütunu olacak.
-
----
-
-## Cevaplar
-
-1. (a) **Model mekânsal ifadeyi hiç okumuyor olabilir:** EN–TR farkı küçük çünkü *hiçbir* komut farkı action'ı değiştirmiyor (LIBERO-Plus örüntüsü) — bu durumda "Türkçe sorun değil" değil, "dil sorun değil, çünkü kullanılmıyor" denir. (b) **Kare belirleyici olmayabilir:** t=0'da robot her görevde aynı yere (ör. yukarı/ileri) kalkıyor olabilir; fark ancak sonraki adımlarda açılır (Dong vd.'nin adım-bağımlı bulgusu). `distractor` (a)'yı ayırt eder; (b) için ikinci bir kare (ör. 30. adım) gerekir.
-2. İlk çift: konum/dönüş boyutlarında orta büyüklükte fark, gripper aynı. İkinci çift: 6 boyutta aynı küçük fark ama **gripper ters** — gerçek birimde ±0.996'lık flip tek başına ~2.0 katar, normalize 6-D metrik bunu görmez (ayrı `grip_agree` sütunu 0 olur). Tatar vd.'nin L2>0.99 görevleri tam bu ikinci tür.
-3. Yerine koyduğumuz kontrol `para` (EN parafraz): aynı anlam, farklı token'lar. Ölçtüğü şey modelin *metin yüzeyine* duyarlılığı. Ölçemediği şey **örnekleme gürültüsü**: greedy'de yok, ama gerçek eval'de de greedy kullanıldığı için (OpenVLA `do_sample=False`) bu bir eksiklik değil. Ölçemediği ikinci şey: parafrazın gerçekten eş anlamlı olup olmadığı — "located" gibi kelimeler eğitim dağılımında yoksa parafraz farkı bir "dağılım dışı" etkisi de içerir; bu yüzden `para` farkı tabanın *üst* sınırıdır.
-4. `tok_mismatch` bir bin'lik kaymayı da 100 bin'lik kaymayı da "1 farklı token" sayar; greedy decode'da logit'ler yakınsa komşu bin'e kaymak olağandır. Shin (2026)'de OpenVLA zero-shot **Top-1** token doğruluğu yalnızca %6.6 iken **5-bin** toleransla %40.8 — yani ground-truth'la bile tam eşleşme nadir, ±5 bin "aynı action" bandıdır. `within5`, "kaç boyut aynı bandın içinde" diye sorar; EN–TR'de `within5` düşükken EN–para'da yüksekse fark gerçek, ikisi de düşükse model zaten kararsızdır.
-5. "≈ empty" dalı: `d(en, tr) ≈ d(en, empty)`, muhtemelen `d(en, distractor)` da benzer büyüklükte ve `d(en, para)` çok daha küçük — model Türkçe komutu komut yokmuş gibi işliyor. Sonraki adım iki yönlü: (i) bunun kapalı döngüde success'e nasıl yansıdığını ölçmek (Ders 18; Chen vd.'de OFT için −27.5 vs −28.6 puan), (ii) aynı kareleri VLANeXt'e (Qwen3-VL tokenizer) vermek — Türkçe orada `para`'ya yaklaşıyorsa tokenizer/omurga hipotezi güç kazanır, yine ≈ empty ise sorun tokenizer'dan öte "eğitim verisi %100 İngilizce" meselesidir (Ders 23'ün çeviri katmanı vs fine-tune tartışması).
 
 ---
 

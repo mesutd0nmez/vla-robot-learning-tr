@@ -27,7 +27,7 @@ Aşamalar netleştikçe bu tablo ve `plan/` klasörü güncellenir.
 | Klasör | İçerik |
 |---|---|
 | `plan/` | Ders planı (`lecture-plan.md`) ve `daily-log.md` (her çalışma gününün durumu, görevi, çıktısı) |
-| `lectures/` | Dersler `lecture-NN.md` (görseller `lectures/images/lecture-NN/`); her dersin sonunda kendini sına soruları ve cevapları |
+| `lectures/` | Dersler `lecture-NN.md` (görseller `lectures/images/lecture-NN/`); her ders okuma + kısa bir görev |
 | `resources/` | Kaynak listesi ve Türkçe giriş notları (telifli PDF'ler yerine bağlantılar) |
 | `literature/` | VLA ve çok dilli VLA literatürü: 15 hakemli makalenin listesi (`makaleler.md`) ve 2 sayfalık rapor (`rapor.md`) |
 | `notes/` | Konu bazlı birikimli notlar (OpenVLA, LIBERO, spatial reasoning, tokenizasyon…) |
@@ -44,8 +44,7 @@ Aşamalar netleştikçe bu tablo ve `plan/` klasörü güncellenir.
 
 - Günde en fazla 1 saat. Her gün bir konu, bir küçük çıktı. Ders notları Claude tarafından araştırılıp yazılır;
   çıktılar ve cevaplar benim.
-- Her ders aynı iskelette: ~35 dk okuma (görsellerle) → "Kendini sına" açık uçlu sorular (cevaplar dersin
-  sonunda) → çoktan seçmeli sorular (tek/çok seçimli; onay kutuları + açılır cevap) → kısa görev.
+- Her ders aynı iskelette: ~35 dk okuma (görsellerle) → kısa görev.
 
 ## Dersler
 

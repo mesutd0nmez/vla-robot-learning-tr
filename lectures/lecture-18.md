@@ -146,81 +146,9 @@ Ders 19'da gerçek tabloyu bu dört örüntüye göre okuyacağız; bugün yaln�
 
 ---
 
-## 8. Kendini sına (cevaplar aşağıda)
-
-1. Dört koşulun aynı init state'leri görmesini kodda hangi satır garanti ediyor, ve bu neden `num_trials_per_task`'ı 10 yapmakla kendiliğinden geliyor?
-2. `wrong` koşulunda success rate `clean`'e yakın çıkarsa bu tek başına "model komutu okumuyor" demek midir? Hangi ek ölçüm gerekir?
-3. `clean` 9/10, `tr` 4/10 çıktı; uyumsuz çiftler 5/0. McNemar p'si kaç ve bu sonuçla tezinde hangi cümleyi kurabilirsin, hangisini kuramazsın?
-4. Neden `empty` ve `wrong` için Ders 17'nin BDDL yolu kullanılamaz, `tr` için kullanılabilir ama bugün kullanılmadı?
-5. Yamadan sonra ilerleme satırında `total_episodes=12/100` görüyorsun; 100 nereden geliyor ve bu bir hata mı?
-
-## 9. Bugünün görevi (15 dk + arka planda ~1 saat)
+## 8. Bugünün görevi (15 dk + arka planda ~1 saat)
 
 Notebook'u aç (<https://colab.research.google.com/github/mesutd0nmez/vla-robot-learning-tr/blob/main/code/day18/colab_4cond_t4.ipynb>; Kaggle'daysan `num_parallel_envs: 4`), hücre 1–8'i başlat ve hücre 6'nın çıktısını kontrol et: **10 "[+] uygulandı"** görmelisin. Koşu sürerken Mac'te `code/day18`'de `python analyze_4cond.py --selftest` ve `python spec_order_demo.py conditions_task0.json --parallel 2` çalıştır; tablo sütunlarını ve batch sırasını tanı. Koşu bitince hücre 9–10: `table.md`'yi, `episodes.csv`'yi, `eval.log`'u ve koşul başına bir başarısız videoyu indir; `projects/05-spatial0-4kosul/`'u şablondan aç (`projects/README.md`'ye satır), README'ye toplam süreyi, episode başına ortalama süreyi (koşula göre) ve `wrong` videolarının `grasped_bowl` etiketini yaz. Yorum yazma — o Ders 19'un işi.
-
-## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
-
-**1. Yamalı `build_episode_specs` 4 koşul × 10 init state'i hangi sırayla üretir?**  _(tek seçim)_
-- [ ] A) Önce 10 `clean`, sonra 10 `empty`, …
-- [ ] B) init 0 için dört koşul, sonra init 1 için dört koşul, …
-- [ ] C) Rastgele (seed'e bağlı)
-- [ ] D) Koşullar ayrı süreçlerde koştuğu için sıra yok
-
-<details><summary>Cevap</summary>
-
-**B.** `((e, c) for e in range(num_trials_per_task) for c in _conds)` — init state dış, koşul iç döngü. Böylece `num_parallel_envs: 4` ile aynı sahnenin dört koşulu aynı batch'e düşer (`spec_order_demo.py`). D Ders 16'nın yoluydu.
-
-</details>
-
-**2. LIBERO-Spatial'da boş komutla π0.5 için üç bağımsız makalenin bulduğu success rate aralığı?**  _(tek seçim)_
-- [ ] A) %5–10
-- [ ] B) %30–35
-- [ ] C) %65–68
-- [ ] D) %90–95
-
-<details><summary>Cevap</summary>
-
-**C.** Chen vd. Ø 66.0, Zhan vd. blank 65.0, Fang vd. vision-only 68.2 (temiz 95–97.5). Goal suite'te aynı modeller %9–11'e düşer — sahnenin görevi "söylediği" tek suite Spatial/Object (Ders 16).
-
-</details>
-
-**3. n = 10 eşli tasarımda McNemar exact testinin p < 0.05 vermesi için en az kaç uyumsuz çift (hepsi aynı yönde) gerekir?**  _(tek seçim)_
-- [ ] A) 3
-- [ ] B) 4
-- [ ] C) 5
-- [ ] D) 6
-
-<details><summary>Cevap</summary>
-
-**D.** p = 2 × 0.5^b: b = 5 → 0.0625, b = 6 → 0.031. Görsel 04(b)'de n = 10 eğrisinin Δ = 29'da %4 güçte kalmasının nedeni.
-
-</details>
-
-**4. Hangileri doğru? Bugünkü deneyde override yolu (VLANEXT_CONDITIONS) seçildi çünkü… (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) Orijinal LIBERO runtime'ında `task.language` dosya adından türer; BDDL `:language` okunmaz
-- [ ] B) `empty` ve `wrong` benchmark'a "görev" olarak eklenemez
-- [ ] C) Override yolu büyük/küçük harfi ve noktalamayı korur
-- [ ] D) BDDL yolu 10 init state'e izin vermez
-- [ ] E) BDDL yolu LIBERO-Plus asset'lerini (6.4 GB) gerektiren runtime'da çalışır
-
-<details><summary>Cevap</summary>
-
-**A, B, C, E.** D yanlış: LIBERO-Plus eval'i de `initial_states[episode_idx]` kullanır; `num_trials_per_task: 10` orada da 10 sahne verir (benchmark'ın kendi protokolü 1'dir, kodun kısıtı değil).
-
-</details>
-
-**5. `wrong` koşulunun videosunda gripper öteki kâseyi (`akita_black_bowl_2`) tutup tabağa koydu. Hangileri doğru? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) `success = False` olur (hedef `akita_black_bowl_1`)
-- [ ] B) LIBERO-CF terimiyle bu *faithful* davranıştır
-- [ ] C) `success = True` olur, çünkü tabağa bir kâse kondu
-- [ ] D) Bu episode "model komutu okudu" lehine kanıttır
-- [ ] E) `analyze_4cond.py` bunu kendiliğinden sayar
-
-<details><summary>Cevap</summary>
-
-**A, B, D.** C yanlış: `check_ontop` nesne adıyla çalışır (Ders 13). E yanlış: log yalnızca `success` taşır; `grasped_bowl` etiketini videodan elle verirsin.
-
-</details>
 
 ## Takılırsan
 
@@ -239,16 +167,6 @@ Notebook'u aç (<https://colab.research.google.com/github/mesutd0nmez/vla-robot-
 
 ## Sonraki ders (Ders 19)
 **Sonuç analizi: shortcut learning var mı, hangi suite'te?** Senin 4 satırlık tablonu (ya da gelmediyse selftest/literatür örüntülerini) görsel 07'nin dört örüntüsüne göre okuyacağız: `empty` tabanının anlamı, `wrong`'un `grasped_bowl` etiketiyle faithful/biased ayrımı, `tr`'nin tabana göre yeri; uyumsuz çiftlerin sahne bazında incelenmesi (hangi init state'ler kırılgan — kâseler yakınsa mı?); Spatial'ın "sahneden çözülebilir" yapısına karşı Goal suite'in neden daha iyi bir dil testi olduğu (Chen vd.: Goal'da Ø %5–11) ve deneyin Goal'a taşınma maliyeti; 50 episode'luk koşunun planı. Ders 20'de Türkçe mekânsal komut setini (20 EN–TR çift) tasarlıyoruz.
-
----
-
-## Cevaplar
-
-1. `parallel_eval_utils.py:69` (`init_state=initial_states[episode_idx]`) ve `:54` (`initial_states = task_suite.get_task_init_states(task_id)`): init state'ler görev başına **bir kez** yüklenir ve indeks `episode_idx`'tir; koşul döngüsü yamada `episode_idx`'in içinde döner, dolayısıyla aynı `episode_idx` dört koşulda aynı diziyi görür. `num_trials_per_task: 10` yalnızca `range(10)`'u belirler; eşleşme kodun yapısından gelir, ek bir "aynı seed" düzeneği gerekmez (flow-matching gürültüsü hariç — o eşlenmez).
-2. Hayır. `success` yalnızca orijinal hedefi ölçer (*biased* oranı). Model komuttaki kâseyi (`bowl_2`) alıp tabağa koyarsa `success = False` olur ve bu "komutu okudu"nun kanıtıdır; model `bowl_1`'i alırsa "okumadı". İkisini ayırmak için videodan `grasped_bowl` etiketi (LIBERO-CF'in grounding ölçüsü) gerekir; `wrong ≈ clean` ancak etiketler ağırlıkla `bowl_1` ise "görüntü dili eziyor" yorumunu destekler. Ayrıca bizim `wrong` komutumuz görev 1'in eğitimde görülmüş cümlesi; "görülmemiş karşı-olgusal komut" değil.
-3. p = 2 × 0.5⁵ = 0.0625 (Fisher ≈ 0.057). Kurabileceğin cümle: "10 eşli sahnede Türkçe komut 5 sahnede başarısızlığa yol açtı, ters yönde hiç fark yok; etki büyüklüğü −50 puan, Wilson aralıkları 60–98 ve 17–69." Kuramayacağın cümle: "Türkçe komut başarıyı anlamlı biçimde düşürür (p < 0.05)." Aradaki fark pilot ile sonuç arasındaki farktır; 20 sahnede aynı oran sürerse p ≈ 0.002 olur.
-4. Orijinal LIBERO runtime'ında `task.language` dosya adından türer, BDDL `:language` okunmaz; BDDL yolu LIBERO-Plus runtime'ını (ayrı notebook, 6.4 GB asset) ister. `empty` için boş `:language` ve `wrong` için başka görevin komutunu taşıyan bir dosya benchmark'a "Language görevi" olarak eklenemez (ikisi de bozulma değil, kontrol koşulu). `tr` BDDL yoluna uygundur (Ders 17 bunu kurdu) ama dört koşulun **aynı süreçte, aynı init state'lerde, aynı kod yolundan** geçmesi karşılaştırmanın temelidir; `tr`'yi ayrı runtime'da koşmak eşleştirmeyi bozar. İki yolun aynı metin için aynı sonucu verdiği ayrıca sınanabilir (Bölüm 2, hipotez).
-5. `planned_episodes = num_tasks_in_suite × num_trials_per_task = 10 × 10` (`libero_bench_eval.py:124`); görev filtresi (Ders 12 yaması) ve koşul çarpanı (Ders 18 yaması) bu formüle yansımaz. Gerçek plan 1 görev × 10 init × 4 koşul = 40. Hata değil, kozmetik; `total_success_rate` ve `Task summary` satırları gerçek sayımlardan gelir ve `analyze_4cond.py` log satırlarını kendisi sayar.
 
 ---
 

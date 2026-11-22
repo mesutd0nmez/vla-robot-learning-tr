@@ -118,15 +118,7 @@ Bugün ürettiğin görüntü (robot aşağı iner, gripper kapanır — görevi
 
 ---
 
-## 5. Kendini sına (cevaplar aşağıda)
-
-1. `env.reset()` ile `env.set_init_state(...)` arasındaki fark ne; benchmark neden ikincisini zorunlu kılar?
-2. Spatial suite'in 10 komutunun ortak yapısı nedir ve bu, dil kullanımını neden zorunlu kılar?
-3. Görüntüyü döndürmeyi unutursan OpenVLA eval'inde ne olur?
-4. `action[6] = +1` ne yapar? Bir VLA'nın ürettiği gripper değeri 0.3 çıkarsa kontrolcü ne yapar?
-5. `check_success()` neyi okur; bunu Türkçe mekânsal görevin için nasıl değiştirmen gerekir?
-
-## 6. Takılırsan
+## 5. Takılırsan
 | Belirti | Çözüm |
 |---|---|
 | `AssertionError ... mjJNT_HINGE` | mujoco 3.x kalmış: `pip install "mujoco==2.3.7"` |
@@ -138,82 +130,8 @@ Bugün ürettiğin görüntü (robot aşağı iner, gripper kapanır — görevi
 
 Hata mesajının tamamını chat'e yapıştır.
 
-## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
-
-**1. robosuite 1.4.1 ile hangi mujoco sürümü?**  _(tek seçim)_
-- [ ] A) 3.x
-- [ ] B) 2.3.7
-- [ ] C) 1.50
-- [ ] D) Fark etmez
-
-<details><summary>Cevap</summary>
-
-**B.** 3.x ile joint-type AssertionError.
-
-</details>
-
-**2. Spatial suite'in 10 komutunun ortak yapısı?**  _(tek seçim)_
-- [ ] A) Farklı nesneler, aynı yer
-- [ ] B) Hepsi 'siyah kâseyi al, tabağa koy'; yalnızca kâsenin konum ifadesi değişir
-- [ ] C) Hepsi çekmece açma
-- [ ] D) Farklı robotlar
-
-<details><summary>Cevap</summary>
-
-**B.** 
-
-</details>
-
-**3. Görüntüyü 180° döndürmeyi unutursan?**  _(tek seçim)_
-- [ ] A) Hiçbir şey
-- [ ] B) Model dağılım dışı görüntü görür, başarı düşer
-- [ ] C) Hız artar
-- [ ] D) Gripper ters çalışır
-
-<details><summary>Cevap</summary>
-
-**B.** 
-
-</details>
-
-**4. `set_init_state` hakkında doğrular? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) 50 kayıtlı başlangıçtan birini yükler
-- [ ] B) Karşılaştırılabilirlik için zorunludur
-- [ ] C) reset() ile aynıdır
-- [ ] D) Her episode farklı seed'le rastgele başlar
-
-<details><summary>Cevap</summary>
-
-**A, B.** 
-
-</details>
-
-**5. action[6] (gripper) hakkında doğrular? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) -1 açık
-- [ ] B) +1 kapalı
-- [ ] C) Kontrolcü 0 eşiğinde ikiliye çevirir
-- [ ] D) 0.3 'yarım açık' demektir
-
-<details><summary>Cevap</summary>
-
-**A, B, C.** 
-
-</details>
-
----
-
 ## Sonraki ders (Ders 11)
 LIBERO'nun insan demolarını indirip HDF5 dosyasını açacağız: episode yapısı, `obs/agentview_rgb`, `actions[T,7]`, ve Ders 1'deki action grafiğini gerçek veriden çizeceğiz.
-
----
-
-## Cevaplar
-
-1. `reset()` sahneyi rastgele (seed'e bağlı) bir başlangıca kurar; `set_init_state` kayıtlı 50 durumdan birini yükler. Benchmark karşılaştırılabilirlik ister: her model aynı 50 başlangıçtan test edilmeli ki farklar modelden gelsin, şanstan değil.
-2. Hepsi "siyah kâseyi al ve tabağa koy"; yalnızca kâsenin konumunu belirten mekânsal ifade değişir. Sahnede birden fazla kâse olduğu için hangisinin isteneceği görüntüden çıkarılamaz; komut okunmak zorunda. (Yine de LIBERO-Plus bulgularını hatırla: init state görevle korelasyonluysa kısayol yine mümkün.)
-3. Model eğitimde 180° döndürülmüş görüntü gördü; ters görüntü dağılım dışıdır. Başarı sert düşer ve nedenini bulmak saatler alır — Ders 3'teki "kamera bakış açısı" kırılganlığının kendi elinle yarattığın versiyonu.
-4. Gripper'ı kapatır. OSC_POSE gripper komutunu eşikler: 0'dan büyükse kapat, küçükse aç (ikili). 0.3 → kapat. OpenVLA'nın 256-bin'lik gripper çıktısının pratikte ikiliye indirgenmesi bu katmanda olur.
-5. BDDL dosyasındaki goal predicate'ini (ör. `(On akita_black_bowl_1 plate_1)`) simülatör geometrisiyle değerlendirir. "Tabağın sağına koy" için yeni bir predicate yazmak gerekir: kâsenin x'i tabağın x'inden eşik kadar büyük, y farkı sınırlı, kâse masada. LIBERO'nun BDDL'i genişletilebilir; Gün 14'te bakacağız.
 
 ---
 

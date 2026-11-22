@@ -94,81 +94,9 @@ Alt not: altın etiketin kaynağı. Cohn hattında doğru cevap ASP çözücüde
 
 ---
 
-## 7. Kendini sına (cevaplar aşağıda)
-
-1. Cohn hattının üç ortak bulgusunu (derinlik, yüzey, belirsizlik) say ve her biri için LIBERO/Türkçe tasarımımızda doğrudan karşılığı olan **ve olmayan** birer öğe göster.
-2. Blackwell'in tahmin aralığı ile Ders 18'in Wilson aralığı hangi soruyu cevaplar? Neden toplanmazlar ve tez tablosunda ikisi nasıl yan yana durur? Görsel 05'e göre 0,01 eşiği bizde neden ulaşılamaz?
-3. DecompSR'nin dil tablosunda (Tablo 2) iki gözlem vardı: düşüş modele göre değişiyor ve k arttıkça diller yakınsıyor. Bu iki gözlem Ders 19'un "B/D → Spatial, A/C → önce Goal" karar kuralını nasıl etkiler?
-4. StepGame'in 14 hatalı şablonu ile LIBERO-Plus'ın Language bozulması (Ders 17) arasındaki benzerliği yaz; D19/D20 için yazılacak "sağına" predicate'inde aynı hataya düşmemek için hangi bilgi BDDL'e açıkça girmeli?
-5. DecompSR'de yön sözcüklerini uydurma kelimelerle değiştirmek GPT-4o'yu 0,99'dan 0,37'ye düşürürken QSTRBench'te ilişki adını değiştirmek fark yaratmıyor. Farkın sebebi ne ve bu, Ders 24'teki çözüm adaylarından hangisi için bir kanıt?
-
-## 8. Bugünün görevi (15 dk)
+## 7. Bugünün görevi (15 dk)
 
 Repoda `notes/` klasörü boş; ilk notu sen aç: `notes/cohn-7-makale.md`. Bölüm 1'deki tabloya **bakmadan**, yedi makaleden üçünü seç (biri mutlaka 2410.03492 olsun) ve her biri için kendi iki cümleni yaz — birinci cümle ne bulduğu, ikinci cümle senin deneyine nerede dokunduğu; sonra tabloyla karşılaştırıp farkı bir satırla not et. Altına danışmana götüreceğin tek soruyu yaz (öneri: "Goal'un topoloji komutları metin literatüründe en az ölçülen aile; tezin ağırlığını oraya mı koyalım?"). Son 3 dakika Mac'te: `cd code/day23 && python prediction_interval.py --selftest && python prediction_interval.py --scores 90 80 90` — çıkan aralığı (3 koşu, 10 episode'luk bir hücre için gerçekçi bir senaryo) notun sonuna yapıştır ve genişliğin 0,01'in kaç katı olduğunu yaz. `python tools/gen_sidebar.py` çalıştırıp commit et; `notes/` menüde ilk kez görünecek.
-
-## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
-
-**1. Li, Hogg, Cohn'un StepGame makalesinin ana düzeltmesi neydi?**  _(tek seçim)_
-- [ ] A) Veri setini 10 kat büyütmek
-- [ ] B) 214 şablonun 14'ünün yanlış ilişkiye eşlendiğini bulup düzeltmek; sonra GPT'yi parser, ASP'yi çözücü yapmak
-- [ ] C) 8 yönü 4 yöne indirmek
-- [ ] D) ChatGPT'yi fine-tune etmek
-
-<details><summary>Cevap</summary>
-
-**B.** Düzeltilmiş veride GPT + ASP 1.000 örnekte 2 hata; düz GPT-4 k=1'de %100, k=10'da %25. A, C, D makalede yok.
-
-</details>
-
-**2. Blackwell, Barry, Cohn'un (2410.03492) temel bulgusu hangisi?**  _(tek seçim)_
-- [ ] A) Temperature 0 ve sabit seed her modeli deterministik yapar
-- [ ] B) Hiçbir ayar kombinasyonu bütün modelleri deterministik yapmaz; skor tahmin aralığıyla raporlanmalı ve genişlik ≤ 0,01 olana kadar tekrar eklenmeli
-- [ ] C) Azure ve OpenAI API'leri aynı modelde her zaman aynı skoru verir
-- [ ] D) Tek koşu yeterlidir, tekrar maliyeti karşılamaz
-
-<details><summary>Cevap</summary>
-
-**B.** Tek deterministik vaka yerel Mac M2'deki Llama 3 7B; Azure vs OpenAI 0,833 vs 0,840 (n=90, p=0,013) farklı. PI = x̄ ± t·s·√(2/n).
-
-</details>
-
-**3. DecompSR Tablo 2'ye göre o4-mini'nin k=1 doğruluğu İngilizce / Hintçe / İsveççe için?**  _(tek seçim)_
-- [ ] A) 0,99 / 0,95 / 0,30
-- [ ] B) 0,99 / 0,99 / 0,99
-- [ ] C) 0,30 / 0,95 / 0,99
-- [ ] D) 0,52 / 0,48 / 0,07
-
-<details><summary>Cevap</summary>
-
-**A.** D, k=10 satırı. Aynı model aynı sorularda dile göre üç kat fark veriyor; GPT-4o'da fark küçük (0,99 / 0,96 / 0,82) — düşüş modele göre değişiyor.
-
-</details>
-
-**4. Cohn hattından LIBERO/Türkçe tasarımımıza doğrudan taşınabilenler? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) İlişki ailelerini (yön / topoloji / mesafe) ayrı ayrı raporlamak
-- [ ] B) Cevabı değiştirmemesi gereken yüzey farkını (parafraz) kontrol koşulu olarak koymak
-- [ ] C) Koşuları tekrarlayıp tahmin aralığı vermek
-- [ ] D) Derinlik eksenini k=1…10 taramak
-- [ ] E) Altın etiketi modelden değil bağımsız bir mekanizmadan (simülatör/çözücü) almak
-
-<details><summary>Cevap</summary>
-
-**A, B, C, E.** D taşınamaz: LIBERO komutları k=1 (tek ilişki); LIBERO-Long bile zincirleme çıkarım değil sıralı iş listesi — görsel 06'daki kırmızı kutu.
-
-</details>
-
-**5. Yedi makale hakkında doğru olanlar? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) Hiçbirinde Türkçe yok
-- [ ] B) Hiçbirinde gövde/robot/action yok
-- [ ] C) QSTRBench bütün prompt'ları İngilizce verir ve diğer dilleri gelecek iş olarak bırakır
-- [ ] D) Kardinal yön benchmark'ında 2025'in en iyi modeli T4 şablonunu da çözmüştür
-- [ ] E) RoomSpace iki bakış açısı (top-down, north-facing) kullanır ve karışımı doğruluğu düşürür
-
-<details><summary>Cevap</summary>
-
-**A, B, C, E.** D yanlış: o1 genelde 0,92 ama T4'te 0,55; GPT-4.5 T4'te 0,00.
-
-</details>
 
 ## Takılırsan
 
@@ -183,16 +111,6 @@ Repoda `notes/` klasörü boş; ilk notu sen aç: `notes/cohn-7-makale.md`. Böl
 
 ## Sonraki ders (Ders 24)
 **Çözüm yaklaşımları: çeviri katmanı vs çok dilli VLM omurgası vs Türkçe LoRA fine-tune — artı/eksi/maliyet.** Bugün dört aday çıktı, planın üçüne Ders 6'nın "LLM parser + sembolik çözücü" fikri eklendi: Türkçe komutu önce yapısal bir gösterime (BDDL benzeri predicate ya da İngilizce şablon) çevirip robota öyle vermek. Her biri için bir tablo: ne değişiyor (girdi mi, omurga mı, policy başı mı), Mac/T4 bütçesine sığıyor mu (Ders 14'ün MPS deneyimi, LoRA r=32'nin 432 trajectory ile eğitilmiş olması), hangi Ders 18 örüntüsünde (A/B/C/D) işe yarar, ve hangisi "Türkçe anlıyor" demek olur, hangisi "Türkçe'yi İngilizce'ye indiriyor" — Cohn'un "dil dünyanın sıkıştırmasıdır" cümlesine göre ikisi aynı şey değil. QSTRBench'in "tanımı prompt'a koyunca nonce etkisi kayboluyor" bulgusu çeviri katmanının en ucuz biçimi için ilk kanıt olacak.
-
----
-
-## Cevaplar
-
-1. **Derinlik:** karşılığı yok — LIBERO komutları k=1, LIBERO-Long sıralı iş; dolaylı karşılık iki referanslı A01 (*arasındaki*) ve Webots/RoomSpace tarzı oda görevleri (Ders 21 ikinci ortam). **Yüzey:** doğrudan karşılık Ders 18 koşulları (`clean/para/tr/tr_ascii/tr_bare/empty` = aynı init state, başka yüzey; DecompSR'nin dil tablosu ve nonce deneyi); karşılığı olmayan: kişi/hareket biçimi gibi çekim varyantları (sete bilerek alınmadı). **Belirsizlik:** doğrudan karşılık tekrar koşuları + PI (`prediction_interval.py`); karşılığı olmayan: 0,01 genişlik eşiği (LIBERO ölçeğinde ulaşılamaz) ve API sağlayıcı farkı (bizde Colab T4 tek sağlayıcı, ama CUDA/driver sürümü aynı rolü oynayabilir — hipotez).
-2. Wilson: "bu koşuda 10 episode'dan 9'u başardıysa gerçek başarı oranı hangi aralıkta?" — koşu **içi** örnekleme belirsizliği, episode sayısıyla daralır. PI: "aynı koşuyu yarın tekrarlasam skor nereye düşer?" — koşudan **koşuya** değişkenlik (seed, flow-matching gürültüsü, env/donanım), tekrar sayısıyla daralır. Farklı rastgelelik kaynaklarını ölçtükleri için toplanmaz; tabloda her hücrede `x̄ (n_koşu × n_episode); Wilson [..]; PI ± ..` yazılır. Görsel 05: yalnızca binom gürültüsüyle bile 10 episode × 10 tekrar genişliği ~0,2–0,3, 50 × 10'da ~0,1; gerçek gürültü eklenince daha geniş. 0,01 için binlerce episode gerekir — 5.760 soruluk metin benchmark'ının lüksü.
-3. "Düşüş modele göre değişiyor" → `en − tr` farkı OpenVLA ve VLANeXt için ayrı raporlanmalı, tek "VLA'lar Türkçe'de şu kadar düşer" sayısı yanıltır; Ders 22 zaten iki tokenizer'ın farklı davrandığını gösterdi. "k arttıkça diller yakınsıyor" → dil etkisi görevin kolay olduğu yerde görünür; ama bizde "kolay" iki anlama gelir: Spatial'da komut *gereksiz* (yapısal üst sınır 9/10 → `tr ≈ empty ≈ clean`, dil etkisi görünmez), Goal'da komut *zorunlu* (1/10). Dolayısıyla kural güçlenir: örüntü A/C çıkarsa (dil görmezden geliniyor / wrong biased) Spatial'da dil etkisini aramak boşuna, Goal'a geç; B/D çıkarsa Spatial'da 50 init state ile derinleş. Ek: Goal'un C bloğu topoloji ailesi ve token tarafında en temiz Türkçe (Ders 22) — dil etkisini en "temiz" ölçebileceğimiz hücre.
-4. İkisinde de benchmark'ın **ölçtüğünü sandığı şeyle ölçtüğü şey farklı**: StepGame'de 14 şablon yanlış yöne eşlenmiş (*lower-left* diyen cümle *right* etiketli), LIBERO-Plus Language'de 50 yeniden yazımın hiçbiri ilişki ifadesini (*between*) değiştirmiyor — "dil bozulması" ilişkiyi test etmiyor (Ders 17). "Sağına" predicate'i için BDDL'e açıkça girmesi gereken bilgi **referans çerçevesi**: sağ = hangi eksende, kime göre (LIBERO adlandırması −y mi, görüntü sağı mı, robotun sağı mı; Ders 20 §3 üçünün ayrıştığını gösterdi) ve bölgenin sınırı (yarı düzlem mi, kaç cm pay). Çerçeve yazılmazsa "doğru" etiketimiz StepGame'in şablonları gibi yorumlayana göre değişir.
-5. DecompSR'de nonce prompt'u yeni sözcüğün ne anlama geldiğini yalnızca **örneklerle** ("bu hikâye şuna eşdeğerdir") veriyor; model ilişkiyi sözcüğün adından tanıdığı için, eğitimde görmediği ad örneklerle öğrenilemiyor. QSTRBench'te prompt ilişkilerin **tanımlarını** (bileşim tablosu, kavramsal komşuluk için formal tanım) içeriyor; model ezberden değil tanımdan çalışıyor, adın İngilizce/sembol/uydurma olması fark etmiyor; yalnızca şematik (ASCII) betimleme düşürüyor. Bu, Ders 24'teki **çeviri katmanı** adayının en ucuz biçimi için kanıt: Türkçe komutun yanına ilişkinin açık tanımını/İngilizce karşılığını koymak (ya da komutu yapısal gösterime çevirmek) nonce etkisini kısmen giderebilir. Ama uyarı: QSTRBench saf metin; VLA'nın policy başı yalnızca İngilizce komut-eylem çiftleri gördü (Ders 22 §5), tanım prompt'a girse bile policy başının onu kullanacağı garanti değil — ölçmeden hipotez.
 
 ---
 

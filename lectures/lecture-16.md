@@ -210,81 +210,9 @@ Tez bağlantısı: Chen vd. (2606.15714, Ders 15) OpenVLA-OFT'de "komut yok" dü
 
 ---
 
-## 8. Kendini sına (cevaplar aşağıda)
-
-1. LIBERO-Plus'ta bir modelin Spatial "Language" kategorisinde %90 başarı aldığını görüyorsun. Bu sayıyı yorumlamak için hangi iki ek ölçüme ihtiyacın var, neden?
-2. Görev 0'ın orijinal LIBERO'daki `task.language`'ı ile BDDL dosyasındaki `:language` alanı neden farklı, ve LIBERO-Plus'ın `_language_` görevlerinde bu fark neden ortadan kalkıyor?
-3. Bir arkadaşın Türkçe varyantları BDDL'e `Siyah KÂSEYİ tabağa koy` biçiminde yazdı. Modele giden metin ne olur ve bu deneyi nasıl kirletir?
-4. `empty` koşulunda 3/3 başarı görürsen "VLANeXt Spatial'da komutu kullanmıyor" diyebilir misin? Tasarımın hangi özelliği bu cümleyi zayıflatıyor?
-5. Zorluk seviyesi L1 olan görevleri seçmek neden bir "duman testi" seçimidir, neden bir "örneklem" seçimi değildir?
-
-## 9. Bugünün görevi (15 dk)
+## 8. Bugünün görevi (15 dk)
 
 Notebook'u yeni bir runtime'da koş (kurulum + indirme arka planda ~20 dk; hipotez). Hücre 8'in (duman testi) çıktısını, hücre 6'nın `du -sh` satırını ve en az `rewritten` + `empty` koşullarının `parse_plus_log.py` tablolarını al. `projects/04-libero-plus-kurulum/` klasörünü `projects/_template`'ten aç; README'ye (1) her hücrenin süresi, (2) asset'lerin açılmış boyutu, (3) iki koşulun 3'er episode'luk tablosu ve Bölüm 6'daki hangi dalda olduğun (tek paragraf, "3 episode'da …" diye), (4) bir başarısız episode videosunun bir cümlelik teşhisi; `results/runs.csv`'yi aynı klasöre koy. Vaktin kalırsa hücre 10b'yi (`clean`, `tr`) de koş. `projects/README.md` tablosuna satır ekle.
-
-## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
-
-**1. LIBERO-Plus'ta kaç görev var ve Spatial'da bozulmamış orijinal görev kaç tane?**  _(tek seçim)_
-- [ ] A) 10.030 görev; Spatial'da 10 orijinal görev de listede
-- [ ] B) 10.030 görev; Spatial'da orijinal görev yok
-- [ ] C) 2402 görev; hepsi Spatial
-- [ ] D) 10.030 görev; her görev 50 episode koşulur
-
-<details><summary>Cevap</summary>
-
-**B.** 2402 + 2518 + 2591 + 2519 = 10.030; Spatial'ın 2402 görevinin hepsi bir bozulma örneği, temel görev adı listede yok. Her görev 1 episode (`num_trials_per_task: 1`).
-
-</details>
-
-**2. LIBERO-Plus'ta `..._language_5_view_0_0_100_0_0_initstate_0` görevinin komutu nereden gelir?**  _(tek seçim)_
-- [ ] A) Dosya adından (alt çizgiler boşluğa)
-- [ ] B) `..._language_5.bddl` dosyasının `(:language …)` alanından, `bddl` ayrıştırıcısıyla küçük harfe çevrilerek
-- [ ] C) `task_classification.json`'daki bir `language` alanından
-- [ ] D) Eval sırasında bir LLM'in anlık yeniden yazımından
-
-<details><summary>Cevap</summary>
-
-**B.** `grab_language_from_filename` adında `_language_` varsa `_view_` öncesini `.bddl` yapıp `get_problem_info` çağırır; `scan_tokens` `.lower()` uygular. A orijinal LIBERO'nun (ve LIBERO-Plus'ın dil dışı görevlerinin) yoludur. JSON'da dil alanı yok.
-
-</details>
-
-**3. LIBERO-Plus'ta `difficulty_level` neyi ifade eder?**  _(tek seçim)_
-- [ ] A) Komutun kelime sayısını
-- [ ] B) Bozulmanın büyüklüğünü (ör. kamera açısının derecesini)
-- [ ] C) Dört referans modelden (OpenVLA-OFT, π0, π0-fast, UniVLA) kaçının görevi çözdüğünü
-- [ ] D) İnsan değerlendiricilerin puanını
-
-<details><summary>Cevap</summary>
-
-**C.** Makale Ek C.3: L1 = dördü de çözdü … L5 = hiçbiri. Bu yüzden seviye görevin içsel zorluğu değil, belirli modellere göre bir etikettir.
-
-</details>
-
-**4. Hangileri LIBERO-Plus'ı Ders 12'nin LIBERO runtime'ından ayrı kurmanın gerekçesidir? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) İki paket de `import libero` adını kullanır
-- [ ] B) Config dosyası (`config.yaml`) asset yolunu tutar; yanlış kopyayı gösterebilir
-- [ ] C) LIBERO-Plus CUDA 12.4 dışında çalışmaz
-- [ ] D) LIBERO-Plus ek olarak `wand`/ImageMagick ve `scikit-image` ister
-- [ ] E) VLANeXt checkpoint'i LIBERO-Plus için ayrı eğitilmiştir
-
-<details><summary>Cevap</summary>
-
-**A, B, D.** C yanlış: CUDA kısıtı VLANeXt/FA2'nin, LIBERO-Plus'ın değil. E yanlış: aynı `VLANeXt_libero_spatial.pt` kullanılıyor — model LIBERO'da eğitildi, LIBERO-Plus'taki bozulmaları hiç görmedi.
-
-</details>
-
-**5. `bddl.parsing.scan_tokens` Türkçe bir komuta ne yapar? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) `Işık` → `işık` (büyük I noktalı i olur)
-- [ ] B) `İki` → `i` + birleşik nokta (U+0307) + `ki`
-- [ ] C) `;` sonrasını yorum sayar; komut içinde `;` görev yüklenirken hata verir
-- [ ] D) `â`, `ğ`, `ş` gibi harfleri ASCII'ye çevirir
-- [ ] E) Kesme işaretini (`ramekin'in`) siler
-
-<details><summary>Cevap</summary>
-
-**A, B, C.** Gerçek `bddl 1.0.1` çıktısı (görsel 05). D ve E yanlış: `kâseyi`, `tabağın`, `ramekin'in` aynen geçiyor.
-
-</details>
 
 ## Takılırsan
 
@@ -305,16 +233,6 @@ Notebook'u yeni bir runtime'da koş (kurulum + indirme arka planda ~20 dk; hipot
 
 ## Sonraki ders (Ders 17)
 LIBERO-Plus'ın yedi bozulmasının kodda nasıl uygulandığı: kamera (`horizon/vertical/scale` → MuJoCo kamera pozu), robot başlangıç pozu (`initstate` → farklı robot sınıfı), ışık ve arka plan (BDDL `_light_`, `_table_`, `_tb_` dosyaları), sensör gürültüsü (`env_wrapper.py`'deki ImageMagick/plasma fraktal hattı) ve nesne yerleşimi (`_add_` dosyaları). Language tarafında görev 0'ın 46 yeniden yazımını R1/R2/R3 türlerine ayırıp bir **perturbation tablosu** çıkaracağız; sonra aynı şablonla `..._language_tr*.bddl` Türkçe varyantlarının nasıl ekleneceğini (task map + küçük harf kuralı) tasarlayacağız. Bugünkü `rewritten` / `empty` sonuçların, hangi türün modele ne kadar zarar verdiğini konuşurken ilk veri noktası olacak.
-
----
-
-## Cevaplar
-
-1. (i) **Aynı görevlerin temiz hâlindeki başarı** — LIBERO-Plus'ta temiz görev olmadığından %90'ın "bozulmanın etkisi" mi yoksa "modelin zaten %90'da olması" mı olduğunu bilemezsin (VLANeXt-B'nin LIBERO Spatial'ı 99.0; Language altında 86.9 → ~12 puan etki). (ii) **Boş komuttaki başarı** — Language bozulması az zarar veriyorsa bunun nedeni sağlam dil anlama da olabilir, dili hiç kullanmamak da; `empty` %90'a yakınsa ikincisi. Bölüm 6'daki `clean` ve `empty` koşulları tam bu iki ölçüm.
-2. Orijinal LIBERO `grab_language_from_filename` ile komutu dosya adından üretir (`pick up the black bowl …`); BDDL'deki `:language` (`Pick the akita black bowl …`) hiç okunmaz (Ders 13). LIBERO-Plus'ta adında `_language_` olan görevlerde fonksiyonun ikinci dalı çalışır ve komut BDDL'in `:language` alanından okunur; bu dosyalarda o alan yeniden yazılmış komuttur. Yani dil varyantlarında "dosya ne diyorsa model onu görür" — dil dışı LIBERO-Plus görevlerinde ise eski kural (dosya adı) sürer.
-3. `scan_tokens` tüm dosyayı `.lower()` ile küçültür: `siyah kâseyi̇ tabağa koy` — `İ` bir `i` ve görünmez bir U+0307 birleşik noktaya dönüşür; kelime tokenizer'ın görmediği bir bayt dizisi olur. Deney artık "Türkçe" ile "Türkçe + Unicode gürültüsü"nü karıştırır; İngilizce varyantlarda böyle bir gürültü yok, karşılaştırma adil değil. Çözüm: varyantları baştan küçük harfle yazmak (ya da eval katmanından override ile vermek).
-4. Diyemezsin, en az üç nedenle: (a) n=3 — 3/3'ün Wilson %95 aralığı 43.8–100; (b) üç "görev" aynı init state'i paylaşıyor, yani bağımsız üç durum değil, aynı durumun üç tekrarı; (c) tek sahne ve L1 (kolay) görevler seçildi — model bu init state'te hedef kâseyi konumdan tahmin edebiliyor olabilir, başka sahnelerde/Goal'da durum farklıdır. Doğru cümle: "Görev 0'ın init 0 sahnesinde, 3 episode'da, boş komutla 3/3 başarı; bu sahne Türkçe komut etkisini ölçmek için bilgi taşımıyor olabilir."
-5. L1 görevleri dört farklı modelin hepsinin çözdüğü görevlerdir; VLANeXt'in de çözmesi muhtemeldir. Başarısızlık görürsen sorunun model değil **boru hattı** (yanlış görev indeksi, yanlış asset, yanlış normalizasyon, override'ın yanlış uygulanması) olma ihtimali yüksektir — duman testinin amacı budur. Ama L1, modellerin başarısına göre **seçilmiş** bir alt küme olduğu için Language bozulmasının genel etkisini temsil etmez; ortalama başarıyı yukarı çeker (seçim yanlılığı). Örneklem için tüm seviyelerden (ya da 46 varyantın hepsinden) çekmek gerekir.
 
 ---
 

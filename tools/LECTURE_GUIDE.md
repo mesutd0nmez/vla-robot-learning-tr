@@ -14,13 +14,12 @@ Bu dosya, `lectures/lecture-NN.md` dosyalarının nasıl yazılacağını tanım
 4. `---` ile ayrılmış 5–8 numaralı bölüm; her bölümde en az bir somut örnek; toplam okuma ≤ 40 dk, uygulama günlerinde ≤ 60 dk toplam
    - `## 0. Dürüstlük notu` (ne çalıştırıldı / ne hipotez dökümü) bölümü YAZMA; bölümler 1'den başlar. Mesut her şeyi kendisi deniyor. Çalıştırılamayan bir şey varsa ilgili bölümde tek cümleyle söyle.
 5. `## N. Yazılımcı için köprüler` (Mesut 10 yıllık C#/.NET backend geliştirici; benzetmeler buradan)
-6. `## N. Kendini sına (cevaplar aşağıda)` — 5 açık uçlu soru
-7. `## N. Bugünün görevi (15 dk)` — tek somut görev; "çıktı doldurma" bölümü KOYMA
-8. `## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)` — 3 tek seçimli + 2 çok seçimli; şıklar `- [ ] A) …`; cevap `<details><summary>Cevap</summary>\n\n**A.** gerekçe\n\n</details>`
-9. Uygulama günlerinde `## Takılırsan` tablosu (belirti → çözüm)
-10. `## Sonraki ders (Ders N+1)` — bir paragraf
-11. `## Cevaplar` — açık uçlu soruların cevapları
-12. `## Kaynaklar` — arXiv/GitHub bağlantılarıyla; görsellerin nasıl üretildiği notu
+6. `## N. Bugünün görevi (15 dk)` — tek somut görev; "çıktı doldurma" bölümü KOYMA
+7. Uygulama günlerinde `## Takılırsan` tablosu (belirti → çözüm)
+8. `## Sonraki ders (Ders N+1)` — bir paragraf
+9. `## Kaynaklar` — arXiv/GitHub bağlantılarıyla; görsellerin nasıl üretildiği notu
+
+Soru bölümü YAZMA: `Kendini sına`, `Çoktan seçmeli` ve `Cevaplar` bölümleri tüm derslerden kaldırıldı (22 Kas 2026); yeni derslere de eklenmez.
 
 ## Görseller (zorunlu, en az 3)
 - Klasör: `lectures/images/lecture-NN/`; derste `![alt](images/lecture-NN/01-ad.png)`

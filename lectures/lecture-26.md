@@ -121,80 +121,9 @@ Tezin iddiasına bağ: üç RQ, Ders 25'in üç cümlesinin (iddia / kanıt zinc
 
 ---
 
-## 8. Kendini sına (cevaplar aşağıda)
-
-1. "Türkçe komutlar VLA'larda çalışıyor mu?" sorusunu altı alanla yeniden yaz: hangi alan hangi belirsizliği kapatıyor? En az üç alanı somut doldur.
-2. `rq_power.py`'ye göre n = 50 eşli init state Δ = 30'u %94, Δ = 15'i %48 güçle yakalıyor (r = 0,05). Bu iki sayı RQ-a'nın "|Δ| ≥ 15" eşiğini nasıl gerekçelendiriyor ve 15'in altındaki bir fark tezde nasıl yazılır?
-3. "Null reddedilemedi" ile "eşdeğerlik gösterildi" arasındaki fark ne? TOST'ta δ'nın sonuçtan önce yazılması neden zorunlu; RQ-a'da δ = 15 ve δ = 10 neden farklı?
-4. RQ-b'de B bloğunun EN sütununun da koşulması neyi ayırıyor? LangGap'in hangi sayısı bu sütunun dış referansı ve neden π0.5 %11'in üstüne çıkmak Türkçe için güçlü bir iddia olur?
-5. RQ-c'nin H0-c4'ü (İngilizce bozulmuyor, δ = 5) hangi iki makale bulgusundan doğdu ve bu null olmadan "açık kapandı" cümlesi neden yarım kalır?
-
-## 9. Bugünün görevi (15 dk)
+## 8. Bugünün görevi (15 dk)
 
 `thesis/rq-candidates.md`'yi aç, en alttaki **"Önceden yazılan tahminler"** bloğunu doldur — koşmadan önce: RQ-a için S-VN ve S-OV'de beklediğin Δ(tr_a − clean) (puan), tr − empty; RQ-b için en çok kırılacağını düşündüğün aile ve yüzey, tr_B > empty? evet/hayır; RQ-c için MT ve parser'ın κ tahmini; ve tek cümleyle hangi RQ'nun birincil çıkacağını düşündüğün. Sonra `cd code/day26 && python rq_lint.py ../../thesis/rq-candidates.md` (TAM çıkmalı) ve `python rq_power.py | head -8` çıktısındaki n = 50 satırını tahminlerinin yanına yaz: tahmin ettiğin Δ o n'de görünür mü? Commit mesajı: `Ders 26: RQ tahminleri (ön kayıt)`. Bu commit'in hash'i tezde "tahminler koşudan önce yazıldı" cümlesinin kanıtı.
-
-## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
-
-**1. `rq_power.py` bu oturumda ne buldu (r = 0,05, %80 güç)?**  _(tek seçim)_
-- [ ] A) n = 50 her büyüklükte farkı yakalar
-- [ ] B) n = 50 en küçük ≈ 23 puanlık farkı yakalar; Δ = 15 için n ≈ 100 gerekir
-- [ ] C) n = 10 Δ = 30'u %90 güçle yakalar
-- [ ] D) Güç r'den bağımsızdır
-
-<details><summary>Cevap</summary>
-
-**B.** n = 10'da Δ = 30 için güç %7 (C yanlış); r arttıkça MDE büyür (r = 0: 16, r = 0,05: 23, r = 0,10: 29 — D yanlış).
-
-</details>
-
-**2. TOST (eşdeğerlik testi) için doğru olan?**  _(tek seçim)_
-- [ ] A) Null reddedilemeyince eşitlik kanıtlanmış olur
-- [ ] B) Sonuca bakıp en dar δ seçilir
-- [ ] C) δ önceden yazılır; farkın %90 CI'ı (−δ, +δ) içindeyse eşdeğerlik; q = 0,2'de δ = 15 için n ≈ 25, δ = 10 için n ≈ 55
-- [ ] D) TOST yalnız sürekli değişkenlerde çalışır
-
-<details><summary>Cevap</summary>
-
-**C.** A klasik hata ("absence of evidence ≠ evidence of absence"); B ön kaydın tam tersi; D yanlış — eşli oranlar farkına Wald yaklaşımıyla uygulandı (planlama için).
-
-</details>
-
-**3. RQ-b'de EN-B sütunu neden koşulur?**  _(tek seçim)_
-- [ ] A) İngilizce başarıyı artırmak için
-- [ ] B) "Yeni tarif" bedelini (EN-B − clean) "Türkçe" bedelinden (TR-B − EN-B) ayırmak için; dış referans LangGap Spatial Description %11
-- [ ] C) LIBERO-Plus Language ile karşılaştırmak için
-- [ ] D) Goal suite'inde tavanı ölçmek için
-
-<details><summary>Cevap</summary>
-
-**B.** B bloğunda EN komut da eğitimde yok; EN-B olmadan TR-B'deki düşüşün ne kadarı dilden ne kadarı yeni tariften, ayrılamaz.
-
-</details>
-
-**4. Altı alandan hangileri "sonuç gelmeden" yazılmak zorunda? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) Null hipotez ve eşdeğerlik sınırı δ
-- [ ] B) Sayısal eşik (|Δ| ≥ 15, p < 0,05, κ ≥ 0,5)
-- [ ] C) "Evet / hayır çıkarsa tez ne der" cümleleri
-- [ ] D) Gözlenen Δ değeri
-- [ ] E) Birincil RQ'nun hangisi olduğu
-
-<details><summary>Cevap</summary>
-
-**A, B, C.** D sonuçtur; E koşullu bırakılır — sıralama *kuralı* önceden yazılır (§6), seçim S1 gelince yapılır.
-
-</details>
-
-**5. "Sistem farkı" uyarısı hangi cümleleri yasaklar? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) "Qwen3-VL omurgası Türkçe'yi LLaMA-2'den iyi anlıyor"
-- [ ] B) "S-VN sistemi Türkçe'de S-OV'den az düşüyor"
-- [ ] C) "Tokenizer farkı Türkçe açığının nedenidir" (yalnızca RQ-a sonucuyla)
-- [ ] D) "İki sistem aynı 50 init state'te koşuldu"
-
-<details><summary>Cevap</summary>
-
-**A, C.** B betimsel ve izinli; D yöntem cümlesi. Omurga/tokenizer nedenselliği ablation (Ders 28) ya da RQ-b'nin `tr_ascii` zıt-yön testi ister.
-
-</details>
 
 ## Takılırsan
 
@@ -211,16 +140,6 @@ Tezin iddiasına bağ: üç RQ, Ders 25'in üç cümlesinin (iddia / kanıt zinc
 
 ## Sonraki ders (Ders 27)
 **Her RQ için deney matrisi: veri, model, benchmark, metrik, hesaplama maliyeti.** Bugünkü altı alan satır başlıklarına dönüşür: her RQ × {veri (hangi blok, kaç komut, karşı-olgusal BDDL sayısı), model/checkpoint (S-OV Spatial/Goal, S-VN Spatial/Goal; LoRA için eğitim verisi), benchmark (suite, init state sayısı, tekrar), metrik (Δ, κ, Wilson/PI, TOST), maliyet (T4 saati — Ders 12/16/18'in gerçek episode süreleriyle; 4.800 episode kaç Colab oturumu, Kaggle'ın 30 sa/haftasına sığıyor mu)} hücreleri doldurulur, toplam bütçe çıkarılır ve bütçeye sığmayan hücreler işaretlenir. `rq_power.py` o derste tersine çalışır: bütçe kaç init state'e yetiyorsa, o n'de görünen en küçük fark RQ'nun eşiğini sınar. S1 repoya girdiyse matris birincil RQ'dan başlar; girmediyse üç RQ eşit ağırlıkta yazılır, toplam bütçe üçünün toplamı olur.
-
----
-
-## Cevaplar
-
-1. Örnek: **Null** — aynı 50 init state'te P(başarı | tr_a) = P(başarı | clean), δ = 15 (hangi büyüklük "çalışıyor" sayılır). **Değişkenler** — bağımsız: koşul {clean, empty, wrong, tr_a}, sistem {S-OV, S-VN}; bağımlı: episode başarı (predicate); ortak: token sayısı, komutsuz tavan (hangi model, ne ölçülüyor, neye göre). **Ölçüt/eşik** — eşli Δ, McNemar p < 0,05 ve |Δ| ≥ 15; Wilson + PI, ≥3 tekrar (kaç puan, kaç koşu). **Suite/blok/n** — Spatial A + Goal C, 50 init (hangi görevler). **Sistemler** — iki açık VLA, fark sistem düzeyinde. **Evet/hayır** — her dalın cümlesi (sonuç ne olursa olsun tez ne yazar). Her alan "çalışıyor mu"daki bir belirsizliği sayıya ya da isme bağlar.
-2. 50 init state ile 30 puanlık fark güvenle görünür (%94), 15 puanlık fark yazı tura (%48): eşiği 15'e koymak "bu bütçede ölçülebilenin alt sınırı budur" demektir; eşiği daha aşağı koymak, görülemeyecek farkı iddia etmek olur. 15'in altındaki gözlenen fark tezde "**ölçülemedi** (n = 50'de MDE ≈ 23; 95% CI …)" diye yazılır; "fark yok" diye değil — "yok" için ayrıca TOST (δ) gerekir.
-3. Null reddedilememek "kanıt yok"tur; eşdeğerlik "farkın δ'dan küçük olduğunun kanıtı"dır (%90 CI ⊂ ±δ). δ sonuçtan önce yazılmazsa CI'a bakıp içine sığan en dar δ seçilir ve test anlamsızlaşır (tolerans sonradan ayarlanmış assert). RQ-a'da δ = 15 "tr ≈ clean" (Türkçe çalışıyor) iddiası için, δ = 10 "tr ≈ empty" (Türkçe okunmuyor; Ders 19'un eşiği) iddiası için — iki farklı iddia, iki farklı tolerans, iki farklı n (≈25 / ≈55, q = 0,2).
-4. B bloğunda EN komut da eğitimde yok; EN-B − clean "eğitimde olmayan tarif" bedelini, TR-B − EN-B yalnızca "Türkçe" bedelini verir — EN-B olmadan TR-B'deki düşüş iki nedene bölünemez. Dış referans: LangGap Tablo VIII "Spatial Description" π0.5 %11 (5 görev × 20 episode; aynı sahnede mekânsal tarif değişince). Türkçe yeni tarifin `empty`'nin üstüne çıkması güçlü iddia çünkü İngilizce'de bile tarif değişince model çöküyor; Türkçe'de çökmemesi "cümleyi ezberledi" açıklamasını dışlar (tarif ezberde yok) ve mekân kodlamasının içeride görüntüye bağlandığını gösterir.
-5. Chen vd.: M-CT (çok dilli devam eğitimi) Arapça'yı 59,3 → 89,4 yaparken İngilizce'yi 95,3 → 92,6 düşürdü; E-FT (yalnız İngilizce ek eğitim) çok dilli skoru taban modelin altına indirdi. Dong vd.: ZH fine-tune 51,7 → 86,8 (kazanç tarafı). Yan etki null'u olmadan "Türkçe açığı kapandı" cümlesi, İngilizce'nin ne kadar bozulduğunu söylemez — tez "Türkçe kazandı, İngilizce kaybetti mi?" sorusuna cevapsız kalır; δ = 5 Chen'in −2,7'sini ancak n ≈ 217'de ayırt eder (q = 0,2), yani bu null muhtemelen "belirsiz" kalır ve öyle yazılır.
 
 ---
 

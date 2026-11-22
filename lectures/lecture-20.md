@@ -139,81 +139,9 @@ Literatürdeki yeri: Dong vd. (2026) LIBERO'yu dokuz dile **Google Translate** i
 
 ---
 
-## 8. Kendini sına (cevaplar aşağıda)
-
-1. *ocağın üstündeki kase* ile *kaseyi ocağın üstüne koy* aynı ilişki adını kullanıyor. Aralarındaki ek farkı nedir, bu fark LIBERO'nun hangi iki suite'ine karşılık geliyor ve İngilizce'de aynı bilgi nerede taşınıyor?
-2. Modelin gördüğü görüntü neden gerçek sahnenin yatay aynası? Bunu hangi iki bağımsız gözlem destekliyor?
-3. Görev 1 sahnesinde "soldaki siyah kase" üç çerçevede hangi kâseyi gösteriyor? Bu satırda neden success rate değil "hangi kâse tutuldu" ölçülür?
-4. A bloğunda (eğitilmiş Spatial komutlarının çevirisi) Türkçe success rate düşerse bundan neden tek başına sonuç çıkmaz ve B bloğu bu boşluğu nasıl kapatır?
-5. `tr_bare` (ekleri atılmış) ile minimal çift (*üstüne / sağına*) iki farklı soruyu sınar. Hangi soruları, ve `tr_a ≈ tr_bare` çıkması tez için ne anlama gelir?
-
-## 9. Bugünün görevi (15 dk)
+## 8. Bugünün görevi (15 dk)
 
 Anadil okuması — setin v0.2'ye geçmesi için gereken tek şey. Önce `projects/project-2/libero_first_episode-task-1.png` dosyanı aç ve **referans sütunlarına bakmadan** üç soruyu cevapla: bu karede "soldaki siyah kase" hangisi, "sağdaki" hangisi; görev 8 sahnesinde (görsel 02c) "öndeki" hangisi? Cevaplarını `datasets/04-tr-spatial-commands/data/human_check.csv`'nin `hangi_kase_mesut` sütununa yaz (B07–B09). Sonra aynı dosyada 20 satırın `tr_a` ve `tr_b`'sini oku; her birine 1–5 doğallık puanı ver (5 = bir insana böyle söylerdim), beğenmediğine `duzeltme_onerisi` yaz. Özellikle bak: *robota daha yakın olan* mı *robota yakın duran* mı; *tabağa uzak* mı *tabaktan uzak* mı; *ön taraftaki* doğal mı. Dosyayı commit'le. Senin üç kâse cevabın setin dördüncü çerçevesi olacak: tablodaki üç çerçeveden hangisiyle örtüştüğün, Türkçe konuşan birinin bu sahneyi nasıl okuduğunun ilk verisidir.
-
-## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
-
-**1. *ara-sı-nda-ki* zincirinde ifadeyi sıfata çeviren ("arasında olan") ek hangisi?**  _(tek seçim)_
-- [ ] A) -sı (POSS3)
-- [ ] B) -nda (LOC)
-- [ ] C) -ki
-- [ ] D) Zincirden önceki -in (GEN)
-
-<details><summary>Cevap</summary>
-
-**C.** `-ki` yer bildiren ifadeye eklenip onu niteleyiciye çevirir (*arasında* → *arasındaki kase*). `-sı` "onun arası" bağını, `-nda` bulunmayı, `-in` referans nesneyi işaretler. Setin 20 komutunda değişmeyen tek ek de budur (9/9 `-ki`).
-
-</details>
-
-**2. LIBERO'nun BDDL bölge adlarına göre "left" dünya koordinatında hangi yön?**  _(tek seçim)_
-- [ ] A) +y (robotun solu)
-- [ ] B) −y (robotun sağı)
-- [ ] C) +x (kameraya doğru)
-- [ ] D) Sahneye göre değişir; sabit bir sözleşme yok
-
-<details><summary>Cevap</summary>
-
-**B.** LIBERO-90/10'da adı left/right olan 5 bölge çiftinin 5'inde left daha küçük y'dedir (ör. `plate_left_region` y = −0.30). Bu, kameranın yerinde duran aynasız bir gözlemcinin solu; robotun kendi sağı ve modelin gördüğü (aynalı) görüntünün sağıdır.
-
-</details>
-
-**3. Görev 8 sahnesinde sol/sağ tarifi neden kullanılamıyor?**  _(tek seçim)_
-- [ ] A) İki kâse 50 init state'in bir kısmında yer değiştiriyor
-- [ ] B) İki kâse neredeyse aynı y'de; fark eşiğin (5 cm / 20 piksel) altında ya da işaret sahneye göre değişiyor
-- [ ] C) Görev 8'de tek kâse var
-- [ ] D) Kamera o sahnede farklı konumda
-
-<details><summary>Cevap</summary>
-
-**B.** `bowl_1` *next_to_plate* (y ≈ 0.31), `bowl_2` *next_to_ramekin* (y ≈ 0.32): y farkı 1 cm civarı, init state'ten init state'e işaret değişiyor (`belirsiz`). Aynı sahne ön/arka için uygun: x farkı en az 16 cm.
-
-</details>
-
-**4. B bloğu hakkında hangileri doğru? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) İngilizce karşılıkları LIBERO'nun 130 görev adının hiçbirinde geçmiyor
-- [ ] B) Kastedilen kâse 50 init state'in koordinatlarından hesaplandı
-- [ ] C) Altı satırın hepsinde üç çerçeve aynı kâseyi gösteriyor
-- [ ] D) Beş satır için hedefi `bowl_2` olan bir BDDL üretildi
-- [ ] E) EN-B ile TR-B arasındaki fark, "yeni tarif" etkisinden arındırılmış dil etkisidir
-
-<details><summary>Cevap</summary>
-
-**A, B, D, E.** C yanlış: B07–B09'da çerçeveler ayrışıyor (sol/sağ'da `libero`, ön'de `robot` farklı). D: B07, B08, B09 (bir çerçevede), B10, B11 (her çerçevede) → 5 dosya; B12 eğitimdeki hedefi gösterdiği için gerekmez.
-
-</details>
-
-**5. `tr_bare` yüzeyi (*kase tabak üst koy*) hakkında hangileri doğru? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) Zhan vd.'nin İngilizce'deki "sözcük sırasını karıştır" deneyinin Türkçe'deki işlevsel karşılığıdır
-- [ ] B) İlişki adının kökünü (*üst*) korur; ilişki adını yalıtmaz
-- [ ] C) `tr_a ≈ tr_bare` çıkarsa model Türkçe'de ekleri kullanmıyor demektir
-- [ ] D) Türkçe karaktersiz yazımı sınar
-- [ ] E) Rolleri (hangi nesne hedef, hangisi taşınan) hâlâ açıkça taşır
-
-<details><summary>Cevap</summary>
-
-**A, B, C.** D `tr_ascii`'nin işi. E yanlış: *kase tabak üst koy*'da hangisinin hangisinin üstüne konacağını yalnızca dünya bilgisi söyler; rolü taşıyan `-yi` ve `-ın … -ne` atıldı.
-
-</details>
 
 ## Takılırsan
 
@@ -232,16 +160,6 @@ Anadil okuması — setin v0.2'ye geçmesi için gereken tek şey. Önce `projec
 
 ## Sonraki ders (Ders 21)
 **Tokenizasyon analizi: aynı 100 satır, iki tokenizer.** `commands.csv`'yi LLaMA-2 (OpenVLA) ve Qwen3-VL (VLANeXt) tokenizer'larından geçireceğiz: satır başına token sayısı, `rel_span`'in kaç parçaya bölündüğü, ilişki ekinin (`-nde-ki`, `-ne`) **ayrı bir parça olarak** var olup olmadığı, `tr_ascii`'nin parçalanışı nasıl değiştirdiği, ve bugünkü allomorf tablosunun token tarafındaki karşılığı (*sağına* ile *soluna* ortak bir parça paylaşıyor mu). Senin `human_check.csv` düzeltmelerin sete girmiş olursa analiz v0.2 üzerinde koşar; girmemişse v0.1 üzerinde.
-
----
-
-## Cevaplar
-
-1. İlk üç ek aynı (GEN `-ın`, ilişki adı *üst*, POSS3 `-ü`); fark hâlde: `-nde-ki` (bulunma + sıfatlaştırma: "üstünde duran") nesneyi **seçer**, `-ne` (yönelme) **hedef** gösterir. Spatial komutları seçimdir (*pick up the bowl on…*), Goal komutları yerleştirme (*put the bowl on…*). İngilizce'de edat ikisinde de *on*; rolü fiil (*pick up* / *put*) ve sözdizimi taşır. Dolayısıyla "Türkçe mekânsal ek" iki suite'te iki farklı parça dizisidir.
-2. robosuite ham görüntüyü dikey ters verir (OpenGL kökeni); eval kodu `[::-1, ::-1]` ile 180° döndürür; 180° = dikey + yatay çevirme olduğundan bileşke yatay aynadır. Destek: (i) kamera quaternion'undan hesaplanan "sağ" ekseni dünya +y iken tabak (y = +0.20) senin karende solda, ve init state'ten aynayla hesaplanan izdüşümler karedeki nesnelerin üstüne düşüyor; (ii) bilek kamerası karesinde kurabiye kutusunun yazısı ters okunuyor. Üçüncü, dolaylı destek: LIBERO'nun "right" bölgeleri +y'de — yazarlar aynasız görüntüye bakmış.
-3. `libero` → bowl_2 (kurabiye kutusunun yanındaki; −y), `image` → bowl_1 (ramekinin yanındaki; karede solda), `robot` → bowl_1 (robotun solu +y). Hangi çerçevenin "doğru" olduğu a priori belli değil; success predicate'i tek bir kâseye bağlamak o çerçeveyi dayatmak olur. Ölçülen şey modelin çerçevesidir: hangi kâseyi tuttuğu (iki BDDL'i aynı episode'lara uygulayarak ya da videodan). EN *left* ile TR *soldaki*'nin aynı kâseye gidip gitmediği ayrı ve daha ilginç sorudur.
-4. Spatial'da sahne görevi söylüyor (9/10; Ders 19): TR düşmezse "anladı" denemez (okumaya gerek yoktu), düşerse "Türkçe anlaşılmadı" ile "ezberlenmiş EN cümlesi bozuldu" ayrılamaz — eğitim cümlesi hem dil hem ezber anahtarıdır. B bloğunda EN komut da eğitimde yok: EN-B, yeni bir tarifin maliyetini; TR-B, aynı tarifin Türkçe'sinin maliyetini verir. Fark (EN-B − TR-B) dil etkisidir; EN-A − EN-B ise ezberin katkısıdır.
-5. `tr_bare` **eklerin** (rol + hâl) okunup okunmadığını sınar; minimal çift **ilişki adının** (üst / sağ) okunup okunmadığını. `tr_a ≈ tr_bare` çıkarsa model Türkçe'de kökleri bir torba olarak kullanıyor, ekler davranışı değiştirmiyor demektir — tezin "Türkçe mekânsal morfoloji grounding'i" sorusunun cevabı "morfoloji kullanılmıyor" olur ve iyileştirme önerisinin (Ders 23: çeviri katmanı / çok dilli omurga / LoRA) neyi düzeltmesi gerektiği netleşir. `tr_a > tr_bare` çıkarsa ekler iş görüyor; o zaman Ders 21'in "ek ayrı token mı" sorusu doğrudan açıklayıcı değişken olur.
 
 ---
 

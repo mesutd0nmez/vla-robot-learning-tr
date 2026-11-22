@@ -105,79 +105,8 @@ Okuma: **Object**'te komutu bozsan da %99 — model komutu okumuyor, sahneden ç
 
 ---
 
-## 7. Kendini sına (cevaplar aşağıda)
-
-1. Yama 1 (`sdpa`) modelin ürettiği action'ları değiştirir mi? Success rate'i etkiler mi?
-2. `mmap=True` olmadan Kaggle'da (29 GB RAM) kod çalışır mıydı? Colab'da neden çalışmaz?
-3. `num_trials_per_task: 1` ile üç görevi koşmak, tek görevi üç başlangıçta koşmaktan hangi soruya daha iyi cevap verir? Ders 18 için hangisi daha uygun?
-4. Eval döngüsünde komut string'i modele kaç kez gönderiliyor? Türkçe komutu nereden enjekte edersin?
-5. LIBERO-plus Language sonuçlarına göre Türkçe deneyinde "Object suite'te Türkçe komut başarıyı düşürmedi" bulgusu ne anlama gelir?
-
-## 8. Bugünün görevi (15 dk)
+## 7. Bugünün görevi (15 dk)
 Notebook'u sonuna kadar koş (kurulum+indirme arka planda akarken bu dersi oku). Sonra üç şeyi kaydet: (1) `parse_eval_log.py` tablosunun ekran görüntüsü, (2) `results/runs.csv` dosyası, (3) başarısız episode varsa onun videosundan **bir cümlelik** teşhis ("kolu doğru kâseye götürdü ama kaldıramadı" gibi). Üçünü `projects/01-vlanext-t4-ilk-eval/` klasörüne koy (`projects/_template` ile başla, `projects/README.md` tablosuna satır ekle). Hiçbir episode başarılı değilse de sorun değil — bugünün çıktısı "koştu" bilgisidir.
-
-## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
-
-**1. T4'te FlashAttention-2 neden çalışmaz?**  _(tek seçim)_
-- [ ] A) VRAM yetmez
-- [ ] B) T4 Turing (sm75); FA2 Ampere (sm80+) kernel'leri ister
-- [ ] C) Colab yasaklar
-- [ ] D) Qwen3-VL desteklemez
-
-<details><summary>Cevap</summary>
-
-**B.** Donanım nesli meselesi; `sdpa` ile aynı sonuç, daha yavaş.
-
-</details>
-
-**2. `torch.load(..., mmap=True)` ne yapar?**  _(tek seçim)_
-- [ ] A) Dosyayı sıkıştırır
-- [ ] B) Dosyayı RAM'e kopyalamadan, işletim sistemi sayfalamasıyla erişilir kılar
-- [ ] C) GPU'ya doğrudan yükler
-- [ ] D) Optimizer durumunu siler
-
-<details><summary>Cevap</summary>
-
-**B.** Kullanılmayan tensörler hiç okunmaz; 16.4 GB dosya 12.7 GB RAM'de açılabilir.
-
-</details>
-
-**3. VLANeXt eval'inde bir episode'da en fazla kaç model çağrısı olur (Spatial)?**  _(tek seçim)_
-- [ ] A) 220
-- [ ] B) 28 (220 / 8, yukarı yuvarlanmış)
-- [ ] C) 50
-- [ ] D) 10
-
-<details><summary>Cevap</summary>
-
-**B.** `max_steps=220`, chunk'ın 8'i de uygulanır → ⌈220/8⌉ = 28.
-
-</details>
-
-**4. Bugünkü kurulumda doğru olanlar? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) Suite başına ayrı checkpoint var (spatial/object/goal/10)
-- [ ] B) Gripper çıktısı 0 eşiğinde ±1'e çevrilir, ters çevrilmez
-- [ ] C) Görüntü 180° döndürülür
-- [ ] D) Komut HDF5 demo dosyasından okunur
-- [ ] E) İlk 10 adım no-op'tur
-
-<details><summary>Cevap</summary>
-
-**A, B, C, E.** Komut `task.language`'den (BDDL/benchmark tanımı) gelir, demo dosyasından değil.
-
-</details>
-
-**5. LIBERO-plus Language sonuçlarından çıkan doğrular? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) Object'te komut bozulsa da başarı ~%99 kalır
-- [ ] B) Goal'da başarı yarıya iner
-- [ ] C) VLANeXt Spatial'da OFT'den daha dayanıklıdır
-- [ ] D) Bu, VLANeXt'in Türkçe'yi anladığını kanıtlar
-
-<details><summary>Cevap</summary>
-
-**A, B, C.** D değil: bozulma İngilizce içinde; Türkçe hiç test edilmedi — o senin deneyin.
-
-</details>
 
 ## Takılırsan
 | Belirti | Çözüm |
@@ -199,16 +128,6 @@ Hata mesajının tamamını ve hangi hücrede olduğunu chat'e yapıştır.
 
 ## Sonraki ders (Ders 13)
 Kod okuma günü (Mac'te, GPU gerekmez): bugün koştuğun `libero_bench_eval.py` → `parallel_eval_utils.py` → `VLANeXt_utils.py` → `VLANeXt.py` zincirini baştan sona izleyeceğiz: komut Qwen'in chat şablonuna nasıl giriyor, görüntü token'ları ve proprio nereye ekleniyor, 16 query token'lık policy head chunk'ı nasıl üretiyor, flow-matching 5 adımda ne yapıyor, `done` nerede `success`e dönüşüyor. Çıktı: Türkçe deney için değiştirilecek satırların işaretlendiği bir kod akış şeması.
-
----
-
-## Cevaplar
-
-1. Hayır, prensipte değiştirmez: `sdpa` ve FA2 aynı matematiksel işlemi (softmax(QKᵀ/√d)V) hesaplar; fark yalnızca kernel ve bellek deseni. bf16 toplama sırası nedeniyle 1e-3 düzeyinde sayısal fark olabilir; bu, 5 adımlı flow-matching'den geçtiğinde action'da ölçülebilir ama ihmal edilebilir bir sapma yaratır — success rate'te sistematik fark beklenmez (hipotez; makale karşılaştırması yok).
-2. Kaggle'da büyük ihtimalle evet: dosya iki kez yüklenir ama ilk sözlük `get_vla()` dönünce serbest kalır; tepe ≈ 16.4 GB (dosya) + ~6 GB (kurulu model) ≈ 22 GB < 29 GB (hipotez, sıkı). Colab'da 12.7 GB RAM'e 16.4 GB'ı tek seferde kopyalamak doğrudan OOM. `mmap=True` ikisinde de tepe RAM'i model boyutuna (~4.5 GB bf16 backbone + ~1.5 GB fp32 policy) indirir ve ikinci yüklemeyi neredeyse bedava yapar.
-3. Üç farklı görev "model farklı mekânsal ifadeleri ayırt ediyor mu?" sorusuna; aynı görevin üç başlangıcı "model bu görevde ne kadar kararlı?" sorusuna cevap verir. Ders 18 için ikincisi gerekli: komut koşulunu (doğru/boş/yanlış/Türkçe) değiştirirken görev ve başlangıçlar **sabit** kalmalı ki fark koşuldan gelsin; görev başına 10 başlangıç × 5 koşul.
-4. Her model çağrısında (Spatial'da en fazla 28 kez/episode) `task_labels` listesi içinde gönderilir; `spec.task_description` episode boyunca sabittir. Enjeksiyon noktası `build_episode_specs` içindeki `task_description = task.language` — orada bir sözlükten (`task.name → Türkçe komut`) okutursun; model, processor, env'e dokunmazsın.
-5. Pek bir şey — çünkü Object'te komut İngilizce bozulduğunda da başarı düşmüyor; model komutu kullanmıyor. "Türkçe anlaşıldı" demek için, komutun **gerçekten gerekli olduğu** suite'te (Goal; Spatial kısmen) Türkçe'nin boş-komut tabanının üstünde ve doğru İngilizce komuta yakın çıkması gerekir. Ders 4'teki beş koşullu matris tam bunu ayırır.
 
 ---
 

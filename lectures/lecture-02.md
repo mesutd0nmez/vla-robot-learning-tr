@@ -97,7 +97,7 @@ Sana gereken: bu LIBERO fine-tune'lu checkpoint'ler (`openvla/openvla-7b-finetun
 
 Yani OFT, Bölüm 3'te saydığımız dört sorunun (çözünürlük, hız, gripper, loss) dördüne de doğrudan cevaptır.
 
-**Tezin için kritik uyarı (Ders 1'deki soru 2'nin devamı):** OpenVLA ve OpenVLA-OFT aynı modelin iki ayrı davranış rejimidir. LIBERO-Plus çalışmasındaki "OFT dil komutu bozulsa bile çalışmaya devam ediyor" bulgusu *OFT'ye* aittir; base OpenVLA'ya otomatik genellenemez. OFT'nin action chunk + parallel decoding tasarımı, görüntüden görevi tahmin etmeyi (shortcut) daha da kolaylaştırıyor olabilir — bu bir hipotez, Gün 4'te tartışacağız. Bir deney planlarken "hangi checkpoint, hangi tarif" sorusunu baştan netleştirmek zorundasın.
+**Tezin için kritik uyarı:** OpenVLA ve OpenVLA-OFT aynı modelin iki ayrı davranış rejimidir. LIBERO-Plus çalışmasındaki "OFT dil komutu bozulsa bile çalışmaya devam ediyor" bulgusu *OFT'ye* aittir; base OpenVLA'ya otomatik genellenemez. OFT'nin action chunk + parallel decoding tasarımı, görüntüden görevi tahmin etmeyi (shortcut) daha da kolaylaştırıyor olabilir — bu bir hipotez, Gün 4'te tartışacağız. Bir deney planlarken "hangi checkpoint, hangi tarif" sorusunu baştan netleştirmek zorundasın.
 
 ---
 
@@ -109,94 +109,11 @@ Yani OFT, Bölüm 3'te saydığımız dört sorunun (çözünürlük, hız, grip
 
 ---
 
-## 7. Kendini sına (cevaplar aşağıda)
-
-1. OpenVLA neden iki görsel kodlayıcı kullanıyor; tek SigLIP neden yetmiyor?
-2. "Action token" dediğimiz şey LLaMA'nın dağarcığına yeni eklenmiş token'lar mıdır?
-3. Cross-entropy loss ile eğitilen OpenVLA'da kutu 130 yerine 250 üretmek, 131 üretmekten daha mı çok cezalandırılır? Bu neden sorun?
-4. Türkçe komutun İngilizce'den %30 fazla token üretmesi çıkarım süresini neden anlamlı ölçüde değiştirmiyor?
-5. Tatar vd.'nin OpenVLA-7B ile bulduğu "Türkçe'de action vektörü sapıyor" sonucu, OpenVLA-OFT için de geçerli midir?
-
-## 8. Bugünün görevi (15 dk)
+## 7. Bugünün görevi (15 dk)
 Soruları cevaplamadan önce kâğıda OpenVLA pipeline'ını **görsele bakmadan** çiz: görüntüden action'a kadar kutuları ve okları. Sonra görselle karşılaştır; eksik kutuyu chat'e yaz.
-
-## Çoktan seçmeli (kutuları işaretle, sonra cevabı aç)
-
-**1. OpenVLA'nın action token'ları LLaMA-2 dağarcığına nasıl eklenir?**  _(tek seçim)_
-- [ ] A) Yeni 256 token eklenir
-- [ ] B) En az kullanılan son 256 token'ın üzerine yazılır
-- [ ] C) Her action boyutu için ayrı bir çıkış katmanı eklenir
-- [ ] D) Action'lar metin olarak yazdırılır
-
-<details><summary>Cevap</summary>
-
-**B.** Çıkış katmanı değişmesin diye var olan nadir token'lar 'işgal edilir'.
-
-</details>
-
-**2. OpenVLA neden iki görsel kodlayıcı (SigLIP + DINOv2) kullanır?**  _(tek seçim)_
-- [ ] A) Hız için
-- [ ] B) SigLIP anlam, DINOv2 geometri/mekân taşır; manipülasyon ikisini ister
-- [ ] C) Tek kodlayıcı 224×224'ü işleyemez
-- [ ] D) LLaMA-2 iki girdi bekler
-
-<details><summary>Cevap</summary>
-
-**B.** Prismatic çalışması iki kodlayıcının birleşiminin tek kodlayıcıdan iyi olduğunu göstermiştir.
-
-</details>
-
-**3. Cross-entropy ile eğitilen OpenVLA'da kutu 130 yerine 131 üretmek ile 250 üretmek arasındaki ceza farkı?**  _(tek seçim)_
-- [ ] A) 131 çok daha az cezalandırılır
-- [ ] B) Aynı ceza
-- [ ] C) 250 daha az cezalandırılır
-- [ ] D) Gripper boyutu hariç aynı
-
-<details><summary>Cevap</summary>
-
-**B.** CE yalnızca doğru sınıf/yanlış sınıf bakar; sayısal yakınlığı bilmez. OFT'nin L1'e geçme nedeni.
-
-</details>
-
-**4. OpenVLA-OFT'nin OpenVLA'dan farkları? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) Parallel decoding
-- [ ] B) Sürekli action gösterimi
-- [ ] C) Yeni görsel kodlayıcı
-- [ ] D) Action chunking (8 adım)
-- [ ] E) L1 regresyon loss
-
-<details><summary>Cevap</summary>
-
-**A, B, D, E.** Omurga ve görsel kodlayıcı aynıdır; değişen action üretimi ve loss.
-
-</details>
-
-**5. Türkçe komutun çıkarım süresini anlamlı değiştirmemesini açıklayanlar? (birden fazla)**  _(birden fazla seçim)_
-- [ ] A) Görsel kodlayıcıların sabit maliyeti süreyi domine eder
-- [ ] B) 256 görsel token komut token'larından çok daha fazladır
-- [ ] C) Türkçe daha az token üretir
-- [ ] D) Model Türkçe için özel hızlı yol kullanır
-
-<details><summary>Cevap</summary>
-
-**A, B.** Türkçe %30 daha çok token üretir ama bu 256 görsel token ve kodlayıcı maliyeti yanında küçük kalır.
-
-</details>
-
----
 
 ## Sonraki ders (Ders 3)
 Benchmark ≠ simülatör. LIBERO'nun dört suite'i (Spatial, Object, Goal, Long/10) neyi ölçer, MuJoCo ve robosuite altta nasıl çalışır, LIBERO-Plus neyi ekler. Faz 2'de kuracağın ortamın haritası.
-
----
-
-## Cevaplar
-
-1. SigLIP görüntü–metin eşlemeyle eğitildiği için *anlam* taşır ama ince geometriyi (nesne sınırı, konum) zayıf temsil eder; DINOv2 self-supervised olduğu için mekânsal yapıyı korur. Manipülasyon hem "ne" hem "nerede" gerektirir. Prismatic çalışmasında iki kodlayıcının birleşimi tek kodlayıcıdan daha iyi çıkmıştır.
-2. Hayır. LLaMA-2'nin 32.000 token'lık dağarcığındaki en az kullanılan son 256 token'ın anlamı *üzerine yazılır*. Çıkış katmanı değişmez; sadece o token'ların yeni bir anlamı vardır.
-3. Hayır, aynı cezayı alır: cross-entropy yalnızca "doğru sınıf mı, değil mi" bakar, sınıflar arası mesafeyi bilmez. Sorun: eğitim sinyali "yakın ama yanlış" ile "çok uzak ve yanlış"ı ayırt edemez; ince motor kontrolü öğrenmek zorlaşır. OFT'nin L1 regresyona geçmesinin nedeni bu.
-4. Toplam süre görsel kodlayıcıların (SigLIP + DINOv2) ileri geçişi ve 256 görsel token'ın LLM'den geçmesiyle domine edilir; komut token'ları bunun yanında küçük kalır (Tatar vd.: 810 ms vs 808 ms).
-5. Bilinmiyor; deney base OpenVLA-7B ile yapıldı. OFT farklı action gösterimi, loss ve decoding kullanır; dil girdisine duyarlılığı farklı olabilir (LIBERO-Plus bulguları OFT'nin dile *daha az* duyarlı olabileceğini düşündürüyor). Genellemek için ayrı deney gerekir — ve bu, tezin için doğal bir araştırma sorusu adayı.
 
 ---
 
