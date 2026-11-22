@@ -110,7 +110,7 @@ Yani OFT, Bölüm 3'te saydığımız dört sorunun (çözünürlük, hız, grip
 ---
 
 ## 7. Bugünün görevi (15 dk)
-Soruları cevaplamadan önce kâğıda OpenVLA pipeline'ını **görsele bakmadan** çiz: görüntüden action'a kadar kutuları ve okları. Sonra görselle karşılaştır; eksik kutuyu chat'e yaz.
+Kâğıda OpenVLA pipeline'ını **görsele bakmadan** çiz: görüntüden action'a kadar kutuları ve okları. Sonra görselle karşılaştır; eksik kutuyu chat'e yaz.
 
 ## Sonraki ders (Ders 3)
 Benchmark ≠ simülatör. LIBERO'nun dört suite'i (Spatial, Object, Goal, Long/10) neyi ölçer, MuJoCo ve robosuite altta nasıl çalışır, LIBERO-Plus neyi ekler. Faz 2'de kuracağın ortamın haritası.

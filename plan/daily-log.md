@@ -10,14 +10,14 @@ Dersler tarihe değil sıraya bağlıdır (`lectures/lecture-NN.md`); bir günde
 - Çekirdek döngü: observation → policy → action → world changes → new observation. Policy = karar veren fonksiyon; VLA bir policy türü.
 - Behavior cloning = supervised learning (X=observation, y=expert action). Robot manipülasyonunda RL yerine imitation learning'in baskın olma nedeni: gerçek robotta deneme maliyeti.
 
-**Ders:** `lectures/lecture-01.md` (6 görsel, 4 kendini sına sorusu)
-**Görev (Mesut):** Dersi oku, soruları cevaplara bakmadan cevapla, takıldığın yeri chat'e yaz.
+**Ders:** `lectures/lecture-01.md` (6 görsel)
+**Görev (Mesut):** Dersi oku, takıldığın yeri chat'e yaz.
 **Notlar / sorular:** —
 
 ## Ders 2 — OpenVLA'nın içi
 **Durum:** Ders hazır
 **Ders:** `lectures/lecture-02.md` — SigLIP+DINOv2, projector, LLaMA-2, 256-bin action tokenizasyonu, LoRA fine-tune, OpenVLA-OFT farkı (4 görsel, 5 soru)
-**Görev (Mesut):** Pipeline'ı görsele bakmadan çiz; soruları cevapla.
+**Görev (Mesut):** Pipeline'ı görsele bakmadan çiz.
 **Notlar / sorular:** —
 
 ## Ders 3 — Benchmark ≠ simülatör
