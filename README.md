@@ -14,7 +14,7 @@ bağlanması (language grounding). Türkçe kaynak çok az olduğu için notlar,
 
 | Aşama | Kapsam | Durum |
 |---|---|---|
-| 0. Başlangıç — Hızlandırılmış giriş (Ders 1–30) | Kavramlar → ortam kurulumu → ilk deneyler → proje üzerine akıl yürütme (`plan/lecture-plan.md`) | 🟡 Ders 1–24 hazır |
+| 0. Başlangıç — Hızlandırılmış giriş (Ders 1–30) | Kavramlar → ortam kurulumu → ilk deneyler → proje üzerine akıl yürütme (`plan/lecture-plan.md`) | 🟡 Ders 1–26 hazır |
 | 1. Literatür ve konu seçimi | Tez ekseninin danışmanla netleştirilmesi, kaynak taraması | ⬜ |
 | 2. Deney altyapısı | Benchmark, model, metrik ve veri setinin kurulması | ⬜ |
 | 3. Deneyler | Ana deneyler, ablasyonlar, sonuç analizi | ⬜ |
@@ -36,7 +36,9 @@ Aşamalar netleştikçe bu tablo ve `plan/` klasörü güncellenir.
 | `code/` | Kurulum scriptleri, deney kodları, Colab notebook'ları (her klasörde README ile kaynak kodu) |
 | `index.html`, `_sidebar.md`, `assets/` | Dokümantasyon sitesi (Docsify); `tools/gen_sidebar.py` menüyü üretir |
 
-İleride eklenecek: `experiments/` (deney kayıtları ve sonuçlar), `thesis/` (tez metni taslakları), `slides/`.
+| `thesis/` | Tez taslakları: aday araştırma soruları (`rq-candidates.md`, Ders 26) — ileride öneri ve tez metni |
+
+İleride eklenecek: `experiments/` (deney kayıtları ve sonuçlar), `slides/`.
 
 ## Nasıl çalışıyorum
 
@@ -74,6 +76,7 @@ Aşamalar netleştikçe bu tablo ve `plan/` klasörü güncellenir.
 | [23](lectures/lecture-23.md) | Cohn hattı: yedi makale, abstract düzeyinde — StepGame düzeltmesi (AAAI-24), RoomSpace (IJCAI-24), kardinal yön (COSIT-24 → Revisited 2025: 0,60 → 0,92, T4 hâlâ dipte), benchmark skorunda belirsizlik (temp 0 deterministik değil; tahmin aralığı), DecompSR (k=1…100; EN/HI/SV; nonce), QSTRBench (9 kalkülüs, yalnızca İngilizce); üç ortak bulgu ve LIBERO/Türkçe karşılıkları, `datasets/04` ilişki aileleri, PI'ın LIBERO koşularına uyarlanması | 3 |
 | [24](lectures/lecture-24.md) | Çözüm yaklaşımları: MT çeviri katmanı / parser + sembolik / çok dilli omurga / Türkçe LoRA / hidden-state hizalama — ne değişiyor, Mac–T4 bütçesine sığıyor mu, hangi Ders 18 örüntüsünde işe yarar, "Türkçe anlıyor" mu "İngilizce'ye indiriyor" mu; Dong vd. (EN-CoT işe yaramıyor, step-wise shift +6…+26, ZH fine-tune 51,7 → 86,8) ve Chen vd. (Qwen3-VL yalnızca Çince'de iyi, E-FT yeteneği siliyor, M-CT açığı kapatıyor ama EN −2,7); OpenVLA LoRA bellek haritası (72 / 27 GB; T4 yalnız 4-bit, ≈7,7 GB tahmin); kural tabanlı Türkçe parser gerçek çıktı (set içi 79/80, held-out 5/12, "yanlış ama geçerli" H04); karar ağacı | 3 |
 | [25](lectures/lecture-25.md) | Faz 3 sentezi: sekiz dersin zinciri (benchmark / deney / Türkçe / çözüm tarafları + Webots yan dalı); bilanço matrisi — 21 ölçüm = 11 bu oturumda gerçek çıktıyla yeniden üretildi, 6 Mesut'un koşusunda, 4 hipotez; `phase3_smoke.py` Faz 3'ün 30 script/kontrolünü kuru koşuda çalıştırdı (28 OK / 0 HATA / 2 atlandı; Ders 22 `tokens.csv` 201/201 birebir); Faz 3'ün dört sayısı (komutsuz tavan vs boş-komut ölçümleri, iki tokenizer, Chen Tablo 1, Wilson n=10 vs 50); LangGap (Hou & Zhao 2026: aynı sahnede komut bileşeni değişince π0.5 93,8 → 21,4, Spatial 97 → 5,9); tezin üç cümlesi; açık sorular S1–S10 (`plan/faz3-open-questions.md`) → RQ-a/b/c tohumları | 3 |
+| [26](lectures/lecture-26.md) | Faz 4 başlangıcı — üç aday araştırma sorusu: tohumdan sınanabilir soruya; altı-alan şablonu (null hipotez + eşdeğerlik sınırı δ, değişkenler, ölçüt ve sayısal eşik, suite + blok + n, sistemler, "evet/hayır çıkarsa tez ne der"), FINER/PICO ve ön kayıt (Bertinetto vd.); `rq_power.py` kesin hesap: eşli McNemar ile n=50 (r=0,05) ≥23 puanı yakalar, Δ=15 için n≈100; TOST (Lakens) δ=15 → n≈25, δ=10 → n≈55; RQ-a (fark var mı; iki null = A/B/C/D), RQ-b (nerede; aile × yüzey × çerçeve, B bloğu + EN-B, tr_ascii zıt-yön testi), RQ-c (nasıl; κ kapanış oranı, zayıf/güçlü okuma, İngilizce yan etkisi); S1 örüntüsüne göre koşullu sıralama; `rq_lint.py` 3 × 7 alan TAM; `thesis/rq-candidates.md` v0.1 | 4 |
 - Her ders `lectures/lecture-NN.md` olarak, `plan/daily-log.md` ile birlikte commit'lenir; bir günde birden fazla ders çalışılabilir; böylece kaldığım yer hiçbir zaman kaybolmaz.
 - Takılınca plan kayar, atlanmaz.
 

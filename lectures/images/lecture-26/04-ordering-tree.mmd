@@ -1,0 +1,30 @@
+flowchart TD
+  classDef in fill:#cfe8ff,stroke:#3b6ea8,color:#111
+  classDef key fill:#ffd166,stroke:#c79a00,color:#111
+  classDef out fill:#d4f5d4,stroke:#2e8b57,color:#111
+  classDef bad fill:#ffd6d6,stroke:#c0392b,color:#111
+
+  s1["S1: Ders 18 tablosu<br/>clean / empty / wrong / tr × 10 init<br/>(VLANeXt-B, Spatial görev 0)"]:::in
+  q1{"clean − empty ≤ 15<br/>ve clean − wrong ≤ 15?"}:::key
+  A["Örüntü A<br/>dil görmezden geliniyor"]:::bad
+  q2{"tr − empty ≤ 10?"}:::key
+  q3{"clean − wrong ≤ 15?"}:::key
+  B["Örüntü B<br/>Türkçe okunmuyor"]:::bad
+  C["Örüntü C<br/>wrong biased"]:::bad
+  D["Örüntü D<br/>Türkçe okunuyor"]:::out
+  U["Belirsiz<br/>(n = 10'un normal sonucu)"]:::in
+
+  rA["Birincil: RQ-b (suite ekseni)<br/>Goal C + Spatial B'ye geç<br/>conditions_goal8.json"]:::out
+  rB["Birincil: RQ-c (MT / parser önce)<br/>Ders 18'e tr_mt koşulu;<br/>LoRA S9'a bağlı"]:::out
+  rC["Birincil: RQ-b (çerçeve + grasped_bowl)<br/>10 wrong videosunu etiketle"]:::out
+  rD["Birincil: RQ-a (iki sistem, eşdeğerlik)<br/>S-OV 4 koşul koşusu → RQ-b yüzey"]:::out
+  rU["RQ-a devam: 50 init + ≥ 3 tekrar<br/>eşik oynatılmaz"]:::out
+
+  s1 --> q1
+  q1 -- evet --> A --> rA
+  q1 -- hayır --> q3
+  q3 -- evet --> C --> rC
+  q3 -- hayır --> q2
+  q2 -- evet --> B --> rB
+  q2 -- "hayır, tr − empty ≥ 25" --> D --> rD
+  q2 -- arada --> U --> rU

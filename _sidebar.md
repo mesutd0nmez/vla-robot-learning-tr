@@ -29,6 +29,8 @@
     - [<span class="nav-num">23</span>Cohn Hattı](/lectures/lecture-23.md)
     - [<span class="nav-num">24</span>Çözüm Yaklaşımları](/lectures/lecture-24.md)
     - [<span class="nav-num">25</span>Faz 3 Sentezi](/lectures/lecture-25.md)
+  - **Faz 4 · Proje üzerine akıl yürütme**
+    - [<span class="nav-num">26</span>Üç Aday Araştırma Sorusu](/lectures/lecture-26.md)
 
 - **Plan**
   - [<span class="nav-num">·</span>Günlük Çalışma Logu](/plan/daily-log.md)
@@ -42,6 +44,9 @@
 - **VLA ve Çok Dilli VLA Literatürü**
   - [<span class="nav-num">·</span>Makale listesi: 15 hakemli çalışma ve 2 ön baskı](/literature/makaleler.md)
   - [<span class="nav-num">·</span>Rapor: VLA ve çok dilli VLA'da mevcut durum](/literature/rapor.md)
+
+- **Tez**
+  - [<span class="nav-num">·</span>Aday araştırma soruları (RQ) — taslak v0.1 (Ders 26)](/thesis/rq-candidates.md)
 
 - **Projeler**
   - [<span class="nav-num">·</span>Genel bakış](/projects/README.md)
@@ -74,3 +79,4 @@
   - [<span class="nav-num">23</span>Gün 23 kodu](/code/day23/README.md)
   - [<span class="nav-num">24</span>Gün 24 kodu](/code/day24/README.md)
   - [<span class="nav-num">25</span>Gün 25 kodu](/code/day25/README.md)
+  - [<span class="nav-num">26</span>Gün 26 kodu](/code/day26/README.md)

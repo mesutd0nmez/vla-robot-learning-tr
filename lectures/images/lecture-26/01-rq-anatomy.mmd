@@ -1,0 +1,39 @@
+flowchart TB
+  classDef in fill:#cfe8ff,stroke:#3b6ea8,color:#111
+  classDef key fill:#ffd166,stroke:#c79a00,color:#111
+  classDef out fill:#d4f5d4,stroke:#2e8b57,color:#111
+  classDef bad fill:#ffd6d6,stroke:#c0392b,color:#111
+
+  subgraph T["Tohum (Ders 25)"]
+    direction LR
+    t1["RQ-a: Fark var mı?"]:::in
+    t2["RQ-b: Nerede kırılıyor?"]:::in
+    t3["RQ-c: Nasıl kapanır?"]:::in
+  end
+
+  subgraph F["Altı alan (her RQ için)"]
+    direction LR
+    f1["1 Null hipotez<br/>H0: eşli fark = 0<br/>(+ eşdeğerlik sınırı δ)"]:::key
+    f2["2 Değişkenler<br/>bağımsız / bağımlı / ortak / sabit"]:::key
+    f3["3 Ölçüt ve eşik<br/>success rate, Wilson + PI,<br/>McNemar / TOST, Δ ≥ 15"]:::key
+    f4["4 Suite + blok + n<br/>Spatial A/B, Goal C; 50 init"]:::key
+    f5["5 Sistemler<br/>S-OV (LLaMA-2) / S-VN (Qwen3-VL)<br/>= sistem farkı"]:::key
+    f6["6 Evet / hayır çıkarsa<br/>tez ne der"]:::key
+  end
+
+  subgraph O["Çıktı"]
+    direction LR
+    o1["thesis/rq-candidates.md<br/>(ön kayıt taslağı, commit = tarih)"]:::out
+    o2["rq_lint.py: 7 alan × 3 RQ = TAM"]:::out
+  end
+
+  x1["Kötü RQ:<br/>'Türkçe VLA'larda çalışıyor mu?'<br/>ölçüt yok, null yok, sınır yok"]:::bad
+
+  t1 --> f1
+  t2 --> f1
+  t3 --> f1
+  f1 --> f2 --> f3
+  f4 --> f5 --> f6
+  f3 --> f4
+  f6 --> o1 --> o2
+  x1 -.sınanabilir hâle getir.-> f1
