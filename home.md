@@ -36,6 +36,10 @@ Bilgisayar Mühendisliği yüksek lisans tezimin açık kaydı: Vision-Language-
 <a href="#/lectures/lecture-25"><b>25</b><span>Faz 3 sentezi: sekiz ders tek sayfada — bilanço 21 ölçüm = 11 gerçek / 6 Mesut'ta / 4 hipotez; phase3_smoke.py 30 script 28 OK (Ders 22 tokens.csv birebir yeniden üretildi); LangGap (aynı sahne, Spatial 97 → 5,9); açık sorular S1–S10 → üç RQ tohumu<small>Faz 3 · Sentez</small></span></a>
 <a href="#/lectures/lecture-26"><b>26</b><span>Üç aday araştırma sorusu: tohumdan sınanabilir soruya — 6 alan (null + δ, değişkenler, sayısal eşik, suite+blok+n, sistemler, evet/hayır); rq_power.py: n=50 ancak ≥23 puanı yakalar, TOST δ=15 → n≈25; RQ-a/b/c, S1'e göre koşullu sıralama; thesis/rq-candidates.md<small>Faz 4 · RQ + Ön kayıt</small></span></a>
 <a href="#/lectures/lecture-27"><b>27</b><span>Deney matrisi: 19 hücre (veri/model/benchmark/metrik/maliyet); episode süresi modeli — LIBERO fiziği 12–23 ms ölçüldü, S-OV chunk 1 → bütçenin %63'ü; pilot+çekirdek ≈ 258 T4 sa; görev başına 50 init tavanı → iddia bloğa taşınınca yalın matris ≈ 108 sa<small>Faz 4 · Deney matrisi</small></span></a>
+<a href="#/lectures/lecture-28"><b>28</b><span>Baseline + ablation: yüzey merdiveni aslında 2×2 (harf × ek) — ek adımı 97 Türkçe harfin 66'sını da siliyor; tr_bare_ascii üretildi, LLaMA-2 harf +2,7 / ek +5,4 / etkileşim +4,3 token; kâhinler = clean hücresi; S-OV vs S-VN betimsel; matris v0.2 ≈ 303 sa (yalın 126)<small>Faz 4 · Ablation planı</small></span></a>
+<a href="#/lectures/lecture-29"><b>29</b><span>Tez önerisi taslağı: bir sayfada problem → boşluk → amaç → RQ-a/b/c → yöntem → 3 katkı; Heilmeier soruları; takvim T4 saatiyle (yalın ≈ 108 sa, 16 hafta Gantt), 7 risk + B planı; proposal_lint.py 568/650 sözcük, 12/12 sayısal iddia etiketli; thesis/proposal-v0.1.md<small>Faz 4 · Tez önerisi</small></span></a>
+<a href="#/lectures/lecture-30"><b>30</b><span>Danışman toplantısı: repodaki açık kararlar taranıp (184 satır / 37 dosya) 11 soruya indirildi; etki × aciliyet → 30 dk'nın 17'si beş karara (suite, iddia birimi, zayıf/güçlü okuma, LoRA/GPU, takvim); karar ağacı, 7 slayt, ADR karar kaydı; slides/advisor-meeting-01.md<small>Faz 4 · Danışman toplantısı</small></span></a>
+<a href="#/lectures/lecture-31"><b>31</b><span>Final: "bir proje yapalım" simülasyonu — Claude üç öneri yapar (dört koşul / tr_ascii zıt yön / parser-MT κ), sen sekiz alanlı şablona dökersin; design_lint.py n↔MDE tutarlılığını denetler; Aşama 0 bilançosu (repo taraması) ve devreden işler — S1 ilk gerçek tablo<small>Faz 4 · Final</small></span></a>
 </div>
 
 ## VLA ve Çok Dilli VLA Literatürü
@@ -53,7 +57,7 @@ Her ders aynı iskelette: 35 dakikalık okuma (görsellerle) ve 15 dakikalık bi
 
 | Aşama | Kapsam | Durum |
 |---|---|---|
-| 0. Hızlandırılmış giriş (Ders 1–30) | Kavramlar → ortam kurulumu → ilk deneyler → proje üzerine akıl yürütme | Ders 1–27 hazır |
+| 0. Hızlandırılmış giriş (Ders 1–31) | Kavramlar → ortam kurulumu → ilk deneyler → proje üzerine akıl yürütme | Ders 1–31 hazır — tamamlandı |
 | 1. Literatür ve konu seçimi | Tez ekseninin danışmanla netleştirilmesi, kaynak taraması | — |
 | 2. Deney altyapısı | Benchmark, model, metrik ve veri setinin kurulması | — |
 | 3. Deneyler | Ana deneyler, ablasyonlar, sonuç analizi | — |

@@ -1,0 +1,21 @@
+pair_id,block,seg_join_ok,letter_step_only_letters,suffix_step_only_suffixes,stems_if_diff,n_suffix_tr_a,n_words_tr_a,n_words_bare,trletters_tr_a,trletters_ascii,trletters_bare,trletters_bare_ascii,tr_bare_ascii,llama2_en,llama2_tr_a,llama2_tr_ascii,llama2_tr_bare,llama2_tr_bare_ascii,qwen3_en,qwen3_tr_a,qwen3_tr_ascii,qwen3_tr_bare,qwen3_tr_bare_ascii
+A01,A,True,True,True,,8,11,11,5,0,1,0,tabak ile ramekin ara siyah kase al ve tabak ust koy,20,32,27,21,21,19,23,24,18,18
+A02,A,True,True,True,,8,9,9,5,0,1,0,ramekin yan siyah kase al ve tabak ust koy,18,28,23,18,18,17,20,20,14,14
+A03,A,True,True,True,,8,9,9,6,0,1,0,masa orta siyah kase al ve tabak ust koy,15,28,22,17,17,14,21,21,15,15
+A04,A,True,True,True,,8,11,11,8,0,4,0,ahsap dolap ust cekmece siyah kase al ve tabak ust koy,21,36,30,25,24,19,28,26,20,20
+A05,A,True,True,True,,8,9,9,8,0,2,0,ocak ust siyah kase al ve tabak ust koy,16,29,22,17,17,14,21,20,14,14
+A06,A,True,True,True,,8,10,10,8,0,3,0,ahsap dolap ust siyah kase al ve tabak ust koy,16,31,26,20,20,15,24,21,17,16
+B07,B,True,True,True,,6,8,8,4,0,1,0,sol siyah kase al ve tabak ust koy,15,21,17,14,14,14,17,16,12,12
+B08,B,True,True,True,,6,8,8,5,0,2,0,sag siyah kase al ve tabak ust koy,15,23,18,15,14,14,19,18,13,13
+B09,B,True,True,True,,6,8,8,5,0,2,0,on siyah kase al ve tabak ust koy,15,23,17,15,14,14,18,16,12,12
+B10,B,True,True,True,,5,11,11,5,0,2,0,robot daha yakin olan siyah kase al ve tabak ust koy,16,29,24,22,21,15,20,20,15,16
+B11,B,True,True,True,,5,11,11,5,0,1,0,tabak daha uzak olan siyah kase al ve tabak ust koy,16,29,23,21,21,15,21,20,17,17
+B12,B,True,True,True,,5,11,11,6,0,2,0,tabak daha yakin olan siyah kase al ve tabak ust koy,16,31,24,23,22,15,20,20,16,17
+C13,C,True,True,True,,4,4,4,4,0,1,0,kase tabak ust koy,7,14,10,8,8,6,11,10,7,7
+C14,C,True,True,True,,4,4,4,4,0,1,0,kase ocak ust koy,8,14,10,8,8,6,12,10,7,7
+C15,C,True,True,True,,4,4,4,3,0,1,0,kase dolap ust koy,9,13,11,8,8,8,11,9,7,7
+C16,C,True,True,True,,4,5,5,1,0,1,0,krem peynir kase ic koy,10,14,13,11,10,7,12,12,10,10
+C17,C,True,True,True,,2,4,4,3,0,3,0,sarap sisesi raf koy,9,14,9,13,9,7,11,9,10,9
+C18,C,True,True,True,,4,4,4,6,0,1,0,tabak ocak on it,10,14,7,7,6,9,8,8,6,6
+D19,D,True,True,True,,4,4,4,4,0,1,0,kase tabak sag koy,10,14,9,8,7,9,11,10,7,7
+D20,D,True,True,True,,4,4,4,2,0,0,0,kase tabak sol koy,10,12,9,7,7,9,10,10,7,7

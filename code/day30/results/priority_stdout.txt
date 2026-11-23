@@ -1,0 +1,12 @@
+ 1. Q1   Suite ağırlığı (S7)    etki 5 × aciliyet 5 = 25  → toplantı
+ 2. Q2   İddia birimi           etki 5 × aciliyet 5 = 25  → toplantı
+ 3. Q3   Katkı ölçütü (S10)     etki 5 × aciliyet 4 = 20  → toplantı
+ 4. Q11  Takvim ve teslim       etki 4 × aciliyet 4 = 16  → toplantı
+ 5. Q4   LoRA ve GPU (S9)       etki 4 × aciliyet 3 = 12  → toplantı
+ 6. Q5   S-OV 4-bit             etki 3 × aciliyet 4 = 12  → hızlı
+ 7. Q6   Veri insan kontrolü    etki 3 × aciliyet 3 =  9  → hızlı
+ 8. Q10  Ön kayıt ve tekrar     etki 2 × aciliyet 3 =  6  → hızlı
+ 9. Q7   Webots rolü (S8)       etki 3 × aciliyet 2 =  6  → e-posta
+10. Q8   Tatar vd. konumu       etki 3 × aciliyet 2 =  6  → e-posta
+11. Q9   Cohn hattı             etki 2 × aciliyet 2 =  4  → e-posta
+yazıldı: 02-priority-matrix.png, 03-agenda.png → /home/claude/vla-robot-learning-tr/code/day30/../../lectures/images/lecture-30

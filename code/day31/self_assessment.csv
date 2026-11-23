@@ -1,0 +1,9 @@
+yetkinlik,dersler,kanit,mesut_0_4
+Kavramlar (VLA / grounding / benchmark),1;2;3;4;6;7;8,literature/rapor.md,
+Ortam ve kurulum (Mac + T4),9;10;12;16,projects/project-2,
+Kod okuma (eval zinciri / LIBERO-Plus),13;16;17,projects/0[14]-*,
+Kapalı döngü deney koşma,12;18;19,projects/05-*,
+İstatistik (Wilson / McNemar / TOST / güç),18;19;23;26;27,dolu:thesis/rq-candidates.md,
+Türkçe dil analizi (ek / tokenizer),15;20;22,projects/03-*,
+Literatür okuma,5;8;23;24;25,literature/makaleler.md,
+Proje tasarımı (RQ / matris / öneri),26;27;28;29;30;31,dolu:thesis/experiment-matrix.md,

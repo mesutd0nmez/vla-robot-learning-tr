@@ -1,0 +1,12 @@
+rank,qid,short,impact,urgency,priority,slot
+1,Q1,Suite ağırlığı (S7),5,5,25,toplantı
+2,Q2,İddia birimi,5,5,25,toplantı
+3,Q3,Katkı ölçütü (S10),5,4,20,toplantı
+4,Q11,Takvim ve teslim,4,4,16,toplantı
+5,Q4,LoRA ve GPU (S9),4,3,12,toplantı
+6,Q5,S-OV 4-bit,3,4,12,hızlı
+7,Q6,Veri insan kontrolü,3,3,9,hızlı
+8,Q10,Ön kayıt ve tekrar,2,3,6,hızlı
+9,Q7,Webots rolü (S8),3,2,6,e-posta
+10,Q8,Tatar vd. konumu,3,2,6,e-posta
+11,Q9,Cohn hattı,2,2,4,e-posta

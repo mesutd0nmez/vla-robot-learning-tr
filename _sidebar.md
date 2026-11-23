@@ -32,6 +32,10 @@
   - **Faz 4 · Proje üzerine akıl yürütme**
     - [<span class="nav-num">26</span>Üç Aday Araştırma Sorusu](/lectures/lecture-26.md)
     - [<span class="nav-num">27</span>Deney Matrisi](/lectures/lecture-27.md)
+    - [<span class="nav-num">28</span>Baseline + Ablation](/lectures/lecture-28.md)
+    - [<span class="nav-num">29</span>Tez Önerisi](/lectures/lecture-29.md)
+    - [<span class="nav-num">30</span>Danışman Toplantısı](/lectures/lecture-30.md)
+    - [<span class="nav-num">31</span>Final](/lectures/lecture-31.md)
 
 - **Plan**
   - [<span class="nav-num">·</span>Günlük Çalışma Logu](/plan/daily-log.md)
@@ -47,7 +51,9 @@
   - [<span class="nav-num">·</span>Rapor: VLA ve çok dilli VLA'da mevcut durum](/literature/rapor.md)
 
 - **Tez**
+  - [<span class="nav-num">·</span>Baseline + ablation planı — v0.1 (Ders 28)](/thesis/ablation-plan.md)
   - [<span class="nav-num">·</span>Deney matrisi — v0.1 (Ders 27)](/thesis/experiment-matrix.md)
+  - [<span class="nav-num">·</span>Tez Önerisi (taslak v0.1)](/thesis/proposal-v0.1.md)
   - [<span class="nav-num">·</span>Aday araştırma soruları (RQ) — taslak v0.1 (Ders 26)](/thesis/rq-candidates.md)
 
 - **Projeler**
@@ -83,3 +89,7 @@
   - [<span class="nav-num">25</span>Gün 25 kodu](/code/day25/README.md)
   - [<span class="nav-num">26</span>Gün 26 kodu](/code/day26/README.md)
   - [<span class="nav-num">27</span>Gün 27 kodu](/code/day27/README.md)
+  - [<span class="nav-num">28</span>Gün 28 kodu](/code/day28/README.md)
+  - [<span class="nav-num">29</span>Gün 29 kodu](/code/day29/README.md)
+  - [<span class="nav-num">30</span>Gün 30 kodu](/code/day30/README.md)
+  - [<span class="nav-num">31</span>Gün 31 kodu](/code/day31/README.md)

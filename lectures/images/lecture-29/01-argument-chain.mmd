@@ -1,0 +1,18 @@
+flowchart LR
+  P["Problem<br/>VLA'lar neredeyse yalnız İngilizce eğitiliyor<br/>yabancı dil kaybı = komutsuz kayıp"]:::prob --> G["Boşluk<br/>Türkçe için yalnız açık döngü, tek kare<br/>boş-komut tabanı yok"]:::prob
+  G --> A["Amaç<br/>Türkçe mekânsal komutun<br/>kapalı döngüde temellendirilmesini ölç"]:::key
+  A --> RA["RQ-a<br/>fark var mı"]:::key
+  A --> RB["RQ-b<br/>nerede kırılıyor"]:::key
+  A --> RC["RQ-c<br/>nasıl kapanır"]:::key
+  D["Veri<br/>datasets/04: 20 eşli komut<br/>A / B / C / D blokları"]:::in --> M
+  S["Sistemler<br/>S-OV 4-bit, S-VN<br/>LIBERO Spatial + Goal"]:::in --> M
+  RA --> M["Yöntem<br/>clean / empty / wrong / tr eşli<br/>McNemar + TOST, ön kayıtlı eşik<br/>iddia birimi = blok"]:::key
+  RB --> M
+  RC --> M
+  M --> K1["Katkı 1<br/>Türkçe mekânsal komut seti"]:::out
+  M --> K2["Katkı 2<br/>ilk kapalı döngü, boş-komut tabanlı<br/>Türkçe VLA ölçümü"]:::out
+  M --> K3["Katkı 3<br/>ücretsiz T4 ile tekrarlanabilir protokol"]:::out
+  classDef key fill:#ffd166,stroke:#c79a00,color:#000
+  classDef in fill:#cfe8ff,stroke:#3b6ea8,color:#000
+  classDef out fill:#d4f5d4,stroke:#2e8b57,color:#000
+  classDef prob fill:#ffd6d6,stroke:#c0392b,color:#000

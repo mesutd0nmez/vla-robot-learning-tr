@@ -3,6 +3,7 @@
 Bu dosya, `lectures/lecture-NN.md` dosyalarının nasıl yazılacağını tanımlar. Her yeni ders bu kurallara uyar.
 
 ## Sıra ve konu
+- **Aşama 0 Ders 31'de bitti (23 Kas 2026).** Mesut açıkça istemedikçe lecture-32 ve sonrası yazılmaz.
 - Yeni dersin numarası = `lectures/` altındaki en büyük `lecture-NN` + 1.
 - Konu: `plan/lecture-plan.md` tablosunda aynı numaralı "Gün" satırı. 30'dan sonra: `README.md`'deki aşamalar (literatür → deney altyapısı → deneyler → tez yazımı) ve `plan/daily-log.md`'deki notlar/sorular doğrultusunda, bir önceki dersin "Sonraki ders" bölümünde vaat edilen konu.
 - Önceki dersin "Sonraki ders" bölümüne sadık kal; `plan/daily-log.md`'de Mesut'un bıraktığı not/soru varsa dersin başında bir paragrafla cevapla.

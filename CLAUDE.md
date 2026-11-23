@@ -6,7 +6,7 @@ Türkçe açık kaynak; site: https://mesutd0nmez.github.io/vla-robot-learning-t
 
 ## Önce oku
 1. `tools/LECTURE_GUIDE.md` — ders formatı ve tüm kurallar (zorunlu)
-2. `plan/lecture-plan.md` — Ders 1–30 konu tablosu ve kaynak haritası
+2. `plan/lecture-plan.md` — Ders 1–31 konu tablosu ve kaynak haritası
 3. `plan/daily-log.md` — ilerleme; Mesut'un notları/soruları buraya düşer
 4. Son ders: `lectures/lecture-NN.md` (en büyük NN)
 
@@ -20,8 +20,8 @@ Türkçe açık kaynak; site: https://mesutd0nmez.github.io/vla-robot-learning-t
 - Site: `index.html` + `assets/site.css` (Docsify, derleme yok), `home.md` (ana sayfa), `_sidebar.md` (üretilir)
 
 ## Otomasyon
-- Her sabah 06:51 (TR) bulutta zamanlanmış görev sıradaki dersi yazıp `main`'e push eder.
-  Yerelde çalışmaya başlamadan önce **`git pull`**; aynı ders numarasını iki kez yazma.
+- Aşama 0 (Ders 1–31) **tamamlandı**; günlük ders görevi 23 Kas 2026'da kapatıldı. Ders 31 son derstir —
+  Mesut açıkça istemedikçe yeni ders (lecture-32+) yazma. Yerelde çalışmaya başlamadan önce **`git pull`**.
 - Yeni ders/klasör ekledikten sonra: `python tools/gen_sidebar.py`, `home.md` ızgarasına kart, `README.md` tablosuna satır.
 
 ## Yerelde proje yaparken (Claude Code)

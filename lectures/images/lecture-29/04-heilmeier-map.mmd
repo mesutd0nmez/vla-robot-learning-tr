@@ -1,0 +1,30 @@
+flowchart TB
+  subgraph H["Heilmeier soruları"]
+    H1["Ne yapmaya çalışıyorsun, jargonsuz?"]:::in
+    H2["Bugün nasıl yapılıyor, sınırı ne?"]:::in
+    H3["Yeni olan ne, neden işe yarar?"]:::in
+    H4["Kimin umurunda, başarırsan ne değişir?"]:::in
+    H5["Riskler neler?"]:::in
+    H6["Ne kadara, ne kadar sürede?"]:::in
+    H7["Ara ve son sınav ne?"]:::in
+  end
+  subgraph O["proposal-v0.1.md"]
+    O2["2 Amaç"]:::key
+    O1["1 Problem ve önem"]:::key
+    O4["4 Yöntem: boş-komut tabanı, eşli tasarım"]:::key
+    O5["5 Beklenen katkılar"]:::out
+    O7["7 Riskler ve B planları"]:::prob
+    O6["6 Takvim: T4 saati, 16 hafta"]:::out
+    O6b["6 Takvim: hafta 5 RQ-a tablosu, hafta 16 taslak"]:::out
+  end
+  H1 --> O2
+  H2 --> O1
+  H3 --> O4
+  H4 --> O5
+  H5 --> O7
+  H6 --> O6
+  H7 --> O6b
+  classDef key fill:#ffd166,stroke:#c79a00,color:#000
+  classDef in fill:#cfe8ff,stroke:#3b6ea8,color:#000
+  classDef out fill:#d4f5d4,stroke:#2e8b57,color:#000
+  classDef prob fill:#ffd6d6,stroke:#c0392b,color:#000

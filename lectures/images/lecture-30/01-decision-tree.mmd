@@ -1,0 +1,23 @@
+flowchart TB
+  S10{"Q3 / S10<br/>katkı ölçütü?"}:::key
+  S10 -- "zayıf okuma yeter" --> W["RQ-c MT + parser birincil<br/>C1, C2; LoRA kapsam dışı"]:::out
+  S10 -- "güçlü okuma şart" --> S9{"Q4 / S9<br/>LoRA bütçesi / GPU?"}:::key
+  S10 -- "zayıf taban + güçlü hedef<br/>(önerimiz)" --> MIX["RQ-a çekirdek + RQ-c C1/C2<br/>B bloğu ölçülür (B3/B4)"]:::out
+  S9 -- "evet" --> L["RQ-c LoRA kolu: C3 + C4<br/>H0-c3 = ana katkı"]:::out
+  S9 -- "hayır" --> NB["RQ-b birincil: güçlü okuma<br/>ölçülür ama kapatılamaz"]:::prob
+  MIX --> S7{"Q1 / S7<br/>suite?"}:::key
+  W --> S7
+  L --> S7
+  NB --> S7
+  S7 -- "Spatial" --> SP["A1 + A3 ağırlıklı<br/>empty en az 80 ise uyarı"]:::in
+  S7 -- "Goal" --> GO["A2 + A4 ağırlıklı<br/>tavan 1/10, sinyal temiz"]:::in
+  S7 -- "ikisi (önerimiz)" --> BO["A ve C blokları"]:::in
+  SP --> U{"Q2<br/>iddia birimi?"}:::key
+  GO --> U
+  BO --> U
+  U -- "blok (önerimiz)" --> LEAN["görev başına 20 init<br/>yaklaşık 108 T4 saat"]:::out
+  U -- "görev" --> FULL["görev başına 50 init<br/>yaklaşık 258 T4 saat"]:::prob
+  classDef key fill:#ffd166,stroke:#c79a00,color:#000
+  classDef in fill:#cfe8ff,stroke:#3b6ea8,color:#000
+  classDef out fill:#d4f5d4,stroke:#2e8b57,color:#000
+  classDef prob fill:#ffd6d6,stroke:#c0392b,color:#000

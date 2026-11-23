@@ -1,0 +1,20 @@
+# Proje tasarımı — P_ (adı: ___)
+
+**Soru:** ___
+
+**Null hipotez:** H0: ___ (eşdeğerlik sınırı δ = ___ puan)
+
+**Değişkenler:** Bağımsız: ___. Bağımlı: ___. Ortak: ___. Sabit: ___.
+
+**Hücreler:** (experiment-matrix.csv biçiminde: sistem, suite, blok, koşullar, n_init, tekrar)
+- ___
+
+**Bütçe:** ___ T4 sa (orta senaryo, budget.py) · havuz n = ___ · MDE = ___ puan
+
+**Başarı ölçütü:** ___ (sayısal: p < 0,05 ve |Δ| ≥ ___ / κ ≥ ___ / TOST δ = ___)
+
+**Riskler:**
+- ___
+- ___
+
+**Evet / hayır çıkarsa:** Evet: ___. Hayır: ___.

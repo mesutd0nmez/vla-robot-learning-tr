@@ -1,0 +1,20 @@
+flowchart LR
+  subgraph TABAN["Tabanlar: dil katkısı ne kadar olabilir"]
+    K["1/k ve komutsuz tavan<br/>analitik, episode yok<br/>Spatial 9/10, Goal 1/10 (Ders 19)"]:::prob
+    E["empty<br/>komut boş<br/>A1-A4 içinde"]:::in
+    W["wrong<br/>aynı sahne, başka hedef<br/>A1-A4 içinde"]:::in
+  end
+  subgraph HEDEF["Ölçülen"]
+    T["tr_a ve öbür yüzeyler"]:::key
+  end
+  subgraph TAVAN["Üst referanslar"]
+    C["clean<br/>eğitim komutu, İngilizce"]:::out
+    EB["EN-B<br/>yeni İngilizce tarif<br/>B3/B4; dış referans LangGap %11"]:::out
+  end
+  K --> E --> T --> C
+  W -. "hedef sahneden mi seçiliyor" .-> T
+  T -. "blok B" .-> EB
+  classDef key fill:#ffd166,stroke:#c79a00,color:#000
+  classDef in fill:#cfe8ff,stroke:#3b6ea8,color:#000
+  classDef out fill:#d4f5d4,stroke:#2e8b57,color:#000
+  classDef prob fill:#ffd6d6,stroke:#c0392b,color:#000

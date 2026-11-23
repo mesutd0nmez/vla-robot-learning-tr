@@ -3,7 +3,7 @@
 **Faz 4 / Gün 27** · **Süre:** ~55 dk (okuma 40 + görev 15)
 **Ön koşul:** Ders 26 (RQ-a/b/c, `rq_power.py`), Ders 12 ve 18 (T4 notebook'u, chunk 8, `num_parallel_envs`), Ders 14 (OpenVLA tek adım, Mac MPS), Ders 24 (QLoRA bütçesi, parser 79/80) · **Kod:** `code/day27/` (`sim_step_bench.py` gerçek LIBERO ölçümü, `budget.py` bütçe + tersine güç, `plot_day27.py` — üçü de bu oturumda koştu) · **Çıktı:** `thesis/experiment-matrix.csv` (19 hücre, v0.1)
 
-> **Bugünün tek cümlesi:** Üç RQ'yu 19 hücrelik bir matrise açınca (sistem × suite × blok × koşul × init × tekrar) pilot + çekirdek ≈ 8.400 koşan episode ve orta senaryoda ≈ 258 T4 saati çıkıyor (iyimser 150, kötümser 500) — bunun %63'ü S-OV, çünkü OpenVLA her adımda bir kez çağrılıyor (chunk 1) ve T4'e ancak 4-bit sığıyor; ama tersine güç hesabı bütçenin nereye gittiğini değiştiriyor: LIBERO'da görev başına yalnızca 50 init state var (n = 50 → en küçük görünen fark 23 puan), 15 puan ancak blok havuzunda görünür ve havuzda n = 120 (görev başına 20 init) zaten 13 puanı yakalar — **iddia birimini görevden bloğa taşırsan** aynı matris ≈ 108 saate, yani T4×2 ile ~2 Kaggle haftasına iner.
+> **Bugünün tek cümlesi:** Üç RQ'yu 19 hücrelik bir matrise açınca (sistem × suite × blok × koşul × init × tekrar) pilot + çekirdek ≈ 8.400 koşan episode ve orta senaryoda ≈ 258 T4 saati çıkıyor (iyimser 151, kötümser 504) — bunun %63'ü S-OV, çünkü OpenVLA her adımda bir kez çağrılıyor (chunk 1) ve T4'e ancak 4-bit sığıyor; ama tersine güç hesabı bütçenin nereye gittiğini değiştiriyor: LIBERO'da görev başına yalnızca 50 init state var (n = 50 → en küçük görünen fark 23 puan), 15 puan ancak blok havuzunda görünür ve havuzda n = 120 (görev başına 20 init) zaten 13 puanı yakalar — **iddia birimini görevden bloğa taşırsan** aynı matris ≈ 108 saate, yani T4×2 ile ~2 Kaggle haftasına iner.
 
 ---
 
@@ -84,7 +84,7 @@ Bunun deney tasarımına iki sonucu var:
 | RQ-a (P1, P2, A1–A4) | 4.960 | 91 / **156** / 305 |
 | RQ-b çekirdek (B1–B5) | 2.500 | 46 / **78** / 153 |
 | RQ-c çekirdek (C1, C2) | 735 | 11 / **19** / 38 |
-| **Pilot + çekirdek** | **≈ 8.400** | **149 / 258 / 497** |
+| **Pilot + çekirdek** | **≈ 8.400** | **151 / 258 / 504** |
 | Genişletme (B6, C3 eğitim, C4) | 4.200 + eğitim | 154 / **225** / 382 |
 
 Üç okuma:

@@ -1,6 +1,6 @@
 # Ders Planı
 
-Her ders ≤ 1 saat. Dersler sıra numarasıyla ilerler; her sabah 07:00'de (TR) sıradaki ders otomatik yazılır. Hedef: Ders 30'un sonunda LIBERO üzerinde bir VLA'yı çalıştırabilmek, dil/mekânsal robustness deneyi tasarlayabilmek ve "bir proje yapalım" dendiğinde araştırma sorusu + deney planı üretebilmek. Bu tablo Aşama 0'ı kapsar; sonraki aşamaların planı buraya eklenecek.
+Her ders ≤ 1 saat. Dersler sıra numarasıyla ilerler; Aşama 0 Ders 31'de tamamlandı (23 Kas 2026; günlük otomasyon kapatıldı). Hedef: Ders 30'un sonunda LIBERO üzerinde bir VLA'yı çalıştırabilmek, dil/mekânsal robustness deneyi tasarlayabilmek ve "bir proje yapalım" dendiğinde araştırma sorusu + deney planı üretebilmek. Bu tablo Aşama 0'ı kapsar; sonraki aşamaların planı buraya eklenecek.
 
 ## Kaynak haritası (danışmanın gönderdikleri)
 | Kaynak | Ne? | Neden gönderildi? |
