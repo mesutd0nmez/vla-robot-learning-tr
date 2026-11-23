@@ -1,25 +1,25 @@
-# Proje adı
+# Project name
 
-**Durum:** fikir · **Başlangıç:** — · **İlgili dersler:** —
+**Status:** idea · **Start:** — · **Related lectures:** —
 
-## Amaç
-Bir paragraf: neyi göstermek/ölçmek istiyorum, hangi soruya cevap arıyorum.
+## Goal
+One paragraph: what I want to show/measure, which question I am looking for an answer to.
 
-## Hipotez / beklenti
-Deneyse: ne bekliyorum, neyi görürsem hipotez çürür.
+## Hypothesis / expectation
+If it is an experiment: what I expect, and what I would have to see for the hypothesis to fail.
 
-## Kurulum
-Ortam, sürümler, veri/checkpoint indirme komutları (Mac / Colab ayrımıyla).
+## Setup
+Environment, versions, data/checkpoint download commands (separated into Mac / Colab).
 
-## Çalıştırma
+## Running
 ```bash
 python run.py --...
 ```
 
-## Sonuçlar
-Tablo/grafik; ham çıktılar `results/` altında. Görseller `images/` altında.
+## Results
+Table/plot; raw outputs under `results/`. Images under `images/`.
 
-## Bulgular ve notlar
-Ne öğrendim, ne ters gitti, sonraki adım.
+## Findings and notes
+What I learned, what went wrong, next step.
 
-## Kaynaklar
+## References

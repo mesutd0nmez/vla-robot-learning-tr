@@ -4,15 +4,15 @@ flowchart TD
   classDef out fill:#d4f5d4,stroke:#333,color:#000
   classDef bad fill:#ffd6d6,stroke:#333,color:#000
 
-  S["Önce EN tarafı: d(en, distractor) ile d(en, para) karşılaştır"]:::in
-  S -->|"distractor ≈ para (küçük)"| X["Model İngilizce'de bile mekânsal ifadeyi görmüyor<br/>(LIBERO-Plus bulgusu). TR deneyi bu karede anlamsız;<br/>başka kare / adım seç"]:::bad
-  S -->|"distractor >> para"| Y["Mekânsal ifade action'ı değiştiriyor: deney geçerli"]:::out
-  Y --> Q["d(en, tr) nerede duruyor?"]:::model
-  Q -->|"≈ para"| A1["Dil etkisi yok / küçük: TR komut EN gibi işleniyor<br/>(tokenizer hipotezi bu karede desteklenmez)"]:::out
-  Q -->|"para < tr < distractor, gripper uyumlu"| A2["Kısmi grounding: yön benzer, büyüklük sapıyor<br/>(Tatar'ın 'düşük kosinüs' bulgusunun hafif hâli)"]:::model
-  Q -->|"≈ empty"| A3["Model TR'yi gürültü gibi işliyor: komut yok tabanı<br/>(Chen vd. 2026'nın OpenVLA-OFT örüntüsü)"]:::bad
-  Q -->|"≈ distractor ya da gripper ters"| A4["Yanlış hedef / yanlış gripper: en kötü durum,<br/>kapalı döngüde başarısızlık beklenir (Ders 18)"]:::bad
-  A1 --> Z["Her yorum n=5 ile 'gözlem'dir; Wilcoxon p en az 0.0625.<br/>Kesinleşme: daha çok kare (init 0–9) + kapalı döngü success (Ders 18)"]:::in
+  S["EN side first: compare d(en, distractor) with d(en, para)"]:::in
+  S -->|"distractor ≈ para (small)"| X["The model does not see the spatial expression even in English<br/>(LIBERO-Plus finding). The TR experiment is meaningless on this frame;<br/>pick another frame / step"]:::bad
+  S -->|"distractor >> para"| Y["The spatial expression changes the action: the experiment is valid"]:::out
+  Y --> Q["Where does d(en, tr) stand?"]:::model
+  Q -->|"≈ para"| A1["No / small language effect: the TR command is processed like EN<br/>(the tokenizer hypothesis is not supported on this frame)"]:::out
+  Q -->|"para < tr < distractor, gripper agrees"| A2["Partial grounding: direction similar, magnitude deviates<br/>(a mild version of Tatar's 'low cosine' finding)"]:::model
+  Q -->|"≈ empty"| A3["The model treats TR as noise: no-instruction floor<br/>(the OpenVLA-OFT pattern of Chen et al. 2026)"]:::bad
+  Q -->|"≈ distractor or gripper inverted"| A4["Wrong target / wrong gripper: the worst case,<br/>failure expected in closed loop (Lecture 18)"]:::bad
+  A1 --> Z["Every reading is an 'observation' at n=5; Wilcoxon p is at least 0.0625.<br/>To firm up: more frames (init 0–9) + closed-loop success (Lecture 18)"]:::in
   A2 --> Z
   A3 --> Z
   A4 --> Z

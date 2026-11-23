@@ -1,20 +1,20 @@
-(a) McNemar exact — %80 güç için en küçük yakalanabilir eşli fark (MDE, puan)
-     n   r=0 (iyimser)   r=0,05   r=0,10
+(a) McNemar exact — the smallest catchable paired difference for 80% power (MDE, points)
+     n   r=0 (optimistic)   r=0.05   r=0.10
     10       68       78      nan
     20       37       46       54
     30       26       34       40
     50       16       23       29
    100        8       15       18
 
-(a') Güç: Δ=15 ve Δ=30 puan, r=0,05
+(a') Power: Δ=15 and Δ=30 points, r=0.05
   n= 10: Δ=15 →   0.5%   Δ=30 →   7.2%
   n= 20: Δ=15 →   9.5%   Δ=30 →  45.5%
   n= 30: Δ=15 →  23.5%   Δ=30 →  71.3%
   n= 50: Δ=15 →  47.8%   Δ=30 →  93.9%
   n=100: Δ=15 →  83.7%   Δ=30 →  99.9%
 
-(b) TOST — gerçek fark 0 iken %90 CI yarı genişliği (puan); q = uyumsuz çift oranı
-     n    q=0,10   q=0,20   q=0,40
+(b) TOST — half width of the 90% CI when the true difference is 0 (points); q = discordant-pair rate
+     n    q=0.10   q=0.20   q=0.40
     10     16.4     23.3     32.9
     20     11.6     16.4     23.3
     30      9.5     13.4     19.0
@@ -22,5 +22,5 @@
    100      5.2      7.4     10.4
    200      3.7      5.2      7.4
 
-(b') Eşdeğerlik sınırı δ için gereken n (q=0,20): δ=5 → n≈217, δ=10 → n≈55, δ=15 → n≈25, δ=20 → n≈14, δ=25 → n≈9
-yazıldı: ../../lectures/images/lecture-26/02-mde-tost.png
+(b') n needed for an equivalence bound δ (q=0.20): δ=5 → n≈217, δ=10 → n≈55, δ=15 → n≈25, δ=20 → n≈14, δ=25 → n≈9
+written: ../../lectures/images/lecture-26/02-mde-tost.png

@@ -1,16 +1,16 @@
-"""Ders 20 — Karşı-olgusal (counterfactual) hedefli BDDL üretir: komut sahnedeki ÖTEKİ kâseyi (akita_black_bowl_2) tarif
-ediyorsa, LIBERO'nun success predicate'i (On akita_black_bowl_1 plate_1) modeli haksız yere cezalandırır (Ders 19 §5).
-Bu script pairs.csv'de herhangi bir çerçevede bowl_2'yi gösteren her satır için orijinal BDDL'in kopyasını üretir:
+"""Lecture 20 — generates BDDL files with a counterfactual goal: if the command describes the OTHER bowl in the scene (akita_black_bowl_2),
+LIBERO's success predicate (On akita_black_bowl_1 plate_1) unfairly penalizes the model (Lecture 19 §5).
+For every row of pairs.csv that points to bowl_2 in any frame, this script produces a copy of the original BDDL:
   (:goal (And (On akita_black_bowl_2 plate_1)))   +   (:obj_of_interest akita_black_bowl_2 plate_1)   +   (:language <tr_a>)
-Sahne (:init) ve bölgeler DEĞİŞMEZ → orijinal görevin 50 init state'i aynen kullanılabilir.
+The scene (:init) and regions do NOT CHANGE -> the 50 init states of the original task can be used as they are.
 
-Üretilen her dosya `bddl` paketiyle (pip install bddl==1.0.1 future) geri okunur: :language yazdığımız metinle birebir mi,
-:goal bowl_2 mi, :init orijinalle aynı mı. Paket yoksa aynı kontroller regex ile yapılır.
+Every generated file is read back with the `bddl` package (pip install bddl==1.0.1 future): is :language identical to the text we wrote,
+is :goal bowl_2, is :init the same as the original. If the package is missing, the same checks are done with regex.
 
-Kullanım:
+Usage:
   python make_cf_bddl.py --libero ~/src/LIBERO --pairs ../../datasets/04-tr-spatial-commands/data/pairs.csv --out .../data/bddl_cf
-Not: orijinal LIBERO'da modele giden komut BDDL'den DEĞİL dosya adından gelir (Ders 13); komutu VLANEXT_INSTR_OVERRIDE ile
-verirsin, bu dosya yalnızca success predicate'ini değiştirir. Dosya adı = <pair_id>_<çerçeve>_bowl2.bddl
+Note: in the original LIBERO the command sent to the model comes from the file name, NOT from the BDDL (Lecture 13); you supply the command
+with VLANEXT_INSTR_OVERRIDE, this file only changes the success predicate. File name = <pair_id>_<frame>_bowl2.bddl
 """
 import argparse, csv, pathlib, re
 
@@ -27,7 +27,7 @@ def rewrite(src, text):
     t, n1 = re.subn(r"\(:language[^)]*\)", f"(:language {text})", t)
     t, n2 = re.subn(r"\(:goal\s*\(And \(On akita_black_bowl_1 plate_1\)\)\s*\)", "(:goal\n    (And (On akita_black_bowl_2 plate_1))\n  )", t)
     t, n3 = re.subn(r"\(:obj_of_interest\s*akita_black_bowl_1", "(:obj_of_interest\n    akita_black_bowl_2", t)
-    assert (n1, n2, n3) == (1, 1, 1), f"şablon tutmadı: language={n1} goal={n2} obj_of_interest={n3}"
+    assert (n1, n2, n3) == (1, 1, 1), f"template did not match: language={n1} goal={n2} obj_of_interest={n3}"
     return t
 
 
@@ -48,7 +48,7 @@ def verify(path, text, orig_path):
         lang = re.search(r"\(:language\s+([^)]*)\)", raw).group(1).strip().lower()
         goal = raw.split("(:goal")[1]
         init = lambda s: re.sub(r"\s+", " ", re.search(r"\(:init(.*?)\)\s*\(:goal", s, re.S).group(1))
-        same_init = init(raw) == init(raw0); src = "regex (bddl paketi yok)"
+        same_init = init(raw) == init(raw0); src = "regex (no bddl package)"
     return lang == text, "akita_black_bowl_2" in goal and "akita_black_bowl_1" not in goal, same_init, src
 
 
@@ -70,11 +70,11 @@ def main():
         ok_lang, ok_goal, ok_init, src = verify(dst, r["tr_a"], orig)
         index.append(dict(pair_id=r["pair_id"], frames_pointing_to_bowl2=tag, base_task_id=r["scene_task_id"], base_bddl=orig.name,
                           cf_bddl=dst.name, instruction=r["tr_a"], language_roundtrip=ok_lang, goal_is_bowl2=ok_goal, init_unchanged=ok_init))
-        print(f"{dst.name:28s} görev {r['scene_task_id']}  dil birebir: {ok_lang}  hedef bowl_2: {ok_goal}  sahne aynı: {ok_init}  [{src}]")
+        print(f"{dst.name:28s} task {r['scene_task_id']}  language identical: {ok_lang}  goal bowl_2: {ok_goal}  scene unchanged: {ok_init}  [{src}]")
         assert ok_lang and ok_goal and ok_init
     with open(out / "index.csv", "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=list(index[0])); w.writeheader(); w.writerows(index)
-    print(f"\n{len(index)} karşı-olgusal BDDL + index.csv → {out}")
+    print(f"\n{len(index)} counterfactual BDDL + index.csv → {out}")
 
 
 if __name__ == "__main__":

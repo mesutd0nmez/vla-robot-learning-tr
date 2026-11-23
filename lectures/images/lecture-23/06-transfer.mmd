@@ -4,19 +4,19 @@ flowchart TB
   classDef gap fill:#ffd6d6,stroke:#333,color:#000
   classDef in fill:#cfe8ff,stroke:#333,color:#000
 
-  I1["COHN: Iliski aileleri sistematik<br/>yon / topoloji / mesafe<br/>(RoomSpace, QSTRBench)"]:::idea
-  I2["COHN: Bakis acisi acikca secilir<br/>top-down vs north-facing<br/>(RoomSpace)"]:::idea
-  I3["COHN: Ayni soru, baska yuzey<br/>dil EN/HI/SV, nonce sozcuk,<br/>kisi/hareket sablonu<br/>(DecompSR, kardinal yon)"]:::idea
-  I4["COHN: Derinlik ekseni k<br/>1 hop -> 10 hop<br/>(StepGame, DecompSR)"]:::idea
-  I5["COHN: Tekrar + tahmin araligi<br/>temp 0 yetmez<br/>(Blackwell vd.)"]:::idea
-  I6["COHN: Altin etiket cozucuden,<br/>modelden degil<br/>(ASP / yapim kurali)"]:::idea
+  I1["COHN: Relation families, systematic<br/>direction / topology / distance<br/>(RoomSpace, QSTRBench)"]:::idea
+  I2["COHN: Viewpoint chosen explicitly<br/>top-down vs north-facing<br/>(RoomSpace)"]:::idea
+  I3["COHN: Same question, another surface<br/>language EN/HI/SV, nonce words,<br/>person/movement template<br/>(DecompSR, cardinal direction)"]:::idea
+  I4["COHN: Depth axis k<br/>1 hop -> 10 hops<br/>(StepGame, DecompSR)"]:::idea
+  I5["COHN: Repetitions + prediction interval<br/>temp 0 is not enough<br/>(Blackwell et al.)"]:::idea
+  I6["COHN: Gold label from the solver,<br/>not from the model<br/>(ASP / construction rule)"]:::idea
 
-  O1["BIZ: datasets/04<br/>CDC 6 / RCC 8 / mesafe 4 / bolge 2<br/>(gorsel 04)"]:::ours
-  O2["BIZ: Ders 20 cerceveleri<br/>libero / goruntu / robot;<br/>B07-B09, C18, D19-D20 cerceveye bagli"]:::ours
-  O3["BIZ: Ders 18 kosullari<br/>clean / para / tr / tr_ascii / tr_bare / empty<br/>= ayni init state, baska yuzey"]:::ours
-  O4["BOSLUK: LIBERO komutlari k = 1<br/>(tek iliski); LIBERO-Long bile<br/>zincir degil, sira"]:::gap
-  O5["BIZ: Ders 18 Wilson (episode ici)<br/>+ bugun PI (kosudan kosuya:<br/>seed / flow-matching / env)"]:::ours
-  O6["BIZ: BDDL predicate = simulatorden<br/>altin etiket; D19/D20 icin<br/>yeni bolge predicate'i gerek"]:::ours
+  O1["OURS: datasets/04<br/>CDC 6 / RCC 8 / distance 4 / region 2<br/>(figure 04)"]:::ours
+  O2["OURS: Lecture 20 frames<br/>libero / image / robot;<br/>B07-B09, C18, D19-D20 depend on the frame"]:::ours
+  O3["OURS: Lecture 18 conditions<br/>clean / para / tr / tr_ascii / tr_bare / empty<br/>= same init state, another surface"]:::ours
+  O4["GAP: LIBERO commands are k = 1<br/>(a single relation); even LIBERO-Long<br/>is not a chain, it is a sequence"]:::gap
+  O5["OURS: Lecture 18 Wilson (within an episode set)<br/>+ today PI (run to run:<br/>seed / flow-matching / env)"]:::ours
+  O6["OURS: BDDL predicate = gold label<br/>from the simulator; D19/D20 need<br/>a new region predicate"]:::ours
 
   I1 --> O1
   I2 --> O2
@@ -25,6 +25,6 @@ flowchart TB
   I5 --> O5
   I6 --> O6
 
-  X["Ders 24: cozum yaklasimlari<br/>ceviri katmani / cok dilli omurga / Turkce LoRA<br/>+ Ders 6'nin 'parser + sembolik' adayi"]:::in
+  X["Lecture 24: solution approaches<br/>translation layer / multilingual backbone / Turkish LoRA<br/>+ Lecture 6's 'parser + symbolic' candidate"]:::in
   O3 --> X
   O4 --> X

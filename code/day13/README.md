@@ -1,19 +1,19 @@
 # day13
 
-Ders 13 — VLANeXt + LIBERO eval zincirini kod üzerinden okuma (Mac, GPU gerekmez).
+Lecture 13 — Reading the VLANeXt + LIBERO eval chain through the code (Mac, no GPU needed).
 
-| Dosya | Ne |
+| File | What |
 |---|---|
-| `trace_eval_chain.py` | Klonlanmış VLANeXt (+LIBERO) içinde 22 kritik satırı bulur, `dosya:satır` tablosu basar; upstream değişirse "BULUNAMADI" der |
-| `show_prompt.py` | Eval'in Qwen3-VL'e gönderdiği chat şablonunu EN komutla basar; EN/TR token sayıları ve Türkçe komutun parçalanışı (yalnızca tokenizer iner) |
-| `plot_day13.py` | Dersteki 03 (denormalizasyon, gerçek min/max), 04 (makale Tablo 1 bağlantı türleri), 05 (flow-matching sigma takvimi, temsili yörünge) görselleri |
+| `trace_eval_chain.py` | Finds 22 critical lines in the cloned VLANeXt (+LIBERO) and prints a `file:line` table; says "NOT FOUND" if upstream changes |
+| `show_prompt.py` | Prints the chat template the eval sends to Qwen3-VL with the EN command; EN/TR token counts and how the Turkish command is split (only the tokenizer is downloaded) |
+| `plot_day13.py` | The lecture's figures 03 (denormalization, real min/max), 04 (paper Table 1 connection types), 05 (flow-matching sigma schedule, illustrative trajectory) |
 
-Kullanım:
+Usage:
 ```bash
 conda activate vla && cd ~/vla-work
 git clone --depth 1 https://github.com/DravenALG/VLANeXt
 curl -O https://raw.githubusercontent.com/mesutd0nmez/vla-robot-learning-tr/main/code/day13/trace_eval_chain.py
-python trace_eval_chain.py ./VLANeXt ./LIBERO       # LIBERO Ders 10'da klonlanmıştı
+python trace_eval_chain.py ./VLANeXt ./LIBERO       # LIBERO was cloned in Lecture 10
 curl -O https://raw.githubusercontent.com/mesutd0nmez/vla-robot-learning-tr/main/code/day13/show_prompt.py
 python show_prompt.py
 ```
@@ -21,67 +21,67 @@ python show_prompt.py
 ## trace_eval_chain.py
 
 ```python
-"""Ders 13 — VLANeXt + LIBERO eval zincirinde kritik satırları bulur ve dosya:satır tablosu basar.
+"""Lecture 13 — Finds the critical lines in the VLANeXt + LIBERO eval chain and prints a file:line table.
 
-GPU gerekmez; yalnızca kaynak kodu okur. Kullanım (Mac):
+No GPU needed; it only reads source code. Usage (Mac):
     git clone --depth 1 https://github.com/DravenALG/VLANeXt ~/vla-work/VLANeXt
     python trace_eval_chain.py ~/vla-work/VLANeXt [~/vla-work/LIBERO]
 
-Her satır: HANGİ SORU → hangi dosya → hangi satır → satırın kendisi. Upstream değişirse
-"BULUNAMADI" yazar; o zaman desen eskimiş demektir, grep ile yenisini bul.
+Each row: WHICH QUESTION → which file → which line → the line itself. If upstream changes it
+prints "NOT FOUND"; that means the pattern is stale, find the new one with grep.
 """
 import re
 import sys
 from pathlib import Path
 
-# (soru, dosya, aranan düzenli ifade)
+# (question, file, regex to search for)
 ANCHORS = [
-    # --- 1. Komut nereden geliyor ---
-    ("Komut string'i nereden geliyor?", "LIBERO:libero/libero/benchmark/__init__.py",
+    # --- 1. Where does the command come from ---
+    ("Where does the command string come from?", "LIBERO:libero/libero/benchmark/__init__.py",
      r"def grab_language_from_filename"),
-    ("Komutun episode'a bağlandığı yer (Türkçe için değişecek satır)",
+    ("Where the command is bound to the episode (the line to change for Turkish)",
      "src/evaluation/libero_bench/parallel_eval_utils.py", r"task_description = task\.language"),
-    ("Komut modele kaç kez gönderiliyor? (her model çağrısında)",
+    ("How many times is the command sent to the model? (on every model call)",
      "src/evaluation/libero_bench/parallel_eval_utils.py", r"action_request_labels\.append\(specs\[env_id\]\.task_description\)"),
-    # --- 2. Gözlem ---
-    ("180 derece döndürme", "src/evaluation/libero_bench/libero_utils.py", r"img\[::-1, ::-1\]"),
-    ("Proprio vektörü (eef_pos + axis-angle + gripper)",
+    # --- 2. Observation ---
+    ("180-degree rotation", "src/evaluation/libero_bench/libero_utils.py", r"img\[::-1, ::-1\]"),
+    ("Proprio vector (eef_pos + axis-angle + gripper)",
      "src/evaluation/libero_bench/parallel_eval_utils.py", r"quat2axisangle\(obs\[\"robot0_eef_quat\"\]\), \[gripper_state\]"),
-    ("Sablon (Qwen, image dalı): messages = [image, image, text]", "src/evaluation/libero_bench/VLANeXt_utils.py",
+    ("Template (Qwen, image branch): messages = [image, image, text]", "src/evaluation/libero_bench/VLANeXt_utils.py",
      r"^ {16}content\.append\(\{\"type\": \"text\", \"text\": label\}\)"),
-    ("apply_chat_template(add_generation_prompt=True) (image dalı)", "src/evaluation/libero_bench/VLANeXt_utils.py",
+    ("apply_chat_template(add_generation_prompt=True) (image branch)", "src/evaluation/libero_bench/VLANeXt_utils.py",
      r"^ {16}texts\.append\(effective_processor\.apply_chat_template\(messages, tokenize=False, add_generation_prompt=True\)"),
     # --- 3. Model ---
-    ("Proprio token'ları dizinin başına ekleniyor", "src/models/VLANeXt.py",
+    ("Proprio tokens are prepended to the sequence", "src/models/VLANeXt.py",
      r"inputs_embeds = torch\.cat\(\[proprio_embeds, inputs_embeds\], dim=1\)"),
-    ("16 meta query dizinin sonuna ekleniyor", "src/models/VLANeXt.py",
+    ("16 meta queries are appended to the end of the sequence", "src/models/VLANeXt.py",
      r"inputs_embeds = torch\.cat\(\[inputs_embeds, queries_embeds\], dim=1\)"),
-    ("VLM tüm katman çıktılarıyla çağrılıyor (soft/tight)", "src/models/VLANeXt.py",
+    ("VLM is called with all layer outputs (soft/tight)", "src/models/VLANeXt.py",
      r"\"output_hidden_states\": output_hidden_states_flag"),
-    ("Policy bloğu i, VLM katmanı i'ye bakıyor", "src/models/modules/policies.py",
+    ("Policy block i attends to VLM layer i", "src/models/modules/policies.py",
      r"relevant_vlm_states = vlm_hidden_states\[-len\(self\.blocks\):\]"),
     ("Cross-attention: key/value = [x, vlm_proj(hidden)]", "src/models/modules/policies.py",
      r"kv_list = \[x_norm, v_feat\]"),
-    ("Flow-matching: gürültüden başla", "src/models/VLANeXt.py",
+    ("Flow-matching: start from noise", "src/models/VLANeXt.py",
      r"action = torch\.randn\(B, self\.num_actions, self\.action_dim"),
-    ("Flow-matching: Euler adımı", "src/models/VLANeXt.py",
+    ("Flow-matching: Euler step", "src/models/VLANeXt.py",
      r"action = self\.noise_scheduler\.step\(output, t, action\)\.prev_sample"),
-    # --- 4. Action decode ---
-    ("Chunk'ın kaç adımı uygulanıyor (num_steps_execute)", "src/evaluation/libero_bench/parallel_eval_utils.py",
+    # --- 4. Action decoding ---
+    ("How many steps of the chunk are executed (num_steps_execute)", "src/evaluation/libero_bench/parallel_eval_utils.py",
      r"steps_to_exec = min\(num_steps_execute, len\(chunk\)\)"),
-    ("Denormalizasyon: ilk 6 boyut min/max", "src/evaluation/libero_bench/parallel_eval_utils.py",
+    ("Denormalization: first 6 dims min/max", "src/evaluation/libero_bench/parallel_eval_utils.py",
      r"action\[:6\] = \(action\[:6\] \+ 1\) / 2 \* \(action_max - action_min\) \+ action_min"),
-    ("Gripper eşiği: > 0 → +1, değilse −1", "src/evaluation/libero_bench/parallel_eval_utils.py",
+    ("Gripper threshold: > 0 → +1, otherwise −1", "src/evaluation/libero_bench/parallel_eval_utils.py",
      r"action\[6\] = 1\.0 if action\[6\] > 0 else -1\.0"),
-    ("Min/max istatistikleri nereden (legacy/mixed)", "src/datasets/libero_act.py", r"\"legacy\": \{"),
+    ("Where the min/max statistics come from (legacy/mixed)", "src/datasets/libero_act.py", r"\"legacy\": \{"),
     # --- 5. Success ---
-    ("done → success=True (step fazı; :237 bekleme fazı)", "src/evaluation/libero_bench/parallel_eval_utils.py",
+    ("done → success=True (step phase; :237 is the wait phase)", "src/evaluation/libero_bench/parallel_eval_utils.py",
      r"^ {20}states\[env_id\]\[\"success\"\] = True"),
     ("LIBERO: done = _check_success()", "LIBERO:libero/libero/envs/bddl_base_domain.py",
      r"done = self\._check_success\(\)"),
-    ("LIBERO: tüm goal predicate'lerinin VE'si", "LIBERO:libero/libero/envs/problems/libero_tabletop_manipulation.py",
+    ("LIBERO: AND of all goal predicates", "LIBERO:libero/libero/envs/problems/libero_tabletop_manipulation.py",
      r"result = self\._eval_predicate\(state\) and result"),
-    ("LIBERO: On predicate = temas + xy mesafe < 0.03 m", "LIBERO:libero/libero/envs/object_states/base_object_states.py",
+    ("LIBERO: On predicate = contact + xy distance < 0.03 m", "LIBERO:libero/libero/envs/object_states/base_object_states.py",
      r"< 0\.03"),
 ]
 
@@ -89,12 +89,12 @@ ANCHORS = [
 def find(root: Path, rel: str, pattern: str):
     p = root / rel
     if not p.exists():
-        return None, f"dosya yok: {p}"
+        return None, f"file missing: {p}"
     rx = re.compile(pattern)
     for i, line in enumerate(p.read_text(encoding="utf-8").splitlines(), 1):
         if rx.search(line):
             return i, line.strip()
-    return None, "BULUNAMADI (desen eskimiş olabilir)"
+    return None, "NOT FOUND (the pattern may be stale)"
 
 
 def main():
@@ -103,8 +103,8 @@ def main():
         sys.exit(1)
     vla = Path(sys.argv[1]).expanduser()
     lib = Path(sys.argv[2]).expanduser() if len(sys.argv) > 2 else None
-    print(f"VLANeXt: {vla}\nLIBERO : {lib or '(verilmedi, LIBERO satırları atlanır)'}\n")
-    print(f"{'#':>2} | {'Soru':62} | {'Dosya':64} | Satır")
+    print(f"VLANeXt: {vla}\nLIBERO : {lib or '(not given, LIBERO rows are skipped)'}\n")
+    print(f"{'#':>2} | {'Question':62} | {'File':64} | Line")
     print("-" * 150)
     for n, (q, rel, pat) in enumerate(ANCHORS, 1):
         if rel.startswith("LIBERO:"):
@@ -125,14 +125,14 @@ if __name__ == "__main__":
 ## show_prompt.py
 
 ```python
-"""Ders 13 — VLANeXt eval'inin Qwen3-VL'e gönderdiği metin şablonunu, EN ve TR komutla göster.
+"""Lecture 13 — Show the text template that the VLANeXt eval sends to Qwen3-VL, with an EN and a TR command.
 
-GPU gerekmez, model inmez; yalnızca tokenizer (~10 MB) iner. Mac'te:
+No GPU needed, no model download; only the tokenizer (~10 MB) is downloaded. On the Mac:
     conda activate vla
     pip install "transformers>=4.57"
     python show_prompt.py
-Çıktı: apply_chat_template'in ürettiği tam string + metin token sayıları + Türkçe komutun parçalanışı.
-(Eval kodu: VLANeXt_utils.get_vla_action, is_qwen dalı — messages = [image, image, text].)
+Output: the full string produced by apply_chat_template + text token counts + how the Turkish command is split into pieces.
+(Eval code: VLANeXt_utils.get_vla_action, is_qwen branch — messages = [image, image, text].)
 """
 from transformers import AutoTokenizer
 
@@ -150,15 +150,15 @@ PAIRS = [
 def main():
     tok = AutoTokenizer.from_pretrained(MODEL)
     en0 = PAIRS[0][0]
-    # Eval kodundaki ile aynı yapı: iki görüntü (agentview + wrist) + komut, add_generation_prompt=True.
-    # Tokenizer tek başına her görüntü için tek bir <|image_pad|> yazar; processor bunu görüntü başına
-    # (256/32)^2 = 64 pad token'a açar (patch 16 x merge 2 = 32 px/token).
+    # Same structure as in the eval code: two images (agentview + wrist) + command, add_generation_prompt=True.
+    # The tokenizer alone writes a single <|image_pad|> per image; the processor expands it to
+    # (256/32)^2 = 64 pad tokens per image (patch 16 x merge 2 = 32 px/token).
     messages = [{"role": "user", "content": [{"type": "image"}, {"type": "image"}, {"type": "text", "text": en0}]}]
     text = tok.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-    print("=== apply_chat_template çıktısı (EN, 2 görüntü) ===")
+    print("=== apply_chat_template output (EN, 2 images) ===")
     print(repr(text))
     print()
-    print(f"{'EN token':>9} {'TR token':>9}  komut")
+    print(f"{'EN token':>9} {'TR token':>9}  command")
     for en, tr in PAIRS:
         n_en = len(tok.encode(en, add_special_tokens=False))
         n_tr = len(tok.encode(tr, add_special_tokens=False))
@@ -167,7 +167,7 @@ def main():
     print()
     tr0 = PAIRS[0][1]
     ids = tok.encode(tr0, add_special_tokens=False)
-    print("=== Türkçe komutun parçaları (Qwen tokenizer) ===")
+    print("=== Pieces of the Turkish command (Qwen tokenizer) ===")
     print(" | ".join(tok.decode([i]) for i in ids))
 
 
@@ -178,14 +178,14 @@ if __name__ == "__main__":
 ## plot_day13.py
 
 ```python
-"""Ders 13 görselleri (matplotlib).
+"""Lecture 13 figures (matplotlib).
 
-03-denormalize.png   : VLANeXt'in [-1,1] çıktısını LIBERO action aralığına geri ölçekleme.
-                       Sayılar src/datasets/libero_act.py LIBERO_ACTION_STATS["legacy"]'den (gerçek).
-04-connection-language.png : VLANeXt makalesi Tablo 1, "VLM-Policy Connection" satırları (gerçek).
-05-flow-matching-toy.png   : 5 adımlı flow-matching Euler çözücünün TEMSİLİ 1-B gösterimi
-                       (sigma takvimi gerçek: diffusers FlowMatchEulerDiscreteScheduler, shift=1).
-Kullanım: python plot_day13.py [çıktı_klasörü]
+03-denormalize.png   : rescaling VLANeXt's [-1,1] output back to the LIBERO action range.
+                       Numbers are from src/datasets/libero_act.py LIBERO_ACTION_STATS["legacy"] (real).
+04-connection-language.png : VLANeXt paper Table 1, "VLM-Policy Connection" rows (real).
+05-flow-matching-toy.png   : ILLUSTRATIVE 1-D view of the 5-step flow-matching Euler solver
+                       (the sigma schedule is real: diffusers FlowMatchEulerDiscreteScheduler, shift=1).
+Usage: python plot_day13.py [output_folder]
 """
 import sys
 from pathlib import Path
@@ -200,7 +200,7 @@ OUT.mkdir(parents=True, exist_ok=True)
 YEL, BLU, GRN, RED = "#ffd166", "#cfe8ff", "#d4f5d4", "#ffd6d6"
 YEL_D, BLU_D, GRN_D, RED_D = "#b8860b", "#2f6fb3", "#2e8b57", "#c0392b"
 
-# ---- libero_act.py LIBERO_ACTION_STATS["legacy"] (ilk 6 boyut; gripper ayrı) ----
+# ---- libero_act.py LIBERO_ACTION_STATS["legacy"] (first 6 dims; gripper is separate) ----
 STATS = {
     "mixed":   ([-0.9375, -0.9375, -0.9375, -0.24214286, -0.375, -0.36428571],
                 [0.9375, 0.9375, 0.9375, 0.35571429, 0.375, 0.375]),
@@ -224,17 +224,17 @@ def fig03():
     ax = axes[0]
     x = np.arange(6)
     ax.bar(x - 0.18, [h - l for l, h in zip(lo, hi)], 0.36, bottom=lo, color=BLU, edgecolor="#333",
-           label="legacy / mixed (checkpoint'in kullandığı)")
+           label="legacy / mixed (the one the checkpoint uses)")
     lo_s, hi_s = STATS["spatial"]
     ax.bar(x + 0.18, [h - l for l, h in zip(lo_s, hi_s)], 0.36, bottom=lo_s, color=YEL, edgecolor="#333",
-           label="legacy / spatial (karşılaştırma)")
+           label="legacy / spatial (for comparison)")
     for i in range(6):
         ax.text(i - 0.18, hi[i] + 0.02, f"{hi[i]:+.3f}", ha="center", fontsize=7.5)
         ax.text(i - 0.18, lo[i] - 0.07, f"{lo[i]:+.3f}", ha="center", fontsize=7.5)
     ax.axhline(0, color="#999", lw=0.8)
     ax.set_xticks(x, DIMS)
-    ax.set_ylabel("LIBERO action birimi (OSC_POSE delta, [-1,1] ölçeği)")
-    ax.set_title("Model çıktısı [-1,1] → bu aralıklara açılır\n(action_min/max: libero_act.py, legacy)", fontsize=10)
+    ax.set_ylabel("LIBERO action unit (OSC_POSE delta, [-1,1] scale)")
+    ax.set_title("Model output [-1,1] → expanded to these ranges\n(action_min/max: libero_act.py, legacy)", fontsize=10)
     ax.legend(fontsize=8, loc="lower right")
     ax.set_ylim(-1.15, 1.15)
 
@@ -243,28 +243,28 @@ def fig03():
     real = denorm(raw, lo, hi)
     names = DIMS + ["gripper"]
     y = np.arange(7)[::-1]
-    ax.barh(y + 0.18, raw, 0.36, color=YEL, edgecolor="#333", label="ham çıktı")
+    ax.barh(y + 0.18, raw, 0.36, color=YEL, edgecolor="#333", label="raw output")
     ax.barh(y - 0.18, real, 0.36, color=GRN, edgecolor="#333", label="denormalize")
     for yi, r, v in zip(y, raw, real):
         ax.text(1.12, yi, f"{r:+.2f} → {v:+.3f}", va="center", ha="left", fontsize=7.5)
     ax.set_yticks(y, names)
     ax.set_xlim(-1.25, 2.3)
     ax.axvline(0, color="#999", lw=0.8)
-    ax.set_title("Örnek: 7-D ham çıktı → gerçek action\n(gripper 0.03 > 0 → +1 = kapat)", fontsize=10)
+    ax.set_title("Example: 7-D raw output → real action\n(gripper 0.03 > 0 → +1 = close)", fontsize=10)
     ax.legend(fontsize=8, loc="lower left")
-    fig.suptitle("_denormalize_action: ilk 6 boyut doğrusal, 7. boyut eşik", fontsize=12)
+    fig.suptitle("_denormalize_action: first 6 dims linear, 7th dim thresholded", fontsize=12)
     fig.tight_layout()
     fig.savefig(OUT / "03-denormalize.png", dpi=170)
     plt.close(fig)
 
 
 def fig04():
-    # VLANeXt (Wu vd., ICML 2026) Tablo 1, "VLM-Policy Connection" satırları
-    cols = ["LIBERO Spatial\n(orijinal)", "LIBERO-plus Spatial\nLanguage", "LIBERO-plus Spatial\nRobot", "LIBERO-plus Spatial\nToplam"]
+    # VLANeXt (Wu et al., ICML 2026) Table 1, "VLM-Policy Connection" rows
+    cols = ["LIBERO Spatial\n(original)", "LIBERO-plus Spatial\nLanguage", "LIBERO-plus Spatial\nRobot", "LIBERO-plus Spatial\nOverall"]
     data = {
-        "Loose (MetaQuery, bağlayıcı yok)": [90.0, 74.6, 42.0, 53.7],
-        "Tight (katman katman, π0 tarzı)": [90.0, 81.0, 51.7, 55.4],
-        "Soft (katman katman + 16 meta query)": [91.8, 89.2, 58.3, 56.2],
+        "Loose (MetaQuery, no connector)": [90.0, 74.6, 42.0, 53.7],
+        "Tight (layer by layer, π0 style)": [90.0, 81.0, 51.7, 55.4],
+        "Soft (layer by layer + 16 meta queries)": [91.8, 89.2, 58.3, 56.2],
     }
     colors = [BLU, RED, YEL]
     fig, ax = plt.subplots(figsize=(10, 4.8))
@@ -277,8 +277,8 @@ def fig04():
     ax.set_xticks(x, cols)
     ax.set_ylabel("Success rate (%)")
     ax.set_ylim(0, 105)
-    ax.set_title("VLM–policy bağlantı türü ve dil bozulmasına dayanıklılık\n"
-                 "VLANeXt Tablo 1 (Wu vd., 2026; ablation modelleri, Qwen3-VL-2B, Spatial suite)", fontsize=10.5)
+    ax.set_title("VLM–policy connection type and robustness to language perturbation\n"
+                 "VLANeXt Table 1 (Wu et al., 2026; ablation models, Qwen3-VL-2B, Spatial suite)", fontsize=10.5)
     ax.legend(fontsize=8.5, loc="upper right")
     ax.grid(axis="y", alpha=0.3)
     fig.tight_layout()
@@ -287,29 +287,29 @@ def fig04():
 
 
 def fig05():
-    # Gerçek sigma takvimi: linspace(1.0, 1/1000, 5) + [0]  (FlowMatchEulerDiscreteScheduler, shift=1)
+    # Real sigma schedule: linspace(1.0, 1/1000, 5) + [0]  (FlowMatchEulerDiscreteScheduler, shift=1)
     sigmas = np.append(np.linspace(1.0, 1 / 1000, 5), 0.0)
     rng = np.random.default_rng(0)
-    x0 = 0.35                     # hedef action (temsili)
-    noise = rng.normal(0, 1, 4)   # 4 farklı başlangıç gürültüsü
+    x0 = 0.35                     # target action (illustrative)
+    noise = rng.normal(0, 1, 4)   # 4 different initial noise samples
     fig, ax = plt.subplots(figsize=(9, 4.4))
     for k, n in enumerate(noise):
         x = n
         xs = [x]
         for i in range(5):
-            # Kusursuz model varsayımı: velocity = noise - x0 (doğrusal akış); gerçek modelde tahmin edilir
+            # Perfect-model assumption: velocity = noise - x0 (linear flow); in a real model it is predicted
             v = (x - x0) / max(sigmas[i], 1e-6)   # x_t = (1-s) x0 + s*noise ⇒ v = noise - x0 = (x_t - x0)/s
             x = x + (sigmas[i + 1] - sigmas[i]) * v
             xs.append(x)
         ax.plot(sigmas, xs, marker="o", ms=5, lw=1.8, color=YEL_D if k == 0 else "#999",
-                label="Euler yörüngesi (temsili)" if k == 0 else None)
-    ax.axhline(x0, color=GRN_D, ls="--", lw=1.5, label="hedef action x₀ (temsili)")
+                label="Euler trajectory (illustrative)" if k == 0 else None)
+    ax.axhline(x0, color=GRN_D, ls="--", lw=1.5, label="target action x₀ (illustrative)")
     ax.invert_xaxis()
     ax.set_xticks([1.0, 0.75025, 0.5005, 0.25075, 0.0], ["1.0", "0.750", "0.500", "0.251", "0.001 → 0"])
-    ax.set_xlabel("sigma (1 = saf gürültü → 0 = temiz action); 5 scheduler.step çağrısı")
-    ax.set_ylabel("tek action boyutu, [-1,1] ölçeği")
-    ax.set_title("Flow-matching çözücü: predict_action içindeki 5 adımlık döngü\n"
-                 "(sigma takvimi gerçek — diffusers FlowMatchEuler, shift=1; yörünge TEMSİLİ, kusursuz model varsayımı)",
+    ax.set_xlabel("sigma (1 = pure noise → 0 = clean action); 5 scheduler.step calls")
+    ax.set_ylabel("a single action dimension, [-1,1] scale")
+    ax.set_title("Flow-matching solver: the 5-step loop inside predict_action\n"
+                 "(sigma schedule is real — diffusers FlowMatchEuler, shift=1; trajectory is ILLUSTRATIVE, perfect-model assumption)",
                  fontsize=10)
     ax.legend(fontsize=8.5)
     ax.grid(alpha=0.3)
@@ -320,5 +320,5 @@ def fig05():
 
 if __name__ == "__main__":
     fig03(); fig04(); fig05()
-    print("yazıldı:", *(sorted(p.name for p in OUT.glob("0[345]-*.png"))))
+    print("written:", *(sorted(p.name for p in OUT.glob("0[345]-*.png"))))
 ```

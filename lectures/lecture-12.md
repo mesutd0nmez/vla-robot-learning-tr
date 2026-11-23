@@ -1,142 +1,142 @@
-# Ders 12 — Klavye Günü 4: Colab T4'te VLANeXt — İlk Success Rate Sayın
+# Lecture 12 — Keyboard Day 4: VLANeXt on a Colab T4 — Your First Success Rate Number
 
-**Faz 2 / Gün 12** · **Süre:** ~60 dk (okuma 20 + kurulum/indirme 25 + eval 15)
-**Ön koşul:** Ders 8 (VLANeXt nedir), Ders 10 (reset/step/check_success), Ders 11 (gripper işareti) · **Kod:** `code/day12/`
+**Phase 2 / Day 12** · **Time:** ~60 min (reading 20 + setup/download 25 + eval 15)
+**Prerequisite:** Lecture 8 (what VLANeXt is), Lecture 10 (reset/step/check_success), Lecture 11 (gripper sign) · **Code:** `code/day12/`
 
-> **Bugünün tek cümlesi:** Danışmanın gönderdiği kod tabanı 8 GPU'luk sunucular için yazılmış; bugün onu ücretsiz bir T4'e sığdırmak için **üç tek-satırlık yama** yapıp LIBERO Spatial'da 3 episode koşacaksın — çıkan sayı bir sonuç değil, "boru hattı uçtan uca çalışıyor" kanıtıdır.
+> **Today in one sentence:** The codebase your advisor sent was written for 8-GPU servers; today you will make **three one-line patches** to fit it on a free T4 and run 3 episodes on LIBERO Spatial — the resulting number is not a result, it is proof that "the pipeline works end to end".
 
 ---
 
-## 1. Neden bu model, neden bu platform?
+## 1. Why this model, why this platform?
 
-Faz 2'nin amacı Ders 18'deki deneyi (aynı görev; komut = doğru / boş / yanlış / parafraz / Türkçe → success rate) **koşabilecek bir makineye** sahip olmak. VLANeXt-B bunun için üç nedenle ilk aday: LIBERO'da en yüksek açık sonuçlardan biri (ortalama %97.4), Qwen3-VL omurgası sayesinde Türkçe'yi anlamlı token'lara bölen bir tokenizer (Ders 8'deki kontrol deneyi), ve eval kodunun komutu **tek bir string değişkeniyle** alması (bugün göreceksin: `spec.task_description`).
+The goal of Phase 2 is to have **a machine that can run** the experiment from Lecture 18 (same task; command = correct / empty / wrong / paraphrase / Turkish → success rate). VLANeXt-B is the first candidate for three reasons: one of the highest open results on LIBERO (97.4% average), a tokenizer that splits Turkish into meaningful tokens thanks to the Qwen3-VL backbone (the control experiment in Lecture 8), and the fact that the eval code takes the command through **a single string variable** (you will see today: `spec.task_description`).
 
-Mac'te neden olmaz? Kod `flash_attention_2`'yi sabit yazmış, CUDA ister; MPS'te Qwen3-VL-2B çalışır ama VLANeXt'in eval döngüsü CUDA varsayımlarıyla dolu. Mac'i Ders 14'te OpenVLA için kullanacağız. Ücretsiz GPU seçenekleri:
+Why not on the Mac? The code hard-codes `flash_attention_2` and needs CUDA; Qwen3-VL-2B runs on MPS, but VLANeXt's eval loop is full of CUDA assumptions. We will use the Mac for OpenVLA in Lecture 14. Free GPU options:
 
-| | Colab (ücretsiz) | Kaggle (ücretsiz) |
+| | Colab (free) | Kaggle (free) |
 |---|---|---|
-| GPU | T4 16 GB | T4 ×2 (16 GB her biri) ya da P100 |
+| GPU | T4 16 GB | T4 ×2 (16 GB each) or P100 |
 | RAM | **12.7 GB** | **29 GB** |
-| Disk | ~78 GB (değişir) | ~73 GB |
-| Oturum | ~12 saat, boşta kesilir | 12 saat, haftada 30 GPU saati |
+| Disk | ~78 GB (varies) | ~73 GB |
+| Session | ~12 hours, cut off when idle | 12 hours, 30 GPU hours per week |
 
-Checkpoint 16.4 GB olduğu için RAM belirleyici; **Kaggle'ı öneriyorum**. Notebook ikisinde de çalışır (`/content` yolunu Kaggle'da `/kaggle/working` yap). Bu dersin geri kalanında "T4" ikisini de kapsar.
+Since the checkpoint is 16.4 GB, RAM is the deciding factor; **I recommend Kaggle**. The notebook works on both (on Kaggle change the `/content` path to `/kaggle/working`). In the rest of this lecture "T4" covers both.
 
 ---
 
-## 2. Kodun dört engeli ve üç yama
+## 2. Four obstacles in the code and three patches
 
-VLANeXt README'si `conda create` + `torch 2.4 cu124` + `flash-attn` + 8 GPU `torchrun` anlatıyor; `COMMON_ISSUES.md` yedi bilinen sorunu listeliyor ama T4 onların arasında yok. Kodu okuyunca çıkan engeller:
+The VLANeXt README describes `conda create` + `torch 2.4 cu124` + `flash-attn` + 8-GPU `torchrun`; `COMMON_ISSUES.md` lists seven known problems but T4 is not among them. The obstacles that come out of reading the code:
 
-![Colab boru hattı](images/lecture-12/01-colab-pipeline.png)
+![Colab pipeline](images/lecture-12/01-colab-pipeline.png)
 
-| # | Engel | Kanıt (dosya) | Çözüm |
+| # | Obstacle | Evidence (file) | Fix |
 |---|---|---|---|
-| 1 | **FlashAttention-2 T4'te çalışmaz.** T4 = compute capability 7.5 (Turing); FA2 Ampere (8.0+) ister. Eval kodu dikkate almadan `attn_implementation = "flash_attention_2"` yazıyor. | `src/evaluation/libero_bench/VLANeXt_utils.py`, `get_vla()` | Yama 1: `"sdpa"` (PyTorch'un yerleşik scaled-dot-product attention'ı). `VLANEXT_ATTN` ortam değişkeniyle geri alınabilir. |
-| 2 | **Checkpoint 16.4 GB, Colab RAM 12.7 GB.** `torch.load(path, map_location="cpu")` dosyanın tamamını RAM'e kopyalar; üstelik `get_processor()` aynı dosyayı **ikinci kez** yükler. | aynı dosya, `_load_checkpoint()`; HF: `VLANeXt_libero_spatial.pt` 16.4 GB | Yama 2: `mmap=True` — dosya RAM'e kopyalanmaz, sayfa sayfa diskten okunur; `load_state_dict` yalnızca gereken tensörleri çeker. |
-| 3 | **Varsayılan bütçe 10 görev × 50 episode, 32 paralel env.** Her env ayrı bir süreç (~1 GB RAM); T4'te 32'si açılamaz; 500 episode saatler sürer. | `config/libero_bench_config.yaml` | `t4_bench_config.yaml`: `num_parallel_envs: 2`, `num_trials_per_task: 1`. Yama 3: `VLANEXT_TASK_IDS="0,2,8"` ile yalnızca üç görev. |
-| 4 | **Bağımlılık yığını.** `requirements.txt` torch 2.4 cu124, tensorflow 2.18, deepspeed, dm-reverb ister; Colab'ın kendi torch/TF'siyle çakışır, kurulum 15+ dk. | `requirements.txt` | Eval'in import zincirinde gerçekten olanları kur: transformers 5.5.0, diffusers 0.36, robosuite 1.4.1, mujoco 3.8.1, LIBERO, tfds (normalizasyon istatistikleri `libero_act.py`'de TF import ediyor). torch/TF Colab'ınki kalır. |
+| 1 | **FlashAttention-2 does not run on a T4.** T4 = compute capability 7.5 (Turing); FA2 needs Ampere (8.0+). The eval code writes `attn_implementation = "flash_attention_2"` regardless. | `src/evaluation/libero_bench/VLANeXt_utils.py`, `get_vla()` | Patch 1: `"sdpa"` (PyTorch's built-in scaled-dot-product attention). Can be reverted with the `VLANEXT_ATTN` environment variable. |
+| 2 | **The checkpoint is 16.4 GB, Colab RAM is 12.7 GB.** `torch.load(path, map_location="cpu")` copies the whole file into RAM; moreover `get_processor()` loads the same file a **second time**. | same file, `_load_checkpoint()`; HF: `VLANeXt_libero_spatial.pt` 16.4 GB | Patch 2: `mmap=True` — the file is not copied into RAM, it is read from disk page by page; `load_state_dict` pulls only the tensors it needs. |
+| 3 | **The default budget is 10 tasks × 50 episodes, 32 parallel envs.** Each env is a separate process (~1 GB RAM); 32 cannot be opened on a T4; 500 episodes take hours. | `config/libero_bench_config.yaml` | `t4_bench_config.yaml`: `num_parallel_envs: 2`, `num_trials_per_task: 1`. Patch 3: only three tasks with `VLANEXT_TASK_IDS="0,2,8"`. |
+| 4 | **The dependency stack.** `requirements.txt` wants torch 2.4 cu124, tensorflow 2.18, deepspeed, dm-reverb; it conflicts with Colab's own torch/TF, and installation takes 15+ min. | `requirements.txt` | Install what is actually in the eval's import chain: transformers 5.5.0, diffusers 0.36, robosuite 1.4.1, mujoco 3.8.1, LIBERO, tfds (the normalization statistics import TF in `libero_act.py`). torch/TF stay as Colab's. |
 
-İki küçük sürpriz daha: (a) VLANeXt **mujoco 3.8.1** pinliyor — Ders 10'da Mac'te 2.3.7'ye düşmüştük; Linux'ta 3.8.1 + robosuite 1.4.1 çalışıyor (doğruladım), Mac'te 2.3.7'de kal. (b) LIBERO'nun güncel `master`'ı `np.float_` sorununu düzeltmiş ve `install_requires` boş; yani `pip install ./third_party/LIBERO` hafif ve numpy 2 ile uyumlu. `COMMON_ISSUES.md` #3'teki `np.float_` düzeltmesi yalnızca LIBERO-plus için (Ders 16).
+Two more small surprises: (a) VLANeXt pins **mujoco 3.8.1** — in Lecture 10 we had downgraded to 2.3.7 on the Mac; on Linux 3.8.1 + robosuite 1.4.1 works (I verified), on the Mac stay on 2.3.7. (b) LIBERO's current `master` has fixed the `np.float_` problem and `install_requires` is empty; so `pip install ./third_party/LIBERO` is lightweight and compatible with numpy 2. The `np.float_` fix in `COMMON_ISSUES.md` #3 is only for LIBERO-plus (Lecture 16).
 
-Yamaların tamamı 7 satır; `vlanext_t4_patch.py` beklediği satırı bulamazsa (depo değişirse) **durur ve söyler**, sessizce yanlış şey yapmaz.
-
----
-
-## 3. Notebook: 8 hücre
-
-Aç: <https://colab.research.google.com/github/mesutd0nmez/vla-robot-learning-tr/blob/main/code/day12/colab_vlanext_t4.ipynb> → Çalışma zamanı türü **T4 GPU**. Her hücreyi sırayla çalıştır; kodun tamamı `code/day12/README.md`'de.
-
-1. **Donanım kontrolü.** `torch.cuda.get_device_capability(0)` → `(7, 5)` görmelisin; `is_bf16_supported()` True döner ama bu *emülasyon*: T4'te bf16 tensor core yok, matmul'lar fp32'ye açılarak yapılır (yavaş ama doğru — hipotez: T4'te 2–3× yavaşlama).
-2. **Sistem kütüphaneleri.** `libegl1-mesa-dev` vb. + `MUJOCO_GL=egl`: MuJoCo kamerayı GPU'da ekransız render eder (Mac'teki GLFW'nin Linux karşılığı).
-3. **Kurulum.** VLANeXt + LIBERO klon, eval alt kümesi pip. LIBERO'nun ilk import'taki "custom path? (Y/N)" sorusuna `printf 'N\n' |` ile cevap veriyoruz — notebook'ta `input()` beklerse hücre donar.
-4. **Yamalar.** `vlanext_t4_patch.py` ve `t4_bench_config.yaml` repodan iner; patch uygulanır, değişen satırlar yazdırılır.
-5. **Checkpoint.** `hf download DravenALG/VLANeXt VLANeXt_libero_spatial.pt` (16.4 GB; HF'de dört dosya var: spatial / object / goal / 10, her biri 16.4 GB; **suite başına ayrı model**). Qwen3-VL-2B-Instruct (~4.5 GB) ilk model kurulumunda kendiliğinden iner.
-6. **Eval.** `VLANEXT_TASK_IDS="0,2,8"` → *between the plate and the ramekin*, *from table center*, *next to the plate*. Üçü de aynı sahne, farklı mekânsal ifade (Ders 10). Log'da her episode için bir `Episode result:` satırı akar.
-7. **Sonuç.** `parse_eval_log.py` log'u tabloya ve `results/runs.csv` satırlarına çevirir — sütunlar repo sözleşmesiyle aynı (`run_id, model, checkpoint, suite, task_id, lang, condition, n_episodes, success_rate`); `condition=correct`, `lang=en`. Ders 18'de aynı dosyaya `empty / wrong / tr` satırları eklenecek.
-8. **Video.** Her episode `episode=N--success=True--task=....mp4` olarak kaydedilir; başarısız olanı izle: kol yanlış kâseye mi gidiyor, tutamıyor mu, zaman mı doluyor?
-
-Süre tahmini (hipotez): kurulum ~8 dk, indirme ~5 dk, model yükleme ~3 dk, 3 episode ~5 dk.
+The patches total 7 lines; if `vlanext_t4_patch.py` cannot find the line it expects (if the repo changes), it **stops and says so**, rather than silently doing the wrong thing.
 
 ---
 
-## 4. Eval döngüsünde ne oluyor?
+## 3. The notebook: 8 cells
 
-![Eval döngüsü](images/lecture-12/02-eval-loop.png)
+Open: <https://colab.research.google.com/github/mesutd0nmez/vla-robot-learning-tr/blob/main/code/day12/colab_vlanext_t4.ipynb> → Runtime type **T4 GPU**. Run each cell in order; the full code is in `code/day12/README.md`.
 
-Kodu okuyarak çıkardığım protokol (hepsi `parallel_eval_utils.py` ve `libero_utils.py`'de, hipotez değil):
+1. **Hardware check.** `torch.cuda.get_device_capability(0)` → you should see `(7, 5)`; `is_bf16_supported()` returns True but this is *emulation*: the T4 has no bf16 tensor cores, matmuls are done by expanding to fp32 (slow but correct — hypothesis: 2–3× slowdown on T4).
+2. **System libraries.** `libegl1-mesa-dev` etc. + `MUJOCO_GL=egl`: MuJoCo renders the camera headless on the GPU (the Linux counterpart of GLFW on the Mac).
+3. **Installation.** Clone VLANeXt + LIBERO, pip install the eval subset. We answer LIBERO's "custom path? (Y/N)" question on first import with `printf 'N\n' |` — if it waits for `input()` in a notebook, the cell freezes.
+4. **Patches.** `vlanext_t4_patch.py` and `t4_bench_config.yaml` are downloaded from the repo; the patch is applied and the changed lines are printed.
+5. **Checkpoint.** `hf download DravenALG/VLANeXt VLANeXt_libero_spatial.pt` (16.4 GB; HF has four files: spatial / object / goal / 10, each 16.4 GB; **a separate model per suite**). Qwen3-VL-2B-Instruct (~4.5 GB) is downloaded automatically at first model setup.
+6. **Eval.** `VLANEXT_TASK_IDS="0,2,8"` → *between the plate and the ramekin*, *from table center*, *next to the plate*. All three are the same scene, with different spatial expressions (Lecture 10). One `Episode result:` line per episode flows into the log.
+7. **Result.** `parse_eval_log.py` turns the log into a table and `results/runs.csv` rows — the columns are the same as the repo convention (`run_id, model, checkpoint, suite, task_id, lang, condition, n_episodes, success_rate`); `condition=correct`, `lang=en`. In Lecture 18, `empty / wrong / tr` rows will be added to the same file.
+8. **Video.** Each episode is saved as `episode=N--success=True--task=....mp4`; watch the failed one: is the arm going to the wrong bowl, failing to grasp, or running out of time?
 
-- **Başlangıç:** `env.reset()` → `set_init_state(init_states[episode_idx])`. Ders 10'daki 50 kayıtlı başlangıç; `num_trials_per_task: 1` dediğimizde her görevin **0. başlangıcı** kullanılır. Yani üç episode'umuz "üç farklı görevin ilk başlangıcı", "aynı görevin üç denemesi" değil.
-- **Bekleme:** 10 adım no-op `[0,0,0,0,0,0,-1]` — nesneler fizik motorunda yerleşsin. OpenVLA'nın protokolüyle aynı; süreye sayılmaz.
-- **Gözlem:** agentview + bilek kamerası 256×256; `img[::-1, ::-1]` ile 180° döndürme (Ders 10'daki tuzak, burada da var); `center_crop 0.9` (eğitimdeki random crop'un deterministik karşılığı); proprio = `eef_pos (3) + axis-angle (3) + gripper açıklığı (1)`.
-- **Model çağrısı:** görüntüler + `task.language` + proprio → 8 × 7'lik action chunk, flow-matching 5 adımda. 8 action'ın **hepsi** uygulanır (`num_steps_execute: 8`), sonra model yeniden çağrılır. Spatial için `max_steps = 220` → en fazla 28 model çağrısı/episode.
-- **Decode:** model `[-1, 1]` üretir; ilk 6 boyut suite'in min/max istatistiğiyle geri ölçeklenir (`libero_mixed/legacy` — checkpoint'in içindeki config'den okunur), gripper `> 0 → +1, değilse −1`. Ders 11'deki gripper işareti sorusu burada cevaplanıyor: ham LIBERO sözleşmesi (+1 kapalı) doğrudan kullanılıyor, ters çevirme yok.
-- **Success:** `env.step` `done=True` döndürdüğü an episode biter, `success=True`. `done`, BDDL goal predicate'inin (`(On akita_black_bowl_1 plate_1)`) sağlanmasıdır — Ders 10'daki `check_success()` ile aynı mekanizma. 220 adımda `done` gelmezse başarısız.
-- **Çıktı klasörü:** `checkpoints/libero_spatial_checkpoint_spatial_exec8_diff5_libero_SR66.67/` — kod "step" numarasını dosya adının son parçasından alır; bizim dosyada o parça `spatial` olduğu için klasör adında `checkpoint_spatial` yazar. Zararsız, şaşırma.
-
-Türkçe deney için değişecek tek yer `build_episode_specs` içindeki `task_description = task.language`. Ders 13'te bu dosyayı baştan sona okuyacağız.
+Time estimate (hypothesis): setup ~8 min, download ~5 min, model loading ~3 min, 3 episodes ~5 min.
 
 ---
 
-## 5. Sayıyı nasıl okumalı?
+## 4. What happens in the eval loop?
 
-### 5.1 Üç episode bir sonuç değildir
-3/3 başarı, gerçek success rate'in %95 güvenle **%44'ün üstünde** olduğunu söyler (Wilson aralığı 43.8–100); 2/3 ise 21–94 arası. Makalenin %99.0'ı 500 episode'dan geliyor (aralık ±1). Bugünkü sayı "boru hattı çalışıyor, model saçmalamıyor" testidir; Ders 18'de görev başına 10 episode'a çıkacağız ve orada bile aralıklar ±%25 olacak — deney tasarlarken bunu akılda tut (Faz 4).
+![Eval loop](images/lecture-12/02-eval-loop.png)
 
-![LIBERO sonuçları](images/lecture-12/03-libero-results.png)
+The protocol as I worked it out by reading the code (all of it is in `parallel_eval_utils.py` and `libero_utils.py`, not a hypothesis):
 
-### 5.2 Tezin için asıl grafik
-Aynı makale LIBERO-plus'ı da raporluyor. "Language" bozulması (komut değiştirilir/bozulur) altında iki güçlü modelin başarısı:
+- **Start:** `env.reset()` → `set_init_state(init_states[episode_idx])`. The 50 recorded initial states from Lecture 10; when we say `num_trials_per_task: 1`, the **0th initial state** of each task is used. So our three episodes are "the first initial state of three different tasks", not "three attempts at the same task".
+- **Wait:** 10 steps of no-op `[0,0,0,0,0,0,-1]` — so the objects settle in the physics engine. Same as OpenVLA's protocol; not counted towards the time limit.
+- **Observation:** agentview + wrist camera 256×256; 180° rotation with `img[::-1, ::-1]` (the trap from Lecture 10 is here too); `center_crop 0.9` (the deterministic counterpart of the random crop in training); proprio = `eef_pos (3) + axis-angle (3) + gripper opening (1)`.
+- **Model call:** images + `task.language` + proprio → an 8 × 7 action chunk, flow-matching in 5 steps. **All** 8 actions are executed (`num_steps_execute: 8`), then the model is called again. For Spatial `max_steps = 220` → at most 28 model calls/episode.
+- **Decode:** the model produces `[-1, 1]`; the first 6 dimensions are scaled back with the suite's min/max statistics (`libero_mixed/legacy` — read from the config inside the checkpoint), gripper `> 0 → +1, otherwise −1`. The gripper-sign question from Lecture 11 is answered here: the raw LIBERO convention (+1 closed) is used directly, no inversion.
+- **Success:** the moment `env.step` returns `done=True`, the episode ends with `success=True`. `done` is the satisfaction of the BDDL goal predicate (`(On akita_black_bowl_1 plate_1)`) — the same mechanism as `check_success()` in Lecture 10. If `done` does not arrive within 220 steps, it is a failure.
+- **Output folder:** `checkpoints/libero_spatial_checkpoint_spatial_exec8_diff5_libero_SR66.67/` — the code takes the "step" number from the last part of the file name; in our file that part is `spatial`, so the folder name says `checkpoint_spatial`. Harmless, don't be alarmed.
+
+The only place that will change for the Turkish experiment is `task_description = task.language` inside `build_episode_specs`. In Lecture 13 we will read this file from start to finish.
+
+---
+
+## 5. How should you read the number?
+
+### 5.1 Three episodes are not a result
+3/3 successes says that the true success rate is **above 44%** with 95% confidence (Wilson interval 43.8–100); 2/3 is 21–94. The paper's 99.0% comes from 500 episodes (interval ±1). Today's number is a "the pipeline works, the model isn't producing nonsense" test; in Lecture 18 we will go up to 10 episodes per task and even there the intervals will be ±25% — keep this in mind when designing the experiment (Phase 4).
+
+![LIBERO results](images/lecture-12/03-libero-results.png)
+
+### 5.2 The real plot for your thesis
+The same paper also reports LIBERO-plus. Success of two strong models under the "Language" perturbation (the command is altered/corrupted):
 
 ![LIBERO-plus Language](images/lecture-12/04-libero-plus-language.png)
 
-Okuma: **Object**'te komutu bozsan da %99 — model komutu okumuyor, sahneden çözüyor (Ders 3–4'teki kısayol). **Goal**'da %97 → %52: burada dil gerçekten taşıyıcı. **Spatial** ortada (%99 → %87). Bu üç sayı, Ders 18'deki beş koşullu deneyin hangi suite'te anlamlı olacağını şimdiden söylüyor: Goal'da Türkçe etkisi görünür olacak, Object'te hiçbir şey görünmeyecek, Spatial'da ince fark — ve Spatial'daki o %12'lik düşüş tam olarak senin mekânsal ifadelerinin (between / next to / on) taşıdığı bilgi. VLANeXt'in OFT'den Spatial'da 6 puan daha dayanıklı olması Qwen tokenizer'ından mı yoksa çok görüşlü kameradan mı — bilinmiyor; tezin bunu ayırabilir.
+Reading: on **Object**, even if you corrupt the command it is 99% — the model is not reading the command, it solves the task from the scene (the shortcut from Lectures 3–4). On **Goal**, 97% → 52%: here language is truly load-bearing. **Spatial** is in the middle (99% → 87%). These three numbers already tell you in which suite the five-condition experiment of Lecture 18 will be meaningful: on Goal the Turkish effect will be visible, on Object nothing will show, on Spatial a subtle difference — and that 12% drop on Spatial is exactly the information carried by your spatial expressions (between / next to / on). Whether VLANeXt being 6 points more robust than OFT on Spatial comes from the Qwen tokenizer or from the multi-view camera is unknown; your thesis could separate this.
 
 ---
 
-## 6. Yazılımcı için köprüler
+## 6. Bridges for the software developer
 
-- **`torch.load(mmap=True)`** = .NET'te `MemoryMappedFile.CreateFromFile` + `CreateViewAccessor`: 16 GB'lık dosyayı `File.ReadAllBytes` ile belleğe çekmek yerine işletim sisteminin sayfalamasına bırakmak. `load_state_dict` yalnızca dokunduğu tensörleri sayfalar; `optimizer_state_dict` gibi kullanılmayan anahtarlara hiç dokunulmaz.
-- **`attn_implementation`** = DI container'da `IAttention` için farklı implementasyon bağlamak: `flash_attention_2` (özel CUDA kernel, sm80+), `sdpa` (PyTorch'un dahili, her GPU'da), `eager` (saf Python, yavaş). Arayüz aynı, çıktı sayısal olarak aynı (±bf16 gürültüsü), yalnızca hız ve donanım gereksinimi değişir.
-- **`SubprocVectorEnv`** = her simülatör ayrı bir `Process`; ana süreç `env.step(actions, id=[...])` ile yalnızca canlı olanlara mesaj gönderir — bir `Task.WhenAll` üstünde çalışan worker havuzu. `num_parallel_envs` = havuz boyutu; RAM'le sınırlı.
-- **Action chunk + `num_steps_execute`** = batch'lenmiş komut kuyruğu: model 8 komut üretir, sen 8'ini de tüketip sonra yeniden sorarsın. `num_steps_execute: 4` deseydin kuyruğun yarısını atıp daha sık sorardın (receding horizon) — daha tepkisel ama 2× model çağrısı.
-- **Eval klasörünün adına SR eklenmesi** (`..._SR66.67`) = CI'da artifact adına test sonucunu gömmek; klasör listesinde özet görünür. Kötü yanı: aynı config'i ikinci kez koşunca yeni klasör açılır, `resume_episodes` ile devam ettirilebilir.
-- **`vlanext_t4_patch.py`'nin "beklenen satır yoksa dur" davranışı** = migration script'inde `IF NOT EXISTS` kontrolü. Upstream değiştiğinde sessizce bozuk bir durum bırakmak yerine `exit 1`.
+- **`torch.load(mmap=True)`** = `MemoryMappedFile.CreateFromFile` + `CreateViewAccessor` in .NET: instead of pulling a 16 GB file into memory with `File.ReadAllBytes`, leaving it to the operating system's paging. `load_state_dict` pages in only the tensors it touches; unused keys such as `optimizer_state_dict` are never touched.
+- **`attn_implementation`** = binding a different implementation for `IAttention` in a DI container: `flash_attention_2` (a special CUDA kernel, sm80+), `sdpa` (PyTorch's built-in, on any GPU), `eager` (pure Python, slow). Same interface, numerically the same output (±bf16 noise); only speed and hardware requirements change.
+- **`SubprocVectorEnv`** = each simulator is a separate `Process`; the main process sends messages only to the live ones with `env.step(actions, id=[...])` — a worker pool running on top of a `Task.WhenAll`. `num_parallel_envs` = pool size; limited by RAM.
+- **Action chunk + `num_steps_execute`** = a batched command queue: the model produces 8 commands, you consume all 8 and then ask again. Had you said `num_steps_execute: 4`, you would throw away half of the queue and ask more often (receding horizon) — more reactive but 2× model calls.
+- **Adding SR to the eval folder name** (`..._SR66.67`) = embedding the test result in the artifact name in CI; the summary is visible in the folder listing. The downside: running the same config a second time opens a new folder; it can be continued with `resume_episodes`.
+- **The "stop if the expected line is missing" behavior of `vlanext_t4_patch.py`** = an `IF NOT EXISTS` check in a migration script. `exit 1` instead of silently leaving a broken state when upstream changes.
 
 ---
 
-## 7. Bugünün görevi (15 dk)
-Notebook'u sonuna kadar koş (kurulum+indirme arka planda akarken bu dersi oku). Sonra üç şeyi kaydet: (1) `parse_eval_log.py` tablosunun ekran görüntüsü, (2) `results/runs.csv` dosyası, (3) başarısız episode varsa onun videosundan **bir cümlelik** teşhis ("kolu doğru kâseye götürdü ama kaldıramadı" gibi). Üçünü `projects/01-vlanext-t4-ilk-eval/` klasörüne koy (`projects/_template` ile başla, `projects/README.md` tablosuna satır ekle). Hiçbir episode başarılı değilse de sorun değil — bugünün çıktısı "koştu" bilgisidir.
+## 7. Today's task (15 min)
+Run the notebook to the end (read this lecture while the setup+download flows in the background). Then record three things: (1) a screenshot of the `parse_eval_log.py` table, (2) the `results/runs.csv` file, (3) if there is a failed episode, **a one-sentence** diagnosis from its video (such as "it took the arm to the right bowl but could not lift"). Put the three in the folder `projects/01-vlanext-t4-ilk-eval/` (start with `projects/_template`, add a row to the `projects/README.md` table). It is fine if no episode succeeds — today's output is the information "it ran".
 
-## Takılırsan
-| Belirti | Çözüm |
+## If you get stuck
+| Symptom | Fix |
 |---|---|
-| `ImportError: flash_attn` / `FlashAttention only supports Ampere` | Yama 1 uygulanmamış: `python vlanext_t4_patch.py /content/VLANeXt` çıktısında `[+]`/`[=]` satırlarını kontrol et |
-| Model yüklenirken oturum çöküyor (RAM) | Yama 2 eksik ya da Colab 12.7 GB yetmedi → Kaggle (29 GB) ya da `num_parallel_envs: 1` |
-| `CUDA out of memory` | `num_parallel_envs: 1`; hâlâ olmuyorsa `VLANeXt_utils.py`'de `model.to(device)` sonrasına `model.to(torch.bfloat16)` ekle (hipotez) |
-| `FileNotFoundError: ''` eval başında | `LIBERO_CONFIG_PATH` boş string: hücre 6'daki `os.environ.pop` satırı çalıştı mı? (COMMON_ISSUES #6) |
-| `libEGL`/`GLFW` hatası, siyah görüntü | Hücre 2 (apt + `MUJOCO_GL=egl`) atlanmış; çalıştırıp **çalışma zamanını yeniden başlat** |
-| `Y/N` sorusunda hücre donuyor | LIBERO config sorusu: hücreyi durdur, `printf 'N\n' \| python -c "import libero.libero"` satırını tek başına çalıştır |
-| `hf: command not found` | `pip install -U huggingface_hub` (CLI adı `hf`; eski sürümde `huggingface-cli download`) |
-| İndirme çok yavaş (<20 MB/s) | Colab'ın o anki düğümü; Kaggle'da dene ya da `--max-workers 8` |
-| numpy 2 hatası (`np.float_`) | Beklenmiyor (LIBERO master düzeltmiş); gelirse hata veren dosyada `np.float_` → `np.float64` |
-| Eval çok yavaş (>2 dk/episode) | bf16 emülasyonu; normal. `model.diffusion_steps: 5`i düşürme; görev sayısını azalt |
+| `ImportError: flash_attn` / `FlashAttention only supports Ampere` | Patch 1 was not applied: check the `[+]`/`[=]` lines in the output of `python vlanext_t4_patch.py /content/VLANeXt` |
+| The session crashes while loading the model (RAM) | Patch 2 is missing or Colab's 12.7 GB was not enough → Kaggle (29 GB) or `num_parallel_envs: 1` |
+| `CUDA out of memory` | `num_parallel_envs: 1`; if it still fails, add `model.to(torch.bfloat16)` after `model.to(device)` in `VLANeXt_utils.py` (hypothesis) |
+| `FileNotFoundError: ''` at the start of eval | `LIBERO_CONFIG_PATH` is an empty string: did the `os.environ.pop` line in cell 6 run? (COMMON_ISSUES #6) |
+| `libEGL`/`GLFW` error, black image | Cell 2 (apt + `MUJOCO_GL=egl`) was skipped; run it and **restart the runtime** |
+| The cell freezes at the `Y/N` question | The LIBERO config question: stop the cell, run the line `printf 'N\n' \| python -c "import libero.libero"` on its own |
+| `hf: command not found` | `pip install -U huggingface_hub` (the CLI is named `hf`; in older versions `huggingface-cli download`) |
+| Download very slow (<20 MB/s) | Colab's current node; try Kaggle or `--max-workers 8` |
+| numpy 2 error (`np.float_`) | Not expected (LIBERO master has fixed it); if it comes, replace `np.float_` → `np.float64` in the file that raises it |
+| Eval very slow (>2 min/episode) | bf16 emulation; normal. Don't lower `model.diffusion_steps: 5`; reduce the number of tasks |
 
-Hata mesajının tamamını ve hangi hücrede olduğunu chat'e yapıştır.
-
----
-
-## Sonraki ders (Ders 13)
-Kod okuma günü (Mac'te, GPU gerekmez): bugün koştuğun `libero_bench_eval.py` → `parallel_eval_utils.py` → `VLANeXt_utils.py` → `VLANeXt.py` zincirini baştan sona izleyeceğiz: komut Qwen'in chat şablonuna nasıl giriyor, görüntü token'ları ve proprio nereye ekleniyor, 16 query token'lık policy head chunk'ı nasıl üretiyor, flow-matching 5 adımda ne yapıyor, `done` nerede `success`e dönüşüyor. Çıktı: Türkçe deney için değiştirilecek satırların işaretlendiği bir kod akış şeması.
+Paste the whole error message and which cell you are in into the chat.
 
 ---
 
-## Kaynaklar
-- Wu, X.-M., Fan, B., Liao, K., Jiang, J.-J., Yang, R., Luo, Y., Wu, Z., Zheng, W.-S., Loy, C. C. (2026). *VLANeXt: Recipes for Building Strong VLA Models.* ICML 2026. [arXiv:2602.18532v2](https://arxiv.org/abs/2602.18532v2) — LIBERO tablosu ve LIBERO-plus tablosu (grafik 03–04 bu tablolardan).
-- VLANeXt kodu: [github.com/DravenALG/VLANeXt](https://github.com/DravenALG/VLANeXt) — `README.md` (kurulum/eval), `COMMON_ISSUES.md`, `scripts/libero_bench_eval.py`, `src/evaluation/libero_bench/{parallel_eval_utils,VLANeXt_utils,libero_utils}.py`, `config/libero_bench_config.yaml`, `requirements.txt` (mujoco 3.8.1 pini). Lisans: NTU S-Lab 1.0 (araştırma amaçlı).
-- Checkpoint'ler: [huggingface.co/DravenALG/VLANeXt](https://huggingface.co/DravenALG/VLANeXt) — `VLANeXt_libero_{spatial,object,goal,10}.pt`, her biri 16.4 GB.
+## Next lecture (Lecture 13)
+A code-reading day (on the Mac, no GPU needed): we will trace the chain `libero_bench_eval.py` → `parallel_eval_utils.py` → `VLANeXt_utils.py` → `VLANeXt.py` that you ran today from start to finish: how the command enters Qwen's chat template, where the image tokens and proprio are inserted, how the policy head with 16 query tokens produces the chunk, what flow-matching does in 5 steps, where `done` turns into `success`. Output: a code flow diagram marking the lines to change for the Turkish experiment.
+
+---
+
+## References
+- Wu, X.-M., Fan, B., Liao, K., Jiang, J.-J., Yang, R., Luo, Y., Wu, Z., Zheng, W.-S., Loy, C. C. (2026). *VLANeXt: Recipes for Building Strong VLA Models.* ICML 2026. [arXiv:2602.18532v2](https://arxiv.org/abs/2602.18532v2) — the LIBERO table and the LIBERO-plus table (plots 03–04 are from these tables).
+- VLANeXt code: [github.com/DravenALG/VLANeXt](https://github.com/DravenALG/VLANeXt) — `README.md` (installation/eval), `COMMON_ISSUES.md`, `scripts/libero_bench_eval.py`, `src/evaluation/libero_bench/{parallel_eval_utils,VLANeXt_utils,libero_utils}.py`, `config/libero_bench_config.yaml`, `requirements.txt` (the mujoco 3.8.1 pin). License: NTU S-Lab 1.0 (research use).
+- Checkpoints: [huggingface.co/DravenALG/VLANeXt](https://huggingface.co/DravenALG/VLANeXt) — `VLANeXt_libero_{spatial,object,goal,10}.pt`, 16.4 GB each.
 - Qwen3-VL-2B-Instruct: [huggingface.co/Qwen/Qwen3-VL-2B-Instruct](https://huggingface.co/Qwen/Qwen3-VL-2B-Instruct)
 - LIBERO: [github.com/Lifelong-Robot-Learning/LIBERO](https://github.com/Lifelong-Robot-Learning/LIBERO) · LIBERO-plus: [github.com/sylvestf/LIBERO-plus](https://github.com/sylvestf/LIBERO-plus)
-- FlashAttention-2 donanım gereksinimi (Ampere+): [github.com/Dao-AILab/flash-attention](https://github.com/Dao-AILab/flash-attention)
+- FlashAttention-2 hardware requirement (Ampere+): [github.com/Dao-AILab/flash-attention](https://github.com/Dao-AILab/flash-attention)
 - PyTorch `torch.load(mmap=True)`: [docs.pytorch.org — torch.load](https://docs.pytorch.org/docs/stable/generated/torch.load.html)
-- Kod: `code/day12/` (notebook, yama, config, log ayrıştırıcı, grafik script'i). Görseller: 01–02 Mermaid (`.mmd` yanında), 03–04 `plot_paper_results.py` ile makale sayılarından.
+- Code: `code/day12/` (notebook, patch, config, log parser, plot script). Images: 01–02 Mermaid (next to the `.mmd`), 03–04 from the paper's numbers with `plot_paper_results.py`.

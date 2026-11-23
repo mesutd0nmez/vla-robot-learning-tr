@@ -3,9 +3,9 @@
 ## check_env.py
 
 ```python
-"""Gün 9 — Ortam kontrolü. Her satır OK demeli."""
+"""Day 9 — Environment check. Every line should say OK."""
 import sys, platform
-print("python :", sys.version.split()[0], "| mimari:", platform.machine(), "(arm64 bekleniyor)")
+print("python :", sys.version.split()[0], "| arch:", platform.machine(), "(arm64 expected)")
 import numpy; print("numpy  :", numpy.__version__)
 import mujoco; print("mujoco :", mujoco.__version__)
 import torch; print("torch  :", torch.__version__, "| MPS:", torch.backends.mps.is_available())
@@ -15,10 +15,10 @@ print("OK")
 ## first_scene.py
 
 ```python
-"""Gün 9 — İlk MuJoCo sahnesi.
-Masa + tabak + düşen mavi top. Dört anı yan yana PNG olarak kaydeder.
-Çalıştır:  python first_scene.py
-Mac'te ekran gerekmez; offscreen render kullanılır.
+"""Day 9 — First MuJoCo scene.
+Table + plate + a falling blue ball. Saves four moments side by side as a PNG.
+Run:  python first_scene.py
+No display needed on the Mac; offscreen rendering is used.
 """
 import mujoco, numpy as np, imageio
 
@@ -35,19 +35,19 @@ XML = """
   </worldbody>
 </mujoco>"""
 
-model = mujoco.MjModel.from_xml_string(XML)   # sahne tanımı (MJCF)
-data = mujoco.MjData(model)                    # anlık durum: konumlar, hızlar
-renderer = mujoco.Renderer(model, 480, 640)    # offscreen kamera
+model = mujoco.MjModel.from_xml_string(XML)   # scene definition (MJCF)
+data = mujoco.MjData(model)                    # current state: positions, velocities
+renderer = mujoco.Renderer(model, 480, 640)    # offscreen camera
 
 frames = []
-for t in range(400):                           # 400 adım × 0.002 s = 0.8 s simülasyon
-    mujoco.mj_step(model, data)                # fiziği bir adım ilerlet
+for t in range(400):                           # 400 steps × 0.002 s = 0.8 s of simulation
+    mujoco.mj_step(model, data)                # advance the physics by one step
     if t in (0, 60, 120, 399):
         renderer.update_scene(data, camera="agentview")
         frames.append(renderer.render().copy())
 
 imageio.imwrite("first_scene.png", np.concatenate(frames, axis=1))
-print("top z (yükseklik):", round(float(data.qpos[2]), 3), "→ masaya indi" if data.qpos[2] < 0.5 else "")
-print("kaydedildi: first_scene.png")
+print("ball z (height):", round(float(data.qpos[2]), 3), "→ landed on the table" if data.qpos[2] < 0.5 else "")
+print("saved: first_scene.png")
 ```
 

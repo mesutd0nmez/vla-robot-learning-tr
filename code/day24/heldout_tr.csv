@@ -1,13 +1,13 @@
 id,tr,en_gold,note
-H01,sağ taraftaki kâseyi alıp tabağın üzerine bırak,pick up the black bowl on the right and place it on the plate,"bırak fiili sözlükte yok; 'siyah' yok"
-H02,lütfen soldaki siyah kaseyi al ve tabağa koy,pick up the black bowl on the left and place it on the plate,nezaket sözcüğü
-H03,soldaki siyah kaseyi alır mısın ve tabağın üstüne koyar mısın,pick up the black bowl on the left and place it on the plate,soru biçimli rica (Ders 23 §3: sete bilerek alınmamıştı)
-H04,ocağın üstünde duran kâseyi tabağa koy,pick up the black bowl on the stove and place it on the plate,"'al' yok: tek fiil koy → Goal şablonuna düşer"
-H05,siyah kaseyi tabak ile ramekinin arasından al ve tabağa koy,pick up the black bowl between the plate and the ramekin and place it on the plate,ayrılma hâli (-ndan) ile seçim
-H06,kaseyi tabağın hemen yanına koy,put the bowl next to the plate,'yan' varış ilişkisi olarak (sette yalnızca seçim)
-H07,çanağı tabağın üstüne koy,put the bowl on the plate,eş anlamlı nesne adı (çanak)
-H08,kaseyi tabağın üzerine yerleştir,put the bowl on the plate,üzerine + yerleştir (tr_b sözcükleri yeni bileşimde)
-H09,krem peyniri kâsenin içine bırak,put the cream cheese in the bowl,bırak fiili
-H10,tabağı ocağın önüne doğru itele,push the plate to the front of the stove,itele fiili
-H11,şarap şişesini şarap rafına koy,put the wine bottle on the rack,'şarap rafı' = raf (ikinci şarap sözcüğü)
-H12,kaseyi tabağın sol tarafına yerleştir,put the bowl to the left of the plate,tr_b kalıbı + yerleştir
+H01,sağ taraftaki kâseyi alıp tabağın üzerine bırak,pick up the black bowl on the right and place it on the plate,the verb 'bırak' is not in the lexicon; no 'siyah'
+H02,lütfen soldaki siyah kaseyi al ve tabağa koy,pick up the black bowl on the left and place it on the plate,politeness word
+H03,soldaki siyah kaseyi alır mısın ve tabağın üstüne koyar mısın,pick up the black bowl on the left and place it on the plate,question-form request (Lecture 23 §3: deliberately left out of the set)
+H04,ocağın üstünde duran kâseyi tabağa koy,pick up the black bowl on the stove and place it on the plate,no 'al': a single verb koy -> falls onto the Goal template
+H05,siyah kaseyi tabak ile ramekinin arasından al ve tabağa koy,pick up the black bowl between the plate and the ramekin and place it on the plate,selection with the ablative case (-ndan)
+H06,kaseyi tabağın hemen yanına koy,put the bowl next to the plate,'yan' as a destination relation (in the set only as selection)
+H07,çanağı tabağın üstüne koy,put the bowl on the plate,synonymous object name (çanak)
+H08,kaseyi tabağın üzerine yerleştir,put the bowl on the plate,üzerine + yerleştir (tr_b words in a new combination)
+H09,krem peyniri kâsenin içine bırak,put the cream cheese in the bowl,the verb 'bırak'
+H10,tabağı ocağın önüne doğru itele,push the plate to the front of the stove,the verb 'itele'
+H11,şarap şişesini şarap rafına koy,put the wine bottle on the rack,'şarap rafı' = raf (a second wine word)
+H12,kaseyi tabağın sol tarafına yerleştir,put the bowl to the left of the plate,tr_b pattern + yerleştir

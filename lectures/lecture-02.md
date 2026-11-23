@@ -1,127 +1,127 @@
-# Ders 2 — OpenVLA'nın İçi: Görüntü + Dil Nasıl Action Olur?
+# Lecture 2 — Inside OpenVLA: How Do Image + Language Become an Action?
 
-**Faz 1 / Gün 2** · **Okuma süresi:** ~40 dk
-**Ön koşul:** Ders 1 (policy, observation, action, 7-DoF) · **Tamamlayıcı okuma:** `resources/robot-learning-vla-intro-tr.md` §10–14
+**Phase 1 / Day 2** · **Reading time:** ~40 min
+**Prerequisite:** Lecture 1 (policy, observation, action, 7-DoF) · **Complementary reading:** `resources/robot-learning-vla-intro-tr.md` §10–14
 
-> **Bugünün tek cümlesi:** OpenVLA, bir görüntü-dil modelinin (VLM) "cevap" olarak metin yerine **action token'ları** üretmesi için robot verisiyle fine-tune edilmiş hâlidir; action'lar 256 kutuya bölünüp dil modelinin kelime dağarcığındaki token'lara eşlenir.
+> **Today in one sentence:** OpenVLA is a vision-language model (VLM) fine-tuned on robot data so that, instead of text, it produces **action tokens** as its "answer"; actions are split into 256 bins and mapped to tokens in the language model's vocabulary.
 
 ---
 
-## 1. VLM'den VLA'ya: tek bir fikir
+## 1. From VLM to VLA: a single idea
 
-Bir VLM (Vision-Language Model) görüntü ve soru alır, metin üretir: *"Masada kırmızı bir bardak var."* VLA aynı ağı alır, çıktıyı değiştirir: metin yerine **robot action**. Mimari neredeyse aynı; değişen şey eğitim verisi ve çıktının ne anlama geldiği.
+A VLM (Vision-Language Model) takes an image and a question and produces text: *"There is a red cup on the table."* A VLA takes the same network and changes the output: instead of text, a **robot action**. The architecture is almost identical; what changes is the training data and what the output means.
 
 ![VLM vs VLA](images/lecture-02/02-vlm-vs-vla.png)
 
-OpenVLA'nın başlangıç noktası **Prismatic-7B** adlı açık VLM'dir. Bu VLM, Open X-Embodiment veri setindeki ~970 bin robot episode'u (22 farklı robot gövdesi) ile behavior cloning yöntemiyle fine-tune edilmiş ve OpenVLA ortaya çıkmıştır. Eğitim: 64 A100 GPU, ~14 gün. Sen bu modeli eğitmeyeceksin; hazır ağırlıkları indirip kullanacaksın (Hugging Face: `openvla/openvla-7b`).
+OpenVLA's starting point is an open VLM called **Prismatic-7B**. This VLM was fine-tuned with behavior cloning on ~970 thousand robot episodes (22 different robot embodiments) from the Open X-Embodiment dataset, and OpenVLA emerged. Training: 64 A100 GPUs, ~14 days. You will not train this model; you will download and use the ready-made weights (Hugging Face: `openvla/openvla-7b`).
 
 ---
 
-## 2. Mimari: dört parça
+## 2. Architecture: four parts
 
-![OpenVLA mimarisi](images/lecture-02/01-openvla-arch.png)
+![OpenVLA architecture](images/lecture-02/01-openvla-arch.png)
 
-### 2.1 Görsel kodlayıcı: SigLIP + DINOv2
-OpenVLA tek değil **iki** görsel kodlayıcı kullanır ve çıktılarını kanal boyunca birleştirir:
+### 2.1 Visual encoder: SigLIP + DINOv2
+OpenVLA uses not one but **two** visual encoders and concatenates their outputs along the channel dimension:
 
-| Kodlayıcı | Nasıl eğitildi? | Ne iyi yapar? |
+| Encoder | How was it trained? | What is it good at? |
 |---|---|---|
-| **SigLIP** | görüntü–metin eşleme (CLIP benzeri) | *anlamsal* özellikler: "bu bir bardak", "kırmızı" |
-| **DINOv2** | kendi kendine denetimli (self-supervised) görüntü öğrenmesi | *mekânsal/geometrik* özellikler: nesne sınırları, konum, derinlik ipuçları |
+| **SigLIP** | image–text matching (CLIP-like) | *semantic* features: "this is a cup", "red" |
+| **DINOv2** | self-supervised image learning | *spatial/geometric* features: object boundaries, position, depth cues |
 
-Neden iki tane? Çünkü manipülasyon hem "ne" (anlam) hem "nerede" (geometri) ister. Yalnızca CLIP tipi kodlayıcı kullanan modellerin uzamsal detaylarda zayıf kaldığı Prismatic çalışmasında gösterilmişti. 224×224 görüntü, 14×14 piksellik 256 **patch token**'a bölünür; her patch için iki kodlayıcının vektörleri yan yana eklenir.
+Why two? Because manipulation needs both "what" (meaning) and "where" (geometry). The Prismatic work showed that models using only a CLIP-type encoder remain weak on spatial details. The 224×224 image is split into 256 **patch tokens** of 14×14 pixels; for each patch, the vectors of the two encoders are concatenated side by side.
 
-Tezin açısından not: Tatar vd.'nin gözlemlediği "Türkçe'de gecikme artmıyor" bulgusunun nedeni burası — görsel kodlayıcıların ileri geçişi sabit maliyetli ve toplam süreyi domine ediyor; 7 token fazla metin fark yaratmıyor.
+A note for your thesis: this is the reason for Tatar et al.'s observation that "latency does not increase in Turkish" — the forward pass of the visual encoders has a fixed cost and dominates the total time; 7 extra text tokens make no difference.
 
 ### 2.2 Projector
-2 katmanlı küçük bir MLP. 256 görsel token'ı, dil modelinin beklediği boyuta ve "anlam uzayına" taşır. Görüntü böylece LLM'e *sanki 256 kelimelik bir cümleymiş gibi* girer.
+A small 2-layer MLP. It carries the 256 visual tokens to the dimension and "meaning space" the language model expects. The image thus enters the LLM *as if it were a sentence of 256 words*.
 
-### 2.3 Dil omurgası: LLaMA-2 7B
-Standart decoder-only transformer. Girdi dizisi:
+### 2.3 Language backbone: LLaMA-2 7B
+A standard decoder-only transformer. The input sequence:
 
 ```
-[256 görsel token] + [komut token'ları] + [cevap başlangıcı]
+[256 visual tokens] + [instruction tokens] + [start of answer]
 ```
 
-Komut şablonu sabittir: `In: What action should the robot take to {instruction}?\nOut:`
+The instruction template is fixed: `In: What action should the robot take to {instruction}?\nOut:`
 
-Tokenizer **LLaMA-2'nin BPE tokenizer'ı**, 32.000 kelimelik dağarcık, ağırlıklı olarak İngilizce. Türkçe burada ikinci sınıf vatandaştır: "pick up the red cup" 6 token iken "kırmızı küpü kaldır" 8 token; ve bölünme anlamlı morfem sınırlarına değil, istatistiksel sıklığa göre yapılır (`Kal` + `dır`). Tatar vd.'nin tüm tartışması bu satırda yaşıyor. Gün 21'de bunu kendi tokenizer analizinle ölçeceksin.
+The tokenizer is **LLaMA-2's BPE tokenizer**, with a 32,000-word vocabulary, predominantly English. Turkish is a second-class citizen here: "pick up the red cup" is 6 tokens whereas *kırmızı küpü kaldır* ("lift the red cube") is 8 tokens; and the split follows statistical frequency, not meaningful morpheme boundaries (`Kal` + `dır`). Tatar et al.'s entire discussion lives on this line. On Day 21 you will measure this with your own tokenizer analysis.
 
-### 2.4 Action çıkışı: 7 token
-Model, cevap olarak **sırayla 7 token** üretir (autoregressive: her token bir öncekine bağlı). Her token 0–255 arası bir "kutu" numarasına karşılık gelir; 7 kutu → 7-DoF action. Bu, OpenVLA'nın en önemli ve en çok eleştirilen tasarım kararıdır; sonraki bölüm tamamen buna ayrıldı.
+### 2.4 Action output: 7 tokens
+As its answer, the model produces **7 tokens in sequence** (autoregressive: each token depends on the previous one). Each token corresponds to a "bin" number between 0 and 255; 7 bins → a 7-DoF action. This is OpenVLA's most important and most criticized design decision; the next section is devoted entirely to it.
 
 ---
 
-## 3. Action tokenizasyonu: sürekli değer nasıl kelime olur?
+## 3. Action tokenization: how does a continuous value become a word?
 
-Dil modeli yalnızca ayrık token üretir; robot action'ı ise sürekli bir sayıdır (Δx = 0.0137 m). Köprü şöyle kurulur:
+The language model only produces discrete tokens; a robot action, however, is a continuous number (Δx = 0.0137 m). The bridge is built like this:
 
 ![Action binning](images/lecture-02/04-action-binning.png)
 
-1. **Aralığı belirle.** Her action boyutu için eğitim verisindeki 1. ve 99. yüzdelik değerleri alınır (uç değerler aralığı şişirmesin diye min/max değil).
-2. **256 eşit kutuya böl.** Aralık 256 parçaya ayrılır; sürekli değer düştüğü kutunun numarasına (0–255) dönüşür.
-3. **Token'a eşle.** LLaMA-2 dağarcığının **en az kullanılan son 256 token'ının üzerine yazılır**: kutu *k* → token id `32000 − 256 + k`. Yeni token eklemek yerine var olanlar "işgal edilir"; böylece modelin çıkış katmanı değişmez.
-4. **Geri çevir (de-tokenize).** Çıkarım zamanında 7 token → 7 kutu → kutunun orta değeri → robot komutu.
+1. **Determine the range.** For each action dimension, the 1st and 99th percentile values in the training data are taken (not min/max, so that extreme values don't inflate the range).
+2. **Split into 256 equal bins.** The range is divided into 256 pieces; a continuous value becomes the number (0–255) of the bin it falls into.
+3. **Map to tokens.** The **last 256 least-used tokens of the LLaMA-2 vocabulary are overwritten**: bin *k* → token id `32000 − 256 + k`. Instead of adding new tokens, existing ones are "occupied"; this way the model's output layer does not change.
+4. **Convert back (de-tokenize).** At inference time 7 tokens → 7 bins → the bin's midpoint value → robot command.
 
-Bunun sonuçları:
+The consequences:
 
-- **Çözünürlük kaybı:** 256 kutu, ince hareketlerde (örneğin 1 mm'lik hizalama) yetersiz kalabilir.
-- **Hız:** 7 token sırayla üretildiği için tek action ~100–200 ms sürer (4090'da ~6 Hz). Gerçek zamanlı kontrol için yavaş.
-- **Gripper problemi:** gripper boyutu aslında ikili (açık/kapalı) ama 256 kutuya yayılmış; model "ortada" bir değer üretirse robot ne yapacağını bilemez. Tatar vd.'de L2 hatasını 1.0'a taşıyan 14 görevin tamamında gripper boyutu baş roldeydi.
-- **Hata = yanlış kelime.** Modelin açısından Δx için yanlış kutu üretmek, bir cümlede yanlış kelime seçmekle aynı şey; loss (cross-entropy) de aynıdır. Kutu 130 yerine 131 üretmek ile 250 üretmek **aynı cezayı alır** — sayısal yakınlık loss'a yansımaz. Bu, OFT'nin değiştirdiği şeylerden biri.
-
----
-
-## 4. OpenVLA'yı yeni bir robota/göreve uyarlamak: fine-tuning
-
-OpenVLA'nın hazır ağırlıkları, eğitimde gördüğü robotlarda (ör. WidowX / BridgeData) çalışır. LIBERO gibi yeni bir ortam için **fine-tune** edilmesi gerekir. Standart yol **LoRA**: 7 milyar parametreyi dondurup her transformer katmanına küçük, eğitilebilir "yama" matrisleri eklemek. Toplam eğitilen parametre ~%1.4; tek bir 24 GB GPU'da yapılabilir. OpenVLA makalesi LIBERO'nun dört suite'inde LoRA ile fine-tune edilmiş sonucu **%76.5 ortalama başarı** olarak bildirir.
-
-Sana gereken: bu LIBERO fine-tune'lu checkpoint'ler (`openvla/openvla-7b-finetuned-libero-spatial` vb.) Hugging Face'te hazır. Gün 12–13'te bunları ya da VLANeXt'in kendi checkpoint'lerini indirip eval yapacaksın; fine-tune eğitimi yapmayacaksın.
+- **Loss of resolution:** 256 bins may be insufficient for fine movements (e.g. a 1 mm alignment).
+- **Speed:** since 7 tokens are produced sequentially, a single action takes ~100–200 ms (~6 Hz on a 4090). Slow for real-time control.
+- **The gripper problem:** the gripper dimension is actually binary (open/closed) but is spread over 256 bins; if the model produces a value "in the middle", the robot does not know what to do. In all 14 tasks where Tatar et al. saw the L2 error pushed to 1.0, the gripper dimension was the main culprit.
+- **Error = wrong word.** From the model's point of view, producing the wrong bin for Δx is the same as choosing the wrong word in a sentence; the loss (cross-entropy) is the same too. Producing bin 131 instead of 130 and producing 250 **receive the same penalty** — numerical proximity is not reflected in the loss. This is one of the things OFT changes.
 
 ---
 
-## 5. OpenVLA-OFT: aynı omurga, yeni tarif
+## 4. Adapting OpenVLA to a new robot/task: fine-tuning
 
-2025'te aynı grup (Kim, Finn, Liang) "Optimized Fine-Tuning" (OFT) tarifini yayınladı. Mimarinin omurgası aynı; değişen şey **action'ın nasıl üretildiği ve nasıl öğrenildiği**:
+OpenVLA's ready-made weights work on the robots it saw in training (e.g. WidowX / BridgeData). For a new environment like LIBERO it must be **fine-tuned**. The standard route is **LoRA**: freeze the 7 billion parameters and add small, trainable "patch" matrices to each transformer layer. About 1.4% of parameters are trained in total; it can be done on a single 24 GB GPU. The OpenVLA paper reports the LoRA-fine-tuned result on LIBERO's four suites as **76.5% average success**.
+
+What you need: these LIBERO fine-tuned checkpoints (`openvla/openvla-7b-finetuned-libero-spatial` etc.) are ready on Hugging Face. On Days 12–13 you will download these or VLANeXt's own checkpoints and run eval; you will not do fine-tuning training.
+
+---
+
+## 5. OpenVLA-OFT: same backbone, new recipe
+
+In 2025 the same group (Kim, Finn, Liang) published the "Optimized Fine-Tuning" (OFT) recipe. The backbone of the architecture is the same; what changes is **how the action is produced and how it is learned**:
 
 ![OpenVLA vs OFT](images/lecture-02/03-oft.png)
 
-| Bileşen | OpenVLA | OpenVLA-OFT |
+| Component | OpenVLA | OpenVLA-OFT |
 |---|---|---|
-| Decoding | 7 token sırayla (autoregressive) | tüm action'lar tek ileri geçişte (parallel) |
-| Action gösterimi | ayrık, 256 kutu | sürekli (küçük MLP "action head") |
-| Loss | next-token cross-entropy | L1 regresyon (sayısal yakınlık cezaya yansır) |
-| Zaman ufku | tek adım | **action chunk**: 8 adım birden |
-| Hız | ~6 Hz | 26× daha yüksek throughput |
-| LIBERO ortalama | %76.5 | **%97.1** |
+| Decoding | 7 tokens in sequence (autoregressive) | all actions in a single forward pass (parallel) |
+| Action representation | discrete, 256 bins | continuous (small MLP "action head") |
+| Loss | next-token cross-entropy | L1 regression (numerical proximity is reflected in the penalty) |
+| Time horizon | single step | **action chunk**: 8 steps at once |
+| Speed | ~6 Hz | 26× higher throughput |
+| LIBERO average | 76.5% | **97.1%** |
 
-Yani OFT, Bölüm 3'te saydığımız dört sorunun (çözünürlük, hız, gripper, loss) dördüne de doğrudan cevaptır.
+So OFT is a direct answer to all four problems we listed in Section 3 (resolution, speed, gripper, loss).
 
-**Tezin için kritik uyarı:** OpenVLA ve OpenVLA-OFT aynı modelin iki ayrı davranış rejimidir. LIBERO-Plus çalışmasındaki "OFT dil komutu bozulsa bile çalışmaya devam ediyor" bulgusu *OFT'ye* aittir; base OpenVLA'ya otomatik genellenemez. OFT'nin action chunk + parallel decoding tasarımı, görüntüden görevi tahmin etmeyi (shortcut) daha da kolaylaştırıyor olabilir — bu bir hipotez, Gün 4'te tartışacağız. Bir deney planlarken "hangi checkpoint, hangi tarif" sorusunu baştan netleştirmek zorundasın.
-
----
-
-## 6. Yazılımcı için köprüler
-
-- OpenVLA'yı çağırmak bir HTTP servisi çağırmaya benzer: `predict_action(image, instruction) -> np.ndarray(7)`. Hugging Face `transformers` ile ~15 satır. Gün 14'te Mac'te MPS üzerinde bunu çalıştıracaksın (bf16, ~14 GB RAM).
-- Model **hafızasızdır**: her çağrı yalnızca o anki görüntü + komutu görür, önceki adımları bilmez. "Çekmeceyi az önce açtım" bilgisi yoktur. Bu, Ders 1'deki *reactive behavior / temporal reasoning* problemlerinin kaynağı.
-- Action "kutu numarası" fikri, veritabanında sürekli bir alanı `SMALLINT` enum'a indirgemeye benzer: saklaması kolay, ama `130` ile `131` arasındaki ilişkiyi sistem bilmez.
+**Critical warning for your thesis:** OpenVLA and OpenVLA-OFT are two distinct behavior regimes of the same model. The LIBERO-Plus finding that "OFT keeps working even when the language command is corrupted" belongs to *OFT*; it cannot be automatically generalized to base OpenVLA. OFT's action chunk + parallel decoding design may make guessing the task from the image (shortcut) even easier — this is a hypothesis, which we will discuss on Day 4. When planning an experiment, you must settle the question "which checkpoint, which recipe" from the start.
 
 ---
 
-## 7. Bugünün görevi (15 dk)
-Kâğıda OpenVLA pipeline'ını **görsele bakmadan** çiz: görüntüden action'a kadar kutuları ve okları. Sonra görselle karşılaştır; eksik kutuyu chat'e yaz.
+## 6. Bridges for the software developer
 
-## Sonraki ders (Ders 3)
-Benchmark ≠ simülatör. LIBERO'nun dört suite'i (Spatial, Object, Goal, Long/10) neyi ölçer, MuJoCo ve robosuite altta nasıl çalışır, LIBERO-Plus neyi ekler. Faz 2'de kuracağın ortamın haritası.
+- Calling OpenVLA is like calling an HTTP service: `predict_action(image, instruction) -> np.ndarray(7)`. About 15 lines with Hugging Face `transformers`. On Day 14 you will run this on the Mac on MPS (bf16, ~14 GB RAM).
+- The model is **memoryless**: each call sees only the current image + command and does not know the previous steps. There is no knowledge such as "I just opened the drawer". This is the source of the *reactive behavior / temporal reasoning* problems from Lecture 1.
+- The action "bin number" idea is like reducing a continuous field to a `SMALLINT` enum in a database: easy to store, but the system does not know the relationship between `130` and `131`.
 
 ---
 
-## Kaynaklar
-- Kim et al. (2024). *OpenVLA: An Open-Source Vision-Language-Action Model.* [arXiv:2406.09246](https://arxiv.org/abs/2406.09246) · kod: [github.com/openvla/openvla](https://github.com/openvla/openvla)
+## 7. Today's task (15 min)
+On paper, draw the OpenVLA pipeline **without looking at the figure**: the boxes and arrows from image to action. Then compare with the figure; write the missing box into the chat.
+
+## Next lecture (Lecture 3)
+Benchmark ≠ simulator. What LIBERO's four suites (Spatial, Object, Goal, Long/10) measure, how MuJoCo and robosuite work underneath, and what LIBERO-Plus adds. The map of the environment you will set up in Phase 2.
+
+---
+
+## References
+- Kim et al. (2024). *OpenVLA: An Open-Source Vision-Language-Action Model.* [arXiv:2406.09246](https://arxiv.org/abs/2406.09246) · code: [github.com/openvla/openvla](https://github.com/openvla/openvla)
 - Karamcheti et al. (2024). *Prismatic VLMs: Investigating the Design Space of Visually-Conditioned Language Models.* [arXiv:2402.07865](https://arxiv.org/abs/2402.07865)
 - Kim, Finn, Liang (2025). *Fine-Tuning Vision-Language-Action Models: Optimizing Speed and Success.* (OpenVLA-OFT) [arXiv:2502.19645](https://arxiv.org/abs/2502.19645)
-- Brohan et al. (2023). *RT-2.* [arXiv:2307.15818](https://arxiv.org/abs/2307.15818) — action-as-token fikrinin kaynağı
+- Brohan et al. (2023). *RT-2.* [arXiv:2307.15818](https://arxiv.org/abs/2307.15818) — the source of the action-as-token idea
 - Hu et al. (2021). *LoRA: Low-Rank Adaptation of Large Language Models.* [arXiv:2106.09685](https://arxiv.org/abs/2106.09685)
-- Tatar vd. (2026). SIU 2026 — Türkçe komut deneyi, §III.A model ve eylem uzayı
-- Görseller: bu repo için üretildi (`images/lecture-02/`); binning grafiği temsili veriyle çizilmiştir.
+- Tatar et al. (2026). SIU 2026 — Turkish command experiment, §III.A model and action space
+- Figures: produced for this repo (`images/lecture-02/`); the binning plot is drawn with representative data.

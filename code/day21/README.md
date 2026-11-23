@@ -1,42 +1,41 @@
-# day21 — Webots: ilk sahne, extern Python controller, kamera kaydı, FK kontrolü
+# day21 — Webots: first scene, extern Python controller, camera recording, FK check
 
-Ders 21'in dosyaları. Webots **R2025a** (macOS dmg; Apple Silicon + Intel tek paket) ve conda `vla` ortamı (Python 3.10) varsayılır.
-Bu oturumda Webots'un kendisi çalıştırılamadı (bulut kısıtı); `check_webots_env.py` (Linux tarball'a karşı), `ur10e_fk.py`,
-`plot_day21.py` ve controller'ın mantığı (sahte `controller` modülüyle kuru koşu) gerçekten çalıştırıldı.
+The files of Lecture 21. Assumes Webots **R2025a** (macOS dmg; Apple Silicon + Intel in a single package) and the conda `vla` environment (Python 3.10).
+Webots itself could not be run in this session (cloud restriction); `check_webots_env.py` (against the Linux tarball), `ur10e_fk.py`,
+`plot_day21.py` and the controller's logic (a dry run with a fake `controller` module) were actually run.
 
 ```bash
-# 1) Webots'u kur (Terminal'den indirmek Gatekeeper etiketini önler)
+# 1) Install Webots (downloading from the Terminal avoids the Gatekeeper quarantine flag)
 curl -L -O https://github.com/cyberbotics/webots/releases/download/R2025a/webots-R2025a.dmg
 open webots-R2025a.dmg && cp -r /Volumes/Webots/Webots.app /Applications/
-# 2) ortam
+# 2) environment
 conda activate vla
 export WEBOTS_HOME=/Applications/Webots.app
-python check_webots_env.py                      # import controller : OK görmelisin
-# 3) Webots'ta File > Open World... > code/day21/worlds/ders21_masa.wbt, ▶ ile oynat (robot controller bekler)
-# 4) ayrı terminalde (vla aktif):
+python check_webots_env.py                      # you should see import controller : OK
+# 3) In Webots: File > Open World... > code/day21/worlds/ders21_masa.wbt, press ▶ to play (the robot waits for the controller)
+# 4) in a separate terminal (vla active):
 $WEBOTS_HOME/Contents/MacOS/webots-controller controllers/ders21_kol/ders21_kol.py --out out
-#    launcher arm Mac'te hata verirse (R2025a bilinen hata, PR #6806):
+#    if the launcher fails on an arm Mac (known R2025a bug, PR #6806):
 PYTHONPATH=$WEBOTS_HOME/Contents/lib/controller/python python controllers/ders21_kol/ders21_kol.py --out out
-# 5) Webots'suz kontroller
-python ur10e_fk.py                              # 4 duruşun tool konumu, masa üstü mü
-python ur10e_fk.py --solve                      # hedefler için eklem açıları (scipy)
-python plot_day21.py --out 05-decision.png      # karar matrisi
+# 5) Checks without Webots
+python ur10e_fk.py                              # tool position of the 4 poses, above the table?
+python ur10e_fk.py --solve                      # joint angles for the targets (scipy)
+python plot_day21.py --out 05-decision.png      # decision matrix
 ```
 
-İndirmek için: `curl -O https://raw.githubusercontent.com/mesutd0nmez/vla-robot-learning-tr/main/code/day21/<dosya>`
-(world ve controller için `worlds/ders21_masa.wbt`, `controllers/ders21_kol/ders21_kol.py`).
-
+To download: `curl -O https://raw.githubusercontent.com/mesutd0nmez/vla-robot-learning-tr/main/code/day21/<file>`
+(for the world and the controller: `worlds/ders21_masa.wbt`, `controllers/ders21_kol/ders21_kol.py`).
 
 ## check_webots_env.py
 
 `check_webots_env.py`
 
 ```python
-"""Ders 21 — Webots + conda `vla` bağlantı kontrolü (Webots'u açmadan çalışır).
+"""Lecture 21 — Webots + conda `vla` connection check (runs without opening Webots).
 
-Kontroller: WEBOTS_HOME doğru mu, Python API klasörü var mı, libController yüklenebiliyor mu,
-launcher (webots-controller) nerede, python3 hangi ortamdan geliyor.
-Çalıştır (vla aktif):  WEBOTS_HOME=/Applications/Webots.app python check_webots_env.py
+Checks: is WEBOTS_HOME correct, does the Python API folder exist, can libController be loaded,
+where is the launcher (webots-controller), which environment python3 comes from.
+Run (vla active):  WEBOTS_HOME=/Applications/Webots.app python check_webots_env.py
 """
 import os
 import platform
@@ -53,20 +52,20 @@ pyapi = os.path.join(home, "Contents", "lib", "controller", "python") if mac els
 lib = os.path.join(home, "Contents", "lib", "controller", "libController.dylib") if mac else os.path.join(home, "lib", "controller", "libController.so")
 launcher = os.path.join(home, "Contents", "MacOS", "webots-controller") if mac else os.path.join(home, "webots-controller")
 for label, path in [("Python API", pyapi), ("libController", lib), ("launcher", launcher)]:
-    print(f"{label:12s}: {'VAR ' if os.path.exists(path) else 'YOK '} {path}")
+    print(f"{label:12s}: {'OK  ' if os.path.exists(path) else 'MISSING '} {path}")
 if platform.machine() == "arm64" and mac:
-    print("Apple Silicon: R2025a'da launcher'ın arm Mac'te çalışmama hatası var (PR #6806, R2025b'de düzeltildi).")
-    print("  Launcher hata verirse: PYTHONPATH=" + pyapi + " python ders21_kol.py  (Webots açıkken)")
+    print("Apple Silicon: in R2025a the launcher has a bug and does not run on arm Macs (PR #6806, fixed in R2025b).")
+    print("  If the launcher fails: PYTHONPATH=" + pyapi + " python ders21_kol.py  (with Webots open)")
 sys.path.insert(0, pyapi)
 try:
     import controller  # noqa: F401
     from controller import Supervisor, Camera, Motor  # noqa: F401
-    print("import controller : OK  (ctypes ile", os.path.basename(lib), "yüklendi; numpy/torch ortamın aynen kullanılabilir)")
+    print("import controller : OK  (loaded via ctypes:", os.path.basename(lib), "; the numpy/torch of your environment can be used as is)")
 except Exception as e:  # pragma: no cover
-    print("import controller : HATA ->", repr(e))
-    print("  Olası sebep: WEBOTS_HOME yanlış, Rosetta altında açılmış Webots (x86_64 dylib), ya da Python < 3.8")
+    print("import controller : ERROR ->", repr(e))
+    print("  Possible cause: wrong WEBOTS_HOME, Webots opened under Rosetta (x86_64 dylib), or Python < 3.8")
     sys.exit(2)
-print("Hepsi tamam. Şimdi Webots'ta ders21_masa.wbt'yi aç, oynat, sonra ders21_kol.py'yi başlat.")
+print("All good. Now open ders21_masa.wbt in Webots, press play, then start ders21_kol.py.")
 ```
 
 ## ders21_kol.py
@@ -74,18 +73,18 @@ print("Hepsi tamam. Şimdi Webots'ta ders21_masa.wbt'yi aç, oynat, sonra ders21
 `controllers/ders21_kol/ders21_kol.py`
 
 ```python
-"""Ders 21 — Webots'ta ilk kol hareketi + kamera kaydı + mekânsal ilişki tablosu.
+"""Lecture 21 — first arm motion in Webots + camera recording + spatial relation table.
 
-UR10e'yi (supervisor TRUE, controller <extern>) dört ara duruştan geçirir, her duruşta
-bilek kamerasını ve ana 3B görünümü (agentview benzeri) PNG/JPG olarak kaydeder,
-nesnelerin dünya koordinatlarını Supervisor API ile okur ve robota göre
-sol/sağ/ön/arka ilişkilerini CSV'ye yazar.
+Moves the UR10e (supervisor TRUE, controller <extern>) through four intermediate poses, at each pose saves
+the wrist camera and the main 3D view (agentview-like) as PNG/JPG,
+reads the objects' world coordinates with the Supervisor API and writes the
+left/right/front/back relations with respect to the robot to CSV.
 
-Çalıştır (Webots'ta ders21_masa.wbt açık ve oynatılıyorken, ayrı terminalde, vla ortamı aktif):
+Run (with ders21_masa.wbt open and playing in Webots, in a separate terminal, vla env active):
   macOS : export WEBOTS_HOME=/Applications/Webots.app
           $WEBOTS_HOME/Contents/MacOS/webots-controller code/day21/controllers/ders21_kol/ders21_kol.py --out out
   Linux : $WEBOTS_HOME/webots-controller code/day21/controllers/ders21_kol/ders21_kol.py --out out
-Launcher çalışmazsa (bkz. README "launcher olmadan"):
+If the launcher does not work (see README "without the launcher"):
   PYTHONPATH=$WEBOTS_HOME/Contents/lib/controller/python python ders21_kol.py --out out
 """
 import argparse
@@ -94,19 +93,19 @@ import math
 import os
 import sys
 
-from controller import Supervisor  # Webots'un ctypes tabanlı Python API'si (WEBOTS_HOME gerekir)
+from controller import Supervisor  # Webots' ctypes-based Python API (needs WEBOTS_HOME)
 
 p = argparse.ArgumentParser()
-p.add_argument("--out", default="out", help="PNG/JPG/CSV'lerin yazılacağı klasör")
-p.add_argument("--settle", type=int, default=60, help="her duruşta beklenen adım sayısı")
-p.add_argument("--quit", action="store_true", help="bitince Webots'u kapat (CI / headless koşular için)")
+p.add_argument("--out", default="out", help="folder the PNG/JPG/CSV files are written to")
+p.add_argument("--settle", type=int, default=60, help="number of steps to wait at each pose")
+p.add_argument("--quit", action="store_true", help="quit Webots when done (for CI / headless runs)")
 args, _ = p.parse_known_args()
 os.makedirs(args.out, exist_ok=True)
 
 robot = Supervisor()
-dt = int(robot.getBasicTimeStep())          # world'deki basicTimeStep (16 ms)
+dt = int(robot.getBasicTimeStep())          # basicTimeStep in the world (16 ms)
 
-# --- aktüatörler: UR10e'nin 6 eklemi (PROTO'daki RotationalMotor adları) ---
+# --- actuators: the 6 joints of the UR10e (RotationalMotor names in the PROTO) ---
 JOINTS = ["shoulder_pan_joint", "shoulder_lift_joint", "elbow_joint",
           "wrist_1_joint", "wrist_2_joint", "wrist_3_joint"]
 motors = [robot.getDevice(j) for j in JOINTS]
@@ -114,18 +113,18 @@ sensors = [robot.getDevice(j + "_sensor") for j in JOINTS]
 for s in sensors:
     s.enable(dt)
 for m in motors:
-    m.setVelocity(1.0)                       # rad/s; PROTO'da maxVelocity 3.14 / 6.28
+    m.setVelocity(1.0)                       # rad/s; maxVelocity is 3.14 / 6.28 in the PROTO
 
-# --- sensör: toolSlot'a koyduğumuz bilek kamerası ---
+# --- sensor: the wrist camera we put on toolSlot ---
 cam = robot.getDevice("wrist_camera")
 cam.enable(dt)
 
-# --- Supervisor: sahnedeki nesneler (world'deki DEF adları) ---
+# --- Supervisor: objects in the scene (DEF names in the world) ---
 DEFS = ["BOWL", "PLATE", "STOVE", "CEREAL", "APPLE", "CAN"]
 nodes = {d: robot.getFromDef(d) for d in DEFS}
 robot_node = robot.getSelf()
 
-# Dört duruş (rad): [pan, lift, elbow, w1, w2, w3]. Kol masanın üstüne doğru eğilir.
+# Four poses (rad): [pan, lift, elbow, w1, w2, w3]. The arm leans over the table.
 POSES = {
     "00_home":   [0.000, -1.800, 1.200, -1.570, 0.000, 0.000],
     "01_bowl":   [0.582, -0.542, -1.637, -2.533, -1.571, 0.000],
@@ -135,9 +134,9 @@ POSES = {
 
 
 def world_to_robot(pw, R, t):
-    """Dünya noktası -> robot tabanı çerçevesi (R: 3x3 satır-major, t: taban konumu)."""
+    """World point -> robot base frame (R: 3x3 row-major, t: base position)."""
     d = [pw[i] - t[i] for i in range(3)]
-    # R dünya<-robot; robot koordinatı = R^T d
+    # R is world<-robot; robot coordinate = R^T d
     return [sum(R[3 * k + i] * d[k] for k in range(3)) for i in range(3)]
 
 
@@ -145,13 +144,13 @@ rows = []
 for name, q in POSES.items():
     for m, qi in zip(motors, q):
         m.setPosition(qi)
-    for _ in range(args.settle):          # kolun hedefe gelmesini bekle (synchronization TRUE)
+    for _ in range(args.settle):          # wait for the arm to reach the target (synchronization TRUE)
         if robot.step(dt) == -1:
             sys.exit(0)
-    # kamera kareleri
+    # camera frames
     cam.saveImage(os.path.join(args.out, f"wrist_{name}.png"), 100)
     robot.exportImage(os.path.join(args.out, f"view_{name}.jpg"), 95)
-    # eklem okumaları
+    # joint readings
     qs = [s.getValue() for s in sensors]
     err = max(abs(a - b) for a, b in zip(qs, q))
     print(f"[{name}] t={robot.getTime():6.2f}s  max|q-q*|={err:.3f} rad  "
@@ -164,31 +163,31 @@ with open(os.path.join(args.out, "joints.csv"), "w", newline="") as f:
     w.writeheader()
     w.writerows(rows)
 
-# --- mekânsal ilişkiler: Supervisor nesne konumlarını okur ---
-# UR10e'nin "önü" taban çerçevesinde −x'tir (shoulder_lift = −90° kolu −x'e uzatır); world'de taban
-# z ekseninde −90° döndürüldüğü için önü dünya +y, solu dünya −x. Aşağıda ileri = −x_r, sol = −y_r.
+# --- spatial relations: the Supervisor reads the object positions ---
+# The UR10e's "front" is −x in the base frame (shoulder_lift = −90° extends the arm toward −x); since the base is
+# rotated −90° about the z axis in the world, its front is world +y and its left is world −x. Below, forward = −x_r, left = −y_r.
 t = robot_node.getPosition()
-R = robot_node.getOrientation()           # 9 eleman, satır-major
+R = robot_node.getOrientation()           # 9 elements, row-major
 rel_rows = []
 for d, n in nodes.items():
     pw = n.getPosition()
-    pr = world_to_robot(pw, R, t)          # taban çerçevesi
-    fwd, left = -pr[0], -pr[1]             # ileri (masaya doğru) ve sol
+    pr = world_to_robot(pw, R, t)          # base frame
+    fwd, left = -pr[0], -pr[1]             # forward (toward the table) and left
     rel_rows.append({"def": d, "x_w": round(pw[0], 3), "y_w": round(pw[1], 3), "z_w": round(pw[2], 3),
                      "ileri_r": round(fwd, 3), "sol_r": round(left, 3),
                      "sol_sag": "sol" if left > 0.03 else ("sag" if left < -0.03 else "orta"),
                      "on_arka": "yakin" if fwd < 0.75 else "uzak"})
-    print(f"{d:7s} dünya=({pw[0]:+.2f},{pw[1]:+.2f},{pw[2]:+.2f})  robot(ileri,sol)=({fwd:+.2f},{left:+.2f})"
+    print(f"{d:7s} world=({pw[0]:+.2f},{pw[1]:+.2f},{pw[2]:+.2f})  robot(forward,left)=({fwd:+.2f},{left:+.2f})"
           f"  -> {rel_rows[-1]['sol_sag']}, {rel_rows[-1]['on_arka']}")
 
-# ikili ilişkiler (robot çerçevesinde): A, B'nin solunda / sağında / önünde / arkasında mı?
+# pairwise relations (in the robot frame): is A to the left of / right of / in front of / behind B?
 pairs = []
 for a in rel_rows:
     for b in rel_rows:
         if a["def"] == b["def"]:
             continue
-        d_sol = a["sol_r"] - b["sol_r"]        # >0: A, B'nin solunda (robota göre)
-        d_ileri = a["ileri_r"] - b["ileri_r"]  # >0: A, B'nin gerisinde (robottan daha uzak)
+        d_sol = a["sol_r"] - b["sol_r"]        # >0: A is to the left of B (relative to the robot)
+        d_ileri = a["ileri_r"] - b["ileri_r"]  # >0: A is behind B (farther from the robot)
         pairs.append({"a": a["def"], "b": b["def"],
                       "d_sol": round(d_sol, 3), "d_ileri": round(d_ileri, 3),
                       "iliski_tr": ("solunda" if d_sol > 0.05 else "sağında" if d_sol < -0.05 else "aynı hizada")
@@ -198,8 +197,8 @@ for fname, data in [("objects.csv", rel_rows), ("pairs.csv", pairs)]:
         w = csv.DictWriter(f, fieldnames=list(data[0].keys()))
         w.writeheader()
         w.writerows(data)
-print(f"Yazıldı: {args.out}/wrist_*.png, view_*.jpg, joints.csv, objects.csv, pairs.csv")
-print(f"basicTimeStep={dt} ms; simülasyon süresi={robot.getTime():.2f} s")
+print(f"Written: {args.out}/wrist_*.png, view_*.jpg, joints.csv, objects.csv, pairs.csv")
+print(f"basicTimeStep={dt} ms; simulation time={robot.getTime():.2f} s")
 if args.quit:
     robot.simulationQuit(0)
 robot.step(dt)
@@ -210,25 +209,25 @@ robot.step(dt)
 `ur10e_fk.py`
 
 ```python
-"""Ders 21 — UR10e ileri kinematiği, Webots PROTO'sundan okunan zincirle (Webots gerekmez).
+"""Lecture 21 — UR10e forward kinematics, with the chain read from the Webots PROTO (Webots not required).
 
-UR10e.proto'daki HingeJoint anchor/axis ve endPoint translation değerleri birebir kullanılır:
+The HingeJoint anchor/axis and endPoint translation values in UR10e.proto are used exactly:
   J1 pan   : axis z, (0, 0, 0.181)      J4 wrist_1 : axis y, (0, 0, 0.571)
   J2 lift  : axis y, (0, 0.176, 0)      J5 wrist_2 : axis z, (0, 0.135, 0)
   J3 elbow : axis y, (0, -0.137, 0.613) J6 wrist_3 : axis y, (0, 0, 0.12)
-  toolSlot : (0, 0.12, 0) — kamera burada
-Robot tabanı ders21_masa.wbt'deki gibi: translation (0, -0.65, 0.74), rotation z 90°.
+  toolSlot : (0, 0.12, 0) — the camera is here
+Robot base as in ders21_masa.wbt: translation (0, -0.65, 0.74), rotation z 90°.
 
-Çıktı: ders21_kol.py'deki dört duruş için tool (kamera) konumu, masa üstünde mi kontrolü,
-ve --plot ile üstten/yandan görünüm (lectures/images/lecture-21/04-scene-fk.png).
-Çalıştır:  python ur10e_fk.py [--plot cikti.png]
+Output: the tool (camera) position for the four poses in ders21_kol.py, a check whether it is above the table,
+and with --plot a top/side view (lectures/images/lecture-21/04-scene-fk.png).
+Run:  python ur10e_fk.py [--plot out.png]
 """
 import argparse
 import math
 
 import numpy as np
 
-CHAIN = [  # (eksen, bağlantı ötelemesi) — proto sırasıyla
+CHAIN = [  # (axis, link offset) — in proto order
     ("z", (0, 0, 0.181)),
     ("y", (0, 0.176, 0)),
     ("y", (0, -0.137, 0.613)),
@@ -246,7 +245,7 @@ POSES = {
     "02_center": [0.194, -0.868, -1.055, -2.789, -1.571, 0.000],
     "03_plate":  [-0.068, -0.568, -1.593, -2.552, -1.571, 0.000],
 }
-# ders21_masa.wbt'deki nesneler (DEF, dünya konumu, çizim yarıçapı m, renk)
+# objects in ders21_masa.wbt (DEF, world position, drawing radius m, color)
 OBJECTS = [
     ("BOWL",   (-0.22, 0.00, 0.74), 0.09, "#222222"),
     ("PLATE",  (0.22, 0.02, 0.74), 0.11, "#dddddd"),
@@ -255,7 +254,7 @@ OBJECTS = [
     ("APPLE",  (0.05, 0.27, 0.79), 0.05, "#c0392b"),
     ("CAN",    (0.36, 0.40, 0.80), 0.035, "#2980b9"),
 ]
-TABLE = (1.0, 1.8, 0.74)  # x, y, yükseklik
+TABLE = (1.0, 1.8, 0.74)  # x, y, height
 
 
 def rot(axis, q):
@@ -268,13 +267,13 @@ def rot(axis, q):
 
 
 def fk(q):
-    """Her eklem anchor'ının ve tool'un dünya konumu (7+1 nokta)."""
+    """World position of every joint anchor and of the tool (7+1 points)."""
     R = rot("z", BASE_YAW)
     t = np.array(BASE_T, float)
     pts = [t.copy()]
     for (axis, trans), qi in zip(CHAIN, q):
         t = t + R @ np.array(trans, float)   # Webots: endPoint translation == anchor
-        R = R @ rot(axis, qi)                 # eklem dönüşü anchor etrafında
+        R = R @ rot(axis, qi)                 # joint rotation about the anchor
         pts.append(t.copy())
     tool = t + R @ np.array(TOOL, float)
     pts.append(tool)
@@ -285,7 +284,7 @@ def on_table(p):
     return abs(p[0]) <= TABLE[0] / 2 and abs(p[1]) <= TABLE[1] / 2 and p[2] > TABLE[2]
 
 
-TARGETS = {  # --solve: kameranın gelmesi istenen nokta (nesnenin 26 cm üstü), kamera aşağı bakacak
+TARGETS = {  # --solve: the point where the camera should arrive (26 cm above the object), camera looking down
     "01_bowl":   (-0.22, 0.00, 1.00),
     "02_center": (0.00, 0.25, 1.00),
     "03_plate":  (0.22, 0.02, 1.00),
@@ -293,15 +292,15 @@ TARGETS = {  # --solve: kameranın gelmesi istenen nokta (nesnenin 26 cm üstü)
 
 
 def solve(target, q0):
-    """Basit sayısal IK (scipy): tool hedefte + toolSlot'un +y ekseni (kamera bakışı) dünya −z'ye baksın."""
+    """Simple numerical IK (scipy): tool at the target + the +y axis of toolSlot (camera view direction) pointing along world −z."""
     from scipy.optimize import minimize
 
     def cost(q):
         pts, R = fk(q)
         pos_err = np.sum((pts[-1] - np.array(target)) ** 2)
-        look = R @ np.array([0, 1, 0])           # toolSlot +y = kamera bakış yönü (Camera rotation z 90°)
+        look = R @ np.array([0, 1, 0])           # toolSlot +y = camera view direction (Camera rotation z 90°)
         ori_err = np.sum((look - np.array([0, 0, -1])) ** 2)
-        below = np.sum(np.clip(TABLE[2] + 0.05 - pts[1:, 2], 0, None) ** 2)  # eklemler masanın altına inmesin
+        below = np.sum(np.clip(TABLE[2] + 0.05 - pts[1:, 2], 0, None) ** 2)  # joints must not go below the table
         return 100 * pos_err + 10 * ori_err + 1000 * below + 0.01 * np.sum((q - np.array(q0)) ** 2)
 
     rng = np.random.default_rng(21)
@@ -317,7 +316,7 @@ def solve(target, q0):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--plot", default=None)
-    ap.add_argument("--solve", action="store_true", help="TARGETS için eklem açılarını sayısal IK ile bul ve yazdır")
+    ap.add_argument("--solve", action="store_true", help="find and print the joint angles for TARGETS with numerical IK")
     a = ap.parse_args()
     if a.solve:
         q0 = [0.0, -1.2, 1.4, -1.8, -1.57, 0.0]
@@ -326,7 +325,7 @@ def main():
             pts, R = fk(q)
             print(f'    "{name}": [' + ", ".join(f"{v:.3f}" for v in q) + f"],  # tool={np.round(pts[-1], 3).tolist()} cost={f:.4f}")
         return
-    print(f"{'duruş':10s} {'tool x':>8s} {'tool y':>8s} {'tool z':>8s}  masa_üstü  en_düşük_eklem_z")
+    print(f"{'pose':10s} {'tool x':>8s} {'tool y':>8s} {'tool z':>8s}  on_table  lowest_joint_z")
     results = {}
     for name, q in POSES.items():
         pts, R = fk(q)
@@ -340,7 +339,7 @@ def main():
         from matplotlib.patches import Rectangle, Circle
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 6.2))
         colors = {"00_home": "#999999", "01_bowl": "#ffd166", "02_center": "#cfe8ff", "03_plate": "#d4f5d4"}
-        # üstten
+        # top view
         ax1.add_patch(Rectangle((-TABLE[0] / 2, -TABLE[1] / 2), TABLE[0], TABLE[1], fc="#f3e2c3", ec="#7a5c2e", lw=1.5))
         for d, p, r, c in OBJECTS:
             ax1.add_patch(Circle((p[0], p[1]), r, fc=c, ec="k", lw=0.8, alpha=0.9))
@@ -348,15 +347,15 @@ def main():
         for name, pts in results.items():
             ax1.plot(pts[:-1, 0], pts[:-1, 1], "-o", color=colors[name], ms=4, lw=2.5, mec="k")
             ax1.plot(pts[-1, 0], pts[-1, 1], "*", color=colors[name], ms=16, mec="k", label=f"{name} (tool)")
-        ax1.plot(*BASE_T[:2], "ks", ms=9, label="UR10e tabanı")
-        ax1.annotate("agentview kamerası\n(0, 1.75, 1.55)", xy=(0, 0.9), xytext=(0, 1.15), ha="center", fontsize=9,
+        ax1.plot(*BASE_T[:2], "ks", ms=9, label="UR10e base")
+        ax1.annotate("agentview camera\n(0, 1.75, 1.55)", xy=(0, 0.9), xytext=(0, 1.15), ha="center", fontsize=9,
                      arrowprops=dict(arrowstyle="->"))
         ax1.set_xlim(-0.9, 0.9); ax1.set_ylim(-1.0, 1.3); ax1.set_aspect("equal")
-        ax1.set_xlabel("dünya x (m)  — robot +y yönüne bakıyor; robotun SOLU = −x, SAĞI = +x")
-        ax1.set_ylabel("dünya y (m)")
-        ax1.set_title("Üstten: ders21_masa.wbt nesneleri + 4 duruşta kol (FK, proto geometrisi)")
+        ax1.set_xlabel("world x (m)  — the robot faces +y; the robot's LEFT = −x, RIGHT = +x")
+        ax1.set_ylabel("world y (m)")
+        ax1.set_title("Top view: ders21_masa.wbt objects + the arm in 4 poses (FK, proto geometry)")
         ax1.legend(fontsize=8, loc="lower left")
-        # yandan (y-z)
+        # side view (y-z)
         ax2.add_patch(Rectangle((-TABLE[1] / 2, 0), TABLE[1], TABLE[2], fc="#f3e2c3", ec="#7a5c2e", lw=1.5))
         for d, p, r, c in OBJECTS:
             ax2.add_patch(Circle((p[1], p[2] + r * 0.5), r * 0.6, fc=c, ec="k", lw=0.8, alpha=0.9))
@@ -365,13 +364,13 @@ def main():
             ax2.plot(pts[-1, 1], pts[-1, 2], "*", color=colors[name], ms=16, mec="k")
         ax2.axhline(TABLE[2], color="#7a5c2e", ls="--", lw=1)
         ax2.set_xlim(-1.0, 1.0); ax2.set_ylim(0, 2.0); ax2.set_aspect("equal")
-        ax2.set_xlabel("dünya y (m)"); ax2.set_ylabel("dünya z (m)")
-        ax2.set_title("Yandan: kol masanın üstünde kalıyor mu? (kesikli çizgi = masa yüzeyi 0.74 m)")
-        fig.suptitle("Ders 21 — Webots sahnesinin geometrisi: nesneler .wbt'den, kol UR10e.proto zincirinden hesaplandı (Webots çalıştırılmadı)",
+        ax2.set_xlabel("world y (m)"); ax2.set_ylabel("world z (m)")
+        ax2.set_title("Side view: does the arm stay above the table? (dashed line = table surface 0.74 m)")
+        fig.suptitle("Lecture 21 — Geometry of the Webots scene: objects from the .wbt, the arm computed from the UR10e.proto chain (Webots was not run)",
                      fontsize=11)
         fig.tight_layout()
         fig.savefig(a.plot, dpi=150)
-        print("kaydedildi:", a.plot)
+        print("saved:", a.plot)
 
 
 if __name__ == "__main__":
@@ -383,10 +382,10 @@ if __name__ == "__main__":
 `plot_day21.py`
 
 ```python
-"""Ders 21 — görsel 05: tez ortamı karar matrisi (LIBERO+MuJoCo vs Webots).
+"""Lecture 21 — figure 05: thesis environment decision matrix (LIBERO+MuJoCo vs Webots).
 
-Puanlar ÖZNEL (Claude'un bu dersteki değerlendirmesi, 0–3); kaynak değil, tartışma başlangıcıdır.
-Danışmanla konuştuktan sonra puanları değiştirip yeniden çiz:  python plot_day21.py --out 05-decision.png
+The scores are SUBJECTIVE (Claude's assessment in this lecture, 0–3); not a source, a starting point for discussion.
+After talking to your advisor, change the scores and redraw:  python plot_day21.py --out 05-decision.png
 """
 import argparse
 
@@ -396,16 +395,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 CRITERIA = [
-    ("Hazır benchmark + liderlik tablosu (Spatial/Goal, Plus, CF, X)", 3, 0),
-    ("VLA eval kodu hazır (OpenVLA, VLANeXt, OFT…)",                   3, 0),
-    ("Eğitim verisi (50 demo/görev, HDF5, RLDS)",                      3, 0),
-    ("Mac M2'de kurulum / çalışma kolaylığı",                          1, 3),
-    ("Oda ölçeği, mobil taban (RoomSpace tarzı sahne)",                 0, 3),
-    ("Sahne/PROTO üretimi, kamera yerleşimi esnekliği",                 1, 3),
-    ("ROS 2 köprüsü (gerçek robota geçiş)",                             0, 3),
-    ("Türkçe komut deneyine süre: 'bugün' başlanabilir mi",            3, 1),
-    ("Sonuçların literatürle karşılaştırılabilirliği",                  3, 0),
-    ("Aynı robot (Panda) iki ortamda da var",                           3, 2),
+    ("Ready-made benchmark + leaderboard (Spatial/Goal, Plus, CF, X)", 3, 0),
+    ("VLA eval code available (OpenVLA, VLANeXt, OFT…)",             3, 0),
+    ("Training data (50 demos/task, HDF5, RLDS)",                   3, 0),
+    ("Ease of installation / running on a Mac M2",                  1, 3),
+    ("Room scale, mobile base (RoomSpace-style scene)",              0, 3),
+    ("Scene/PROTO authoring, camera placement flexibility",         1, 3),
+    ("ROS 2 bridge (transfer to a real robot)",                     0, 3),
+    ("Time to the Turkish-command experiment: can it start 'today'", 3, 1),
+    ("Comparability of results with the literature",                3, 0),
+    ("Same robot (Panda) exists in both environments",              3, 2),
 ]
 LABELS = ["LIBERO + robosuite + MuJoCo", "Webots R2025a"]
 
@@ -420,20 +419,20 @@ def main():
     ax.imshow(M, cmap=cmap, vmin=-0.5, vmax=3.5, aspect="auto")
     for i, (name, s1, s2) in enumerate(CRITERIA):
         for j, s in enumerate((s1, s2)):
-            ax.text(j, i, ["yok", "zayıf", "orta", "güçlü"][s], ha="center", va="center", fontsize=11, weight="bold")
+            ax.text(j, i, ["none", "weak", "medium", "strong"][s], ha="center", va="center", fontsize=11, weight="bold")
     ax.set_xticks([0, 1]); ax.set_xticklabels(LABELS, fontsize=11)
     ax.set_yticks(range(len(CRITERIA))); ax.set_yticklabels([c[0] for c in CRITERIA], fontsize=9.5)
     ax.xaxis.tick_top()
     tot = M.sum(axis=0)
-    ax.set_xlabel(f"toplam (eşit ağırlık): {tot[0]:.0f} / {tot[1]:.0f}   —   tez sorusu benchmark ister, Webots bir benchmark değil",
+    ax.set_xlabel(f"total (equal weights): {tot[0]:.0f} / {tot[1]:.0f}   —   the thesis question needs a benchmark, Webots is not a benchmark",
                   fontsize=10, labelpad=10)
-    ax.set_title("Ders 21 — Tez ortamı karar matrisi (ÖZNEL puanlama 0–3; danışmanla güncellenecek)", fontsize=12, pad=38)
+    ax.set_title("Lecture 21 — Thesis environment decision matrix (SUBJECTIVE scoring 0–3; to be updated with the advisor)", fontsize=12, pad=38)
     for i in range(len(CRITERIA) + 1):
         ax.axhline(i - 0.5, color="white", lw=2)
     ax.axvline(0.5, color="white", lw=2)
     fig.tight_layout()
     fig.savefig(a.out, dpi=150)
-    print("kaydedildi:", a.out)
+    print("saved:", a.out)
 
 
 if __name__ == "__main__":
@@ -446,9 +445,9 @@ if __name__ == "__main__":
 
 ```text
 #VRML_SIM R2025a utf8
-# Ders 21 — Webots'ta LIBERO-Spatial'a benzeyen bir masa sahnesi:
-# UR10e kol (bilek kamerasıyla) + masa + siyah kâse, tabak, ocak, mısır gevreği kutusu, elma, kutu içecek.
-# Açmak için: Webots > File > Open World... > bu dosya. Kol controller'ı <extern>: terminalden başlatılır (bkz. README).
+# Lecture 21 — a table scene in Webots resembling LIBERO-Spatial:
+# UR10e arm (with a wrist camera) + table + black bowl, plate, stove, cereal box, apple, soda can.
+# To open: Webots > File > Open World... > this file. The arm controller is <extern>: started from the terminal (see README).
 
 EXTERNPROTO "webots://projects/objects/backgrounds/protos/TexturedBackground.proto"
 EXTERNPROTO "webots://projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
@@ -464,13 +463,13 @@ EXTERNPROTO "webots://projects/objects/drinks/protos/Can.proto"
 
 WorldInfo {
   info [
-    "Ders 21: UR10e + masa + nesneler. Türkçe mekânsal komutlar için Webots deneme sahnesi."
+    "Lecture 21: UR10e + table + objects. Webots trial scene for Turkish spatial commands."
   ]
-  title "Ders 21 masa sahnesi"
+  title "Lecture 21 table scene"
   basicTimeStep 16
 }
 Viewpoint {
-  # agentview benzeri: robotun karşısından, masaya bakan sabit bakış (vp.py ile hesaplandı)
+  # agentview-like: a fixed viewpoint across from the robot, looking at the table (computed with vp.py)
   orientation 0 0.558702 0.829369 3.141593
   position 0 1.75 1.55
 }

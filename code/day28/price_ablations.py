@@ -1,17 +1,17 @@
-"""Ders 28 — Ablation hücrelerini Ders 27'nin bütçe modeliyle fiyatla (v0.1 → v0.2 farkı).
+"""Lecture 28 — Price the ablation cells with the Lecture 27 budget model (the v0.1 → v0.2 difference).
 
-  python price_ablations.py      # ../../thesis/experiment-matrix.csv (v0.2) ve results/experiment-matrix_v0.1.csv
+  python price_ablations.py      # ../../thesis/experiment-matrix.csv (v0.2) and results/experiment-matrix_v0.1.csv
 
-Ders 27'nin `budget.py`'si içe aktarılır (aynı episode modeli, aynı senaryolar); onun results/ klasörüne
-DOKUNULMAZ — çıktılar code/day28/results/ altına yazılır.
-Yeniden okuma (yeni episode gerektirmeyen) ablation'lar matriste satır değil; ablation-plan.md'de listelenir.
+`budget.py` from Lecture 27 is imported (same episode model, same scenarios); its results/ folder is NOT
+touched — outputs are written under code/day28/results/.
+Re-reading ablations (which need no new episodes) are not rows in the matrix; they are listed in ablation-plan.md.
 """
 import csv, os, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "day27"))
 import budget as B  # noqa: E402
 
-B.P_SUCC.update({"tr_bare_ascii": 0.4, "tr_cs": 0.6})   # yalnız maliyet karışımı (hipotez), sonuç tahmini değil
+B.P_SUCC.update({"tr_bare_ascii": 0.4, "tr_cs": 0.6})   # cost mix only (hypothesis), not a result prediction
 
 
 def load(p):
@@ -42,13 +42,13 @@ def main():
         w = csv.DictWriter(f, fieldnames=list(out[0])); w.writeheader(); w.writerows(out)
     with open(os.path.join(HERE, "results", "ablation_cells.csv"), "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=list(cells[0])); w.writeheader(); w.writerows(cells)
-    print("Ablation hücreleri (v0.2, n_init 50):")
+    print("Ablation cells (v0.2, n_init 50):")
     for r in cells:
-        print(f"  {r['cell']:4s} {r['tier']:5s} episode {r['episodes']:5d}  T4 sa iyimser/orta/kötümser {r['h_iyimser']:5.1f} / {r['h_orta']:5.1f} / {r['h_kötümser']:5.1f}  {r['status']}")
-    print("\nToplam (pilot + çekirdek, T4):")
+        print(f"  {r['cell']:4s} {r['tier']:5s} episode {r['episodes']:5d}  T4 h optimistic/mid/pessimistic {r['h_iyimser']:5.1f} / {r['h_orta']:5.1f} / {r['h_kötümser']:5.1f}  {r['status']}")
+    print("\nTotal (pilot + core, T4):")
     for o in out:
-        print(f"  {o['matrix']}  n_init {o['n_init_core']:2d}: iyimser {o['pilot_core_iyimser']:6.1f}  orta {o['pilot_core_orta']:6.1f}  "
-              f"kötümser {o['pilot_core_kötümser']:6.1f}  | genişletme (orta) {o['ext_orta']:6.1f} | Kaggle haftası {o['kaggle_weeks_orta']}")
+        print(f"  {o['matrix']}  n_init {o['n_init_core']:2d}: optimistic {o['pilot_core_iyimser']:6.1f}  mid {o['pilot_core_orta']:6.1f}  "
+              f"pessimistic {o['pilot_core_kötümser']:6.1f}  | extension (mid) {o['ext_orta']:6.1f} | Kaggle weeks {o['kaggle_weeks_orta']}")
 
 
 if __name__ == "__main__":

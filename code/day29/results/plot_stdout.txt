@@ -1,3 +1,3 @@
-T4 saat (orta) yalın: {'İP1': 7.7, 'İP2': 61.0, 'İP3': 31.3, 'İP4': 7.7} toplam 107.7
-T4 saat (orta) tam  : {'İP1': 7.7, 'İP2': 152.4, 'İP3': 78.2, 'İP4': 19.3} toplam 257.6
-yazıldı: 02-gantt.png, 03-risk-matrix.png → ../../lectures/images/lecture-29
+T4 hours (mid) lean: {'WP1': 7.7, 'WP2': 61.0, 'WP3': 31.3, 'WP4': 7.7} total 107.7
+T4 hours (mid) full: {'WP1': 7.7, 'WP2': 152.4, 'WP3': 78.2, 'WP4': 19.3} total 257.6
+written: 02-gantt.png, 03-risk-matrix.png → ../../lectures/images/lecture-29

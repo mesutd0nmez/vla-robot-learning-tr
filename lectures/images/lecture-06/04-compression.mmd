@@ -1,7 +1,7 @@
 flowchart LR
-    W["🌍 Dünya<br/>sürekli, 3B, metrik<br/>(x,y,z, boyutlar, dönüşler)"] -->|"sıkıştırma<br/>(dil)"| L["💬 'Kâse tabağın solunda'<br/>ayrık, niteliksel, bakış açısına bağlı,<br/>çoğu bilgi atılmış"]
-    L -->|"açma<br/>(grounding)"| W2["🦾 Robot için gereken:<br/>hedef nokta (x,y,z) ±2 cm"]
-    L -.->|"saf LLM: dünyayı hiç görmeden<br/>sıkıştırılmış metinden akıl yürütür"| X["❌ kırılgan"]
-    W -.->|"VLA: görüntü + dil → action<br/>sıkıştırmayı geri açmak zorunda"| W2
+    W["🌍 World<br/>continuous, 3D, metric<br/>(x,y,z, sizes, rotations)"] -->|"compression<br/>(language)"| L["💬 'Kâse tabağın solunda'<br/>discrete, qualitative, viewpoint-dependent,<br/>most information discarded"]
+    L -->|"decompression<br/>(grounding)"| W2["🦾 What the robot needs:<br/>target point (x,y,z) ±2 cm"]
+    L -.->|"pure LLM: never saw the world,<br/>reasons from compressed text"| X["❌ brittle"]
+    W -.->|"VLA: image + language → action<br/>must decompress it back"| W2
     style L fill:#ffd166,color:#000
     style X fill:#ffd6d6,color:#000

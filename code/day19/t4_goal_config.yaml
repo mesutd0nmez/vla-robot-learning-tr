@@ -1,11 +1,11 @@
-# Ders 19 — aynı dört koşullu deney LIBERO-Goal görev 8'de ("put the bowl on the plate"): tek sahne, 10 hedef → komutsuz taban ≈ %10.
-# Ders 18'in t4_cond_config.yaml'ından yalnızca iki satır farklı: checkpoint ve task_suite_name. Yamalar aynı (Ders 12 + Ders 18).
-# Checkpoint: hf download DravenALG/VLANeXt VLANeXt_libero_goal.pt --local-dir checkpoints   (16.4 GB; Spatial checkpoint'i Goal'da KULLANILMAZ)
-# Kullanım (VLANeXt kökünde):
+# Lecture 19 — the same four-condition experiment on LIBERO-Goal task 8 ("put the bowl on the plate"): one scene, 10 goals -> no-command baseline ≈ 10%.
+# Differs from Lecture 18's t4_cond_config.yaml in only two lines: checkpoint and task_suite_name. Same patches (Lecture 12 + Lecture 18).
+# Checkpoint: hf download DravenALG/VLANeXt VLANeXt_libero_goal.pt --local-dir checkpoints   (16.4 GB; the Spatial checkpoint is NOT used on Goal)
+# Usage (in the VLANeXt root):
 #   VLANEXT_TASK_IDS=8 VLANEXT_CONDITIONS="$(cat conditions_goal8.json)" VLANEXT_RUN_TAG=_goal8_4cond \
 #   python -m scripts.libero_bench_eval --config config/t4_goal_config.yaml
-# wrong = Goal görev 1'in komutu ("put the bowl on the stove"): aynı sahnede uygulanabilir, hedef farklı → success(wrong) yalnızca
-# orijinal hedefi (bowl on plate) ölçer; ≈ 0 çıkarsa model komutu okuyor, ≈ clean çıkarsa sahne komutu eziyor (Ders 19 §6).
+# wrong = the command of Goal task 1 ("put the bowl on the stove"): feasible in the same scene, different goal -> success(wrong) measures only
+# the original goal (bowl on plate); if it comes out ≈ 0 the model reads the command, if ≈ clean the scene overrides the command (Lecture 19 §6).
 data:
   augmentation:
     center_crop: true

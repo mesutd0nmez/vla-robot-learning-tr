@@ -1,10 +1,10 @@
-"""Ders 15 — LIBERO-Spatial görev 0–4 için OpenVLA'nın göreceği kareleri üretir (frames/frame_task{t}.png).
+"""Lecture 15 — Produces the frames OpenVLA will see for LIBERO-Spatial tasks 0–4 (frames/frame_task{t}.png).
 
-Ders 14'ün `render_libero_frame.py` mantığı, 5 görev için döngüde. `vla` env'inde çalışır (mujoco 2.3.7, robosuite 1.4.1, LIBERO).
+The logic of Lecture 14's `render_libero_frame.py`, looped over 5 tasks. Runs in the `vla` env (mujoco 2.3.7, robosuite 1.4.1, LIBERO).
     conda activate vla
     python render_frames.py --tasks 0,1,2,3,4 --init 0 --out frames
-Her kare: init_states[init] → 10 no-op adım (run_libero_eval.py: num_steps_wait) → agentview 256x256 → 180° döndür.
-Yanına `frames/contact_sheet.png` (5 kare yan yana, komutlarıyla) yazar — derste/projede kullanmak için.
+Each frame: init_states[init] → 10 no-op steps (run_libero_eval.py: num_steps_wait) → agentview 256x256 → rotate by 180°.
+Next to it writes `frames/contact_sheet.png` (5 frames side by side, with their commands) — for use in the lecture/project.
 """
 import argparse
 import os
@@ -45,7 +45,7 @@ def main():
         frame, lang = render(suite, t, args.init, args.settle)
         p = os.path.join(args.out, f"frame_task{t}.png")
         Image.fromarray(frame).save(p)
-        print(f"görev {t}: {lang}\n  → {p}")
+        print(f"task {t}: {lang}\n  → {p}")
         tile = Image.fromarray(frame).copy()
         ImageDraw.Draw(tile).text((4, 4), f"task {t}", fill=(255, 255, 255))
         tiles.append(tile)
@@ -53,7 +53,7 @@ def main():
     for i, tl in enumerate(tiles):
         sheet.paste(tl, (256 * i, 0))
     sheet.save(os.path.join(args.out, "contact_sheet.png"))
-    print("yazıldı:", os.path.join(args.out, "contact_sheet.png"))
+    print("written:", os.path.join(args.out, "contact_sheet.png"))
 
 
 if __name__ == "__main__":

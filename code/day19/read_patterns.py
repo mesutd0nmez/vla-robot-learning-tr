@@ -1,23 +1,23 @@
-"""Ders 19 — 4 koşullu tabloyu (Ders 18 çıktısı) dört örüntüye göre oku ve "1 paragraf yorum" taslağı üret.
+"""Lecture 19 — read the 4-condition table (Lecture 18 output) against four patterns and produce a "one-paragraph interpretation" draft.
 
-Girdi: Ders 18'in episodes.csv'si (run_id, suite, task_id, condition, init_state, success, ...).
-İsteğe bağlı: --features init_features_task0.csv (init_state_geometry.py) → uyumsuz çiftlerin sahne özellikleri;
-              --labels grasped.csv (init_state, condition, grasped_bowl ∈ {bowl_1, bowl_2, none}) → faithful/biased sayımı.
+Input: Lecture 18's episodes.csv (run_id, suite, task_id, condition, init_state, success, ...).
+Optional: --features init_features_task0.csv (init_state_geometry.py) -> scene features of the discordant pairs;
+          --labels grasped.csv (init_state, condition, grasped_bowl ∈ {bowl_1, bowl_2, none}) -> faithful/biased counts.
 
-Kullanım:
+Usage:
   python read_patterns.py results/episodes.csv [--features init_features_task0.csv] [--labels grasped.csv]
-  python read_patterns.py --demo          # Ders 18 görsel 07'nin dört temsili örüntüsünü sınıflandırır
-  python read_patterns.py --selftest      # Ders 18 selftest tablosu (9/5/7/4) → beklenen çıktı
+  python read_patterns.py --demo          # classifies the four representative patterns of Lecture 18 figure 07
+  python read_patterns.py --selftest      # Lecture 18 selftest table (9/5/7/4) -> expected output
 
-Kurallar (pilot için sezgisel eşikler; parametre, dogma değil):
-  near  = fark ≤ NEAR (varsayılan 15 puan)   → "yakın"
-  far   = fark ≥ FAR  (varsayılan 25 puan)   → "uzak"
-  A  dil görmezden geliniyor : empty ve wrong clean'e yakın
-  C  yanlış komut 'biased'   : wrong clean'e yakın AMA empty uzak (komut 'bir kâse al' diyor, sahne hangisini seçiyor)
-  B  Türkçe okunmuyor        : dil okunuyor (empty uzak) ve tr ≈ empty (tr − empty ≤ NEAR/1.5)
-  D  çok dilli omurga        : dil okunuyor ve tr − empty ≥ FAR
-  aradakiler "belirsiz" → daha çok episode. C, tr eksenine eklenir: "C+B", "C+D" (görsel 07'nin C paneli tr=empty olduğu için C+B'dir).
-Wilson aralıkları çakışıyorsa (n=10'da hemen hep çakışır) sonuç "yön", "bulgu" değil; script bunu her satıra yazar.
+Rules (heuristic thresholds for the pilot; parameters, not dogma):
+  near  = gap ≤ NEAR (default 15 points)   -> "near"
+  far   = gap ≥ FAR  (default 25 points)   -> "far"
+  A  language is ignored       : empty and wrong are near clean
+  C  wrong command 'biased'    : wrong is near clean BUT empty is far (the command says "pick a bowl", the scene chooses which)
+  B  Turkish is not read       : language is read (empty far) and tr ≈ empty (tr − empty ≤ NEAR/1.5)
+  D  multilingual backbone     : language is read and tr − empty ≥ FAR
+  anything in between is "unclear" -> more episodes. C is added to the tr axis: "C+B", "C+D" (panel C of figure 07 has tr=empty, so it is C+B).
+If the Wilson intervals overlap (almost always at n=10) the result is a "direction", not a "finding"; the script writes this on every row.
 """
 import argparse, csv, math, pathlib, sys
 from collections import OrderedDict, defaultdict
@@ -51,55 +51,55 @@ def load_episodes(path):
 
 
 def classify(sr, near=NEAR, far=FAR):
-    """sr: {koşul: yüzde}. Dönüş: (harf, gerekçe listesi)."""
+    """sr: {condition: percent}. Returns (letter, list of reasons)."""
     c, e, w, t = sr["clean"], sr["empty"], sr.get("wrong"), sr.get("tr")
     why = []
     gap_e = c - e
     lang_read = gap_e >= far
     if gap_e <= near and (w is None or c - w <= near):
-        why.append(f"empty clean'e yakın (Δ={gap_e:+.0f}); wrong da yakın" if w is not None else f"empty clean'e yakın (Δ={gap_e:+.0f})")
+        why.append(f"empty is near clean (Δ={gap_e:+.0f}); wrong is near too" if w is not None else f"empty is near clean (Δ={gap_e:+.0f})")
         return "A", why
     if w is not None and c - w <= near and lang_read:
-        why.append(f"wrong clean'e yakın (Δ={c - w:+.0f}) ama empty uzak (Δ={gap_e:+.0f}) → komutun 'bir kâse al' kısmı okunuyor, hedef sahneden")
+        why.append(f"wrong is near clean (Δ={c - w:+.0f}) but empty is far (Δ={gap_e:+.0f}) -> the 'pick a bowl' part of the command is read, the target comes from the scene")
         letter_w = "C"
     else:
         letter_w = None
     if t is not None and lang_read:
         if t - e <= near / 1.5:
-            why.append(f"tr ≈ empty (tr−empty={t - e:+.0f}) → Türkçe'den sahnenin üstüne bir şey çıkmıyor")
+            why.append(f"tr ≈ empty (tr−empty={t - e:+.0f}) -> nothing beyond the scene is gained from Turkish")
             return (letter_w or "B") if letter_w != "C" else "C+B", why
         if t - e >= far:
-            why.append(f"tr empty'nin çok üstünde (tr−empty={t - e:+.0f}) → Türkçe'den en azından nesne/eylem çıkıyor")
+            why.append(f"tr is well above empty (tr−empty={t - e:+.0f}) -> at least the object/action is extracted from Turkish")
             return (letter_w or "D") if letter_w != "C" else "C+D", why
-        why.append(f"tr empty ile clean arasında (tr−empty={t - e:+.0f}): B ile D arasında belirsiz")
-        return (letter_w or "belirsiz"), why
+        why.append(f"tr is between empty and clean (tr−empty={t - e:+.0f}): unclear between B and D")
+        return (letter_w or "unclear"), why
     if letter_w:
         return letter_w, why
-    why.append(f"empty düşüşü {gap_e:+.0f} puan: {near} ile {far} arasında — ne 'görmezden geliyor' ne 'okuyor' denebilir")
-    return "belirsiz", why
+    why.append(f"empty drop {gap_e:+.0f} points: between {near} and {far} — one can say neither 'ignores' nor 'reads'")
+    return "unclear", why
 
 
 def paragraph(letter, rows, n):
     c = rows["clean"]; e = rows["empty"]; w = rows.get("wrong"); t = rows.get("tr")
-    head = {"A": "Bu pilotta komutun içeriği sonucu değiştirmedi",
-            "B": "Model komutu okuyor ama Türkçe komut sahne tabanının üstüne çıkmıyor",
-            "C": "Model komutun eylem kısmını okuyor, hedef nesneyi sahneden seçiyor",
-            "D": "Türkçe komut sahne tabanının belirgin üstünde",
-            "C+B": "Yanlış komut 'biased', Türkçe komut tabanda", "C+D": "Yanlış komut 'biased' ama Türkçe'den bir şey çıkıyor",
-            "belirsiz": "Pilot yön vermiyor"}[letter]
-    s = (f"{head}: LIBERO-Spatial görev 0'da {n} eşli init state'te success rate clean {c['k']}/{n}, empty {e['k']}/{n}"
+    head = {"A": "In this pilot the content of the command did not change the result",
+            "B": "The model reads the command but the Turkish command does not rise above the scene baseline",
+            "C": "The model reads the action part of the command and picks the target object from the scene",
+            "D": "The Turkish command is clearly above the scene baseline",
+            "C+B": "Wrong command is 'biased', Turkish command is at the baseline", "C+D": "Wrong command is 'biased' but something is gained from Turkish",
+            "unclear": "The pilot gives no direction"}[letter]
+    s = (f"{head}: on {n} paired init states of LIBERO-Spatial task 0, success rate is clean {c['k']}/{n}, empty {e['k']}/{n}"
          + (f", wrong {w['k']}/{n}" if w else "") + (f", tr {t['k']}/{n}" if t else "") + ". ")
-    s += f"Uyumsuz çiftler (clean✓x✗ / clean✗x✓): empty {e['b']}/{e['c']}" + (f", wrong {w['b']}/{w['c']}" if w else "") + (f", tr {t['b']}/{t['c']}" if t else "") + ". "
-    s += ("Wilson %95 aralıkları çakıştığı için bu bir yön bulgusudur; 50 init state'lik koşu (Ders 18 §5) aynı oranları verirse "
-          "anlamlılık ve etki büyüklüğü birlikte raporlanır. ")
+    s += f"Discordant pairs (clean✓x✗ / clean✗x✓): empty {e['b']}/{e['c']}" + (f", wrong {w['b']}/{w['c']}" if w else "") + (f", tr {t['b']}/{t['c']}" if t else "") + ". "
+    s += ("Because the Wilson 95% intervals overlap, this is a directional finding; if the 50-init-state run (Lecture 18 §5) gives the same rates, "
+          "significance and effect size are reported together. ")
     if letter in ("A",):
-        s += "Spatial görev 0'da sahne görevi tek başına belirliyor (suite_structure.py: 10 görevin 9'u sahneden ayrışır); Türkçe etkisi bu görevde ölçülemez — Goal suite'e geç."
+        s += "In Spatial task 0 the scene alone determines the task (suite_structure.py: 9 of the 10 tasks are separable from the scene); the Turkish effect cannot be measured on this task — move to the Goal suite."
     elif letter.startswith("C"):
-        s += "`wrong` videolarındaki grasped_bowl etiketi biased (bowl_1) ağırlıklıysa LIBERO-CF'in 'vision overrides language' örüntüsü; faithful (bowl_2) ağırlıklıysa model komutu okuyor ve success metriği onu cezalandırıyor."
+        s += "If the grasped_bowl labels in the `wrong` videos are mostly biased (bowl_1), this is LIBERO-CF's 'vision overrides language' pattern; if mostly faithful (bowl_2), the model reads the command and the success metric penalizes it."
     elif letter in ("B", "C+B"):
-        s += "Chen vd.'nin 'yabancı dil ≈ komut yok' örüntüsü; tokenizasyon (Ders 21) ve çeviri katmanı / Türkçe LoRA (Ders 23) karşılaştırmasının gerekçesi."
+        s += "Chen et al.'s 'foreign language ≈ no command' pattern; the rationale for comparing tokenization (Lecture 21) with a translation layer / Turkish LoRA (Lecture 23)."
     elif letter in ("D", "C+D"):
-        s += "Qwen3-VL'nin çok dilli ön-eğitimi Türkçe'den nesne/eylem çıkarıyor olabilir (hipotez); mekânsal ilişkinin (arasındaki) okunup okunmadığı distractor koşuluyla ayrıca test edilmeli (Ders 15)."
+        s += "Qwen3-VL's multilingual pre-training may be extracting the object/action from Turkish (hypothesis); whether the spatial relation (arasındaki, 'which is between') is read must be tested separately with a distractor condition (Lecture 15)."
     return s
 
 
@@ -115,48 +115,48 @@ def report(eps, features=None, labels=None, near=NEAR, far=FAR, title=""):
                          disc=[i for i in common if base[i] != d[i]])
     if title:
         print(f"\n=== {title}")
-    print(f"| koşul | k/n | SR | Wilson | Δ | uyumsuz b/c | McNemar | clean ile aralık |")
+    print(f"| condition | k/n | SR | Wilson | Δ | discordant b/c | McNemar | interval vs clean |")
     print("|---|---|---|---|---|---|---|---|")
     cl = rows["clean"]
     for cnd, r in rows.items():
-        overlap = "—" if cnd == "clean" else ("çakışıyor → yön" if r["hi"] >= cl["lo"] and cl["hi"] >= r["lo"] else "ayrışıyor")
+        overlap = "—" if cnd == "clean" else ("overlaps -> direction" if r["hi"] >= cl["lo"] and cl["hi"] >= r["lo"] else "separated")
         d = "—" if cnd == "clean" else f"{r['sr'] - cl['sr']:+.0f}"
         pm = "—" if cnd == "clean" else ("—" if r["p"] != r["p"] else f"{r['p']:.3f}")
         print(f"| {cnd} | {r['k']}/{r['n']} | {r['sr']:.0f}% | {r['lo']:.0f}–{r['hi']:.0f} | {d} | {'—' if cnd == 'clean' else f'{r['b']}/{r['c']}'} | {pm} | {overlap} |")
     sr = {c_: r["sr"] for c_, r in rows.items()}
     letter, why = classify(sr, near, far)
-    print(f"\nÖrüntü: **{letter}**  (eşikler: yakın ≤ {near}, uzak ≥ {far} puan)")
+    print(f"\nPattern: **{letter}**  (thresholds: near ≤ {near}, far ≥ {far} points)")
     for w_ in why:
         print(f"  - {w_}")
-    # uyumsuz çiftler sahne bazında
+    # discordant pairs per scene
     disc_all = sorted({i for c_, r in rows.items() if c_ != "clean" for i in r["disc"]})
     if disc_all:
-        print("\nUyumsuz init state'ler (clean ile farklı sonuç veren sahneler):")
+        print("\nDiscordant init states (scenes whose outcome differs from clean):")
         for i in disc_all:
             marks = " ".join(f"{c_}={'✓' if eps[c_][i] else '✗'}" for c_ in order)
             extra = ""
             if features and i in features:
                 f_ = features[i]
-                extra = f"  | kâse–kâse {100 * f_['d_bowl1_bowl2']:.1f} cm, hedef–tabak {100 * f_['d_bowl1_plate']:.1f} cm, robot sapma {f_['robot_q_dev']:.3f} rad"
+                extra = f"  | bowl-bowl {100 * f_['d_bowl1_bowl2']:.1f} cm, target-plate {100 * f_['d_bowl1_plate']:.1f} cm, robot deviation {f_['robot_q_dev']:.3f} rad"
             print(f"  init {i:2d}: {marks}{extra}")
         if features:
             fd = [features[i]["robot_q_dev"] for i in disc_all if i in features]
             fa = [features[i]["robot_q_dev"] for i in base if i in features]
             if fd and fa:
-                print(f"  robot başlangıç sapması: uyumsuz sahnelerde medyan {sorted(fd)[len(fd) // 2]:.3f} rad, tüm sahnelerde {sorted(fa)[len(fa) // 2]:.3f} rad "
-                      f"(fark büyükse kırılganlık robotun başlangıç pozundan; nesneler ±1.5 cm içinde, Ders 19 §3)")
+                print(f"  robot initial deviation: median {sorted(fd)[len(fd) // 2]:.3f} rad in discordant scenes, {sorted(fa)[len(fa) // 2]:.3f} rad in all scenes "
+                      f"(if the gap is large, the fragility comes from the robot's initial pose; objects are within ±1.5 cm, Lecture 19 §3)")
     if labels:
         cnt = defaultdict(lambda: defaultdict(int))
         for (cnd, i), g in labels.items():
             cnt[cnd][g] += 1
-        print("\ngrasped_bowl etiketleri (videodan, elle):")
+        print("\ngrasped_bowl labels (from video, by hand):")
         for cnd, d in cnt.items():
             tot = sum(d.values())
             s_ = ", ".join(f"{g}: {v}/{tot}" for g, v in sorted(d.items()))
             if cnd == "wrong":
-                s_ += f"  → faithful (bowl_2) {100 * d.get('bowl_2', 0) / tot:.0f}%, biased (bowl_1) {100 * d.get('bowl_1', 0) / tot:.0f}% (LIBERO-CF grounding ölçüsünün elle sayılmış hâli)"
+                s_ += f"  -> faithful (bowl_2) {100 * d.get('bowl_2', 0) / tot:.0f}%, biased (bowl_1) {100 * d.get('bowl_1', 0) / tot:.0f}% (hand-counted version of the LIBERO-CF grounding measure)"
             print(f"  {cnd}: {s_}")
-    print("\nParagraf taslağı:\n" + paragraph(letter, rows, n))
+    print("\nParagraph draft:\n" + paragraph(letter, rows, n))
     return letter
 
 
@@ -164,17 +164,17 @@ def demo():
     pats = {"A": (9, 8, 8, 8), "B": (9, 4, 4, 4), "C": (9, 4, 8, 4), "D": (9, 4, 4, 7)}
     for name, (c, e, w, t) in pats.items():
         eps = {"clean": {i: i < c for i in range(10)}, "empty": {i: i < e for i in range(10)}, "wrong": {i: i < w for i in range(10)}, "tr": {i: i < t for i in range(10)}}
-        got = report(eps, title=f"temsili örüntü {name} (Ders 18 görsel 07)")
+        got = report(eps, title=f"representative pattern {name} (Lecture 18 figure 07)")
         assert got == {"A": "A", "B": "B", "C": "C+B", "D": "D"}[name], (name, got)
-    print("\ndemo OK: dört temsili örüntü doğru sınıflandı")
+    print("\ndemo OK: the four representative patterns were classified correctly")
 
 
 def selftest():
     pattern = {"clean": [1, 1, 1, 1, 1, 1, 1, 1, 1, 0], "empty": [1, 1, 0, 1, 0, 1, 0, 0, 1, 0],
                "wrong": [1, 1, 1, 0, 1, 1, 1, 0, 1, 0], "tr": [1, 0, 0, 1, 0, 0, 1, 0, 1, 0]}
     eps = {c: {i: bool(v) for i, v in enumerate(vs)} for c, vs in pattern.items()}
-    got = report(eps, title="Ders 18 selftest tablosu (TEMSİLİ)")
-    assert got == "B", got   # empty −40 (uzak), wrong −20 (ne yakın ne uzak → C değil), tr−empty = −10 ≤ 10 → tr ≈ empty → B
+    got = report(eps, title="Lecture 18 selftest table (REPRESENTATIVE)")
+    assert got == "B", got   # empty −40 (far), wrong −20 (neither near nor far -> not C), tr−empty = −10 ≤ 10 -> tr ≈ empty -> B
     print("\nselftest OK")
 
 
@@ -190,10 +190,10 @@ def main():
     if a.selftest:
         return selftest()
     if not a.episodes:
-        ap.error("episodes.csv ver (ya da --demo / --selftest)")
+        ap.error("give episodes.csv (or --demo / --selftest)")
     eps = load_episodes(a.episodes)
     if "clean" not in eps or "empty" not in eps:
-        sys.exit("episodes.csv'de clean ve empty koşulları gerekli")
+        sys.exit("episodes.csv needs the clean and empty conditions")
     feats = None
     if a.features:
         with open(a.features, encoding="utf-8") as f:

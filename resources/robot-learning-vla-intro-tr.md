@@ -1,14 +1,14 @@
-# Robot Learning ve VLA Alanına Giriş
+# Introduction to Robot Learning and VLA
 
-Bu notun amacı, son günlerde karşılaşılan terimleri tek tek ezberletmek değil, alanın zihinsel haritasını kurmaktır.
+The purpose of this note is not to make you memorize the terms encountered in recent days one by one, but to build a mental map of the field.
 
-Önce kavramları doğru katmanlara ayıracağız. Sonra OpenVLA, OpenVLA-OFT, LIBERO, MuJoCo, ROS, LeRobot, Microduck gibi isimleri bu yapının içine yerleştireceğiz.
+First we will separate the concepts into the right layers. Then we will place names such as OpenVLA, OpenVLA-OFT, LIBERO, MuJoCo, ROS, LeRobot and Microduck inside this structure.
 
 ---
 
-# 1. En büyük resim
+# 1. The biggest picture
 
-Robot learning problemini en basit haliyle şöyle düşün:
+Think of the robot learning problem in its simplest form like this:
 
 ```text
 OBSERVATION
@@ -26,11 +26,11 @@ WORLD CHANGES
 NEW OBSERVATION
 ```
 
-Bir robot dünyayı gözlemler, bir karar verir, bir action üretir, bu action dünyayı değiştirir ve robot yeni bir observation alır.
+A robot observes the world, makes a decision, produces an action, this action changes the world, and the robot receives a new observation.
 
-Bu döngü sürekli devam eder.
+This loop continues constantly.
 
-Bir görüntü sınıflandırma problemi ile karşılaştırırsak:
+Compared with an image classification problem:
 
 ```text
 Image
@@ -42,7 +42,7 @@ Image
 Class
 ```
 
-Robot learning'de ise:
+In robot learning it is:
 
 ```text
 Image + Robot State + Language
@@ -54,17 +54,17 @@ Image + Robot State + Language
            Action
 ```
 
-Asıl temel kavram burada **policy** kelimesidir.
+The key concept here is the word **policy**.
 
-Policy, robotun mevcut gözlemlerine bakarak ne yapacağına karar veren fonksiyondur.
+A policy is the function that decides what the robot will do by looking at its current observations.
 
 ---
 
-# 2. Robot Learning nedir?
+# 2. What is Robot Learning?
 
-Robot learning, robot davranışını elle yazılmış kurallarla tanımlamak yerine veriden öğrenmeye çalışan alandır.
+Robot learning is the field that tries to learn robot behavior from data instead of defining it with hand-written rules.
 
-Örneğin klasik bir sistem şöyle olabilir:
+For example, a classical system might look like this:
 
 ```text
 if object_is_red:
@@ -73,40 +73,38 @@ if gripper_distance < threshold:
     close_gripper()
 ```
 
-Robot learning yaklaşımında ise sistem çok sayıda örnekten şu ilişkiyi öğrenmeye çalışır:
+In the robot learning approach, the system tries to learn the following relation from a large number of examples:
 
 ```text
 observation -> action
 ```
 
-Observation içinde şunlar olabilir:
+The observation may contain:
 
-- RGB kamera görüntüsü
-- depth görüntüsü
-- robot eklem açıları
-- gripper durumu
-- force / torque bilgisi
-- dil komutu
-- önceki action'lar
+- RGB camera image
+- depth image
+- robot joint angles
+- gripper state
+- force / torque information
+- language command
+- previous actions
 
-Action ise örneğin:
+The action may be, for example:
 
-- kolu 2 cm sola götür
-- bileği döndür
-- gripper'ı kapat
-- robot tabanını ileri sür
-
-olabilir.
+- move the arm 2 cm to the left
+- rotate the wrist
+- close the gripper
+- drive the robot base forward
 
 ---
 
-# 3. Embodied AI nedir?
+# 3. What is Embodied AI?
 
-Embodied AI daha geniş bir kavramdır.
+Embodied AI is a broader concept.
 
-Bir AI sisteminin fiziksel veya simüle edilmiş bir dünyada algılayıp hareket ederek görev çözmesini inceler.
+It studies an AI system solving tasks by perceiving and acting in a physical or simulated world.
 
-Basit bir hiyerarşi:
+A simple hierarchy:
 
 ```text
 Artificial Intelligence
@@ -120,44 +118,42 @@ Artificial Intelligence
             +-- Vision-Language-Action models
 ```
 
-VLA bu alanın tamamı değildir.
+VLA is not the whole of this field.
 
-VLA, robot policy üretmek için kullanılan modern yaklaşımlardan biridir.
+VLA is one of the modern approaches used to produce robot policies.
 
 ---
 
-# 4. Bir robot learning sisteminin temel parçaları
+# 4. The basic parts of a robot learning system
 
-Alanı anlamanın en kolay yolu şu bileşenleri birbirinden ayırmaktır.
+The easiest way to understand the field is to separate the following components from one another.
 
-## 4.1 Dünya
+## 4.1 World
 
-Robotun içinde bulunduğu ortam.
+The environment the robot is in.
 
-Bu ortam:
+This environment can be:
 
-- gerçek dünya
-- simülasyon
+- the real world
+- a simulation
 
-olabilir.
-
-Örnek:
+Example:
 
 ```text
-masa
-kupa
-çekmece
-robot kolu
-kamera
+table
+mug
+drawer
+robot arm
+camera
 ```
 
 ---
 
 ## 4.2 Task
 
-Robot ne yapmak zorunda?
+What does the robot have to do?
 
-Örneğin:
+For example:
 
 ```text
 "Pick up the red cup."
@@ -165,17 +161,17 @@ Robot ne yapmak zorunda?
 "Put the apple into the bowl."
 ```
 
-Task bazen açık bir dil komutu olabilir.
+A task can sometimes be an explicit language command.
 
-Bazen de training sırasında dolaylı olarak tanımlanmış olabilir.
+Sometimes it may be defined implicitly during training.
 
 ---
 
 ## 4.3 Observation
 
-Robot dünyanın hangi kısmını görüyor?
+Which part of the world does the robot see?
 
-Örnek:
+Example:
 
 ```text
 RGB image
@@ -186,15 +182,15 @@ language instruction
 previous actions
 ```
 
-Robot her zaman tüm dünyanın durumunu bilmez.
+The robot does not always know the state of the whole world.
 
-Sadece sensörlerinden gelen observation'a sahiptir.
+It only has the observation coming from its sensors.
 
 ---
 
 ## 4.4 Policy
 
-Policy sistemin karar veren kısmıdır.
+The policy is the decision-making part of the system.
 
 ```text
 observation
@@ -206,17 +202,17 @@ observation
  action
 ```
 
-Machine learning tarafındaki esas model buradadır.
+The main model on the machine learning side is here.
 
-Bir VLA da bir tür policy'dir.
+A VLA is also a kind of policy.
 
 ---
 
 ## 4.5 Action
 
-Robotun uygulayacağı fiziksel komut.
+The physical command the robot will apply.
 
-Örnek:
+Example:
 
 ```text
 delta_x = +0.02
@@ -225,23 +221,23 @@ delta_z = 0.00
 gripper = close
 ```
 
-Bazı sistemler doğrudan düşük seviyeli motor command üretir.
+Some systems directly produce low-level motor commands.
 
-Bazıları daha yüksek seviyeli action üretir.
+Others produce higher-level actions.
 
 ---
 
-# 5. Robot nasıl öğrenir?
+# 5. How does a robot learn?
 
-Robot öğrenmesi için data gerekir.
+Learning requires data.
 
-Data farklı yollarla üretilebilir.
+Data can be produced in different ways.
 
 ## 5.1 Human Demonstration
 
-İnsan robota görevi gösterir.
+A human shows the robot the task.
 
-Örneğin teleoperation ile:
+For example, with teleoperation:
 
 ```text
 camera image
@@ -249,56 +245,54 @@ robot state
 human action
 ```
 
-kaydedilir.
+are recorded.
 
-Ortaya trajectory çıkar.
+A trajectory results.
 
 ---
 
 ## 5.2 Teleoperation
 
-İnsan joystick, VR controller veya başka bir arayüzle robotu kontrol eder.
+A human controls the robot with a joystick, a VR controller or another interface.
 
-Her zaman adımında şu çift kaydedilir:
+At every time step this pair is recorded:
 
 ```text
 observation_t -> action_t
 ```
 
-Bunlardan training dataset oluşur.
+The training dataset is built from these.
 
 ---
 
 ## 5.3 Simulation Data
 
-Robot görevleri simülasyonda çalıştırılabilir.
+Robot tasks can be run in simulation.
 
-Avantaj:
+Advantages:
 
-- gerçek robot kırılmaz
-- veri daha hızlı üretilebilir
-- environment kolay değiştirilebilir
-- aynı görev binlerce kez tekrar edilebilir
+- the real robot does not break
+- data can be produced faster
+- the environment is easy to change
+- the same task can be repeated thousands of times
 
-Dezavantaj:
+Disadvantage:
 
-- simülasyon ile gerçek dünya birebir aynı değildir
+- simulation is not exactly the same as the real world
 
-Bu fark:
+This difference is called the
 
-**sim-to-real gap**
-
-olarak adlandırılır.
+**sim-to-real gap**.
 
 ---
 
 # 6. Imitation Learning
 
-En temel robot learning paradigmalarından biridir.
+One of the most basic robot learning paradigms.
 
-Amaç:
+Goal:
 
-> İnsan veya uzman ne yaptıysa onu öğren.
+> Learn whatever the human or expert did.
 
 Dataset:
 
@@ -309,44 +303,40 @@ observation_3 -> action_3
 ...
 ```
 
-Model bunlardan:
+From these the model learns the mapping:
 
 ```text
 observation -> action
 ```
 
-eşleşmesini öğrenir.
-
 ---
 
 # 7. Behavior Cloning
 
-Imitation Learning'in en temel biçimlerinden biridir.
+One of the most basic forms of Imitation Learning.
 
-Supervised learning gibi düşünülebilir.
+It can be thought of as supervised learning.
 
 ```text
 X = observation
 y = expert action
 ```
 
-Model:
+The model learns:
 
 ```text
 observation -> predicted action
 ```
 
-öğrenir.
-
-Bu, robot learning'e giriş için en önemli kavramlardan biridir.
+This is one of the most important concepts for an introduction to robot learning.
 
 ---
 
 # 8. Reinforcement Learning
 
-Reinforcement Learning'de robot doğrudan doğru action label'larıyla öğrenmek zorunda değildir.
+In Reinforcement Learning the robot does not have to learn directly from correct action labels.
 
-Robot:
+The robot learns through the loop:
 
 ```text
 state
@@ -356,30 +346,28 @@ action
 reward
 ```
 
-döngüsü üzerinden öğrenir.
-
-Örnek:
+Example:
 
 ```text
 cup successfully grasped -> +1
 cup dropped -> -1
 ```
 
-Ama gerçek robotlarda RL pahalı olabilir çünkü çok fazla deneme gerekir.
+But RL can be expensive on real robots because many trials are needed.
 
-Bu nedenle robot manipulation alanında imitation learning çok önemlidir.
+For this reason imitation learning is very important in the field of robot manipulation.
 
 ---
 
-# 9. Manipulation nedir?
+# 9. What is Manipulation?
 
-VLA çalışmalarının büyük kısmı robot manipulation üzerine kuruludur.
+Most VLA work is built on robot manipulation.
 
 Manipulation:
 
-Robotun fiziksel nesnelerle etkileşmesi.
+The robot's physical interaction with objects.
 
-Örnek görevler:
+Example tasks:
 
 ```text
 pick
@@ -393,17 +381,17 @@ fold
 stack
 ```
 
-Bir VLA paper gördüğünde büyük ihtimalle manipulation görevleri ile karşılaşacaksın.
+When you see a VLA paper, you will most likely encounter manipulation tasks.
 
 ---
 
-# 10. VLA nedir?
+# 10. What is a VLA?
 
 VLA:
 
 **Vision-Language-Action**
 
-Temel fikir:
+The basic idea:
 
 ```text
 Vision
@@ -419,7 +407,7 @@ Robot State
 Action
 ```
 
-Örneğin:
+For example:
 
 ```text
 camera image:
@@ -442,27 +430,25 @@ robot state:
 robot action
 ```
 
-Buradaki kritik fikir şudur:
+The critical idea here is:
 
-VLA yalnızca görüntüyü anlamamalı.
+A VLA should not only understand the image.
 
-Dil komutunu da robot davranışına bağlamalıdır.
+It must also connect the language command to robot behavior.
 
-Buna:
+This is called
 
-**language grounding**
-
-denir.
+**language grounding**.
 
 ---
 
-# 11. VLM ile VLA farkı
+# 11. The difference between a VLM and a VLA
 
 VLM:
 
 Vision-Language Model
 
-Örneğin:
+For example:
 
 ```text
 image + question -> text answer
@@ -476,17 +462,17 @@ Vision-Language-Action
 image + instruction -> robot action
 ```
 
-Yani VLA'nın çıkışı yalnızca dil değildir.
+So the output of a VLA is not only language.
 
-Robot davranışıdır.
+It is robot behavior.
 
 ---
 
-# 12. VLA modellerine örnekler
+# 12. Examples of VLA models
 
-VLA bir model adı değil, bir model ailesidir.
+VLA is not a model name, it is a model family.
 
-Örnekler:
+Examples:
 
 - RT-2
 - OpenVLA
@@ -497,17 +483,17 @@ VLA bir model adı değil, bir model ailesidir.
 - UniVLA
 - WorldVLA
 
-Hepsi aynı mimariye sahip değildir.
+They do not all have the same architecture.
 
-Ama ortak amaçları, vision ve language bilgisini robot action üretiminde kullanmaktır.
+But their common aim is to use vision and language information in producing robot actions.
 
 ---
 
-# 13. OpenVLA nedir?
+# 13. What is OpenVLA?
 
-OpenVLA açık kaynaklı bir VLA modelidir.
+OpenVLA is an open-source VLA model.
 
-En basit zihinsel konum:
+The simplest mental position:
 
 ```text
 Robot Learning
@@ -517,24 +503,24 @@ Robot Learning
         +-- OpenVLA
 ```
 
-Yani:
+That is:
 
 ```text
-VLA = kategori
-OpenVLA = bu kategorideki belirli bir model
+VLA = category
+OpenVLA = a specific model in this category
 ```
 
-OpenVLA farklı robot manipulation görevlerinde fine-tune edilip değerlendirilebilir.
+OpenVLA can be fine-tuned and evaluated on different robot manipulation tasks.
 
 ---
 
-# 14. OpenVLA-OFT nedir?
+# 14. What is OpenVLA-OFT?
 
-OpenVLA-OFT ayrı bir VLA paradigması değildir.
+OpenVLA-OFT is not a separate VLA paradigm.
 
-OpenVLA'nın daha etkili fine-tuning ve training yöntemleriyle geliştirilmiş bir versiyonudur.
+It is a version of OpenVLA improved with more effective fine-tuning and training methods.
 
-Kabaca:
+Roughly:
 
 ```text
 OpenVLA
@@ -544,131 +530,129 @@ OpenVLA
 OpenVLA-OFT
 ```
 
-Buradaki OFT yaklaşımı OpenVLA'nın özellikle downstream robot manipulation görevlerinde daha iyi performans vermesini hedefler.
+The OFT approach here aims for OpenVLA to perform better especially on downstream robot manipulation tasks.
 
-Dolayısıyla OpenVLA ile LIBERO üzerine çalışırken OpenVLA-OFT paper'ının karşına çıkması normaldir.
+So it is normal to come across the OpenVLA-OFT paper when working on OpenVLA with LIBERO.
 
-Çünkü soru genellikle şudur:
+Because the question is usually:
 
 ```text
-OpenVLA LIBERO'da nasıl daha iyi fine-tune edilir?
+How can OpenVLA be fine-tuned better on LIBERO?
 ```
 
-OpenVLA-OFT bu soruya verilen önemli cevaplardan biridir.
+OpenVLA-OFT is one of the important answers given to this question.
 
 ---
 
-# 15. Benchmark nedir?
+# 15. What is a Benchmark?
 
-Benchmark model değildir.
+A benchmark is not a model.
 
-Benchmark bir sınav sistemidir.
+A benchmark is an exam system.
 
-Bir benchmark genellikle şunları tanımlar:
+A benchmark usually defines:
 
 - environment
-- görevler
-- başlangıç durumları
-- demonstrasyonlar
+- tasks
+- initial states
+- demonstrations
 - evaluation protocol
 - success metric
 
-Bir model benchmark üzerinde değerlendirilir.
+A model is evaluated on a benchmark.
 
 ---
 
-# 16. LIBERO nedir?
+# 16. What is LIBERO?
 
-LIBERO bir robot learning benchmark ailesidir.
+LIBERO is a robot learning benchmark family.
 
-Özellikle manipulation görevleri içerir.
+It contains manipulation tasks in particular.
 
-Basit zihinsel model:
+A simple mental model:
 
 ```text
-OpenVLA = öğrenci
-LIBERO  = sınav
+OpenVLA = student
+LIBERO  = exam
 ```
 
-LIBERO içinde farklı task suite'leri bulunur.
+LIBERO contains different task suites.
 
-Bunlar robotun farklı generalization özelliklerini ölçmeyi amaçlar.
+They aim to measure different generalization properties of the robot.
 
-Örneğin:
+For example, there are different task sets such as:
 
 - object
 - spatial
 - goal
 - long-horizon
 
-gibi farklı görev kümeleri vardır.
-
 ---
 
-# 17. LIBERO-Plus nedir?
+# 17. What is LIBERO-Plus?
 
-LIBERO-Plus yeni bir VLA modeli değildir.
+LIBERO-Plus is not a new VLA model.
 
-LIBERO benchmark'ının robustness açısından daha zorlaştırılmış bir değerlendirme yaklaşımıdır.
+It is an evaluation approach that makes the LIBERO benchmark harder in terms of robustness.
 
-Amaç:
+Goal:
 
-> Model gerçekten görevi mi öğrendi, yoksa benchmark'taki kolay shortcut'ları mı kullanıyor?
+> Did the model really learn the task, or is it using the easy shortcuts in the benchmark?
 
-Örneğin environment şu şekillerde değiştirilebilir:
+For example, the environment can be changed in these ways:
 
 - language perturbation
 - object appearance perturbation
-- background değişimi
-- camera değişimi
+- background change
+- camera change
 - distractor object
-- farklı spatial configuration
+- different spatial configuration
 
-Bu sayede modelin gerçekten genelleşip genelleşmediği ölçülür.
+In this way it is measured whether the model really generalizes.
 
 ---
 
-# 18. OpenVLA-OFT ve language grounding problemi
+# 18. OpenVLA-OFT and the language grounding problem
 
-LIBERO-Plus paper'ındaki ilginç bulgulardan biri şudur:
+One of the interesting findings in the LIBERO-Plus paper is this:
 
-Bazı görevlerde OpenVLA-OFT'nin language instruction geçersiz hale getirilse bile performansı büyük ölçüde korunabiliyor.
+In some tasks, the performance of OpenVLA-OFT can be largely preserved even when the language instruction is invalidated.
 
-Bu ilk bakışta çok garip görünür.
+At first glance this looks very strange.
 
-Çünkü VLA'nın amacı:
+Because while the purpose of a VLA is:
 
 ```text
 Vision + Language -> Action
 ```
 
-iken model sanki şu şekilde davranıyor olabilir:
+the model may be behaving like this:
 
 ```text
 Vision -> Action
 ```
 
-ve language kısmını çok az kullanıyor olabilir.
+and using the language part very little.
 
-Bu durum özellikle benchmark'ta her environment belirli bir task ile çok güçlü şekilde eşleşiyorsa ortaya çıkabilir.
+This can arise especially when every environment in the benchmark is very strongly paired with a particular task.
 
-Örneğin model environment görüntüsünden zaten hangi görevin yapılacağını tahmin edebiliyorsa language instruction gereksiz hale gelebilir.
+For example, if the model can already guess from the environment image which task will be done, the language instruction can become unnecessary.
 
-Bu bir tür:
+This may be a kind of
 
 **shortcut learning**
 
-problemi olabilir.
+problem.
 
 ---
 
-# 19. Base OpenVLA ile OpenVLA-OFT'yi karıştırmamak gerekir
+# 19. Do not confuse base OpenVLA with OpenVLA-OFT
 
-OpenVLA-OFT ile ilgili bulunan language insensitivity sonucu doğrudan base OpenVLA'ya genellenemez.
+The language insensitivity result found for OpenVLA-OFT cannot be directly generalized to base OpenVLA.
 
-Çünkü fine-tuning yöntemi modelin behavior distribution'ını ciddi şekilde değiştirebilir.
+Because the fine-tuning method can change the model's behavior distribution significantly.
 
-Önemli ayrım:
+An important distinction:
 
 ```text
 OpenVLA
@@ -676,17 +660,17 @@ OpenVLA
 OpenVLA-OFT
 ```
 
-Aynı temel model ailesinden gelseler bile downstream fine-tuning sonrası farklı davranabilirler.
+Even if they come from the same base model family, they can behave differently after downstream fine-tuning.
 
-Bu yüzden paper okurken modelin tam checkpoint ve training recipe'sine dikkat etmek gerekir.
+So when reading a paper, you need to pay attention to the exact checkpoint and training recipe of the model.
 
 ---
 
-# 20. Generalization neden bu kadar önemli?
+# 20. Why is generalization so important?
 
-Bir robot training sırasında yalnızca gördüğü durumları ezberlerse gerçek dünyada işe yaramaz.
+If a robot only memorizes the situations it saw during training, it is useless in the real world.
 
-Örneğin:
+For example:
 
 Training:
 
@@ -704,33 +688,33 @@ white table
 camera angle B
 ```
 
-Model hâlâ görevi yapabiliyor mu?
+Can the model still do the task?
 
-Bu generalization problemidir.
+This is the generalization problem.
 
 ---
 
-# 21. Robot learning'deki temel araştırma problemleri
+# 21. The basic research problems in robot learning
 
-Model isimlerinden önce problemleri bilmek daha faydalıdır.
+It is more useful to know the problems before the model names.
 
 ## 21.1 Manipulation
 
-Robot nesnelerle fiziksel olarak nasıl etkileşir?
+How does the robot physically interact with objects?
 
 ---
 
 ## 21.2 Generalization
 
-Training sırasında görülmeyen durumlarda çalışabiliyor mu?
+Can it work in situations not seen during training?
 
 ---
 
 ## 21.3 Language Grounding
 
-Robot language instruction'ı gerçekten kullanıyor mu?
+Does the robot really use the language instruction?
 
-Örnek:
+Example:
 
 ```text
 red cup + blue cup
@@ -738,15 +722,15 @@ red cup + blue cup
 "pick up the red cup"
 ```
 
-Robot gerçekten "red" kelimesine göre mi seçim yapıyor?
+Is the robot really choosing according to the word "red"?
 
 ---
 
 ## 21.4 Robustness
 
-Environment biraz değişince model bozuluyor mu?
+Does the model break when the environment changes a little?
 
-Örnek:
+Example:
 
 - lighting
 - background
@@ -759,9 +743,9 @@ Environment biraz değişince model bozuluyor mu?
 
 ## 21.5 Long-Horizon Tasks
 
-Tek action değil, uzun bir action zinciri gerekir.
+Not a single action, but a long chain of actions is needed.
 
-Örnek:
+Example:
 
 ```text
 open fridge
@@ -775,15 +759,15 @@ close fridge
 put apple on table
 ```
 
-Hatalar zaman içinde birikir.
+Errors accumulate over time.
 
 ---
 
 ## 21.6 Reactive Behavior
 
-Robot environment'ta beklenmedik bir olay olduğunda davranışını değiştirebilir mi?
+Can the robot change its behavior when something unexpected happens in the environment?
 
-Örneğin:
+For example:
 
 ```text
 instruction:
@@ -796,34 +780,34 @@ bag tears
 apple falls
 ```
 
-Robot bunu fark edip planını değiştirebiliyor mu?
+Can the robot notice this and change its plan?
 
-Bu güncel VLA sistemleri için zor bir problemdir.
+This is a hard problem for current VLA systems.
 
 ---
 
 ## 21.7 Temporal Reasoning
 
-Robot yalnızca mevcut frame'e değil geçmişe de ihtiyaç duyabilir.
+The robot may need not only the current frame but also the past.
 
-Örneğin:
+For example:
 
 ```text
-robot drawer'ı biraz önce açtı
-camera şu an drawer'ı tam görmüyor
+the robot opened the drawer a moment ago
+the camera does not fully see the drawer now
 ```
 
-Robot geçmiş action'larını ve observation'larını hatırlamalıdır.
+The robot must remember its past actions and observations.
 
 ---
 
 ## 21.8 Planning
 
-Bazı görevlerde doğrudan action üretmek yeterli değildir.
+In some tasks, producing actions directly is not enough.
 
-Robot önce bir plan oluşturmalıdır.
+The robot must first build a plan.
 
-Örneğin:
+For example:
 
 ```text
 Goal:
@@ -840,23 +824,21 @@ Plan:
 
 ---
 
-# 22. Simulation nedir?
+# 22. What is Simulation?
 
-Gerçek robot kullanmadan robot environment'ını bilgisayarda çalıştırmaktır.
+Running the robot environment on a computer without using a real robot.
 
-Simülasyonda:
+In simulation the following can be modeled:
 
 - robot
-- fizik
-- kamera
-- objeler
+- physics
+- camera
+- objects
 - collision
 - gravity
 - friction
 
-modellenebilir.
-
-Bu alan için önemli simülatörlerden bazıları:
+Some of the important simulators for this field:
 
 - MuJoCo
 - Isaac Sim
@@ -865,17 +847,17 @@ Bu alan için önemli simülatörlerden bazıları:
 
 ---
 
-# 23. MuJoCo nedir?
+# 23. What is MuJoCo?
 
-MuJoCo bir physics engine'dir.
+MuJoCo is a physics engine.
 
-Açılımı:
+Its expansion:
 
 **Multi-Joint dynamics with Contact**
 
-Robot simulation için çok yaygın kullanılır.
+It is very widely used for robot simulation.
 
-MuJoCo şunları simüle eder:
+MuJoCo simulates:
 
 - rigid body dynamics
 - joint movement
@@ -884,7 +866,7 @@ MuJoCo şunları simüle eder:
 - collision
 - gravity
 
-Önemli:
+Important:
 
 ```text
 MuJoCo != VLA
@@ -892,13 +874,13 @@ MuJoCo != benchmark
 MuJoCo != robot learning algorithm
 ```
 
-MuJoCo sadece fiziksel dünyayı simüle eden altyapıdır.
+MuJoCo is only the infrastructure that simulates the physical world.
 
 ---
 
-# 24. Benchmark ile Simulator aynı şey değildir
+# 24. A benchmark and a simulator are not the same thing
 
-Bu ayrım çok önemlidir.
+This distinction is very important.
 
 Simulator:
 
@@ -912,30 +894,30 @@ Benchmark:
 tasks + evaluation protocol
 ```
 
-Örneğin:
+For example:
 
 ```text
 MuJoCo -> physics engine
 LIBERO -> benchmark
 ```
 
-Bir benchmark MuJoCo gibi bir simulator üzerinde çalışabilir.
+A benchmark can run on a simulator such as MuJoCo.
 
-Ama aynı şey değildir.
+But they are not the same thing.
 
 ---
 
-# 25. ROS nedir?
+# 25. What is ROS?
 
 ROS:
 
 **Robot Operating System**
 
-İsmine rağmen klasik anlamda bir operating system değildir.
+Despite its name, it is not an operating system in the classical sense.
 
-Robotik yazılım bileşenlerinin birbirleriyle haberleşmesini sağlayan middleware / framework yapısıdır.
+It is a middleware / framework structure that lets robotics software components communicate with each other.
 
-Örneğin:
+For example:
 
 ```text
 camera node
@@ -953,36 +935,34 @@ robot controller
 motors
 ```
 
-Bu bileşenler ROS üzerinden mesajlaşabilir.
+These components can exchange messages over ROS.
 
-ROS özellikle gerçek robot sistemlerinde çok önemlidir.
+ROS is very important especially in real robot systems.
 
 ---
 
 # 26. ROS2
 
-Bugün yeni robotik projelerde ROS2 daha yaygın tercih edilmektedir.
+Today ROS2 is the more common choice in new robotics projects.
 
-ROS2:
+ROS2 is stronger than ROS1 in:
 
 - distributed communication
 - real-time support
 - multi-machine systems
 - modern middleware
 
-konularında ROS1'e göre daha güçlüdür.
-
-Yeni başlayan biri için genellikle ROS2 öğrenmek daha mantıklıdır.
+For a beginner it usually makes more sense to learn ROS2.
 
 ---
 
-# 27. LeRobot nedir?
+# 27. What is LeRobot?
 
-LeRobot, Hugging Face tarafından geliştirilen açık kaynak robot learning ekosistemidir.
+LeRobot is an open-source robot learning ecosystem developed by Hugging Face.
 
-Amacı robot learning workflow'unu kolaylaştırmaktır.
+Its aim is to make the robot learning workflow easier.
 
-Şunları içerir:
+It includes:
 
 - robot datasets
 - data collection
@@ -991,59 +971,57 @@ Amacı robot learning workflow'unu kolaylaştırmaktır.
 - evaluation
 - hardware integrations
 
-LeRobot'u şu şekilde düşünmek daha doğru:
+It is more accurate to think of LeRobot like this:
 
 ```text
 robot learning toolbox / ecosystem
 ```
 
-VLA modeli değildir.
+It is not a VLA model.
 
-Simulator değildir.
+It is not a simulator.
 
-Benchmark da değildir.
-
----
-
-# 28. Robomimic nedir?
-
-Robomimic robot imitation learning için kullanılan açık kaynak framework'lerden biridir.
-
-Özellikle demonstration dataset'leri üzerinden policy training yapmak için kullanılır.
-
-LeRobot ile aynı şey değildir ama benzer problem alanında araç sağlar.
+It is not a benchmark either.
 
 ---
 
-# 29. Microduck nedir?
+# 28. What is Robomimic?
 
-Microduck gerçek fiziksel robot platformlarından biridir.
+Robomimic is one of the open-source frameworks used for robot imitation learning.
 
-Bu tür robotlar küçük ölçekli deneyler ve eğitim için kullanılabilir.
+It is used especially for policy training on demonstration datasets.
 
-Zihinsel olarak:
+It is not the same as LeRobot but provides tools in a similar problem area.
+
+---
+
+# 29. What is Microduck?
+
+Microduck is one of the real physical robot platforms.
+
+Such robots can be used for small-scale experiments and education.
+
+Mentally:
 
 ```text
 Microduck = hardware
 ```
 
-Onun üzerinde:
+On it there can be components such as:
 
-- kamera
+- camera
 - motor
 - robot arm
 - gripper
 - onboard computer
 
-gibi bileşenler bulunabilir.
-
-Bir VLA modelini gerçek robotta test etmek istediğinde bu tür hardware platformlarına ihtiyaç duyarsın.
+When you want to test a VLA model on a real robot, you need hardware platforms like this.
 
 ---
 
-# 30. Robot Hardware örnekleri
+# 30. Robot Hardware examples
 
-Robot manipulation araştırmalarında sık karşılaşılan robotlar:
+Robots frequently encountered in robot manipulation research:
 
 - Franka Panda
 - UR5 / UR10
@@ -1053,27 +1031,27 @@ Robot manipulation araştırmalarında sık karşılaşılan robotlar:
 - Kinova
 - Fetch
 
-Bunlar VLA modeli değildir.
+These are not VLA models.
 
-Fiziksel robot platformlarıdır.
-
----
-
-# 31. ALOHA nedir?
-
-ALOHA özellikle bimanual manipulation araştırmalarında kullanılan robot sistemi olarak önemlidir.
-
-İki robot kolu ile insan demonstrasyonlarının toplanması ve imitation learning için kullanılabilir.
-
-Mobile ALOHA ise mobil platform + dual arm yaklaşımını birleştirir.
+They are physical robot platforms.
 
 ---
 
-# 32. Dataset nedir?
+# 31. What is ALOHA?
 
-Robot learning dataset'i genellikle yalnızca image-label yapısında değildir.
+ALOHA is important as a robot system used especially in bimanual manipulation research.
 
-Bir trajectory şöyle olabilir:
+It can be used for collecting human demonstrations with two robot arms and for imitation learning.
+
+Mobile ALOHA combines a mobile platform with the dual-arm approach.
+
+---
+
+# 32. What is a Dataset?
+
+A robot learning dataset usually does not have just an image-label structure.
+
+A trajectory can look like this:
 
 ```text
 episode_001
@@ -1094,17 +1072,17 @@ robot_state
 action
 ```
 
-Bir episode genellikle bir görevin baştan sona çalıştırılmasını temsil eder.
+An episode usually represents running a task from beginning to end.
 
 ---
 
-# 33. Trajectory nedir?
+# 33. What is a Trajectory?
 
 Trajectory:
 
-Robotun zaman boyunca yaptığı hareketlerin kaydıdır.
+The record of the movements the robot made over time.
 
-Kabaca:
+Roughly:
 
 ```text
 (o1, a1)
@@ -1114,22 +1092,22 @@ Kabaca:
 (oT, aT)
 ```
 
-Burada:
+Here:
 
 ```text
 o = observation
 a = action
 ```
 
-Robot learning paper'larında çok sık karşılaşılır.
+It is encountered very often in robot learning papers.
 
 ---
 
-# 34. Episode nedir?
+# 34. What is an Episode?
 
-Episode genellikle tek bir task attempt anlamına gelir.
+An episode usually means a single task attempt.
 
-Örneğin:
+For example:
 
 ```text
 Task:
@@ -1144,15 +1122,15 @@ robot lifts cup
 Episode ends
 ```
 
-Başarılı veya başarısız olabilir.
+It can be successful or unsuccessful.
 
 ---
 
 # 35. Success Rate
 
-Robot benchmark'larında en temel metric'lerden biridir.
+One of the most basic metrics in robot benchmarks.
 
-Örneğin:
+For example:
 
 ```text
 100 task attempt
@@ -1161,41 +1139,41 @@ Robot benchmark'larında en temel metric'lerden biridir.
 success rate = 87%
 ```
 
-Ama yüksek success rate her zaman gerçek intelligence anlamına gelmez.
+But a high success rate does not always mean real intelligence.
 
-LIBERO-Plus gibi çalışmalar tam olarak bunu sorgular.
+Works such as LIBERO-Plus question exactly this.
 
 ---
 
 # 36. Shortcut Learning
 
-Model task'ın gerçek nedenini öğrenmek yerine dataset'teki kolay korelasyonları kullanabilir.
+Instead of learning the real cause of the task, the model can use easy correlations in the dataset.
 
-Örneğin:
+For example:
 
 ```text
 environment A -> always pick red cup
 environment B -> always open drawer
 ```
 
-Model language instruction'ı kullanmadan environment görüntüsünden task'ı tahmin edebilir.
+The model can predict the task from the environment image without using the language instruction.
 
-Sonuç:
+Result:
 
 ```text
 benchmark score = high
 true language grounding = weak
 ```
 
-Bu VLA evaluation için çok önemli bir problemdir.
+This is a very important problem for VLA evaluation.
 
 ---
 
 # 37. Distribution Shift
 
-Training ve test distribution'ı aynı değilse distribution shift oluşur.
+If the training and test distributions are not the same, distribution shift occurs.
 
-Örneğin:
+For example:
 
 ```text
 training:
@@ -1205,7 +1183,7 @@ test:
 dark room
 ```
 
-veya:
+or:
 
 ```text
 training:
@@ -1215,17 +1193,17 @@ test:
 "could you grab the crimson cup?"
 ```
 
-Model bunu başarabiliyor mu?
+Can the model handle this?
 
-Robustness çalışmalarının temel sorularından biridir.
+It is one of the basic questions of robustness work.
 
 ---
 
 # 38. Domain Randomization
 
-Simulation'da environment özellikleri randomize edilir.
+In simulation, environment properties are randomized.
 
-Örneğin:
+For example:
 
 - lighting
 - texture
@@ -1233,17 +1211,17 @@ Simulation'da environment özellikleri randomize edilir.
 - camera angle
 - friction
 
-Amaç:
+Goal:
 
-Modelin tek environment configuration'ına aşırı uyum sağlamasını önlemek.
+To prevent the model from over-adapting to a single environment configuration.
 
 ---
 
 # 39. Sim-to-Real
 
-Model simulation'da eğitilir.
+The model is trained in simulation.
 
-Sonra gerçek robota aktarılır.
+Then it is transferred to the real robot.
 
 Problem:
 
@@ -1251,31 +1229,29 @@ Problem:
 simulation != reality
 ```
 
-Bu fark yüzünden model gerçek dünyada kötü çalışabilir.
+Because of this difference the model can perform badly in the real world.
 
-Bu problem:
+This problem is called
 
-**sim-to-real transfer**
-
-olarak adlandırılır.
+**sim-to-real transfer**.
 
 ---
 
 # 40. Real-to-Sim
 
-Tersi yaklaşım da vardır.
+There is also the reverse approach.
 
-Gerçek dünyadaki robot veya environment'ın dijital kopyası oluşturulur.
+A digital copy of the real-world robot or environment is created.
 
-Bu özellikle digital twin yaklaşımında önemlidir.
+This is especially important in the digital twin approach.
 
 ---
 
 # 41. World Model
 
-World model, environment'ın nasıl değişeceğini tahmin etmeye çalışan modeldir.
+A world model is a model that tries to predict how the environment will change.
 
-Örneğin:
+For example:
 
 ```text
 current observation
@@ -1286,23 +1262,23 @@ candidate action
 predicted next observation
 ```
 
-Robot planlama için world model kullanabilir.
+A robot can use a world model for planning.
 
-VLA ile world model aynı şey değildir.
+A VLA and a world model are not the same thing.
 
-Ama gelecekte bu iki yaklaşım giderek daha fazla birleşebilir.
+But in the future these two approaches may increasingly merge.
 
 ---
 
 # 42. Diffusion Policy
 
-Diffusion Policy robot manipulation için önemli policy ailelerinden biridir.
+Diffusion Policy is one of the important policy families for robot manipulation.
 
-VLA değildir.
+It is not a VLA.
 
-Genellikle continuous action sequence üretmek için diffusion model yaklaşımını kullanır.
+It generally uses a diffusion model approach to produce continuous action sequences.
 
-Basit karşılaştırma:
+A simple comparison:
 
 ```text
 VLA
@@ -1312,17 +1288,17 @@ Diffusion Policy
 observation -> continuous action trajectory
 ```
 
-Bazı modern sistemler language ile diffusion policy yaklaşımını da birleştirebilir.
+Some modern systems can also combine language with the diffusion policy approach.
 
 ---
 
 # 43. Transformer Robot Policy
 
-Birçok modern robot policy Transformer mimarisi kullanır.
+Many modern robot policies use the Transformer architecture.
 
-Çünkü robot task'leri zaman serisi, multimodal input ve uzun context içerir.
+Because robot tasks involve time series, multimodal input and long context.
 
-Örneğin:
+For example:
 
 ```text
 image tokens
@@ -1331,15 +1307,15 @@ robot state tokens
 previous action tokens
 ```
 
-aynı model içinde işlenebilir.
+can be processed in the same model.
 
 ---
 
 # 44. Action Chunking
 
-Model her timestep için tek action üretmek yerine birkaç action'ı birden üretebilir.
+Instead of producing a single action at every timestep, the model can produce several actions at once.
 
-Örneğin:
+For example:
 
 ```text
 input:
@@ -1353,17 +1329,17 @@ a_t+2
 a_t+9
 ```
 
-Bu yaklaşım robot control'de daha stabil davranış sağlayabilir.
+This approach can provide more stable behavior in robot control.
 
-ACT gibi modellerde bu fikir önemlidir.
+This idea is important in models such as ACT.
 
 ---
 
-# 45. Closed-Loop ve Open-Loop
+# 45. Closed-Loop and Open-Loop
 
 ## Open-loop
 
-Model bir action sequence üretir ve robot bunu yeni observation almadan uygular.
+The model produces an action sequence and the robot applies it without receiving a new observation.
 
 ```text
 observe once
@@ -1375,7 +1351,7 @@ execute all
 
 ## Closed-loop
 
-Robot sürekli yeni observation alır.
+The robot continuously receives new observations.
 
 ```text
 observe
@@ -1386,19 +1362,19 @@ observe
 act
 ```
 
-Gerçek dünya için closed-loop control genellikle daha güvenlidir.
+For the real world, closed-loop control is generally safer.
 
 ---
 
-# 46. Robot Learning'deki büyük ayrım
+# 46. The big distinction in Robot Learning
 
-Bir paper gördüğünde önce şunu sor:
+When you see a paper, first ask this:
 
 ```text
-Bu çalışma neyi değiştiriyor?
+What does this work change?
 ```
 
-Seçenekler genellikle:
+The options are usually:
 
 ```text
 MODEL
@@ -1411,11 +1387,11 @@ CONTROL
 EVALUATION
 ```
 
-Bu soruyu sormak terim karmaşasını ciddi şekilde azaltır.
+Asking this question reduces terminology confusion significantly.
 
 ---
 
-# 47. Terimleri doğru kategoriye yerleştirme
+# 47. Placing terms in the right category
 
 ## Model / Policy
 
@@ -1480,15 +1456,15 @@ Microduck
 
 ---
 
-# 48. Yeni bir paper nasıl okunmalı?
+# 48. How should a new paper be read?
 
-Bir VLA paper'ını ilk kez okurken architecture diagram ile başlamamak daha iyi olabilir.
+When reading a VLA paper for the first time, it may be better not to start with the architecture diagram.
 
-Önce şu soruları cevapla.
+First answer these questions.
 
 ## 1. Task
 
-Robot ne yapıyor?
+What is the robot doing?
 
 ```text
 pick?
@@ -1508,7 +1484,7 @@ both?
 
 ## 3. Data
 
-Model ne ile öğreniyor?
+What does the model learn from?
 
 ```text
 human demonstrations?
@@ -1519,7 +1495,7 @@ simulation data?
 
 ## 4. Input
 
-Model ne görüyor?
+What does the model see?
 
 ```text
 RGB?
@@ -1531,7 +1507,7 @@ history?
 
 ## 5. Output
 
-Model ne üretiyor?
+What does the model produce?
 
 ```text
 joint action?
@@ -1542,7 +1518,7 @@ high-level plan?
 
 ## 6. Model
 
-Hangi policy kullanılıyor?
+Which policy is used?
 
 ```text
 VLA?
@@ -1553,7 +1529,7 @@ world model?
 
 ## 7. Training
 
-Nasıl optimize edilmiş?
+How was it optimized?
 
 ```text
 behavior cloning?
@@ -1565,7 +1541,7 @@ full fine-tuning?
 
 ## 8. Benchmark
 
-Nerede test edilmiş?
+Where was it tested?
 
 ```text
 LIBERO?
@@ -1575,7 +1551,7 @@ real robot?
 
 ## 9. Generalization Claim
 
-Yazar neyin generalize olduğunu iddia ediyor?
+What does the author claim generalizes?
 
 ```text
 new objects?
@@ -1586,30 +1562,30 @@ new environments?
 
 ## 10. Ablation
 
-Yazar hangi input'u çıkarınca ne oluyor?
+What happens when the author removes which input?
 
-Bu özellikle VLA için çok önemlidir.
+This is very important especially for VLAs.
 
 ---
 
-# 49. VLA paper'larında özellikle dikkat edilmesi gereken şey
+# 49. What to pay special attention to in VLA papers
 
-Başarı metric'i tek başına yeterli değildir.
+The success metric alone is not enough.
 
-Örneğin:
+For example:
 
 ```text
 Model A
 LIBERO success = 98%
 ```
 
-Bu bize şunu söylemez:
+This does not tell us:
 
 ```text
-language gerçekten kullanılıyor mu?
+is language really being used?
 ```
 
-Bu yüzden güçlü evaluation şunları test etmelidir:
+So a strong evaluation should test:
 
 ```text
 wrong language
@@ -1624,11 +1600,11 @@ new environment
 
 ---
 
-# 50. OpenVLA-OFT neden karşına çıktı?
+# 50. Why did OpenVLA-OFT come up?
 
-Sen OpenVLA + LIBERO çizgisinde araştırma yaptığında literatür doğal olarak seni OpenVLA-OFT'ye götürür.
+When you do research on the OpenVLA + LIBERO line, the literature naturally leads you to OpenVLA-OFT.
 
-Çünkü:
+Because:
 
 ```text
 OpenVLA
@@ -1638,46 +1614,44 @@ fine-tune on robot task
 LIBERO evaluation
 ```
 
-konusunda OpenVLA-OFT önemli bir referanstır.
+on this subject OpenVLA-OFT is an important reference.
 
-Yani OFT paper'ının karşına çıkması yanlış değildir.
+So it is not wrong that the OFT paper came up.
 
-Ama kritik nokta şudur:
+But the critical point is this:
 
 ```text
 OpenVLA-OFT result
 ```
 
-otomatik olarak:
+does not automatically mean:
 
 ```text
 base OpenVLA behavior
 ```
 
-demek değildir.
-
-Fine-tuning sonrası model language'e, vision'a veya environment shortcut'larına farklı ağırlık verebilir.
+After fine-tuning the model may give different weight to language, vision or environment shortcuts.
 
 ---
 
-# 51. LIBERO-Plus bulgusu neden ilginç?
+# 51. Why is the LIBERO-Plus finding interesting?
 
-Normal beklenti:
+Normal expectation:
 
 ```text
 Vision + Language -> Action
 ```
 
-Eğer language input kaldırıldığında performans aynı kalıyorsa şu soru doğar:
+If performance stays the same when the language input is removed, this question arises:
 
 ```text
-Model gerçekten language kullanıyor mu?
+Does the model really use language?
 ```
 
-Olası açıklama:
+A possible explanation:
 
 ```text
-Environment görüntüsü
+Environment image
         |
         v
 task identity already obvious
@@ -1686,17 +1660,17 @@ task identity already obvious
 language becomes redundant
 ```
 
-Bu VLA benchmark tasarımında önemli bir problemdir.
+This is an important problem in VLA benchmark design.
 
 ---
 
-# 52. Bu alan için doğru öğrenme sırası
+# 52. The right learning order for this field
 
-Bir başlangıç sırası şöyle olabilir.
+A starting order could be as follows.
 
-## Aşama 1
+## Stage 1
 
-Şunları öğren:
+Learn these:
 
 ```text
 observation
@@ -1708,7 +1682,7 @@ behavior cloning
 imitation learning
 ```
 
-## Aşama 2
+## Stage 2
 
 Robot manipulation:
 
@@ -1720,7 +1694,7 @@ pose
 control
 ```
 
-## Aşama 3
+## Stage 3
 
 Simulation:
 
@@ -1733,7 +1707,7 @@ step
 reward
 ```
 
-## Aşama 4
+## Stage 4
 
 Modern robot policies:
 
@@ -1745,7 +1719,7 @@ OpenVLA
 π0
 ```
 
-## Aşama 5
+## Stage 5
 
 Benchmarks:
 
@@ -1755,9 +1729,9 @@ CALVIN
 RLBench
 ```
 
-## Aşama 6
+## Stage 6
 
-Robustness ve generalization:
+Robustness and generalization:
 
 ```text
 language grounding
@@ -1768,11 +1742,11 @@ shortcut learning
 
 ---
 
-# 53. Pratik başlangıç stratejisi
+# 53. A practical starting strategy
 
-Gerçek robot olmadan başlanabilir.
+You can start without a real robot.
 
-İlk hedef:
+The first goal:
 
 ```text
 existing benchmark
@@ -1782,9 +1756,9 @@ existing policy
 existing checkpoint
 ```
 
-çalıştırmak.
+is to run them.
 
-Örneğin:
+For example:
 
 ```text
 LIBERO
@@ -1792,23 +1766,23 @@ LIBERO
 existing OpenVLA / policy implementation
 ```
 
-İlk amaç yeni model geliştirmek değil.
+The first aim is not to develop a new model.
 
-Şunu anlamak:
+It is to understand this:
 
 ```text
-dataset nasıl geliyor?
-environment nasıl resetleniyor?
-observation nasıl modele gidiyor?
-action nasıl environment'a uygulanıyor?
-success nasıl hesaplanıyor?
+how does the dataset come in?
+how is the environment reset?
+how does the observation go to the model?
+how is the action applied to the environment?
+how is success computed?
 ```
 
-Bu pipeline bir kez çalışınca alan çok daha anlaşılır hale gelir.
+Once this pipeline runs once, the field becomes much more understandable.
 
 ---
 
-# 54. Bir VLA deneyinin tam akışı
+# 54. The full flow of a VLA experiment
 
 ```text
 TASK
@@ -1830,7 +1804,7 @@ RGB + robot state + language
         v
 
 POLICY
-OpenVLA / π0 / başka model
+OpenVLA / π0 / another model
 
         |
         v
@@ -1860,7 +1834,7 @@ SUCCESS / FAILURE
 
 ---
 
-# 55. Simülasyon ve gerçek robot bağlantısı
+# 55. The connection between simulation and the real robot
 
 ```text
                     POLICY
@@ -1874,15 +1848,15 @@ SUCCESS / FAILURE
       PyBullet                  Microduck
 ```
 
-Aynı policy teorik olarak hem simulation hem gerçek robot üzerinde çalışabilir.
+The same policy can in theory run on both simulation and a real robot.
 
-Ama action space, sensors ve robot morphology uyumlu olmalıdır.
+But the action space, sensors and robot morphology must be compatible.
 
 ---
 
-# 56. ROS nerede devreye girer?
+# 56. Where does ROS come in?
 
-Gerçek robotta tipik yapı:
+A typical structure on a real robot:
 
 ```text
 CAMERA
@@ -1903,15 +1877,15 @@ ROS CONTROLLER
 ROBOT
 ```
 
-ROS burada model değildir.
+ROS here is not a model.
 
-Bileşenlerin birbirine bağlanmasını sağlar.
+It connects the components to each other.
 
 ---
 
-# 57. LeRobot nerede devreye girer?
+# 57. Where does LeRobot come in?
 
-Tipik akış:
+Typical flow:
 
 ```text
 REAL ROBOT
@@ -1931,67 +1905,67 @@ Evaluation
 Deployment
 ```
 
-LeRobot tüm workflow'u kolaylaştıran bir tool ecosystem olarak düşünülebilir.
+LeRobot can be thought of as a tool ecosystem that makes the whole workflow easier.
 
 ---
 
-# 58. En kritik kavramsal ayrım
+# 58. The most critical conceptual distinction
 
-Aşağıdaki tabloyu zihninde tutmak yeterlidir.
+It is enough to keep the following table in mind.
 
-| Soru | Kavram |
+| Question | Concept |
 |---|---|
-| Robot ne yapacak? | Task |
-| Robot ne görüyor? | Observation |
-| Kararı kim veriyor? | Policy |
-| Robot ne uyguluyor? | Action |
-| Model nasıl öğreniyor? | Training method |
-| Nerede çalışıyor? | Environment |
-| Fizik nerede simüle ediliyor? | Simulator |
-| Model nasıl sınanıyor? | Benchmark |
-| Gerçek robot parçaları nasıl konuşuyor? | ROS |
-| Robot learning workflow'unu ne kolaylaştırıyor? | LeRobot |
-| Fiziksel makine nedir? | Hardware |
+| What will the robot do? | Task |
+| What does the robot see? | Observation |
+| Who makes the decision? | Policy |
+| What does the robot apply? | Action |
+| How does the model learn? | Training method |
+| Where does it run? | Environment |
+| Where is the physics simulated? | Simulator |
+| How is the model tested? | Benchmark |
+| How do the parts of a real robot talk? | ROS |
+| What makes the robot learning workflow easier? | LeRobot |
+| What is the physical machine? | Hardware |
 
 ---
 
-# 59. Tek cümlede alan
+# 59. The field in one sentence
 
 Robot learning:
 
-> Gözlemlerden robot action üreten policy'lerin veriden öğrenilmesini inceler.
+> Studies learning from data the policies that produce robot actions from observations.
 
 VLA:
 
-> Vision ve language bilgisini kullanarak robot action üreten modern policy ailesidir.
+> The modern policy family that produces robot actions using vision and language information.
 
 Simulator:
 
-> Robotun fiziksel dünyasını bilgisayarda taklit eder.
+> Imitates the robot's physical world on a computer.
 
 Benchmark:
 
-> Modelin belirli görevlerde ne kadar iyi çalıştığını ölçer.
+> Measures how well a model works on particular tasks.
 
 ROS:
 
-> Gerçek robot sistemindeki yazılım bileşenlerini birbirine bağlar.
+> Connects the software components in a real robot system.
 
 LeRobot:
 
-> Robot learning için veri toplama, training ve deployment araçları sağlar.
+> Provides data collection, training and deployment tools for robot learning.
 
 ---
 
-# 60. Bundan sonra yeni bir terim gördüğünde
+# 60. When you see a new term from now on
 
-İlk soru:
+The first question:
 
 ```text
-Bu şey nedir?
+What is this thing?
 ```
 
-Aşağıdaki kategorilerden birine koy:
+Put it into one of the following categories:
 
 ```text
 MODEL
@@ -2006,11 +1980,11 @@ CONTROL METHOD
 EVALUATION METHOD
 ```
 
-Bu sınıflandırmayı yaptıktan sonra terimin anlamı genellikle çok daha kolay oturur.
+After making this classification, the meaning of the term usually settles in much more easily.
 
 ---
 
-# Son zihinsel harita
+# Final mental map
 
 ```text
 EMBODIED AI
@@ -2064,8 +2038,8 @@ EMBODIED AI
         +-- ROS / ROS2
 ```
 
-Bu harita model isimlerinden bağımsız olarak alanı okumak için kullanılabilir.
+This map can be used to read the field independently of model names.
 
-Yeni bir paper geldiğinde önce paper'ın bu haritada hangi kutuyu değiştirdiğini bulmak gerekir.
+When a new paper comes, first find which box on this map the paper changes.
 
-Sonra teknik detaylara geçmek çok daha kolay olur.
+Then moving on to the technical details becomes much easier.

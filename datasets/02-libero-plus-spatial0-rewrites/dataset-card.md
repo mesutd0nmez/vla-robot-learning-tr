@@ -1,49 +1,49 @@
-# LIBERO-Plus Spatial görev 0 — 50 yeniden yazımın türü + 10 Türkçe BDDL varyantı
+# LIBERO-Plus Spatial task 0 — types of the 50 rewrites + 10 Turkish BDDL variants
 
-**Tür:** kendi ürettiğim (dış verinin üstüne etiket) · **Sürüm:** v0.1 · **Tarih:** Ders 17 · **Lisans:** MIT (etiketler, Türkçe BDDL'ler); yeniden yazım metinleri LIBERO-Plus'ın MIT lisansı altında · **İlgili proje/ders:** Ders 17, `code/day17/`, Ders 18 deneyi
+**Type:** self-produced (labels over external data) · **Version:** v0.1 · **Date:** Lecture 17 · **License:** MIT (labels, Turkish BDDLs); the rewrite texts are under LIBERO-Plus's MIT license · **Related project/lecture:** Lecture 17, `code/day17/`, the Lecture 18 experiment
 
-## Ne içeriyor
-1. `data/rewrites_task0.csv` — LIBERO-Plus'ın Spatial temel görev 0 (*pick up the black bowl between the plate and the ramekin and place it on the plate*) için ürettiği **50** `_language_K.bddl` yeniden yazımı; her satırda benchmark'ta olup olmadığı (46 evet, 4 hayır: 16, 17, 29, 35), LIBERO-Plus görev indeksi (0 tabanlı; `VLANEXT_TASK_IDS` için), zorluk seviyesi, **kural tabanlı tür etiketi** (R1 dikkat dağıtma 26 / R2 sağduyu tam 16 / R2 sağduyu hafif 6 / R0 düz parafraz 2), kelime sayısı, *bowl* / *plate* / *between* kelimelerinin korunup korunmadığı, büyük harf sayısı (`scan_tokens.lower()` bunları değiştirir).
-2. `data/tr_variants/` — LIBERO-Plus şablonuyla üretilmiş **10 Türkçe** `_language_trK.bddl` dosyası (Spatial görev 0–4 × {tr1 = `datasets/01` `tr`, tr2 = `tr2`}); temel BDDL'den yalnızca `:language` satırında ayrılırlar. Yanında `task_map_lines.txt` (task map'e eklenecek satırlar) ve `task_classification_entries.json`.
-3. `data/perturbation_table_spatial.md` — 7 bozulmanın koddan çıkarılmış özet tablosu (taşıyıcı, gerçek parametre aralığı, kod yeri, BDDL/asset gereksinimi).
+## What it contains
+1. `data/rewrites_task0.csv` — the **50** `_language_K.bddl` rewrites that LIBERO-Plus produced for Spatial base task 0 (*pick up the black bowl between the plate and the ramekin and place it on the plate*); each row has whether it is in the benchmark (46 yes, 4 no: 16, 17, 29, 35), the LIBERO-Plus task index (0-based; for `VLANEXT_TASK_IDS`), the difficulty level, a **rule-based type label** (R1 distraction 26 / R2 common sense full 16 / R2 common sense light 6 / R0 plain paraphrase 2), word count, whether the words *bowl* / *plate* / *between* are preserved, and the number of capital letters (`scan_tokens.lower()` changes them).
+2. `data/tr_variants/` — **10 Turkish** `_language_trK.bddl` files produced with the LIBERO-Plus template (Spatial tasks 0–4 × {tr1 = `datasets/01` `tr`, tr2 = `tr2`}); they differ from the base BDDL only in the `:language` line. Alongside: `task_map_lines.txt` (lines to add to the task map) and `task_classification_entries.json`.
+3. `data/perturbation_table_spatial.md` — a summary table of the 7 perturbations extracted from the code (carrier, real parameter range, code location, BDDL/asset requirement).
 
-## Kaynak ve elde etme
-- Metinler: [sylvestf/LIBERO-plus](https://github.com/sylvestf/LIBERO-plus) commit `4976dc3` (21 Oca 2026), `libero/libero/bddl_files/libero_spatial/*_language_K.bddl` `:language` alanı; benchmark üyeliği, indeks ve zorluk `libero/libero/benchmark/task_classification.json`'dan.
-- Tür etiketi: `code/day17/classify_rewrites.py` — makalenin Ek A.6 tanımlarına (R1 Distraction, R2 Common Sense, R3 Reasoning Chain) göre **regex kuralları**; JSON'da tür alanı yoktur, dolayısıyla bu etiket yazarların etiketi değil, bizim okumamızdır (hipotez). R3 Spatial'da tek adımlı görevlerde beklenmediği için görülmedi.
-- Türkçe varyantlar: `code/day17/make_tr_variant.py --commands code/day17/tr_commands.csv`; komutlar `datasets/01-libero-spatial-tr-mini` v0.1'den (anadil doğrulaması hâlâ bekliyor). Her dosya gerçek `bddl==1.0.1` ayrıştırıcısından geçirildi; modele gidecek metin yazılanla birebir aynı (10/10).
-- Perturbation tablosu: `code/day17/perturbation_table.py` (görev adları, BDDL dosyaları, `mounted_panda.py`, `problems/libero_tabletop_manipulation.py` okunarak).
+## Source and acquisition
+- Texts: [sylvestf/LIBERO-plus](https://github.com/sylvestf/LIBERO-plus) commit `4976dc3` (21 Jan 2026), the `:language` field of `libero/libero/bddl_files/libero_spatial/*_language_K.bddl`; benchmark membership, index and difficulty from `libero/libero/benchmark/task_classification.json`.
+- Type label: `code/day17/classify_rewrites.py` — **regex rules** following the definitions in the paper's Appendix A.6 (R1 Distraction, R2 Common Sense, R3 Reasoning Chain); the JSON has no type field, so this label is not the authors' label but our reading (hypothesis). R3 was not seen in Spatial since it is not expected in single-step tasks.
+- Turkish variants: `code/day17/make_tr_variant.py --commands code/day17/tr_commands.csv`; the commands are from `datasets/01-libero-spatial-tr-mini` v0.1 (native-speaker verification is still pending). Each file was passed through the real `bddl==1.0.1` parser; the text that will go to the model is exactly the same as what was written (10/10).
+- Perturbation table: `code/day17/perturbation_table.py` (by reading task names, BDDL files, `mounted_panda.py`, `problems/libero_tabletop_manipulation.py`).
 
-## Şema (`data/rewrites_task0.csv`)
-| Alan | Tip | Açıklama | Örnek |
+## Schema (`data/rewrites_task0.csv`)
+| Field | Type | Description | Example |
 |---|---|---|---|
-| k | int | `_language_K` numarası (1–50) | 5 |
-| in_benchmark | bool | task map / JSON'da var mı | True |
-| task_index | int/boş | LIBERO-Plus Spatial görev indeksi (0 tabanlı) | 988 |
-| difficulty | int/boş | L1–L5 (4 referans modelden kaçı çözdü; Ek C.3) | 1 |
-| type | str | `R1 dikkat dağıtma` / `R2 sağduyu (tam)` / `R2 sağduyu (hafif)` / `R0 düz parafraz` (kural tabanlı) | `R1 dikkat dağıtma` |
-| words | int | kelime sayısı (orijinal 17) | 22 |
-| keeps_bowl / keeps_plate / keeps_between | bool | kelime metinde geçiyor mu | True |
-| relation_word | str | ilişkiyi taşıyan ifade (`between`, `amid`, `separating`, `midway`) | `between` |
-| conversational / descriptive | bool | R1 / R2 kural tetiklendi mi | True / False |
-| lowercase_changes | int | büyük harf sayısı (`.lower()` ile değişecek karakter) | 1 |
-| text | str | BDDL'deki ham `:language` metni (noktalamasız) | `Would you mind helping me by …` |
+| k | int | `_language_K` number (1–50) | 5 |
+| in_benchmark | bool | present in the task map / JSON | True |
+| task_index | int/empty | LIBERO-Plus Spatial task index (0-based) | 988 |
+| difficulty | int/empty | L1–L5 (how many of the 4 reference models solved it; Appendix C.3) | 1 |
+| type | str | `R1 dikkat dağıtma` / `R2 sağduyu (tam)` / `R2 sağduyu (hafif)` / `R0 düz parafraz` (rule-based; values kept in Turkish as in the CSV: distraction / common sense (full) / common sense (light) / plain paraphrase) | `R1 dikkat dağıtma` |
+| words | int | word count (original 17) | 22 |
+| keeps_bowl / keeps_plate / keeps_between | bool | does the word appear in the text | True |
+| relation_word | str | the expression carrying the relation (`between`, `amid`, `separating`, `midway`) | `between` |
+| conversational / descriptive | bool | whether the R1 / R2 rule fired | True / False |
+| lowercase_changes | int | number of capital letters (characters that `.lower()` will change) | 1 |
+| text | str | raw `:language` text in the BDDL (no punctuation) | `Would you mind helping me by …` |
 
-## Uygulanan dönüşümler
-Yok; metinler BDDL'den olduğu gibi (büyük harfli). LIBERO-Plus eval sırasında `bddl.parsing.scan_tokens` tüm dosyayı `.lower()` yapar; modelin gördüğü hâl `text.lower()`'dır. Türkçe varyantlar baştan küçük harfle yazıldı (Ders 16 kuralı), bu yüzden onlarda dönüşüm etkisizdir.
+## Applied transformations
+None; the texts are as in the BDDL (with capital letters). During LIBERO-Plus eval `bddl.parsing.scan_tokens` applies `.lower()` to the whole file; what the model sees is `text.lower()`. The Turkish variants were written in lowercase from the start (Lecture 16 rule), so the transformation has no effect on them.
 
-## Bilinen sınırlılıklar
-- Tür etiketi kural tabanlı; sınır durumlar (ör. 11, 18, 21, 31, 46: `black bowl→dark bowl`, `plate→dish`) "R2 hafif" sayıldı — ikinci okuma Mesut'tan.
-- Yalnızca görev 0; öteki 9 Spatial görevinin 450 yeniden yazımı etiketlenmedi (script `--base N` ile üretir).
-- Türkçe varyantlar 5 görev × 2; init state 0 ile aynı sahne. Benchmark'a eklendiklerinde zorluk seviyeleri yok (4 referans modelle ölçülmedi).
-- 20 ve 44 numaralı yeniden yazımlar sahnede olmayan "a plate / another plate" ifadesi kullanıyor (tek tabak var) — LLM yeniden yazımının küçük bir sahne hatası.
+## Known limitations
+- The type label is rule-based; borderline cases (e.g. 11, 18, 21, 31, 46: `black bowl→dark bowl`, `plate→dish`) were counted as "R2 commonsense (light)" — second reading from Mesut.
+- Only task 0; the 450 rewrites of the other 9 Spatial tasks were not labeled (the script produces them with `--base N`).
+- The Turkish variants are 5 tasks × 2; the same scene as init state 0. Once added to the benchmark they have no difficulty levels (not measured with the 4 reference models).
+- Rewrites numbered 20 and 44 use the expression "a plate / another plate" that is not in the scene (there is a single plate) — a small scene error of the LLM rewrite.
 
-## Kullanım
+## Usage
 ```python
 import pandas as pd
 df = pd.read_csv("data/rewrites_task0.csv")
 df.groupby("type")[["words", "keeps_between"]].mean()
-df[df.in_benchmark & (df.difficulty == 1)][["k", "task_index", "type", "text"]]   # Ders 16'daki 988/994/995 burada
+df[df.in_benchmark & (df.difficulty == 1)][["k", "task_index", "type", "text"]]   # 988/994/995 from Lecture 16 are here
 ```
 
-## Değişiklik günlüğü
-- v0.1 — ilk sürüm (Ders 17): 50 etiketli satır, 10 Türkçe BDDL, perturbation tablosu.
+## Changelog
+- v0.1 — first version (Lecture 17): 50 labeled rows, 10 Turkish BDDLs, perturbation table.

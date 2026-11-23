@@ -1,170 +1,170 @@
-# Ders 16 — Faz 2 Sentezi + LIBERO-Plus: Ayrı Runtime, Komutun Kod Yolu, Boş-Komut Denemesi
+# Lecture 16 — Phase 2 Synthesis + LIBERO-Plus: A Separate Runtime, the Command's Code Path, an Empty-Command Trial
 
-**Faz 2 / Gün 16** · **Süre:** ~60 dk (okuma 35 + Colab kurulum/indirme 20 arka planda + eval 5)
-**Ön koşul:** Ders 3 (LIBERO-Plus'ın 7 bozulması), Ders 12 (VLANeXt T4 yamaları), Ders 13 (`task.language` nereden geliyor), Ders 15 (koşul tasarımı) · **Kod:** `code/day16/`
+**Phase 2 / Day 16** · **Time:** ~60 min (reading 35 + Colab setup/download 20 in the background + eval 5)
+**Prerequisite:** Lecture 3 (LIBERO-Plus's 7 perturbations), Lecture 12 (VLANeXt T4 patches), Lecture 13 (where `task.language` comes from), Lecture 15 (condition design) · **Code:** `code/day16/`
 
-> **Bugünün tek cümlesi:** LIBERO-Plus, LIBERO'nun yerine geçen aynı adlı (`libero`) bir paket olduğu için ayrı bir runtime'da `PYTHONPATH` ile kurulur; içindeki 10.030 görevin 1.537'si "Language" görevidir ve bunların komutu — orijinal LIBERO'nun aksine — dosya adından değil BDDL'in `(:language …)` alanından, **küçük harfe çevrilerek** okunur; bugün bu yolu izleyip VLANeXt'e aynı sahnede "yeniden yazılmış" ve "boş" komutu verecek boru hattını kuruyorsun.
+> **Today in one sentence:** Because LIBERO-Plus is a package with the same name (`libero`) that replaces LIBERO, it is installed in a separate runtime via `PYTHONPATH`; 1,537 of its 10,030 tasks are "Language" tasks, and their command is read — unlike in the original LIBERO — not from the file name but from the BDDL's `(:language …)` field, **after lowercasing**; today you follow this path and build the pipeline that will give VLANeXt a "rewritten" and an "empty" command in the same scene.
 
 ---
 
-## 1. Faz 2'nin haritası: iki boru hattı, tek soru
+## 1. The map of Phase 2: two pipelines, one question
 
-Ders 9'dan bu yana iki ayrı makine kurdun. İkisi aynı soruyu farklı derinlikte soruyor: *komut değişince davranış değişiyor mu?*
+Since Lecture 9 you have built two separate machines. Both ask the same question at different depths: *does behavior change when the command changes?*
 
-![Faz 2 sentezi](images/lecture-16/01-phase2-synthesis.png)
+![Phase 2 synthesis](images/lecture-16/01-phase2-synthesis.png)
 
-Mac tarafı **açık döngüdür**: tek bir kare, tek bir çağrı, 7 sayı (Ders 14–15). Ucuz, deterministik (greedy), saniyeler içinde 30 koşulu tarar; ama robot hiç hareket etmez, yani "action biraz farklı" ile "görev başarısız" arasındaki köprüyü kuramaz. Colab tarafı **kapalı döngüdür**: model 220 adıma kadar sahneyle etkileşir ve sonunda BDDL hedefi (`On akita_black_bowl_1 plate_1`) tutuyor mu diye bakılır (Ders 13). Pahalıdır (episode başına dakikalar), ama tezin asıl metriği budur.
+The Mac side is **open loop**: a single frame, a single call, 7 numbers (Lectures 14–15). It is cheap, deterministic (greedy), and scans 30 conditions in seconds; but the robot never moves, so it cannot build the bridge between "the action is slightly different" and "the task fails". The Colab side is **closed loop**: the model interacts with the scene for up to 220 steps and at the end we check whether the BDDL goal (`On akita_black_bowl_1 plate_1`) holds (Lecture 13). It is expensive (minutes per episode), but this is the thesis's real metric.
 
-Faz 2'nin bilançosu — bugün itibarıyla neyi ölçebiliyorsun, neyi ölçemiyorsun:
+The balance sheet of Phase 2 — as of today, what you can and cannot measure:
 
-| Ölçüm | Nerede | Model | Durum |
+| Measurement | Where | Model | Status |
 |---|---|---|---|
-| Tek kare 7-DoF action, 6 komut koşulu | Mac (MPS) | OpenVLA-7B Spatial (LoRA) | script hazır (Ders 15), koşu sende |
-| Komutun token sayısı / parçalanışı | her yerde | LLaMA-2 (ölçüldü), Qwen3-VL (Ders 13 görevi) | LLaMA-2 gerçek; Qwen3 sende |
-| Kapalı döngü success, LIBERO | Colab/Kaggle T4 | VLANeXt-B | notebook hazır (Ders 12) |
-| Kapalı döngü success, LIBERO-Plus, **komut override** (boş / temiz / TR) | Colab/Kaggle T4 | VLANeXt-B | **bugün** |
-| OpenVLA kapalı döngü | — | OpenVLA-7B | yok: Mac'te action başına ~1.5–3 s (Ders 14 hipotezi) × 220 adım; Ders 18'de karar |
-| VLANeXt tek kare action (Mac'teki ölçümün eşi) | — | VLANeXt-B | yok: script yazılmadı (flow-matching, MPS'te FA2 yok) |
-| İstatistiksel anlamlılık | — | — | yok: n=3–5 (Ders 15: n=5'te Wilcoxon min p = 0.0625) |
+| Single-frame 7-DoF action, 6 command conditions | Mac (MPS) | OpenVLA-7B Spatial (LoRA) | script ready (Lecture 15), the run is on you |
+| Token count / fragmentation of the command | everywhere | LLaMA-2 (measured), Qwen3-VL (Lecture 13 task) | LLaMA-2 real; Qwen3 is on you |
+| Closed-loop success, LIBERO | Colab/Kaggle T4 | VLANeXt-B | notebook ready (Lecture 12) |
+| Closed-loop success, LIBERO-Plus, **command override** (empty / clean / TR) | Colab/Kaggle T4 | VLANeXt-B | **today** |
+| OpenVLA closed loop | — | OpenVLA-7B | none: on the Mac ~1.5–3 s per action (Lecture 14 hypothesis) × 220 steps; decision in Lecture 18 |
+| VLANeXt single-frame action (the counterpart of the Mac measurement) | — | VLANeXt-B | none: script not written (flow-matching, no FA2 on MPS) |
+| Statistical significance | — | — | none: n=3–5 (Lecture 15: at n=5 the Wilcoxon min p = 0.0625) |
 
-Son üç satır Faz 3'ün işidir. Tez için önemli olan, iki boru hattının **aynı komut setini** (`datasets/01-libero-spatial-tr-mini/`) paylaşması: Ders 15'teki `sp0_tr` cümlesi bugün kapalı döngüde de koşulabilir (Bölüm 6, isteğe bağlı `tr` koşulu).
-
----
-
-## 2. LIBERO-Plus içeriden: 10.030 görev ve bir isim şeması
-
-Ders 3'te LIBERO-Plus'ı "aynı görevler, yedi bozulma" diye tanımlamıştık. Kodda bunun karşılığı tek bir JSON dosyası: `libero/libero/benchmark/task_classification.json`. Her suite için bir liste; her elemanda `id`, `name`, `category`, `difficulty_level`.
-
-![LIBERO-Plus görev haritası](images/lecture-16/02-task-map.png)
-
-`select_plus_tasks.py`'nin ilk çıktısı (gerçek):
-
-```
-libero_spatial  görev= 2402  json= 2402  id-1 == indeks: True
-libero_object   görev= 2518  json= 2518  id-1 == indeks: True
-libero_goal     görev= 2591  json= 2591  id-1 == indeks: True
-libero_10       görev= 2519  json= 2519  id-1 == indeks: True
-TOPLAM 10030 görev
-```
-
-Üç şey dikkatini çekmeli:
-
-**(a) Bozulmamış görev yok.** Spatial'ın 2402 görevinin hiçbiri orijinal LIBERO görevi değil; temel görev 0'ın (*between the plate and the ramekin*) bu listede 231 varyantı var, kendisi yok (`bozulmamış hali benchmark'ta var mı: False`). LIBERO-Plus'taki bir "success rate" bu yüzden her zaman *bozulma altında* başarıdır; temiz tabanı ayrıca (LIBERO'da) ölçmen gerekir. Bugünkü `clean` koşulu bu boşluğu aynı sahnede kapatmak için var (Bölüm 6).
-
-**(b) İsim = bozulmanın tarifi.** Görev adları `<temel görev>_<bozulma>_<parametreler>` biçiminde: `..._table_12` (arka plan dokusu), `..._light_…`, `..._language_5_view_0_0_100_0_0_initstate_0`. `env_wrapper.py:207-219` `_view_` sonrasını parçalayıp kamerayı (`yatay, dikey, ölçek/100, uç-dönüş, uç-dikey`) ve robot başlangıç pozunu (`initstate`) buradan kurar. Language görevlerinde parametre `0_0_100_0_0` ve `initstate_0`: yani kamera ölçeği 1.0, tüm açılar 0 — kodun `else` dalındaki varsayılanlarla birebir aynı. **Language görevi = temiz sahne + yalnızca komut değişmiş.** Deney tasarımı için bu çok değerli: komut dışında hiçbir şey oynamıyor.
-
-**(c) `id` 1 tabanlı, görev indeksi 0 tabanlı.** JSON'daki `id: 989` görevi `task_suite.get_task(988)`'dir. VLANeXt'in eval'i ve Ders 12'deki `VLANEXT_TASK_IDS` filtresi indeks kullanır. Script bunu dört suite'te de doğruladı (`id-1 == indeks: True`).
-
-**Zorluk seviyesi, görevin değil modellerin özelliğidir.** Makalenin Ek C.3'üne göre seviye, dört modelden (OpenVLA-OFT, π0, π0-fast, UniVLA) kaçının görevi çözdüğüdür: L1 = dördü de, L5 = hiçbiri.
-
-![Language görevlerinde zorluk dağılımı](images/lecture-16/04-language-difficulty.png)
-
-Goal'da Language görevlerinin %45'ini (185/410) dört modelden hiçbiri çözemiyor; Spatial'da bu oran %9 (35/390). Ders 12'de VLANeXt makalesinden gördüğün tablo da aynı şeyi söylüyordu: Language bozulması altında VLANeXt-B Spatial 86.9, Object 98.6, **Goal 51.5**, Long 90.3. Goal'da aynı sahnede birden çok görev var (çekmeceyi aç / kâseyi ocağa koy / …), yani sahneden görev tahmin edilemez — komut okunmak zorunda ve komut değişince model çöküyor. Object'te ise komut neredeyse gereksiz (Ders 3–4'teki kısayol). Spatial ikisinin arasında; tezin Spatial'a odaklanması bu yüzden riskli ama ilginç: mekânsal ifade sahnede iki kâseden hangisi olduğunu belirliyor, yine de modeller çoğu zaman başarılı. Bu "kâseyi init state'ten mi tahmin ediyor, ifadeyi mi okuyor" sorusu Ders 15'teki `distractor` koşulunun ta kendisi.
-
-Bir uyarı: L1–L5 etiketlerini "bu görev zordur" diye okursan döngüsel akıl yürütmeye düşersin — etiketler zaten belli modellerin başarısından türetildi. Bugünkü görev seçiminde L1'i "boru hattı çalışıyorsa VLANeXt'in de büyük ihtimalle çözmesi gereken görevler" diye kullanıyoruz; bir sonuç olarak değil, bir **duman testi** olarak.
+The last three rows are Phase 3's job. What matters for the thesis is that the two pipelines share **the same command set** (`datasets/01-libero-spatial-tr-mini/`): the `sp0_tr` sentence from Lecture 15 can also be run in closed loop today (Section 6, the optional `tr` condition).
 
 ---
 
-## 3. Komutun kod yolu: Ders 13'teki dosya-adı kuralı burada kırılıyor
+## 2. LIBERO-Plus from the inside: 10,030 tasks and a naming scheme
 
-Ders 13'te önemli bir bulgu çıkarmıştın: orijinal LIBERO'da `task.language` BDDL'in `:language` alanından değil **dosya adından** türüyor (alt çizgiler boşluğa). Temel görev 0'ın BDDL'inde `:language` aslında `Pick the akita black bowl between the plate and the ramekin and place it on the plate` yazıyor; modelin gördüğü ise dosya adından gelen `pick up the black bowl between the plate and the ramekin and place it on the plate`. LIBERO-Plus aynı fonksiyonu (`grab_language_from_filename`, `benchmark/__init__.py:46-72`) korumuş ama bir dal eklemiş:
+In Lecture 3 we defined LIBERO-Plus as "the same tasks, seven perturbations". In code the counterpart is a single JSON file: `libero/libero/benchmark/task_classification.json`. A list for each suite; in each element `id`, `name`, `category`, `difficulty_level`.
 
-![Language bozulmasının kod yolu](images/lecture-16/03-language-code-path.png)
+![LIBERO-Plus task map](images/lecture-16/02-task-map.png)
+
+The first output of `select_plus_tasks.py` (real):
+
+```
+libero_spatial  tasks= 2402  json= 2402  id-1 == index: True
+libero_object   tasks= 2518  json= 2518  id-1 == index: True
+libero_goal     tasks= 2591  json= 2591  id-1 == index: True
+libero_10       tasks= 2519  json= 2519  id-1 == index: True
+TOTAL 10030 tasks
+```
+
+Three things should catch your attention:
+
+**(a) There is no unperturbed task.** None of Spatial's 2402 tasks is an original LIBERO task; base task 0 (*between the plate and the ramekin*) has 231 variants in this list, itself is not there (`is the unperturbed version in the benchmark: False`). A "success rate" in LIBERO-Plus is therefore always success *under perturbation*; you need to measure the clean baseline separately (on LIBERO). Today's `clean` condition exists to close this gap in the same scene (Section 6).
+
+**(b) The name = the recipe of the perturbation.** Task names have the form `<base task>_<perturbation>_<parameters>`: `..._table_12` (background texture), `..._light_…`, `..._language_5_view_0_0_100_0_0_initstate_0`. `env_wrapper.py:207-219` splits what follows `_view_` and builds the camera (`horizontal, vertical, scale/100, tip-rotation, tip-vertical`) and the robot's initial pose (`initstate`) from it. In Language tasks the parameters are `0_0_100_0_0` and `initstate_0`: that is, camera scale 1.0, all angles 0 — exactly the same as the defaults in the code's `else` branch. **A Language task = a clean scene + only the command changed.** This is very valuable for experiment design: nothing but the command is moving.
+
+**(c) `id` is 1-based, the task index is 0-based.** The task with `id: 989` in the JSON is `task_suite.get_task(988)`. VLANeXt's eval and the `VLANEXT_TASK_IDS` filter from Lecture 12 use the index. The script verified this on all four suites (`id-1 == index: True`).
+
+**The difficulty level is a property of the models, not of the task.** According to the paper's Appendix C.3, the level is how many of four models (OpenVLA-OFT, π0, π0-fast, UniVLA) solve the task: L1 = all four, L5 = none.
+
+![Difficulty distribution of Language tasks](images/lecture-16/04-language-difficulty.png)
+
+On Goal, none of the four models can solve 45% (185/410) of the Language tasks; on Spatial this fraction is 9% (35/390). The table you saw from the VLANeXt paper in Lecture 12 said the same: under the Language perturbation VLANeXt-B scores Spatial 86.9, Object 98.6, **Goal 51.5**, Long 90.3. On Goal there are several tasks in the same scene (open the drawer / put the bowl on the stove / …), so the task cannot be guessed from the scene — the command has to be read, and when the command changes the model collapses. On Object, the command is almost unnecessary (the shortcut from Lectures 3–4). Spatial is in between; the thesis focusing on Spatial is therefore risky but interesting: the spatial expression determines which of the two bowls in the scene it is, yet models are mostly successful. This "does it guess the bowl from the init state, or read the expression" question is exactly the `distractor` condition from Lecture 15.
+
+A warning: if you read the L1–L5 labels as "this task is hard" you fall into circular reasoning — the labels were already derived from the success of certain models. In today's task selection we use L1 as "tasks that VLANeXt should probably solve too if the pipeline works"; not as a result, but as a **smoke test**.
+
+---
+
+## 3. The command's code path: the file-name rule from Lecture 13 breaks here
+
+In Lecture 13 you extracted an important finding: in the original LIBERO `task.language` is derived not from the BDDL's `:language` field but from the **file name** (underscores to spaces). In base task 0's BDDL the `:language` actually reads `Pick the akita black bowl between the plate and the ramekin and place it on the plate`; what the model sees comes from the file name: `pick up the black bowl between the plate and the ramekin and place it on the plate`. LIBERO-Plus kept the same function (`grab_language_from_filename`, `benchmark/__init__.py:46-72`) but added a branch:
+
+![Code path of the language perturbation](images/lecture-16/03-language-code-path.png)
 
 ```python
 def grab_language_from_filename(suite_name, x):
     if "_language_" not in x:
-        ...                                   # orijinal LIBERO: dosya adı → komut
+        ...                                   # original LIBERO: file name → command
         language = " ".join(x.split("_"))
     else:
         bddl_file_path = ... x.split("_view_")[0] + '.bddl'   # ..._language_5.bddl
         problem_info = BDDLUtils.get_problem_info(bddl_file_path)
-        return problem_info["language_instruction"]           # BDDL'in (:language ...) alanı
+        return problem_info["language_instruction"]           # the BDDL's (:language ...) field
 ```
 
-Yani **yalnızca `_language_` görevlerinde** komut BDDL'den okunur. Bunun üç sonucu var:
+So **only in `_language_` tasks** is the command read from the BDDL. This has three consequences:
 
-1. **Sahne birebir aynı.** `get_task_init_states` (`__init__.py:192-197`) adı `_language_`'den bölüp temel görevin `.pruned_init` dosyasını yükler; `diff` ile baktım, `..._language_{1,5,11,12}.bddl` dosyaları temel BDDL'den yalnızca `:language` satırında ayrılıyor. Hedef de aynı: `(:goal (And (On akita_black_bowl_1 plate_1)))`. Komut "kâseyi tabağa koy" demese bile başarı ölçütü değişmiyor — bu da Bölüm 6'daki `empty` koşulunun neden anlamlı olduğunu açıklar.
-2. **Varyantlar seçici.** Görev 0 için BDDL klasöründe 50 dil dosyası var ama benchmark'a 46'sı girmiş (16, 17, 29, 35 yok); eksiklerin nedeni kodda/makalede yazmıyor.
-3. **Türkçe varyant eklemenin doğal yeri burası.** Tez için bir `..._language_tr1.bddl` dosyası yazıp task map'e eklemek, LIBERO-Plus'ın kendi protokolüyle tam uyumlu bir "Türkçe bozulma" üretir. Ama önce ayrıştırıcının Türkçe'ye ne yaptığına bakmak lazım (Bölüm 4).
+1. **The scene is exactly the same.** `get_task_init_states` (`__init__.py:192-197`) splits the name at `_language_` and loads the base task's `.pruned_init` file; I checked with `diff`, the `..._language_{1,5,11,12}.bddl` files differ from the base BDDL only in the `:language` line. The goal is the same too: `(:goal (And (On akita_black_bowl_1 plate_1)))`. Even if the command does not say "put the bowl on the plate", the success criterion does not change — this also explains why the `empty` condition in Section 6 is meaningful.
+2. **Variants are selective.** For task 0 there are 50 language files in the BDDL folder but 46 entered the benchmark (16, 17, 29, 35 are missing); the reason for the missing ones is not written in the code or the paper.
+3. **This is the natural place to add a Turkish variant.** Writing a `..._language_tr1.bddl` file and adding it to the task map for the thesis would produce a "Turkish perturbation" fully compatible with LIBERO-Plus's own protocol. But first we need to look at what the parser does to Turkish (Section 4).
 
-Makalenin Ek A.6'sına göre yeniden yazımlar bir LLM ile üç alt türde üretilmiş: **R1 dikkat dağıtma** (sohbet havası, alakasız bağlam), **R2 sağduyu betimlemesi** (nesne adı yerine tarif), **R3 akıl yürütme zinciri**. Görev 0'ın gerçek varyantlarından örnekler (BDDL'den; noktalama yazarlarca silinmiş):
+According to the paper's Appendix A.6 the rewrites were produced by an LLM in three subtypes: **R1 distraction** (chatty tone, irrelevant context), **R2 commonsense description** (a description instead of the object's name), **R3 reasoning chain**. Examples from the real variants of task 0 (from the BDDL; punctuation stripped by the authors):
 
-| no | metin (kısaltılmış) | tür (benim okumam) |
+| no | text (abridged) | type (my reading) |
 |---|---|---|
 | 5 | *would you mind helping me by picking up the black bowl between the plate and ramekin …* | R1 |
 | 27 | *before our guests arrive please pick up the black bowl …* | R1 |
 | 1 | *grasp the darkhued rounded container situated between the flat dish used for serving food and the small glazed ceramic dish …* | R2 |
-| 11 | *lift the dark bowl situated between the dish and the ramekin and set it on the plate* | R2 (hafif) |
+| 11 | *lift the dark bowl situated between the dish and the ramekin and set it on the plate* | R2 (mild) |
 
-Dikkat: tür etiketi JSON'da **yok**; sütun yalnızca `category: Language Instructions`. Yukarıdaki türler benim okumam, hipotezdir. 46 metni türlerine ayırmak Ders 17'nin işi — ve tezin için önemli, çünkü R2 tam olarak "kelimeyi tanımıyorsa nesneyi bulabilir mi" sorusudur (Türkçe'deki *kâse/kase*, *ramekin* gibi).
+Note: the type label is **not** in the JSON; the column only has `category: Language Instructions`. The types above are my reading, a hypothesis. Separating the 46 texts into types is Lecture 17's job — and important for your thesis, because R2 is exactly the question "if it does not recognize the word, can it still find the object?" (like Turkish *kâse/kase*, *ramekin*).
 
 ---
 
-## 4. Türkçe için tuzak: BDDL ayrıştırıcısı metni değiştiriyor
+## 4. A trap for Turkish: the BDDL parser changes the text
 
-`get_problem_info`, `bddl.parsing.scan_tokens`'ı çağırır. Bu fonksiyonun (bddl 1.0.1, `parsing.py:14-41`) iki satırı Türkçe için kritik:
+`get_problem_info` calls `bddl.parsing.scan_tokens`. Two lines of this function (bddl 1.0.1, `parsing.py:14-41`) are critical for Turkish:
 
 ```python
-str = re.sub(r';.*$', '', raw_str, flags=re.MULTILINE).lower()   # ';' sonrası yorum + tüm dosya küçük harf
-for t in re.findall(r'[()]|[^\s()]+', str): ...                  # parantez = yapı, kelimeler boşlukla ayrılır
+str = re.sub(r';.*$', '', raw_str, flags=re.MULTILINE).lower()   # comment after ';' + the whole file lowercased
+for t in re.findall(r'[()]|[^\s()]+', str): ...                  # parenthesis = structure, words are separated by whitespace
 ```
 
-ve `bddl_utils.py:83` kelimeleri `" ".join(...)` ile geri birleştirir. Gerçek paketle koşturduğum `bddl_lang_probe.py` çıktısı:
+and `bddl_utils.py:83` joins the words back with `" ".join(...)`. The output of `bddl_lang_probe.py`, which I ran with the real package:
 
-![BDDL ayrıştırıcısı ve Türkçe](images/lecture-16/05-bddl-turkish-probe.png)
+![BDDL parser and Turkish](images/lecture-16/05-bddl-turkish-probe.png)
 
-Okuma:
+Reading:
 
-- **Büyük `I` → `i`.** Python'un `str.lower()` dil-bağımsızdır (Unicode varsayılan eşlemesi): `Işığın` → `işığın`. Türkçe'de bu başka bir kelimedir. Tokenizer'a giden metin artık yazım hatalı.
-- **Büyük `İ` → `i` + U+0307.** `İki` → `i̇ki`: görünüşte aynı, ama araya bir *birleşik nokta* karakteri giriyor. LLaMA-2 ya da Qwen3 tokenizer'ı için bu, eğitimde neredeyse hiç görülmemiş bir bayt dizisi (hipotez: ek token(lar) ve tuhaf bölünme; Ders 21'de sayacağız).
-- **`;` komutu siler, `(` yapıyı bozar.** `kâseyi al; tabağa koy` → `;` sonrası kapanış parantezleriyle birlikte yorum sayılır → `Missing close parenthesis`. `kâseyi (siyah olanı) tabağa koy` → iç içe liste → `TypeError`. İkisi de görev yüklenirken patlar; sessiz hata değil ama veri seti hazırlarken bilmen gerek.
-- **Kesme işareti ve `â` sorunsuz.** `ramekin'in`, `kâseyi` aynen geçiyor.
+- **Capital `I` → `i`.** Python's `str.lower()` is language-independent (the default Unicode mapping): `Işığın` → `işığın`. In Turkish this is a different word. The text going to the tokenizer now has a spelling error.
+- **Capital `İ` → `i` + U+0307.** `İki` → `i̇ki`: looks the same, but a *combining dot* character is inserted. For the LLaMA-2 or Qwen3 tokenizer this is a byte sequence almost never seen in training (hypothesis: extra token(s) and odd splitting; we will count it in Lecture 21).
+- **`;` deletes the command, `(` breaks the structure.** `kâseyi al; tabağa koy` ("take the bowl; put it on the plate") → everything after `;` counts as a comment together with the closing parentheses → `Missing close parenthesis`. `kâseyi (siyah olanı) tabağa koy` ("put the bowl (the black one) on the plate") → nested list → `TypeError`. Both blow up when the task is loaded; not a silent error but you need to know it when preparing the dataset.
+- **The apostrophe and `â` pass without trouble.** `ramekin'in` ("of the ramekin"), `kâseyi` pass through unchanged.
 
-Kural (Türkçe BDDL varyantı yazacaksan): **komutu doğrudan küçük harfle yaz**, `;` ve parantez kullanma. Bu, LIBERO-Plus'ın İngilizce varyantlarında da yapılmış (noktalama silinmiş, `Its`, `isnt`). Bir de şu: dosyalar `open(filename, 'r')` ile kodlama belirtilmeden okunuyor — Colab ve macOS'te varsayılan UTF-8 olduğu için sorun yok, Windows'ta olabilir (hipotez).
+Rule (if you will write a Turkish BDDL variant): **write the command directly in lowercase**, do not use `;` and parentheses. This was also done in LIBERO-Plus's English variants (punctuation stripped, `Its`, `isnt`). One more thing: the files are read with `open(filename, 'r')` without specifying an encoding — no problem on Colab and macOS since the default is UTF-8, but it may be on Windows (hypothesis).
 
-Bugünkü deneyde bu yoldan geçmiyoruz: Türkçe komutu `VLANEXT_INSTR_OVERRIDE` ile doğrudan `spec.task_description`'a veriyoruz (Bölüm 5, yama 2), yani lowercasing uygulanmıyor. İki yolun farkı tezde bir metodoloji cümlesi olmalı: "Türkçe komutlar BDDL yerine eval katmanında enjekte edildi; büyük/küçük harf korunur."
+In today's experiment we do not go through this path: we give the Turkish command directly to `spec.task_description` with `VLANEXT_INSTR_OVERRIDE` (Section 5, patch 2), so lowercasing is not applied. The difference between the two paths should be a methodology sentence in the thesis: "Turkish commands were injected in the eval layer instead of the BDDL; letter case is preserved."
 
 ---
 
-## 5. Neden ayrı runtime ve nasıl: `PYTHONPATH` ile seçilen `libero`
+## 5. Why a separate runtime and how: the `libero` selected via `PYTHONPATH`
 
-LIBERO-Plus README'si "orijinal LIBERO'yu kaldır, yerine bunu kur" diyor; VLANeXt README'si "LIBERO-plus için ayrı bir env (`codebase-plus`) aç" diyor. Neden?
+The LIBERO-Plus README says "remove the original LIBERO, install this one instead"; the VLANeXt README says "open a separate env (`codebase-plus`) for LIBERO-plus". Why?
 
-1. **Aynı paket adı.** İkisi de `import libero` ile içe aktarılır. Ders 12'nin runtime'ında `pip install ./third_party/LIBERO` yapılmıştı; aynı runtime'a LIBERO-Plus'ı kurarsan hangisinin import edileceği site-packages sırasına kalır. LeRobot dokümantasyonu da LIBERO-Plus'ın `hf-libero` ile **bir arada yaşayamayacağını** yazıyor.
-2. **Ayrı config.** `libero/libero/__init__.py` yolları `LIBERO_CONFIG_PATH/config.yaml`'dan okur (varsayılan `~/.libero`). Config'teki `assets` yolu yanlış kopyayı gösterirse LIBERO-Plus sahnesi orijinal asset'lerle (yeni nesneler/dokular olmadan) yüklenmeye çalışır. VLANeXt bu yüzden `~/.libero_plus` öneriyor. Config yoksa kod `input()` ile soru sorar → notebook donar (Ders 12'deki `printf 'N\n'` hilesi).
-3. **Ek bağımlılıklar.** `env_wrapper.py` görüntü bozulmaları (sensör gürültüsü) için `wand` (ImageMagick) ve `scikit-image` import eder; sistem tarafında `libmagickwand-dev`. `extra_requirements.txt`'teki `usd-core` ise eval import zincirinde geçmiyor (depoda `pxr` import'u yok; yalnızca dosya yollarında "usd" kelimesi) — kurmuyoruz.
+1. **The same package name.** Both are imported with `import libero`. In Lecture 12's runtime `pip install ./third_party/LIBERO` was done; if you install LIBERO-Plus into the same runtime, which one gets imported is left to the site-packages order. The LeRobot documentation also says LIBERO-Plus **cannot coexist** with `hf-libero`.
+2. **A separate config.** `libero/libero/__init__.py` reads the paths from `LIBERO_CONFIG_PATH/config.yaml` (default `~/.libero`). If the `assets` path in the config points to the wrong copy, the LIBERO-Plus scene tries to load with the original assets (without the new objects/textures). This is why VLANeXt recommends `~/.libero_plus`. If there is no config, the code asks a question with `input()` → the notebook freezes (the `printf 'N\n'` trick from Lecture 12).
+3. **Extra dependencies.** `env_wrapper.py` imports `wand` (ImageMagick) and `scikit-image` for image perturbations (sensor noise); on the system side `libmagickwand-dev`. `usd-core` in `extra_requirements.txt` is not in the eval import chain (there is no `pxr` import in the repo; only the word "usd" in file paths) — we do not install it.
 
-Colab'da conda yok; "ayrı env"in en ucuz karşılığı **yeni bir notebook runtime'ı** (her runtime temiz bir VM). Notebook'ta LIBERO-Plus'ı pip'e hiç kurmuyoruz; VLANeXt'in kendi eval komutu gibi `PYTHONPATH=third_party/LIBERO-plus` ile seçiyoruz. Depoda üst düzey `libero/__init__.py` yok (namespace paket), bu yüzden `PYTHONPATH` yeterli; duman testi (hücre 8) `libero.__path__`'i basarak doğru kopyanın yüklendiğini kanıtlar.
+There is no conda on Colab; the cheapest counterpart of a "separate env" is **a new notebook runtime** (each runtime is a clean VM). In the notebook we do not pip-install LIBERO-Plus at all; like VLANeXt's own eval command we select it with `PYTHONPATH=third_party/LIBERO-plus`. There is no top-level `libero/__init__.py` in the repo (a namespace package), so `PYTHONPATH` is enough; the smoke test (cell 8) proves the right copy was loaded by printing `libero.__path__`.
 
-**Disk bütçesi** (Colab ~78 GB): checkpoint 16.4 GB (Ders 12) + `assets.zip` **6.4 GB** (HF dataset sayfası) + açılmış asset'ler (boyutu bilinmiyor; hücre 6 `du -sh` ile ölçer — hipotez: zip'ten büyük) + Qwen3-VL-2B ~4.5 GB. Zip'i açtıktan sonra silmek bu yüzden notebook'ta.
+**Disk budget** (Colab ~78 GB): checkpoint 16.4 GB (Lecture 12) + `assets.zip` **6.4 GB** (HF dataset page) + extracted assets (size unknown; cell 6 measures it with `du -sh` — hypothesis: larger than the zip) + Qwen3-VL-2B ~4.5 GB. This is why deleting the zip after extracting it is in the notebook.
 
-**Yamalar.** Ders 12'nin üç yaması (sdpa, `mmap=True`, `VLANEXT_TASK_IDS`) LIBERO-Plus eval'inde de geçerli, çünkü `scripts/libero_plus_bench_eval.py` aynı `build_episode_specs`'i kullanıyor (yalnızca `category_fn` ekli). Üstüne beş yama (`vlanext_plus_patch.py`):
+**Patches.** Lecture 12's three patches (sdpa, `mmap=True`, `VLANEXT_TASK_IDS`) also apply to the LIBERO-Plus eval, because `scripts/libero_plus_bench_eval.py` uses the same `build_episode_specs` (only a `category_fn` is added). On top of that, five patches (`vlanext_plus_patch.py`):
 
-| # | Sorun | Kanıt | Yama |
+| # | Problem | Evidence | Patch |
 |---|---|---|---|
-| 1 | `task_classification.json` yolu yazarların sunucusuna sabit: `/data/NTU_slab/draven/proj/...`; bulamayınca yalnızca warning, kategori istatistiği boş | `libero_plus_bench_eval.py:102` | `LIBERO_PLUS_ROOT` ortam değişkeni |
-| 2 | Komutu değiştirmenin yolu yok | `parallel_eval_utils.py:55` `task_description = task.language` | `VLANEXT_INSTR_OVERRIDE` (tanımlıysa, `""` dahil, o string) |
-| 3 | Her koşu aynı çıktı klasörüne yazar (videolar karışır) | `libero_plus_bench_eval.py:76-81` | `VLANEXT_RUN_TAG` klasör adına eklenir |
-| 4 | Log'da hangi komutla koşulduğu yazmıyor | — | `Instruction override: …` satırı |
-| 5 | `np.float_` numpy 2'de yok | LIBERO-plus `env_wrapper.py:105`; VLANeXt COMMON_ISSUES #3 | `np.float64` |
+| 1 | The path of `task_classification.json` is hard-coded to the authors' server: `/data/NTU_slab/draven/proj/...`; if not found it is only a warning, the category statistics are empty | `libero_plus_bench_eval.py:102` | `LIBERO_PLUS_ROOT` environment variable |
+| 2 | There is no way to change the command | `parallel_eval_utils.py:55` `task_description = task.language` | `VLANEXT_INSTR_OVERRIDE` (if defined, including `""`, that string) |
+| 3 | Every run writes to the same output folder (videos get mixed) | `libero_plus_bench_eval.py:76-81` | `VLANEXT_RUN_TAG` is appended to the folder name |
+| 4 | The log does not say which command it was run with | — | an `Instruction override: …` line |
+| 5 | `np.float_` does not exist in numpy 2 | LIBERO-plus `env_wrapper.py:105`; VLANeXt COMMON_ISSUES #3 | `np.float64` |
 
-Dikkat: `VLANEXT_TASK_IDS` filtresi olmadan eval **2402 görevin hepsini** sıraya koyar (her biri 1 episode) ve başlarken her görevin init state dosyasını yükler. Filtre bu yüzden burada Ders 12'dekinden de önemli.
+Note: without the `VLANEXT_TASK_IDS` filter the eval queues **all 2402 tasks** (1 episode each) and loads each task's init state file at the start. This is why the filter is even more important here than in Lecture 12.
 
 ---
 
-## 6. Bugünkü deney: aynı sahne, üç komut
+## 6. Today's experiment: the same scene, three commands
 
-Notebook: <https://colab.research.google.com/github/mesutd0nmez/vla-robot-learning-tr/blob/main/code/day16/colab_libero_plus_t4.ipynb> (Kaggle önerisi Ders 12'deki gibi geçerli: 29 GB RAM).
+Notebook: <https://colab.research.google.com/github/mesutd0nmez/vla-robot-learning-tr/blob/main/code/day16/colab_libero_plus_t4.ipynb> (the Kaggle recommendation from Lecture 12 applies: 29 GB RAM).
 
-**Görev seçimi** (gerçek çıktı, `select_plus_tasks.py --base 0 --category Language --pick 3`):
+**Task selection** (real output, `select_plus_tasks.py --base 0 --category Language --pick 3`):
 
 ```
-temel görev 0: pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate
-  bu görevin varyantları (Language Instructions): 46  | bozulmamış hali benchmark'ta var mı: False
-  zorluk dağılımı: {1: 11, 2: 15, 3: 15, 4: 5}
+base task 0: pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate
+  variants of this task (Language Instructions): 46  | is the unperturbed version in the benchmark: False
+  difficulty distribution: {1: 11, 2: 15, 3: 15, 4: 5}
 
-indeks zorluk  komut (LIBERO-Plus'ın modele verdiği hâl)
+index difficulty command (as LIBERO-Plus gives it to the model)
    988      1  would you mind helping me by picking up the black bowl between the plate and ramekin and placing it on the plate
    994      1  lift the dark bowl situated between the dish and the ramekin and set it on the plate
    995      1  would you be so kind as to pick up the black bowl thats between the plate and ramekin and place it on the plate
@@ -172,74 +172,74 @@ indeks zorluk  komut (LIBERO-Plus'ın modele verdiği hâl)
 VLANEXT_TASK_IDS="988,994,995"
 ```
 
-Üç görev, **aynı sahne, aynı init state (0), aynı hedef**; yalnızca komut farklı. Her koşul 3 episode:
+Three tasks, **the same scene, the same init state (0), the same goal**; only the command differs. Each condition is 3 episodes:
 
-| koşul | `VLANEXT_INSTR_OVERRIDE` | ne ölçer |
+| condition | `VLANEXT_INSTR_OVERRIDE` | what it measures |
 |---|---|---|
-| `rewritten` | tanımsız | LIBERO-Plus'ın kendi Language bozulması (L1: dört modelin dördü çözmüş) |
-| `empty` | `""` | dilsiz taban — Ders 4/15'teki boş-komut koşulunun kapalı döngü hâli |
-| `clean` (isteğe bağlı) | orijinal LIBERO komutu | temiz taban; Bölüm 2(a)'daki boşluğu aynı sahnede kapatır |
-| `tr` (isteğe bağlı) | `sp0_tr` (Ders 15 veri seti) | Türkçe; büyük/küçük harf korunur |
+| `rewritten` | undefined | LIBERO-Plus's own Language perturbation (L1: all four models solved it) |
+| `empty` | `""` | language-free floor — the closed-loop version of the empty-command condition from Lectures 4/15 |
+| `clean` (optional) | the original LIBERO command | clean baseline; closes the gap in Section 2(a) in the same scene |
+| `tr` (optional) | `sp0_tr` (Lecture 15 dataset) | Turkish; letter case is preserved |
 
-Dikkat: bu tasarımda üç "görev" aslında aynı episode'un üç tekrarıdır (aynı init state) — `empty` ve `clean` koşullarında üç episode arasındaki tek fark, flow-matching'in başlangıç gürültüsü ve paralel env'lerin tohumları. Yani `empty`'de 3/3 görürsen bu "üç farklı durumda başarılı" değil, "aynı durumda üç kez başarılı" demektir. Bu bir kusur değil, bir seçim: bugünün amacı boru hattı ve komut enjeksiyonu; init state çeşitliliği (50 init × koşul) Ders 18'in tasarımı.
+Note: in this design the three "tasks" are actually three repeats of the same episode (same init state) — in the `empty` and `clean` conditions the only difference among the three episodes is flow-matching's initial noise and the seeds of the parallel envs. So if you see 3/3 in `empty`, this does not mean "successful in three different situations" but "successful three times in the same situation". This is not a flaw, it is a choice: today's goal is the pipeline and command injection; init-state diversity (50 inits × condition) is Lecture 18's design.
 
-**Nasıl okuyacaksın?** Ders 15'teki ağacın kapalı döngü hâli:
+**How will you read it?** The closed-loop version of the tree in Lecture 15:
 
-- `empty` ≈ `rewritten` ≈ yüksek → bu sahnede VLANeXt komutu okumadan görevi çözebiliyor (init state'te hedef kâse belirgin; LIBERO-Plus'ın "language ignorance" bulgusu). Türkçe sonucu bu sahnede **bilgi taşımaz**; distractor tasarımına (Ders 15) ya da Goal suite'e geçmek gerekir.
-- `empty` belirgin düşük, `rewritten` yüksek → komut gerçekten kullanılıyor ve yeniden yazım onu bozmuyor; şimdi `tr`'nin `empty`'ye mi `rewritten`'a mı yakın olduğu tezin sorusudur.
-- n=3 olduğu için hiçbir dal "sonuç" değildir; Ders 12'deki Wilson aralığını hatırla: 3/3 bile gerçek oranın yalnızca %44'ün üstünde olduğunu söyler, 2/3 ise 21–94 arası. Cümleni "3 episode'da …" diye kur.
+- `empty` ≈ `rewritten` ≈ high → in this scene VLANeXt can solve the task without reading the command (the target bowl is prominent in the init state; LIBERO-Plus's "language ignorance" finding). The Turkish result in this scene **carries no information**; one needs to move to the distractor design (Lecture 15) or the Goal suite.
+- `empty` clearly low, `rewritten` high → the command is truly used and the rewrite does not break it; now whether `tr` is closer to `empty` or to `rewritten` is the thesis's question.
+- Since n=3, no branch is a "result"; remember the Wilson interval from Lecture 12: even 3/3 only says the true rate is above 44%, and 2/3 is 21–94. Phrase your sentence as "in 3 episodes …".
 
-Literatür ne bekletiyor? LIBERO-Plus makalesi (§4.1) OpenVLA-OFT'de komut boşaltılınca Object'te performansın "büyük ölçüde değişmediğini", belirgin düşüşün yalnızca Long'da olduğunu yazıyor (sayılar yalnızca Şekil 3a'da; metinde yok). Liderlik tablosu da aynı yöne işaret ediyor:
+What does the literature lead us to expect? The LIBERO-Plus paper (§4.1) writes that when the command is emptied in OpenVLA-OFT, performance on Object "does not change much", and a clear drop occurs only on Long (the numbers are only in Figure 3a; not in the text). The leaderboard points the same way:
 
-![LIBERO-Plus liderlik tablosu](images/lecture-16/06-leaderboard-language.png)
+![LIBERO-Plus leaderboard](images/lecture-16/06-leaderboard-language.png)
 
-11 modelin 10'unda Language bozulması, diğer altı bozulmanın ortalamasından **daha az** zarar veriyor; NORA'da Language 7 bozulmanın en kolayı, π0-Fast tek istisna. İki okuma mümkün: ya modeller yeniden yazılmış komutu sağlam biçimde anlıyor, ya da komutu zaten az kullanıyorlar. Tablo bunları ayırt edemez — `empty` koşulu ayırt eder. Ders 3'te "Language'ın az zarar vermesi iyi haber mi?" diye sormuştun; bugün o soruyu ölçebilecek araca sahipsin.
+In 10 of 11 models, the Language perturbation does **less** harm than the average of the other six perturbations; for NORA, Language is the easiest of the 7 perturbations, π0-Fast is the only exception. Two readings are possible: either the models robustly understand the rewritten command, or they use the command little anyway. The table cannot tell them apart — the `empty` condition does. In Lecture 3 you asked "is it good news that Language does little harm?"; today you have the tool that can measure that question.
 
-Tez bağlantısı: Chen vd. (2606.15714, Ders 15) OpenVLA-OFT'de "komut yok" düşüşünün yabancı dil düşüşüne neredeyse eşit olduğunu bulmuştu (−27.5 vs −27.8…−29.8). `empty` ve `tr`'yi aynı sahnede koşmak, bu bulgunun **VLANeXt (Qwen3-VL, çok dilli omurga)** için doğru olup olmadığının ilk kapalı döngü işaretini verir — omurga Türkçe'yi anlıyorsa `tr` `empty`'den ayrışmalı (hipotez).
-
----
-
-## 7. Yazılımcı için köprüler
-
-- **İki `libero` = aynı assembly adı, iki sürüm.** .NET'te aynı ada sahip iki DLL'i aynı `bin/` klasörüne koyamazsın; ya ayrı süreç (ayrı runtime) ya da açık yükleme yolu (`AssemblyLoadContext` ≈ `PYTHONPATH`) seçersin. Biz ikincisini, ayrı VM ile birlikte kullanıyoruz.
-- **`LIBERO_CONFIG_PATH` = ortam bazlı `appsettings.{Environment}.json`.** Aynı kod, farklı config dizini; yanlış dizin, yanlış veritabanına bağlanan bir servis gibi sessizce yanlış asset'leri yükler.
-- **Görev adında bozulma parametreleri = convention over configuration.** `..._view_0_0_100_0_0_initstate_0` bir route template gibi parse ediliyor (`env_wrapper.py:207`). Kırılgan ama okunaklı; yeni bir Türkçe varyant eklerken aynı şablona uymak zorundasın.
-- **`id` 1 tabanlı / indeks 0 tabanlı = DB primary key vs liste indeksi.** `Id == index + 1` varsayımını bir kez doğrulamak (script dört suite'te yaptı), sonra tek yerde dönüştürmek.
-- **`scan_tokens`'ın `.lower()`'ı = `ToLowerInvariant()` vs `ToLower(new CultureInfo("tr-TR"))`.** "Turkish I problem" .NET'çilerin bildiği klasik: `"TITLE".ToLower()` Türk kültüründe `"tıtle"` olur. Burada tersi: kültür-bağımsız küçültme Türkçe metni bozuyor. Python'da Türkçe'ye duyarlı `lower()` yok; çözüm veriyi baştan küçük harfle üretmek.
-- **`VLANEXT_INSTR_OVERRIDE` = feature flag.** Kodu dallandırmadan davranışı ortam değişkeniyle değiştiriyoruz; varsayılan (tanımsız) orijinal davranış, yani yama "kapalıyken" upstream ile birebir aynı.
+Thesis connection: Chen et al. (2606.15714, Lecture 15) found that on OpenVLA-OFT the "no instruction" drop is almost equal to the foreign-language drop (−27.5 vs −27.8…−29.8). Running `empty` and `tr` in the same scene gives the first closed-loop indication of whether this finding holds for **VLANeXt (Qwen3-VL, multilingual backbone)** — if the backbone understands Turkish, `tr` should separate from `empty` (hypothesis).
 
 ---
 
-## 8. Bugünün görevi (15 dk)
+## 7. Bridges for the software developer
 
-Notebook'u yeni bir runtime'da koş (kurulum + indirme arka planda ~20 dk; hipotez). Hücre 8'in (duman testi) çıktısını, hücre 6'nın `du -sh` satırını ve en az `rewritten` + `empty` koşullarının `parse_plus_log.py` tablolarını al. `projects/04-libero-plus-kurulum/` klasörünü `projects/_template`'ten aç; README'ye (1) her hücrenin süresi, (2) asset'lerin açılmış boyutu, (3) iki koşulun 3'er episode'luk tablosu ve Bölüm 6'daki hangi dalda olduğun (tek paragraf, "3 episode'da …" diye), (4) bir başarısız episode videosunun bir cümlelik teşhisi; `results/runs.csv`'yi aynı klasöre koy. Vaktin kalırsa hücre 10b'yi (`clean`, `tr`) de koş. `projects/README.md` tablosuna satır ekle.
+- **Two `libero`s = the same assembly name, two versions.** In .NET you cannot put two DLLs with the same name in the same `bin/` folder; you choose either a separate process (a separate runtime) or an explicit load path (`AssemblyLoadContext` ≈ `PYTHONPATH`). We use the second together with a separate VM.
+- **`LIBERO_CONFIG_PATH` = environment-based `appsettings.{Environment}.json`.** Same code, different config directory; the wrong directory silently loads the wrong assets, like a service connecting to the wrong database.
+- **Perturbation parameters in the task name = convention over configuration.** `..._view_0_0_100_0_0_initstate_0` is parsed like a route template (`env_wrapper.py:207`). Fragile but readable; when adding a new Turkish variant you must conform to the same template.
+- **`id` 1-based / index 0-based = DB primary key vs list index.** Verify the `Id == index + 1` assumption once (the script did this on four suites), then convert in a single place.
+- **`scan_tokens`'s `.lower()` = `ToLowerInvariant()` vs `ToLower(new CultureInfo("tr-TR"))`.** The "Turkish I problem" is a classic known to .NET developers: `"TITLE".ToLower()` becomes `"tıtle"` in the Turkish culture. Here it is the reverse: culture-independent lowering breaks Turkish text. There is no Turkish-aware `lower()` in Python; the fix is to produce the data in lowercase from the start.
+- **`VLANEXT_INSTR_OVERRIDE` = a feature flag.** We change behavior with an environment variable without branching the code; the default (undefined) is the original behavior, i.e. with the patch "off" it is exactly the same as upstream.
 
-## Takılırsan
+---
 
-| Belirti | Çözüm |
+## 8. Today's task (15 min)
+
+Run the notebook in a new runtime (setup + download in the background ~20 min; hypothesis). Take the output of cell 8 (smoke test), the `du -sh` line of cell 6 and the `parse_plus_log.py` tables of at least the `rewritten` + `empty` conditions. Open the folder `projects/04-libero-plus-kurulum/` from `projects/_template`; in the README put (1) the duration of each cell, (2) the extracted size of the assets, (3) the 3-episode tables of the two conditions and which branch of Section 6 you are in (one paragraph, phrased as "in 3 episodes …"), (4) a one-sentence diagnosis of one failed episode's video; put `results/runs.csv` in the same folder. If time remains, run cell 10b (`clean`, `tr`) as well. Add a row to the `projects/README.md` table.
+
+## If you get stuck
+
+| Symptom | Fix |
 |---|---|
-| Hücre 3/4'te "Do you want to specify a custom path…" ve hücre donuyor | Config yazılmadan `libero` import edildi. Hücre 4'ü çalıştırdığından ve `LIBERO_CONFIG_PATH` boş string olmadığından emin ol (COMMON_ISSUES #6) |
-| Duman testinde `libero yolu` `/usr/local/lib/python3…/site-packages/…` gösteriyor | Bu runtime'da orijinal LIBERO pip'le kurulu (Ders 12 runtime'ını yeniden kullandın). Çalışma zamanını **sil ve yeniden başlat** (Disconnect and delete runtime) |
-| `ImportError: MagickWand shared library not found` | Hücre 2'deki `libmagickwand-dev` kurulmamış; `!apt-get install -y libmagickwand-dev` ve kernel'i yeniden başlat |
-| `hf download` 401/403 | Dataset herkese açık (MIT) ama HF bazen giriş ister: `!hf auth login` (token Read yetkili) |
-| `No space left on device` (asset açılırken) | `assets.zip` silinmeden önce disk dolmuş: Ders 12'nin checkpoint'i bu runtime'da yoksa sorun olmamalı; `!df -h /` ile bak, zip'i `/content` yerine `/tmp`'ye indirip oradan aç |
-| Eval: `AttributeError: module 'numpy' has no attribute 'float_'` | Yama 5 uygulanmamış: `python vlanext_plus_patch.py /content/VLANeXt` çıktısında `np.float_` satırına bak |
-| Eval: `Task classification file not found` warning | Yama 1 uygulanmadı ya da `LIBERO_PLUS_ROOT` tanımlı değil; sonuç yine doğru, yalnızca kategori satırı `None` olur |
-| Eval tüm 2402 görevi sıraya koyuyor (`total_episodes=…/2402`) | `VLANEXT_TASK_IDS` alt sürece geçmedi; `run()` fonksiyonunu kullan ya da komutun başına `VLANEXT_TASK_IDS=988,994,995` yaz. Ders 12 yaması uygulanmış mı kontrol et |
-| `parse_plus_log.py`: "Episode result satırı yok" | Model yüklenirken düştü: `stdout_<koşul>.txt`'nin son 40 satırını chat'e yapıştır (çoğunlukla RAM — Kaggle'a geç) |
-| `empty` koşulunda video dosya adı `task=.mp4` | Normal: `save_rollout_video` adı komuttan üretir; komut boş |
+| In cell 3/4 "Do you want to specify a custom path…" and the cell freezes | `libero` was imported before the config was written. Make sure you ran cell 4 and that `LIBERO_CONFIG_PATH` is not an empty string (COMMON_ISSUES #6) |
+| In the smoke test `libero path` shows `/usr/local/lib/python3…/site-packages/…` | In this runtime the original LIBERO is pip-installed (you reused Lecture 12's runtime). **Delete and restart** the runtime (Disconnect and delete runtime) |
+| `ImportError: MagickWand shared library not found` | `libmagickwand-dev` from cell 2 was not installed; `!apt-get install -y libmagickwand-dev` and restart the kernel |
+| `hf download` 401/403 | The dataset is public (MIT) but HF sometimes asks for login: `!hf auth login` (token with Read permission) |
+| `No space left on device` (while extracting assets) | The disk filled up before `assets.zip` was deleted: it should not be a problem if Lecture 12's checkpoint is not in this runtime; check with `!df -h /`, download the zip to `/tmp` instead of `/content` and extract from there |
+| Eval: `AttributeError: module 'numpy' has no attribute 'float_'` | Patch 5 was not applied: look at the `np.float_` line in the output of `python vlanext_plus_patch.py /content/VLANeXt` |
+| Eval: `Task classification file not found` warning | Patch 1 was not applied or `LIBERO_PLUS_ROOT` is not defined; the result is still correct, only the category row becomes `None` |
+| Eval queues all 2402 tasks (`total_episodes=…/2402`) | `VLANEXT_TASK_IDS` did not reach the subprocess; use the `run()` function or prefix the command with `VLANEXT_TASK_IDS=988,994,995`. Check whether Lecture 12's patch was applied |
+| `parse_plus_log.py`: "No 'Episode result' line in the log" | It crashed while loading the model: paste the last 40 lines of `stdout_<condition>.txt` into the chat (usually RAM — switch to Kaggle) |
+| In the `empty` condition the video file name is `task=.mp4` | Normal: `save_rollout_video` builds the name from the command; the command is empty |
 
 ---
 
-## Sonraki ders (Ders 17)
-LIBERO-Plus'ın yedi bozulmasının kodda nasıl uygulandığı: kamera (`horizon/vertical/scale` → MuJoCo kamera pozu), robot başlangıç pozu (`initstate` → farklı robot sınıfı), ışık ve arka plan (BDDL `_light_`, `_table_`, `_tb_` dosyaları), sensör gürültüsü (`env_wrapper.py`'deki ImageMagick/plasma fraktal hattı) ve nesne yerleşimi (`_add_` dosyaları). Language tarafında görev 0'ın 46 yeniden yazımını R1/R2/R3 türlerine ayırıp bir **perturbation tablosu** çıkaracağız; sonra aynı şablonla `..._language_tr*.bddl` Türkçe varyantlarının nasıl ekleneceğini (task map + küçük harf kuralı) tasarlayacağız. Bugünkü `rewritten` / `empty` sonuçların, hangi türün modele ne kadar zarar verdiğini konuşurken ilk veri noktası olacak.
+## Next lecture (Lecture 17)
+How LIBERO-Plus's seven perturbations are implemented in code: camera (`horizon/vertical/scale` → MuJoCo camera pose), robot initial pose (`initstate` → a different robot class), light and background (BDDL `_light_`, `_table_`, `_tb_` files), sensor noise (the ImageMagick/plasma fractal pipeline in `env_wrapper.py`) and object placement (`_add_` files). On the Language side we will separate task 0's 46 rewrites into R1/R2/R3 types and produce a **perturbation table**; then, with the same template, we will design how to add `..._language_tr*.bddl` Turkish variants (task map + the lowercase rule). Today's `rewritten` / `empty` results will be the first data point when discussing how much harm each type does to the model.
 
 ---
 
-## Kaynaklar
-- Fei, S., Wang, S., Shi, J. vd. (2025). *LIBERO-Plus: In-depth Robustness Analysis of Vision-Language-Action Models.* [arXiv:2510.13626](https://arxiv.org/abs/2510.13626) (CVPR 2026) — §4.1 boş komut, §4.2 / Ek E hedef değiştirme, Ek A.6 R1/R2/R3, Ek C.3 zorluk seviyeleri. Kod: [github.com/sylvestf/LIBERO-plus](https://github.com/sylvestf/LIBERO-plus) (`4976dc3`) — `libero/libero/benchmark/__init__.py:46-72` (`grab_language_from_filename`), `:192-197` (init state), `envs/env_wrapper.py:105, 207-219`, `benchmark/task_classification.json`, README liderlik tablosu (görsel 06). Asset'ler: [HF Sylvest/LIBERO-plus](https://huggingface.co/datasets/Sylvest/LIBERO-plus/tree/main) (`assets.zip`, 6.4 GB).
-- Wu, X.-M. vd. (2026). *VLANeXt: Recipes for Building Strong VLA Models.* ICML 2026. [arXiv:2602.18532v2](https://arxiv.org/abs/2602.18532v2) — LIBERO-plus Language sütunu (Ders 12 görsel 04). Kod: [github.com/DravenALG/VLANeXt](https://github.com/DravenALG/VLANeXt) (`d911e6b`) — `scripts/libero_plus_bench_eval.py`, `src/evaluation/libero_bench/parallel_eval_utils.py:49-74`, `COMMON_ISSUES.md` #1, #3, #6, README "LIBERO-plus" kurulumu.
-- `bddl` 1.0.1 (PyPI) — `bddl/parsing.py:14-41` (`scan_tokens`: `;` yorumu, `.lower()`, parantez).
-- LeRobot dokümantasyonu, [LIBERO-plus](https://huggingface.co/docs/lerobot/libero_plus) — `hf-libero` ile bir arada kurulamama, namespace paket / `PYTHONPATH` notu; [RLinf LIBERO-Plus](https://rlinf.readthedocs.io/en/latest/rst_source/examples/embodied/liberoplus_pro.html) — asset indirme komutu.
-- Chen, H. vd. (2026). *Beyond English: Uncovering the Multilingual Gap in VLA Models.* [arXiv:2606.15714](https://arxiv.org/abs/2606.15714) — "komut yok" ≈ yabancı dil (Ders 15).
-- Kod: `code/day16/` — `select_plus_tasks.py` (çalıştırıldı; görev seçimi ve görsel 02/04 sayıları gerçek), `bddl_lang_probe.py` (gerçek bddl 1.0.1 ile çalıştırıldı; görsel 05), `vlanext_plus_patch.py` (VLANeXt + LIBERO-plus kopyasına uygulandı, idempotent, `py_compile`), `parse_plus_log.py` (`--selftest` sentetik log), `t4_plus_config.yaml`, `colab_libero_plus_t4.ipynb` (Colab'da çalıştırılmadı), `plot_day16.py` (02, 04, 05, 06). Görseller 01 ve 03 Mermaid (`.mmd` yanında).
+## References
+- Fei, S., Wang, S., Shi, J. et al. (2025). *LIBERO-Plus: In-depth Robustness Analysis of Vision-Language-Action Models.* [arXiv:2510.13626](https://arxiv.org/abs/2510.13626) (CVPR 2026) — §4.1 empty command, §4.2 / Appendix E goal swapping, Appendix A.6 R1/R2/R3, Appendix C.3 difficulty levels. Code: [github.com/sylvestf/LIBERO-plus](https://github.com/sylvestf/LIBERO-plus) (`4976dc3`) — `libero/libero/benchmark/__init__.py:46-72` (`grab_language_from_filename`), `:192-197` (init state), `envs/env_wrapper.py:105, 207-219`, `benchmark/task_classification.json`, README leaderboard (plot 06). Assets: [HF Sylvest/LIBERO-plus](https://huggingface.co/datasets/Sylvest/LIBERO-plus/tree/main) (`assets.zip`, 6.4 GB).
+- Wu, X.-M. et al. (2026). *VLANeXt: Recipes for Building Strong VLA Models.* ICML 2026. [arXiv:2602.18532v2](https://arxiv.org/abs/2602.18532v2) — the LIBERO-plus Language column (Lecture 12 plot 04). Code: [github.com/DravenALG/VLANeXt](https://github.com/DravenALG/VLANeXt) (`d911e6b`) — `scripts/libero_plus_bench_eval.py`, `src/evaluation/libero_bench/parallel_eval_utils.py:49-74`, `COMMON_ISSUES.md` #1, #3, #6, README "LIBERO-plus" installation.
+- `bddl` 1.0.1 (PyPI) — `bddl/parsing.py:14-41` (`scan_tokens`: `;` comment, `.lower()`, parentheses).
+- LeRobot documentation, [LIBERO-plus](https://huggingface.co/docs/lerobot/libero_plus) — cannot be installed alongside `hf-libero`, the namespace package / `PYTHONPATH` note; [RLinf LIBERO-Plus](https://rlinf.readthedocs.io/en/latest/rst_source/examples/embodied/liberoplus_pro.html) — the asset download command.
+- Chen, H. et al. (2026). *Beyond English: Uncovering the Multilingual Gap in VLA Models.* [arXiv:2606.15714](https://arxiv.org/abs/2606.15714) — "no instruction" ≈ foreign language (Lecture 15).
+- Code: `code/day16/` — `select_plus_tasks.py` (ran; task selection and the numbers in plots 02/04 are real), `bddl_lang_probe.py` (ran with the real bddl 1.0.1; plot 05), `vlanext_plus_patch.py` (applied to a VLANeXt + LIBERO-plus copy, idempotent, `py_compile`), `parse_plus_log.py` (`--selftest` synthetic log), `t4_plus_config.yaml`, `colab_libero_plus_t4.ipynb` (not run on Colab), `plot_day16.py` (02, 04, 05, 06). Images 01 and 03 are Mermaid (next to the `.mmd`).

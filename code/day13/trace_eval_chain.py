@@ -1,64 +1,64 @@
-"""Ders 13 — VLANeXt + LIBERO eval zincirinde kritik satırları bulur ve dosya:satır tablosu basar.
+"""Lecture 13 — Finds the critical lines in the VLANeXt + LIBERO eval chain and prints a file:line table.
 
-GPU gerekmez; yalnızca kaynak kodu okur. Kullanım (Mac):
+No GPU needed; it only reads source code. Usage (Mac):
     git clone --depth 1 https://github.com/DravenALG/VLANeXt ~/vla-work/VLANeXt
     python trace_eval_chain.py ~/vla-work/VLANeXt [~/vla-work/LIBERO]
 
-Her satır: HANGİ SORU → hangi dosya → hangi satır → satırın kendisi. Upstream değişirse
-"BULUNAMADI" yazar; o zaman desen eskimiş demektir, grep ile yenisini bul.
+Each row: WHICH QUESTION → which file → which line → the line itself. If upstream changes it
+prints "NOT FOUND"; that means the pattern is stale, find the new one with grep.
 """
 import re
 import sys
 from pathlib import Path
 
-# (soru, dosya, aranan düzenli ifade)
+# (question, file, regex to search for)
 ANCHORS = [
-    # --- 1. Komut nereden geliyor ---
-    ("Komut string'i nereden geliyor?", "LIBERO:libero/libero/benchmark/__init__.py",
+    # --- 1. Where does the command come from ---
+    ("Where does the command string come from?", "LIBERO:libero/libero/benchmark/__init__.py",
      r"def grab_language_from_filename"),
-    ("Komutun episode'a bağlandığı yer (Türkçe için değişecek satır)",
+    ("Where the command is bound to the episode (the line to change for Turkish)",
      "src/evaluation/libero_bench/parallel_eval_utils.py", r"task_description = task\.language"),
-    ("Komut modele kaç kez gönderiliyor? (her model çağrısında)",
+    ("How many times is the command sent to the model? (on every model call)",
      "src/evaluation/libero_bench/parallel_eval_utils.py", r"action_request_labels\.append\(specs\[env_id\]\.task_description\)"),
-    # --- 2. Gözlem ---
-    ("180 derece döndürme", "src/evaluation/libero_bench/libero_utils.py", r"img\[::-1, ::-1\]"),
-    ("Proprio vektörü (eef_pos + axis-angle + gripper)",
+    # --- 2. Observation ---
+    ("180-degree rotation", "src/evaluation/libero_bench/libero_utils.py", r"img\[::-1, ::-1\]"),
+    ("Proprio vector (eef_pos + axis-angle + gripper)",
      "src/evaluation/libero_bench/parallel_eval_utils.py", r"quat2axisangle\(obs\[\"robot0_eef_quat\"\]\), \[gripper_state\]"),
-    ("Sablon (Qwen, image dalı): messages = [image, image, text]", "src/evaluation/libero_bench/VLANeXt_utils.py",
+    ("Template (Qwen, image branch): messages = [image, image, text]", "src/evaluation/libero_bench/VLANeXt_utils.py",
      r"^ {16}content\.append\(\{\"type\": \"text\", \"text\": label\}\)"),
-    ("apply_chat_template(add_generation_prompt=True) (image dalı)", "src/evaluation/libero_bench/VLANeXt_utils.py",
+    ("apply_chat_template(add_generation_prompt=True) (image branch)", "src/evaluation/libero_bench/VLANeXt_utils.py",
      r"^ {16}texts\.append\(effective_processor\.apply_chat_template\(messages, tokenize=False, add_generation_prompt=True\)"),
     # --- 3. Model ---
-    ("Proprio token'ları dizinin başına ekleniyor", "src/models/VLANeXt.py",
+    ("Proprio tokens are prepended to the sequence", "src/models/VLANeXt.py",
      r"inputs_embeds = torch\.cat\(\[proprio_embeds, inputs_embeds\], dim=1\)"),
-    ("16 meta query dizinin sonuna ekleniyor", "src/models/VLANeXt.py",
+    ("16 meta queries are appended to the end of the sequence", "src/models/VLANeXt.py",
      r"inputs_embeds = torch\.cat\(\[inputs_embeds, queries_embeds\], dim=1\)"),
-    ("VLM tüm katman çıktılarıyla çağrılıyor (soft/tight)", "src/models/VLANeXt.py",
+    ("VLM is called with all layer outputs (soft/tight)", "src/models/VLANeXt.py",
      r"\"output_hidden_states\": output_hidden_states_flag"),
-    ("Policy bloğu i, VLM katmanı i'ye bakıyor", "src/models/modules/policies.py",
+    ("Policy block i attends to VLM layer i", "src/models/modules/policies.py",
      r"relevant_vlm_states = vlm_hidden_states\[-len\(self\.blocks\):\]"),
     ("Cross-attention: key/value = [x, vlm_proj(hidden)]", "src/models/modules/policies.py",
      r"kv_list = \[x_norm, v_feat\]"),
-    ("Flow-matching: gürültüden başla", "src/models/VLANeXt.py",
+    ("Flow-matching: start from noise", "src/models/VLANeXt.py",
      r"action = torch\.randn\(B, self\.num_actions, self\.action_dim"),
-    ("Flow-matching: Euler adımı", "src/models/VLANeXt.py",
+    ("Flow-matching: Euler step", "src/models/VLANeXt.py",
      r"action = self\.noise_scheduler\.step\(output, t, action\)\.prev_sample"),
-    # --- 4. Action decode ---
-    ("Chunk'ın kaç adımı uygulanıyor (num_steps_execute)", "src/evaluation/libero_bench/parallel_eval_utils.py",
+    # --- 4. Action decoding ---
+    ("How many steps of the chunk are executed (num_steps_execute)", "src/evaluation/libero_bench/parallel_eval_utils.py",
      r"steps_to_exec = min\(num_steps_execute, len\(chunk\)\)"),
-    ("Denormalizasyon: ilk 6 boyut min/max", "src/evaluation/libero_bench/parallel_eval_utils.py",
+    ("Denormalization: first 6 dims min/max", "src/evaluation/libero_bench/parallel_eval_utils.py",
      r"action\[:6\] = \(action\[:6\] \+ 1\) / 2 \* \(action_max - action_min\) \+ action_min"),
-    ("Gripper eşiği: > 0 → +1, değilse −1", "src/evaluation/libero_bench/parallel_eval_utils.py",
+    ("Gripper threshold: > 0 → +1, otherwise −1", "src/evaluation/libero_bench/parallel_eval_utils.py",
      r"action\[6\] = 1\.0 if action\[6\] > 0 else -1\.0"),
-    ("Min/max istatistikleri nereden (legacy/mixed)", "src/datasets/libero_act.py", r"\"legacy\": \{"),
+    ("Where the min/max statistics come from (legacy/mixed)", "src/datasets/libero_act.py", r"\"legacy\": \{"),
     # --- 5. Success ---
-    ("done → success=True (step fazı; :237 bekleme fazı)", "src/evaluation/libero_bench/parallel_eval_utils.py",
+    ("done → success=True (step phase; :237 is the wait phase)", "src/evaluation/libero_bench/parallel_eval_utils.py",
      r"^ {20}states\[env_id\]\[\"success\"\] = True"),
     ("LIBERO: done = _check_success()", "LIBERO:libero/libero/envs/bddl_base_domain.py",
      r"done = self\._check_success\(\)"),
-    ("LIBERO: tüm goal predicate'lerinin VE'si", "LIBERO:libero/libero/envs/problems/libero_tabletop_manipulation.py",
+    ("LIBERO: AND of all goal predicates", "LIBERO:libero/libero/envs/problems/libero_tabletop_manipulation.py",
      r"result = self\._eval_predicate\(state\) and result"),
-    ("LIBERO: On predicate = temas + xy mesafe < 0.03 m", "LIBERO:libero/libero/envs/object_states/base_object_states.py",
+    ("LIBERO: On predicate = contact + xy distance < 0.03 m", "LIBERO:libero/libero/envs/object_states/base_object_states.py",
      r"< 0\.03"),
 ]
 
@@ -66,12 +66,12 @@ ANCHORS = [
 def find(root: Path, rel: str, pattern: str):
     p = root / rel
     if not p.exists():
-        return None, f"dosya yok: {p}"
+        return None, f"file missing: {p}"
     rx = re.compile(pattern)
     for i, line in enumerate(p.read_text(encoding="utf-8").splitlines(), 1):
         if rx.search(line):
             return i, line.strip()
-    return None, "BULUNAMADI (desen eskimiş olabilir)"
+    return None, "NOT FOUND (the pattern may be stale)"
 
 
 def main():
@@ -80,8 +80,8 @@ def main():
         sys.exit(1)
     vla = Path(sys.argv[1]).expanduser()
     lib = Path(sys.argv[2]).expanduser() if len(sys.argv) > 2 else None
-    print(f"VLANeXt: {vla}\nLIBERO : {lib or '(verilmedi, LIBERO satırları atlanır)'}\n")
-    print(f"{'#':>2} | {'Soru':62} | {'Dosya':64} | Satır")
+    print(f"VLANeXt: {vla}\nLIBERO : {lib or '(not given, LIBERO rows are skipped)'}\n")
+    print(f"{'#':>2} | {'Question':62} | {'File':64} | Line")
     print("-" * 150)
     for n, (q, rel, pat) in enumerate(ANCHORS, 1):
         if rel.startswith("LIBERO:"):

@@ -1,16 +1,18 @@
-"""Ders 17 — LIBERO-Plus 'Language Instructions': bir temel görevin 50 yeniden yazımını okur, R1/R2 türüne ayırır,
-hangi kelimelerin korunduğunu sayar; CSV + görsel üretir.
+"""Lecture 17 — LIBERO-Plus 'Language Instructions': reads the 50 rewrites of one base task, assigns them to an R1/R2 type,
+counts which words are preserved; produces a CSV + a figure.
 
-Model/asset GEREKMEZ. Tür etiketi JSON'da YOK; buradaki etiket makalenin Ek A.6 tanımlarına göre kural tabanlı
-bir okumadır (R1 dikkat dağıtma = sohbet/bağlam cümleleri; R2 sağduyu = nesne adının tarifle değişmesi;
-R3 akıl yürütme zinciri = çok adımlı görevlerde — Spatial'da beklenmez). Kuralların tuttuğu yerde "hipotez"dir.
+NO model/assets needed. The type label is NOT in the JSON; the label here is a rule-based reading following the paper's
+Appendix A.6 definitions (R1 distraction = chatty/context sentences; R2 commonsense = the object name replaced by a description;
+R3 reasoning chain = in multi-step tasks — not expected in Spatial). Where the rules hold, it is a "hypothesis".
+The type labels (R1 dikkat dağıtma, R2 sağduyu, R0 düz parafraz) are data values in the CSV and in datasets/02, so they are kept
+as they are; the English display names are in TYPE_EN (used in the plot).
 
-Kullanım:  python classify_rewrites.py <LIBERO-plus kökü> <çıktı.png> [--suite libero_spatial] [--base 0] [--csv out.csv]
---base: orijinal LIBERO görev sırası (Ders 10 list_tasks.py; 0 = between the plate and the ramekin)
+Usage:  python classify_rewrites.py <LIBERO-plus root> <output.png> [--suite libero_spatial] [--base 0] [--csv out.csv]
+--base: original LIBERO task order (Lecture 10 list_tasks.py; 0 = between the plate and the ramekin)
 """
 import argparse, csv, json, pathlib, re, sys
 
-BASES = {  # Ders 16 select_plus_tasks.py ile aynı sıra (LIBERO-Spatial 0–9)
+BASES = {  # same order as Lecture 16 select_plus_tasks.py (LIBERO-Spatial 0–9)
     "libero_spatial": ["pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
                        "pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
                        "pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
@@ -26,6 +28,9 @@ CONV = re.compile(r"\b(could you|would you|can you|please|for me|lets|let's|befo
 DESCR = re.compile(r"\b(container|vessel|darkhued|darkcolored|dark colored|flat ?dish|baking dish|ceramic dish|small dish|concave|spherical|rounded|"
                    r"main course|main meal|serving|holder|cooking dish|glazed)\b", re.I)
 RELATION = re.compile(r"\b(between|amid|midway|separating|positioned between|situated between)\b", re.I)
+
+TYPE_EN = {"R1 dikkat dağıtma": "R1 distraction", "R2 sağduyu (hafif)": "R2 commonsense (light)",
+           "R2 sağduyu (tam)": "R2 commonsense (full)", "R0 düz parafraz": "R0 plain paraphrase"}
 
 
 def classify(t):
@@ -66,16 +71,16 @@ def main():
                          keeps_bowl="bowl" in text.lower(), keeps_plate="plate" in text.lower(), keeps_between="between" in text.lower(),
                          relation_word=(RELATION.search(text.lower()) or [""])[0], conversational=conv, descriptive=descr,
                          lowercase_changes=sum(ch.isupper() for ch in text), text=text))
-    print(f"temel: {base}\n  orijinal :language = '{base_text}'  ({len(base_text.split())} kelime)")
-    print(f"  dil dosyası: {len(rows)}; benchmark'ta: {sum(r['in_benchmark'] for r in rows)}; eksik: {[r['k'] for r in rows if not r['in_benchmark']]}")
+    print(f"base: {base}\n  original :language = '{base_text}'  ({len(base_text.split())} words)")
+    print(f"  language files: {len(rows)}; in the benchmark: {sum(r['in_benchmark'] for r in rows)}; missing: {[r['k'] for r in rows if not r['in_benchmark']]}")
     from collections import Counter
-    ct = Counter(r["type"] for r in rows); print("  tür dağılımı (kural tabanlı, hipotez):", dict(ct))
+    ct = Counter(r["type"] for r in rows); print("  type distribution (rule-based, hypothesis):", dict(ct))
     for typ in sorted(ct):
         rr = [r for r in rows if r["type"] == typ]
         lv = Counter(r["difficulty"] for r in rr if r["in_benchmark"])
-        print(f"   {typ:22s} n={len(rr):2d}  kelime ort {sum(r['words'] for r in rr)/len(rr):4.1f}  'between' korunan {sum(r['keeps_between'] for r in rr):2d}  zorluk {dict(sorted(lv.items()))}")
-    print("  'between' yerine:", Counter(r["relation_word"] for r in rows if not r["keeps_between"]))
-    print("  büyük harf içeren (scan_tokens .lower() değiştirecek):", sum(r["lowercase_changes"] > 0 for r in rows), "/", len(rows))
+        print(f"   {typ:22s} n={len(rr):2d}  words mean {sum(r['words'] for r in rr)/len(rr):4.1f}  'between' kept {sum(r['keeps_between'] for r in rr):2d}  difficulty {dict(sorted(lv.items()))}")
+    print("  instead of 'between':", Counter(r["relation_word"] for r in rows if not r["keeps_between"]))
+    print("  containing uppercase (scan_tokens .lower() will change it):", sum(r["lowercase_changes"] > 0 for r in rows), "/", len(rows))
     if a.csv:
         with open(a.csv, "w", newline="", encoding="utf-8") as fh:
             w = csv.DictWriter(fh, fieldnames=list(rows[0].keys())); w.writeheader(); w.writerows(rows)
@@ -90,27 +95,27 @@ def main():
     left = np.zeros(len(types))
     for lvl in [1, 2, 3, 4, 5, None]:
         vals = [sum(1 for r in rows if r["type"] == t and r["difficulty"] == lvl) for t in types]
-        ax.barh(types, vals, left=left, color=lcol[lvl], edgecolor="#777", label=f"L{lvl}" if lvl else "benchmark'ta yok"); left += vals
+        ax.barh([TYPE_EN[t] for t in types], vals, left=left, color=lcol[lvl], edgecolor="#777", label=f"L{lvl}" if lvl else "not in benchmark"); left += vals
     for i, t in enumerate(types): ax.text(left[i] + 0.3, i, str(int(left[i])), va="center", fontsize=9)
-    ax.invert_yaxis(); ax.legend(fontsize=7.5, title="zorluk", loc="lower right"); ax.set_xlabel("varyant sayısı")
-    ax.set_title(f"(a) Görev {a.base}: 50 yeniden yazımın türü (kural tabanlı)")
+    ax.invert_yaxis(); ax.legend(fontsize=7.5, title="difficulty", loc="lower right"); ax.set_xlabel("number of variants")
+    ax.set_title(f"(a) Task {a.base}: type of the 50 rewrites (rule-based)")
     ax = axes[1]
     for t in types:
         ws = [r["words"] for r in rows if r["type"] == t]
-        ax.scatter(ws, [t] * len(ws), s=40, color=tcol[t], edgecolor="#555", alpha=0.85)
+        ax.scatter(ws, [TYPE_EN[t]] * len(ws), s=40, color=tcol[t], edgecolor="#555", alpha=0.85)
     ax.axvline(len(base_text.split()), color="#d62828", ls="--")
-    ax.text(len(base_text.split()) + 0.3, -0.45, f"orijinal: {len(base_text.split())} kelime", color="#d62828", fontsize=8, va="bottom")
-    ax.invert_yaxis(); ax.set_xlabel("kelime sayısı"); ax.set_title("(b) Uzunluk: tür başına kelime sayısı")
+    ax.text(len(base_text.split()) + 0.3, -0.45, f"original: {len(base_text.split())} words", color="#d62828", fontsize=8, va="bottom")
+    ax.invert_yaxis(); ax.set_xlabel("number of words"); ax.set_title("(b) Length: words per type")
     ax = axes[2]
-    feats = [("'bowl'\nkorunmuş", "keeps_bowl"), ("'plate'\nkorunmuş", "keeps_plate"), ("'between'\nkorunmuş", "keeps_between"), ("büyük harf var\n(.lower() değiştirir)", "lowercase_changes")]
+    feats = [("'bowl'\npreserved", "keeps_bowl"), ("'plate'\npreserved", "keeps_plate"), ("'between'\npreserved", "keeps_between"), ("has uppercase\n(.lower() changes it)", "lowercase_changes")]
     vals = [sum(bool(r[f]) for r in rows) for _, f in feats]
     ax.bar([f for f, _ in feats], vals, color=["#d4f5d4", "#d4f5d4", "#ffd166", "#ffd6d6"], edgecolor="#777")
     for i, v in enumerate(vals): ax.text(i, v + 0.6, f"{v}/{len(rows)}", ha="center", fontsize=9)
-    ax.set_ylim(0, len(rows) + 6); ax.set_ylabel("varyant sayısı"); ax.set_title("(c) Tez için kritik kelimeler korunuyor mu?")
+    ax.set_ylim(0, len(rows) + 6); ax.set_ylabel("number of variants"); ax.set_title("(c) Are thesis-critical words preserved?")
     ax.tick_params(axis="x", labelsize=8)
-    fig.suptitle(f"LIBERO-Plus Language bozulması içeriden — {a.suite}, temel görev {a.base} ({len(rows)} `_language_K.bddl`; tür etiketi JSON'da yok, buradaki kural tabanlı okumadır) — classify_rewrites.py", fontsize=10)
+    fig.suptitle(f"LIBERO-Plus Language perturbation from the inside — {a.suite}, base task {a.base} ({len(rows)} `_language_K.bddl`; the type label is not in the JSON, this is a rule-based reading) — classify_rewrites.py", fontsize=10)
     fig.tight_layout(rect=(0, 0, 1, 0.94)); fig.savefig(a.out, dpi=170); plt.close(fig)
-    print("yazıldı:", a.out)
+    print("written:", a.out)
 
 
 if __name__ == "__main__":

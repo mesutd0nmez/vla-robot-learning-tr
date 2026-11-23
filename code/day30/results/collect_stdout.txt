@@ -1,16 +1,16 @@
-290 satır, 45 dosya → /home/claude/vla-robot-learning-tr/code/day30/results/questions_raw.csv
-anahtar başına: {'karar': 138, 'danisman': 105, '4bit': 58, 'S10': 31, 'iddia_birimi': 26, 'S7': 19, 'S9': 18, 'S8': 9}
-klasör başına: {'lectures': 159, 'code': 55, 'plan': 36, 'thesis': 19, 'resources': 7, 'README.md': 5, 'home.md': 5, 'CLAUDE.md': 2, 'literature': 1, 'tools': 1}
-'danışman' + karar/soru içeren aday satır: 54
-  README.md:73  | [21](lectures/lecture-21.md) | Webots: danışmanın ikinci simülatörü — MuJoCo/robosuite/LIBERO yığınındaki ye
-  home.md:32  <a href="#/lectures/lecture-21"><b>21</b><span>Webots: danışmanın ikinci simülatörü — yığındaki yeri (benchmar
-  code/day21/README.md:389  Danışmanla konuştuktan sonra puanları değiştirip yeniden çiz: python plot_day21.py --out 05-decision.png
-  code/day21/README.md:430  ax.set_title("Ders 21 — Tez ortamı karar matrisi (ÖZNEL puanlama 0–3; danışmanla güncellenecek)", fontsize=12,
-  code/day30/README.md:3  Ders 30 — danışman toplantısı hazırlığı. Model yok; iki script ve bir veri dosyası. Çıktı `slides/advisor-meet
-  code/day30/README.md:7  | `collect_questions.py` | Repodaki `.md` dosyalarında "danışman", "S7–S10", "karar", "iddia birimi", "4-bit" 
-  code/day30/README.md:24  ("danışman", "S7", "S9", "S10", "karar" …), her eşleşmeyi kaynak dosya ve satır numarasıyla
-  code/day30/README.md:80  # Danışmana açıkça yönelen satırlar (danışman + karar/soru) — toplantı listesinin ham adayları
-  code/day30/README.md:82  print(f"'danışman' + karar/soru içeren aday satır: {len(cand)}")
-  code/day30/README.md:95  Girdi: questions.csv (11 soru; etki/aciliyet 1–5 bu dersin ÖZNEL puanı — danışmanla güncellenir).
-  code/day30/README.md:146  ax.set_title("Ders 30 — Danışmana gidecek 11 soru: etki × aciliyet (ÖZNEL puan, bu dersin önerisi)\n"
-  code/day31/README.md:126  ("Ders 30 danışman toplantısı paketi", "slides/advisor-meeting-01.md var", has("slides/advisor-meeting-01.md")
+318 lines, 47 files → /home/claude/vla-robot-learning-tr/code/day30/results/questions_raw.csv
+per key: {'karar': 148, 'danisman': 131, '4bit': 64, 'S10': 39, 'iddia_birimi': 38, 'S7': 25, 'S9': 23, 'S8': 10}
+per folder: {'lectures': 173, 'code': 57, 'plan': 45, 'thesis': 19, 'README.md': 8, 'resources': 7, 'home.md': 5, 'CLAUDE.md': 2, 'literature': 1, 'tools': 1}
+candidate lines containing 'advisor' + decision/question: 110
+  CLAUDE.md:43  ## Thesis axis (candidate — not settled with the advisor)
+  README.md:17  | 1. Literature and topic selection | Settling the thesis axis with the advisor, literature survey | ⬜ |
+  README.md:72  | [21](lectures/lecture-21.md) | Webots: the advisor's second simulator — its place in the MuJoCo/robosuite/LI
+  README.md:81  | [30](lectures/lecture-30.md) | Question/presentation list for the advisor meeting: `collect_questions.py` ga
+  home.md:32  <a href="#/lectures/lecture-21"><b>21</b><span>Webots: the advisor's second simulator — its place in the stack
+  home.md:41  <a href="#/lectures/lecture-30"><b>30</b><span>Advisor meeting: open decisions in the repo scanned (184 lines 
+  home.md:61  | 1. Literature and topic selection | Settling the thesis axis with the advisor, literature survey | — |
+  code/day21/README.md:388  After talking to your advisor, change the scores and redraw: python plot_day21.py --out 05-decision.png
+  code/day21/README.md:429  ax.set_title("Lecture 21 — Thesis environment decision matrix (SUBJECTIVE scoring 0–3; to be updated with the 
+  code/day30/README.md:3  Lecture 30 — preparing the advisor meeting. No model; two scripts and one data file. Output `slides/advisor-me
+  code/day30/README.md:7  | `collect_questions.py` | Writes the lines in the repo's `.md` files that mention "advisor", "S7–S10", "decis
+  code/day30/README.md:21  """Lecture 30 — Collect everything that goes to the advisor from the repo: a CSV with file:line sources.

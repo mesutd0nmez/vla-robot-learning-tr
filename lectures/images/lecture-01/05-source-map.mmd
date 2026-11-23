@@ -1,18 +1,18 @@
 flowchart TB
-    TEZ(("Tez ekseni (aday):<br/>Türkçe mekânsal komutların<br/>VLA'da grounding'i"))
-    subgraph A["1 · VLA / Robot Learning araç seti"]
-        A1["Türkçe giriş notu"]
-        A2["VLANeXt (ICML 2026)<br/>kod + LIBERO eval"]
-        A3["awesome-vla-wam<br/>okuma listesi"]
+    TEZ(("Thesis axis (candidate):<br/>Grounding of Turkish spatial<br/>commands in VLAs"))
+    subgraph A["1 · VLA / Robot Learning toolkit"]
+        A1["Turkish intro note"]
+        A2["VLANeXt (ICML 2026)<br/>code + LIBERO eval"]
+        A3["awesome-vla-wam<br/>reading list"]
         A4["paperswithcode / VLA"]
     end
-    subgraph B["2 · Türkçe komut + VLA"]
-        B1["Tatar vd. 2026 (SIU)<br/>OpenVLA-7B, EN vs TR<br/>L2 0.50 · cos 0.37"]
+    subgraph B["2 · Turkish commands + VLA"]
+        B1["Tatar et al. 2026 (SIU)<br/>OpenVLA-7B, EN vs TR<br/>L2 0.50 · cos 0.37"]
     end
-    subgraph Cc["3 · Mekânsal akıl yürütme"]
-        C1["Li 2025 PhD tezi<br/>StepGame, RoomSpace"]
-        C2["Cohn ↔ Hallac e-postaları<br/>7 arXiv makalesi"]
-        C3["Slayt: 'Dil dünyanın<br/>sıkıştırmasıdır, dünya değil'"]
+    subgraph Cc["3 · Spatial reasoning"]
+        C1["Li 2025 PhD thesis<br/>StepGame, RoomSpace"]
+        C2["Cohn and Hallac emails<br/>7 arXiv papers"]
+        C3["Slide: 'Language is a<br/>compression of the world, not the world'"]
     end
     A --> TEZ
     B --> TEZ

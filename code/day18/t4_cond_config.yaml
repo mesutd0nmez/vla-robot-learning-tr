@@ -1,7 +1,7 @@
-# Ders 18 — 4 koşullu deney: LIBERO-Spatial görev 0, 10 init state × {clean, empty, wrong, tr}, ücretsiz T4.
-# Ders 12'nin t4_bench_config.yaml'ından farkı: num_trials_per_task 1 → 10 (init state 0..9), num_parallel_envs 2 (Kaggle 29 GB RAM: 4 →
-# aynı init state'in dört koşulu aynı batch'te koşar). Koşullar config'de değil ortam değişkeninde: VLANEXT_CONDITIONS (Ders 18 yaması).
-# Kullanım (VLANeXt kökünde, Ders 12 + Ders 18 yamaları uygulanmış):
+# Lecture 18 — 4-condition experiment: LIBERO-Spatial task 0, 10 init states × {clean, empty, wrong, tr}, free T4.
+# Difference from Lecture 12's t4_bench_config.yaml: num_trials_per_task 1 → 10 (init states 0..9), num_parallel_envs 2 (Kaggle 29 GB RAM: 4 →
+# the four conditions of the same init state run in the same batch). The conditions are not in the config but in an environment variable: VLANEXT_CONDITIONS (Lecture 18 patch).
+# Usage (from the VLANeXt root, with the Lecture 12 + Lecture 18 patches applied):
 #   VLANEXT_TASK_IDS=0 VLANEXT_CONDITIONS="$(cat conditions_task0.json)" VLANEXT_RUN_TAG=_4cond \
 #   python -m scripts.libero_bench_eval --config config/t4_cond_config.yaml
 data:
@@ -21,8 +21,8 @@ eval:
   task_suite_name: "libero_spatial"
   num_steps_wait: 10
   num_steps_execute: 8
-  num_parallel_envs: 2         # Colab 12.7 GB RAM: 2; Kaggle: 4 (koşul sayısıyla aynı → eşli batch)
-  num_trials_per_task: 10      # init state 0..9; her biri 4 koşulla → görev başına 40 episode
+  num_parallel_envs: 2         # Colab 12.7 GB RAM: 2; Kaggle: 4 (same as the number of conditions → paired batch)
+  num_trials_per_task: 10      # init states 0..9; each with 4 conditions → 40 episodes per task
   seed: 42
   image_size: 256
   resume_episodes: 0

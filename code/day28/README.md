@@ -1,17 +1,17 @@
 # day28
 
-Ders 28 — baseline + ablation tasarımı. Model yok; yüzey analizi ve tokenizer sayımı gerçek, bütçe Ders 27 modeli. Çıktılar: `thesis/ablation-plan.md`, `thesis/experiment-matrix.csv` v0.2.
+Lecture 28 — baseline + ablation design. No model; the surface analysis and tokenizer counting are real, the budget is the Lecture 27 model. Outputs: `thesis/ablation-plan.md`, `thesis/experiment-matrix.csv` v0.2.
 
-| Dosya | Ne | Durum |
+| File | What | Status |
 |---|---|---|
-| `ablation_check.py` | `datasets/04` yüzeylerinin tek faktör değiştirip değiştirmediği (harf / ek), eksik 2×2 hücresi `tr_bare_ascii`, iki tokenizer ile token sayımı (datasets/05 ile çapraz kontrol), 2×2 etkileri | çalıştırıldı → `results/ablation_surface.csv`, `results/summary.md` |
-| `price_ablations.py` | Ablation hücrelerini Ders 27 `budget.py` ile fiyatlar; v0.1 ↔ v0.2 | çalıştırıldı → `results/budget_v01_v02.csv`, `results/ablation_cells.csv` |
-| `plot_day28.py` | Görsel 02–04 | çalıştırıldı |
+| `ablation_check.py` | Whether the `datasets/04` surfaces change only one factor (letter / suffix), the missing 2×2 cell `tr_bare_ascii`, token counting with two tokenizers (cross-checked against datasets/05), the 2×2 effects | ran → `results/ablation_surface.csv`, `results/summary.md` |
+| `price_ablations.py` | Prices the ablation cells with the Lecture 27 `budget.py`; v0.1 ↔ v0.2 | ran → `results/budget_v01_v02.csv`, `results/ablation_cells.csv` |
+| `plot_day28.py` | Figures 02–04 | ran |
 
 ```bash
 cd code/day28
-python ablation_check.py                                   # tokenizer'sız (datasets/05 sayıları)
-python ablation_check.py --llama tokenizer.model --qwen package/models/tokenizer.json   # code/day25/README.md'deki indirme
+python ablation_check.py                                   # without tokenizers (the datasets/05 counts)
+python ablation_check.py --llama tokenizer.model --qwen package/models/tokenizer.json   # download from code/day25/README.md
 python price_ablations.py
 python plot_day28.py
 ```
@@ -19,22 +19,22 @@ python plot_day28.py
 ## ablation_check.py
 
 ```python
-"""Ders 28 — Yüzey ablation'ı gerçekten tek faktör mü değiştiriyor?
+"""Lecture 28 — Does the surface ablation really change only one factor?
 
-RQ-b'nin yüzey ekseni dört Türkçe biçimle tanımlı (datasets/04): tr_a (Türkçe harf + ek), tr_ascii
-(harfler ASCII'ye katlanmış), tr_bare (ekler soyulmuş, harfler duruyor). Ablation dilinde bu bir 2×2:
-  harf {TR, ASCII} × ek {var, yok}  →  tr_a | tr_ascii | tr_bare | tr_bare_ascii (EKSİK HÜCRE — burada üretilir)
-Bir ablation adımı yalnızca bir faktörü değiştirmeli. Bu script her çift için bunu ölçer:
-  1. fold(tr_a) == tr_ascii ?           (harf adımı yalnızca harf mi değiştiriyor — sözcük, ek, sıra aynı mı)
-  2. tr_a_seg'in kökleri == tr_bare ?    (ek adımı yalnızca ek mi soyuyor — ünsüz yumuşaması geri alınarak)
-  3. Türkçe harf sayısı, ek sayısı, sözcük sayısı her yüzeyde
-  4. Token sayısı: LLaMA-2 (OpenVLA) ve Qwen3 (VLANeXt) — mevcut yüzeyler datasets/05 tokens.csv ile çapraz
-     kontrol edilir (birebir olmalı); yeni tr_bare_ascii aynı tokenizer'larla sayılır.
-  5. 2×2 token etkisi: harf etkisi, ek etkisi, etkileşim (tokenizer başına ortalama ± min/max).
+The surface axis of RQ-b is defined by four Turkish forms (datasets/04): tr_a (Turkish letters + suffixes), tr_ascii
+(letters folded to ASCII), tr_bare (suffixes stripped, letters kept). In ablation terms this is a 2×2:
+  letter {TR, ASCII} × suffix {present, absent}  →  tr_a | tr_ascii | tr_bare | tr_bare_ascii (MISSING CELL — produced here)
+An ablation step must change only one factor. This script measures that for every pair:
+  1. fold(tr_a) == tr_ascii ?           (does the letter step change only letters — same words, suffixes, order?)
+  2. stems of tr_a_seg == tr_bare ?     (does the suffix step strip only suffixes — with consonant softening undone)
+  3. Number of Turkish letters, suffixes and words on every surface
+  4. Token counts: LLaMA-2 (OpenVLA) and Qwen3 (VLANeXt) — the existing surfaces are cross-checked against
+     datasets/05 tokens.csv (must match exactly); the new tr_bare_ascii is counted with the same tokenizers.
+  5. 2×2 token effect: letter effect, suffix effect, interaction (mean per tokenizer ± min/max).
 
   python ablation_check.py --llama tokenizer.model --qwen package/models/tokenizer.json
-  # tokenizer'lar: code/day25/README.md (Meta tokenizer.model sha256 9e556afd…; npm @lenml/tokenizer-qwen3)
-  python ablation_check.py            # tokenizer'sız: yalnız 1–3 ve datasets/05'ten okunan sayılar
+  # tokenizers: code/day25/README.md (Meta tokenizer.model sha256 9e556afd…; npm @lenml/tokenizer-qwen3)
+  python ablation_check.py            # without tokenizers: only 1–3 and the counts read from datasets/05
 """
 import argparse, csv, os, statistics as st
 
@@ -43,12 +43,12 @@ D04 = os.path.join(HERE, "..", "..", "datasets", "04-tr-spatial-commands", "data
 D05 = os.path.join(HERE, "..", "..", "datasets", "05-tokenization-tr-commands", "data", "tokens.csv")
 TR = "çğıöşüâîûÇĞİÖŞÜÂÎÛ"
 FOLD = str.maketrans("çğıöşüâîûÇĞİÖŞÜÂÎÛ", "cgiosuaiuCGIOSUAIU")
-HARDEN = {"ğ": "k", "b": "p", "c": "ç", "d": "t"}   # tabağ- → tabak, dolab- → dolap (ünsüz yumuşamasının tersi)
+HARDEN = {"ğ": "k", "b": "p", "c": "ç", "d": "t"}   # tabağ- → tabak, dolab- → dolap (the reverse of consonant softening)
 
 
 def stem_ok(word_seg, bare_word):
-    """Kök = tr_a_seg'in ilk parçası; ekli sözcükte kök sonu yumuşamış olabilir (tabağ-ın → tabak),
-    ama her ğ/b/c/d yumuşama değildir (sağ-da-ki → sağ). İkisinden biri tutarsa kabul."""
+    """Stem = the first piece of tr_a_seg; in a suffixed word the stem end may have softened (tabağ-ın → tabak),
+    but not every ğ/b/c/d is softening (sağ-da-ki → sağ). Accept if either one matches."""
     s = word_seg.split("-")[0]
     cands = {s}
     if "-" in word_seg and s and s[-1] in HARDEN:
@@ -99,21 +99,21 @@ def main():
     with open(os.path.join(a.out, "ablation_surface.csv"), "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=list(rows[0])); w.writeheader(); w.writerows(rows)
     L = []
-    L.append(f"# Ders 28 — yüzey ablation kontrolü ({len(rows)} çift)\n")
-    L.append(f"- tr_a_seg tirelerden arındırılınca tr_a: {sum(r['seg_join_ok'] for r in rows)}/{len(rows)}")
-    L.append(f"- harf adımı (tr_a → tr_ascii) yalnız harf değiştiriyor: {sum(r['letter_step_only_letters'] for r in rows)}/{len(rows)}")
-    L.append(f"- ek adımı (tr_a → tr_bare) yalnız ek soyuyor (kök, gerekirse ünsüz sertleşmesi geri alınarak): {sum(r['suffix_step_only_suffixes'] for r in rows)}/{len(rows)}")
+    L.append(f"# Lecture 28 — surface ablation check ({len(rows)} pairs)\n")
+    L.append(f"- tr_a_seg with hyphens removed equals tr_a: {sum(r['seg_join_ok'] for r in rows)}/{len(rows)}")
+    L.append(f"- letter step (tr_a → tr_ascii) changes only letters: {sum(r['letter_step_only_letters'] for r in rows)}/{len(rows)}")
+    L.append(f"- suffix step (tr_a → tr_bare) strips only suffixes (stem, with consonant hardening undone where needed): {sum(r['suffix_step_only_suffixes'] for r in rows)}/{len(rows)}")
     bad = [r for r in rows if not r["suffix_step_only_suffixes"]]
     for r in bad:
-        L.append(f"  - {r['pair_id']}: kökler `{r['stems_if_diff']}` ≠ tr_bare")
-    L.append(f"- sözcük sayısı tr_a = tr_bare: {sum(r['n_words_tr_a']==r['n_words_bare'] for r in rows)}/{len(rows)}")
-    L.append(f"- ek sayısı tr_a: toplam {sum(r['n_suffix_tr_a'] for r in rows)}, çift başına {st.mean(r['n_suffix_tr_a'] for r in rows):.1f} (tr_bare'de 0)")
-    L.append(f"- Türkçe harf: tr_a {sum(r['trletters_tr_a'] for r in rows)}, tr_bare {sum(r['trletters_bare'] for r in rows)}, "
+        L.append(f"  - {r['pair_id']}: stems `{r['stems_if_diff']}` ≠ tr_bare")
+    L.append(f"- word count tr_a = tr_bare: {sum(r['n_words_tr_a']==r['n_words_bare'] for r in rows)}/{len(rows)}")
+    L.append(f"- suffix count tr_a: total {sum(r['n_suffix_tr_a'] for r in rows)}, per pair {st.mean(r['n_suffix_tr_a'] for r in rows):.1f} (0 in tr_bare)")
+    L.append(f"- Turkish letters: tr_a {sum(r['trletters_tr_a'] for r in rows)}, tr_bare {sum(r['trletters_bare'] for r in rows)}, "
              f"tr_ascii {sum(r['trletters_ascii'] for r in rows)}, tr_bare_ascii {sum(r['trletters_bare_ascii'] for r in rows)}")
     if toks:
-        L.append(f"- datasets/05 tokens.csv çapraz kontrol (4 yüzey × 20 × 2 tokenizer): uyuşmayan {mism}")
-    L.append("\n## 2×2 token tablosu (çift başına ortalama token; parantez min–max)\n")
-    L.append("| tokenizer | en | tr_a (TR, ek) | tr_ascii (ASCII, ek) | tr_bare (TR, eksiz) | tr_bare_ascii (ASCII, eksiz) | harf etkisi | ek etkisi | etkileşim |")
+        L.append(f"- datasets/05 tokens.csv cross-check (4 surfaces × 20 × 2 tokenizers): mismatches {mism}")
+    L.append("\n## 2×2 token table (mean tokens per pair; min–max in parentheses)\n")
+    L.append("| tokenizer | en | tr_a (TR, suffix) | tr_ascii (ASCII, suffix) | tr_bare (TR, no suffix) | tr_bare_ascii (ASCII, no suffix) | letter effect | suffix effect | interaction |")
     L.append("|---|---|---|---|---|---|---|---|---|")
     eff = {}
     for tk in ("llama2", "qwen3"):
@@ -124,7 +124,7 @@ def main():
         inter = (m["tr_a"] - m["tr_ascii"]) - (m["tr_bare"] - m["tr_bare_ascii"])
         eff[tk] = (letter, suffix, inter)
         L.append(f"| {tk} | " + " | ".join(f"{m[v]:.1f} ({rng[v][0]}–{rng[v][1]})" for v in m) + f" | {letter:+.1f} | {suffix:+.1f} | {inter:+.1f} |")
-    L.append("\nharf etkisi = TR harfli − ASCII (iki ek düzeyinin ortalaması); ek etkisi = ekli − eksiz; etkileşim = harf etkisinin ekli ve eksizdeki farkı.")
+    L.append("\nletter effect = TR letters − ASCII (mean over the two suffix levels); suffix effect = suffixed − bare; interaction = difference of the letter effect between suffixed and bare.")
     txt = "\n".join(L)
     open(os.path.join(a.out, "summary.md"), "w", encoding="utf-8").write(txt + "\n")
     print(txt)
@@ -137,20 +137,20 @@ if __name__ == "__main__":
 ## price_ablations.py
 
 ```python
-"""Ders 28 — Ablation hücrelerini Ders 27'nin bütçe modeliyle fiyatla (v0.1 → v0.2 farkı).
+"""Lecture 28 — Price the ablation cells with the Lecture 27 budget model (the v0.1 → v0.2 difference).
 
-  python price_ablations.py      # ../../thesis/experiment-matrix.csv (v0.2) ve results/experiment-matrix_v0.1.csv
+  python price_ablations.py      # ../../thesis/experiment-matrix.csv (v0.2) and results/experiment-matrix_v0.1.csv
 
-Ders 27'nin `budget.py`'si içe aktarılır (aynı episode modeli, aynı senaryolar); onun results/ klasörüne
-DOKUNULMAZ — çıktılar code/day28/results/ altına yazılır.
-Yeniden okuma (yeni episode gerektirmeyen) ablation'lar matriste satır değil; ablation-plan.md'de listelenir.
+`budget.py` from Lecture 27 is imported (same episode model, same scenarios); its results/ folder is NOT
+touched — outputs are written under code/day28/results/.
+Re-reading ablations (which need no new episodes) are not rows in the matrix; they are listed in ablation-plan.md.
 """
 import csv, os, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "day27"))
 import budget as B  # noqa: E402
 
-B.P_SUCC.update({"tr_bare_ascii": 0.4, "tr_cs": 0.6})   # yalnız maliyet karışımı (hipotez), sonuç tahmini değil
+B.P_SUCC.update({"tr_bare_ascii": 0.4, "tr_cs": 0.6})   # cost mix only (hypothesis), not a result prediction
 
 
 def load(p):
@@ -181,13 +181,13 @@ def main():
         w = csv.DictWriter(f, fieldnames=list(out[0])); w.writeheader(); w.writerows(out)
     with open(os.path.join(HERE, "results", "ablation_cells.csv"), "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=list(cells[0])); w.writeheader(); w.writerows(cells)
-    print("Ablation hücreleri (v0.2, n_init 50):")
+    print("Ablation cells (v0.2, n_init 50):")
     for r in cells:
-        print(f"  {r['cell']:4s} {r['tier']:5s} episode {r['episodes']:5d}  T4 sa iyimser/orta/kötümser {r['h_iyimser']:5.1f} / {r['h_orta']:5.1f} / {r['h_kötümser']:5.1f}  {r['status']}")
-    print("\nToplam (pilot + çekirdek, T4):")
+        print(f"  {r['cell']:4s} {r['tier']:5s} episode {r['episodes']:5d}  T4 h optimistic/mid/pessimistic {r['h_iyimser']:5.1f} / {r['h_orta']:5.1f} / {r['h_kötümser']:5.1f}  {r['status']}")
+    print("\nTotal (pilot + core, T4):")
     for o in out:
-        print(f"  {o['matrix']}  n_init {o['n_init_core']:2d}: iyimser {o['pilot_core_iyimser']:6.1f}  orta {o['pilot_core_orta']:6.1f}  "
-              f"kötümser {o['pilot_core_kötümser']:6.1f}  | genişletme (orta) {o['ext_orta']:6.1f} | Kaggle haftası {o['kaggle_weeks_orta']}")
+        print(f"  {o['matrix']}  n_init {o['n_init_core']:2d}: optimistic {o['pilot_core_iyimser']:6.1f}  mid {o['pilot_core_orta']:6.1f}  "
+              f"pessimistic {o['pilot_core_kötümser']:6.1f}  | extension (mid) {o['ext_orta']:6.1f} | Kaggle weeks {o['kaggle_weeks_orta']}")
 
 
 if __name__ == "__main__":
@@ -197,7 +197,7 @@ if __name__ == "__main__":
 ## plot_day28.py
 
 ```python
-"""Ders 28 — görseller 02–04 (gerçek çıktılardan: results/ablation_surface.csv, results/budget_v01_v02.csv)."""
+"""Lecture 28 — figures 02–04 (from real outputs: results/ablation_surface.csv, results/budget_v01_v02.csv)."""
 import csv, os, sys
 import numpy as np
 import matplotlib; matplotlib.use("Agg")
@@ -210,9 +210,9 @@ Y, B, G, R = "#ffd166", "#cfe8ff", "#d4f5d4", "#ffd6d6"
 YD, BD, GD, RD = "#c79a00", "#3b6ea8", "#2e8b57", "#c0392b"
 rows = list(csv.DictReader(open(os.path.join(HERE, "results", "ablation_surface.csv"), encoding="utf-8")))
 V = ["tr_a", "tr_ascii", "tr_bare", "tr_bare_ascii"]
-LAB = {"tr_a": "tr_a\nTR harf + ek", "tr_ascii": "tr_ascii\nASCII + ek", "tr_bare": "tr_bare\nTR harf, eksiz", "tr_bare_ascii": "tr_bare_ascii\nASCII, eksiz\n(YENİ)"}
+LAB = {"tr_a": "tr_a\nTR letters + suffix", "tr_ascii": "tr_ascii\nASCII + suffix", "tr_bare": "tr_bare\nTR letters, no suffix", "tr_bare_ascii": "tr_bare_ascii\nASCII, no suffix\n(NEW)"}
 
-# 02 — 2×2 token tablosu
+# 02 — 2×2 token table
 fig, axes = plt.subplots(1, 2, figsize=(14, 5.2), sharey=True)
 for ax, tk, name in zip(axes, ("llama2", "qwen3"), ("LLaMA-2 tokenizer (S-OV)", "Qwen3 tokenizer (S-VN)")):
     m = [np.mean([int(r[f"{tk}_{v}"]) for r in rows]) for v in V]
@@ -223,29 +223,29 @@ for ax, tk, name in zip(axes, ("llama2", "qwen3"), ("LLaMA-2 tokenizer (S-OV)", 
         ax.text(i, y + 0.3, f"{y:.1f}", ha="center", fontsize=9)
     ax.axhline(en, color="#555", ls="--", lw=1); ax.text(-0.45, en + 0.3, f"en = {en:.1f}", ha="left", fontsize=8.5, color="#555")
     letter = ((m[0] - m[1]) + (m[2] - m[3])) / 2; suffix = ((m[0] - m[2]) + (m[1] - m[3])) / 2; inter = (m[0] - m[1]) - (m[2] - m[3])
-    ax.set_title(f"{name}\nharf etkisi {letter:+.1f} · ek etkisi {suffix:+.1f} · etkileşim {inter:+.1f} token", fontsize=10)
+    ax.set_title(f"{name}\nletter effect {letter:+.1f} · suffix effect {suffix:+.1f} · interaction {inter:+.1f} tokens", fontsize=10)
     ax.set_xticks(range(4)); ax.set_xticklabels([LAB[v] for v in V], fontsize=8.5)
     ax.grid(axis="y", alpha=0.25)
-axes[0].set_ylabel("çift başına ortalama token (20 çift)")
-fig.suptitle("Ders 28 — Yüzey ablation'ı bir 2×2: harf × ek. Eksik hücre tr_bare_ascii üretildi; token sayıları GERÇEK "
-             "(Meta tokenizer.model + Qwen3 tokenizer.json; mevcut 4 yüzey datasets/05 ile 160/160 birebir)", fontsize=10)
+axes[0].set_ylabel("mean tokens per pair (20 pairs)")
+fig.suptitle("Lecture 28 — The surface ablation is a 2×2: letter × suffix. The missing cell tr_bare_ascii was produced; token counts are REAL "
+             "(Meta tokenizer.model + Qwen3 tokenizer.json; the 4 existing surfaces match datasets/05 160/160 exactly)", fontsize=10)
 fig.tight_layout(); fig.savefig(os.path.join(out, "02-surface-2x2-tokens.png"), dpi=160); plt.close(fig)
 
-# 03 — ek adımı Türkçe harfleri de götürüyor
+# 03 — the suffix step also removes Turkish letters
 ids = [r["pair_id"] for r in rows]
 keep = np.array([int(r["trletters_bare"]) for r in rows]); tot = np.array([int(r["trletters_tr_a"]) for r in rows])
 lost = tot - keep
 fig, ax = plt.subplots(figsize=(13, 4.8))
-ax.bar(ids, keep, color=B, edgecolor=BD, label="kökte kalan Türkçe harf (tr_bare'de de var)")
-ax.bar(ids, lost, bottom=keep, color=R, edgecolor=RD, label="ek adımıyla giden Türkçe harf (ekteki ı/ü/ğ, yumuşamış kök sonu)")
+ax.bar(ids, keep, color=B, edgecolor=BD, label="Turkish letters left in the stem (also present in tr_bare)")
+ax.bar(ids, lost, bottom=keep, color=R, edgecolor=RD, label="Turkish letters lost with the suffix step (ı/ü/ğ in the suffix, softened stem end)")
 for i, (k, l) in enumerate(zip(keep, lost)):
     ax.text(i, k + l + 0.1, str(k + l), ha="center", fontsize=8)
-ax.set_ylabel("Türkçe harf sayısı (tr_a)"); ax.legend(fontsize=8.5, loc="upper right"); ax.grid(axis="y", alpha=0.25)
-ax.set_title(f"Ders 28 — 'Ek' adımı saf değil: tr_a → tr_bare {tot.sum()} Türkçe harfin {lost.sum()}'ini de siler "
-             f"(%{100*lost.sum()/tot.sum():.0f}) → ek etkisini ASCII düzeyinde ölç (tr_ascii − tr_bare_ascii)", fontsize=10)
+ax.set_ylabel("number of Turkish letters (tr_a)"); ax.legend(fontsize=8.5, loc="upper right"); ax.grid(axis="y", alpha=0.25)
+ax.set_title(f"Lecture 28 — The 'suffix' step is not pure: tr_a → tr_bare also deletes {lost.sum()} of {tot.sum()} Turkish letters "
+             f"({100*lost.sum()/tot.sum():.0f}%) → measure the suffix effect at the ASCII level (tr_ascii − tr_bare_ascii)", fontsize=10)
 fig.tight_layout(); fig.savefig(os.path.join(out, "03-suffix-step-confound.png"), dpi=160); plt.close(fig)
 
-# 04 — bütçe v0.1 → v0.2
+# 04 — budget v0.1 → v0.2
 bud = list(csv.DictReader(open(os.path.join(HERE, "results", "budget_v01_v02.csv"), encoding="utf-8")))
 fig, ax = plt.subplots(figsize=(11, 4.8))
 lab = [f"{b['matrix']}\nn_init {b['n_init_core']}" for b in bud]
@@ -254,11 +254,11 @@ col = [B if b["matrix"] == "v0.1" else Y for b in bud]; ed = [BD if b["matrix"] 
 ax.bar(range(len(bud)), mid, color=col, edgecolor=ed)
 ax.errorbar(range(len(bud)), mid, yerr=[mid - lo, hi - mid], fmt="none", ecolor="#444", capsize=4)
 for i, b in enumerate(bud):
-    ax.text(i, hi[i] + 8, f"{mid[i]:.0f} sa\n≈ {b['kaggle_weeks_orta']} hafta", ha="center", fontsize=8.5)
-ax.axhline(30, color="#555", ls="--", lw=1); ax.text(3.4, 33, "Kaggle ~30 sa/hafta", ha="right", fontsize=8.5)
-ax.set_xticks(range(len(bud))); ax.set_xticklabels(lab); ax.set_ylabel("pilot + çekirdek T4 saati (orta; çizgi iyimser–kötümser)")
+    ax.text(i, hi[i] + 8, f"{mid[i]:.0f} h\n≈ {b['kaggle_weeks_orta']} weeks", ha="center", fontsize=8.5)
+ax.axhline(30, color="#555", ls="--", lw=1); ax.text(3.4, 33, "Kaggle ~30 h/week", ha="right", fontsize=8.5)
+ax.set_xticks(range(len(bud))); ax.set_xticklabels(lab); ax.set_ylabel("pilot + core T4 hours (mid; whisker optimistic–pessimistic)")
 ax.set_ylim(0, hi.max() * 1.2); ax.grid(axis="y", alpha=0.25)
-ax.set_title("Ders 28 — Ablation'ların fiyatı (Ders 27 modeli, model tahmini): çekirdeğe giren tek yeni hücre AB1 (+46 sa orta, yalında +18)", fontsize=10)
+ax.set_title("Lecture 28 — Price of the ablations (Lecture 27 model, model estimate): the only new cell entering the core is AB1 (+46 h mid, +18 in the lean matrix)", fontsize=10)
 fig.tight_layout(); fig.savefig(os.path.join(out, "04-budget-v01-v02.png"), dpi=160); plt.close(fig)
-print("yazıldı: 02, 03, 04 →", out)
+print("written: 02, 03, 04 →", out)
 ```

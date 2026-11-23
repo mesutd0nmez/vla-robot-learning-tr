@@ -2,17 +2,17 @@ sequenceDiagram
     participant S as libero_bench_eval
     participant E as SubprocVectorEnv (LIBERO)
     participant M as VLANeXt (T4)
-    S->>E: reset() ve set_init_state(init_states[episode])
-    S->>E: 10 adim no-op action [0,0,0,0,0,0,-1]
-    Note over S,E: nesneler yerlesir (num_steps_wait)
-    loop t < 220 (Spatial max_steps) ve done degil
+    S->>E: reset() and set_init_state(init_states[episode])
+    S->>E: 10 steps of no-op action [0,0,0,0,0,0,-1]
+    Note over S,E: objects settle (num_steps_wait)
+    loop t < 220 (Spatial max_steps) and not done
         E-->>S: obs: agentview + wrist 256x256, eef_pos, quat, gripper
         S->>S: img[::-1, ::-1], center crop 0.9, resize 256
-        S->>M: goruntuler + task.language + proprio
-        M-->>S: 8 x 7 action chunk (flow-matching, 5 adim)
-        S->>S: denormalize [-1,1] araligindan min,max araligina. gripper pozitifse +1 yoksa -1
-        S->>E: 8 kez step(action)
-        E-->>S: done (BDDL goal predicate saglandi mi)
+        S->>M: images + task.language + proprio
+        M-->>S: 8 x 7 action chunk (flow-matching, 5 steps)
+        S->>S: denormalize from the [-1,1] range to min,max. gripper +1 if positive else -1
+        S->>E: step(action) 8 times
+        E-->>S: done (was the BDDL goal predicate satisfied)
     end
-    S->>S: success = done. eval.log satiri ve mp4 kaydi
-    S->>S: klasor adi ..._SR66.67
+    S->>S: success = done. write eval.log line and mp4
+    S->>S: folder name ..._SR66.67

@@ -1,13 +1,13 @@
-"""Ders 24 — Çözüm adayı 4'ün en ucuz biçimi: kural tabanlı Türkçe komut → yapısal çerçeve → İngilizce LIBERO şablonu.
+"""Lecture 24 — the cheapest form of solution candidate 4: rule-based Turkish command -> structured frame -> English LIBERO template.
 
-Fikir (Ders 6 / Ders 23: "LLM parser + sembolik çözücü"): Türkçe komutu modele hiç göstermeden önce
-  (fiil, hedef nesne, ilişki, referans(lar), varış) çerçevesine ayır, sonra çerçeveden LIBERO'nun eğitimde gördüğü
-İngilizce şablonu üret. Bu script LLM bile kullanmaz: ~25 kelimelik sözlük + ek soyma + 3 şablon.
-Amaç bir çeviri sistemi yazmak DEĞİL; "çeviri katmanı ne kadar ucuz olabilir ve nerede kırılır" sorusuna
-datasets/04'ün 80 Türkçe satırı üzerinde GERÇEK bir sayı vermek (başarı = üretilen İngilizce, `en` sütunuyla birebir aynı).
+Idea (Lecture 6 / Lecture 23: "LLM parser + symbolic solver"): before the Turkish command is ever shown to the model, split it into a frame of
+  (verb, target object, relation, reference(s), destination), then generate from the frame the English template LIBERO saw during training.
+This script does not even use an LLM: a ~25-word lexicon + suffix stripping + 3 templates.
+The goal is NOT to write a translation system; it is to give a REAL number to the question "how cheap can a translation layer be and where does it break"
+on the 80 Turkish rows of datasets/04 (success = the generated English is identical to the `en` column).
 
-Kullanım:
-  python tr_parse.py                                   # datasets/04 commands.csv → özet tablo + parse_roundtrip.csv
+Usage:
+  python tr_parse.py                                   # datasets/04 commands.csv -> summary table + parse_roundtrip.csv
   python tr_parse.py --cmd "soldaki siyah kaseyi al ve tabağın üstüne koy"
   python tr_parse.py --selftest
 """
@@ -17,22 +17,22 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 DEFAULT_CSV = HERE / ".." / ".." / "datasets" / "04-tr-spatial-commands" / "data" / "commands.csv"
 
-# ---------------------------------------------------------------- sözlük (ASCII'ye katlanmış kökler)
+# ---------------------------------------------------------------- lexicon (stems folded to ASCII)
 ASCII = str.maketrans("çğıöşüâîû", "cgiosuaiu")
 
 
 def fold(w):
-    """Türkçe harfleri ASCII'ye katla, NFC; `tr_ascii` yüzeyi ile `tr_a` aynı anahtara düşsün diye."""
+    """Fold Turkish letters to ASCII, NFC; so that the `tr_ascii` surface form and `tr_a` fall on the same key."""
     return unicodedata.normalize("NFC", w).lower().translate(ASCII)
 
 
-OBJECTS = {  # kök → İngilizce ad
+OBJECTS = {  # stem -> English noun
     "kase": "bowl", "tabak": "plate", "ramekin": "ramekin", "masa": "table", "dolap": "cabinet", "cekmece": "drawer",
     "ocak": "stove", "raf": "rack", "sise": "bottle", "peynir": "cheese", "robot": "robot",
 }
-SOFT = {"tabag": "tabak", "dolab": "dolap", "ocag": "ocak"}            # yumuşama geri alımı
+SOFT = {"tabag": "tabak", "dolab": "dolap", "ocag": "ocak"}            # undoing consonant softening
 ADJ = {"siyah": "black", "ahsap": "wooden", "ust": "top", "sarap": "wine", "krem": "cream"}
-RELATIONS = {  # ilişki adı kökü → (İngilizce seçim ifadesi, İngilizce varış ifadesi)
+RELATIONS = {  # relational noun stem -> (English selection phrase, English destination phrase)
     "ara": ("between {refs}", None), "yan": ("next to {ref}", None), "orta": ("from {ref} center", None),
     "ust": ("on {ref}", "on {ref}"), "uzer": ("on {ref}", "on {ref}"), "ic": ("in {ref}", "in {ref}"),
     "sol": ("on the left", "to the left of {ref}"), "sag": ("on the right", "to the right of {ref}"),
@@ -41,17 +41,17 @@ RELATIONS = {  # ilişki adı kökü → (İngilizce seçim ifadesi, İngilizce 
 }
 VERBS = {"al": "pick", "alip": "pick", "koy": "put", "yerlestir": "put", "it": "push"}
 STOP = {"ve", "ile", "daha", "olan", "duran", "dogru", "taraftaki", "tarafina", "tarafindaki", "-"}
-# ek soyma: en uzun eşleşen kök + izin verilen ek dizisi
-SUFFIX = re.compile(r"^(l[ae]|n?[iu]n|[sy]?[iu]|[yn]?[ae]|n?d[ae]n?|t[ae]n?|ki|n)*$")  # izin verilen ek dizisi (ASCII)
+# suffix stripping: the longest matching stem + an allowed suffix sequence
+SUFFIX = re.compile(r"^(l[ae]|n?[iu]n|[sy]?[iu]|[yn]?[ae]|n?d[ae]n?|t[ae]n?|ki|n)*$")  # allowed suffix sequence (ASCII)
 STEMS = sorted(set(OBJECTS) | set(SOFT) | set(ADJ) | set(RELATIONS) | set(VERBS), key=len, reverse=True)
 
 
 def analyze(word):
-    """Bir sözcüğü (tür, kök, hâl) üçlüsüne indir. Hâl ∈ {acc, dat, loc, abl, ins, gen, ki, bare}."""
+    """Reduce a word to a (kind, stem, case) triple. Case ∈ {acc, dat, loc, abl, ins, gen, ki, bare}."""
     w = fold(word)
     if w in STOP:
         return ("STOP", w, "bare")
-    for stem in STEMS:  # en uzun kök önce (ust > us; sarap > sag...)
+    for stem in STEMS:  # the longest stem first (ust > us; sarap > sag...)
         if w.startswith(stem) and SUFFIX.match(w[len(stem):]):
             suf = w[len(stem):]
             stem = SOFT.get(stem, stem)
@@ -85,7 +85,7 @@ def case_of(suf):
 
 
 def noun_phrase(tokens):
-    """[ADJ...] OBJ → İngilizce 'the wooden cabinet' / 'the top drawer'."""
+    """[ADJ...] OBJ -> English 'the wooden cabinet' / 'the top drawer'."""
     adjs = [ADJ[s] for k, s, _ in tokens if k == "ADJ"]
     objs = [OBJECTS[s] for k, s, _ in tokens if k == "OBJ"]
     if not objs:
@@ -99,7 +99,7 @@ def noun_phrase(tokens):
 
 def parse(cmd):
     toks = [analyze(w) for w in re.findall(r"[^\s]+", cmd.replace("'", " "))]
-    # yalın "üst": ardından "çekmece" geliyorsa sıfat (top drawer), yoksa ilişki adı (tr_bare: "tabak üst koy")
+    # bare "üst": an adjective if "çekmece" follows (top drawer), otherwise a relational noun (tr_bare: "tabak üst koy")
     for i, t in enumerate(toks):
         if t == ("ADJ", "ust", "bare") and not (i + 1 < len(toks) and toks[i + 1][:2] == ("OBJ", "cekmece")):
             toks[i] = ("REL", "ust", "bare")
@@ -110,15 +110,15 @@ def parse(cmd):
     frame["verb"] = VERBS[verbs[0]] if verbs[0] != "koy" or len(verbs) == 1 else "pick"
     if "it" in verbs and len(verbs) == 1:
         frame["verb"] = "push"
-    # --- seçim ilişkisi: ilk REL (varış ilişkisinden önce gelen) ---
+    # --- selection relation: the first REL (the one before the destination relation) ---
     rel_idx = [i for i, (k, s, c) in enumerate(toks) if k == "REL"]
     obj_idx = [i for i, (k, s, c) in enumerate(toks) if k == "OBJ"]
-    if frame["verb"] == "pick":  # Spatial şablonu: ... siyah kase ... al ve tabak üst koy
+    if frame["verb"] == "pick":  # Spatial template: ... siyah kase ... al ve tabak üst koy
         first_verb = next(i for i, (k, s, c) in enumerate(toks) if k == "VERB")
         before = toks[:first_verb]
         after = toks[first_verb + 1:]
-        # hedef: "al"dan önceki son OBJ öbeği (kase)
-        # hedef: fiilden önce belirtme hâli (-yi) almış OBJ; yoksa (tr_bare) fiilden önceki son OBJ
+        # target: the last OBJ group before "al" (kase)
+        # target: the OBJ that took the accusative (-yi) before the verb; otherwise (tr_bare) the last OBJ before the verb
         acc_before = [i for i in obj_idx if i < first_verb and toks[i][2] == "acc"]
         tgt_pos = acc_before[-1] if acc_before else max((i for i in obj_idx if i < first_verb), default=None)
         if tgt_pos is None:
@@ -127,8 +127,8 @@ def parse(cmd):
         while tgt_start - 1 >= 0 and toks[tgt_start - 1][0] == "ADJ" and toks[tgt_start - 1][1] == "siyah":
             tgt_start -= 1
         frame["target"] = noun_phrase(toks[tgt_start:tgt_pos + 1])
-        rels_sel = [i for i in rel_idx if i < first_verb]          # fiilden önceki ilişki adları (seçim)
-        # referans öbekleri: fiilden önce, hedef öbeğin dışında kalan [ADJ...] OBJ dizileri
+        rels_sel = [i for i in rel_idx if i < first_verb]          # relational nouns before the verb (selection)
+        # reference groups: [ADJ...] OBJ sequences before the verb that lie outside the target group
         groups, cur = [], []
         for i, t in enumerate(toks[:first_verb]):
             if tgt_start <= i <= tgt_pos or t[0] not in ("OBJ", "ADJ"):
@@ -139,19 +139,19 @@ def parse(cmd):
         frame["refs"] = [noun_phrase(g) for g in groups]
         if rels_sel:
             frame["relation"] = toks[rels_sel[-1]][1]
-        elif groups:  # ilişki adı yok, yalın bulunma: "dolabın üst çekmecesindeki" → in the top drawer of the cabinet
+        elif groups:  # no relational noun, bare location: "dolabın üst çekmecesindeki" -> in the top drawer of the cabinet
             frame["relation"] = "ic"
         dest_objs = [i for i in obj_idx if i > first_verb]
         dest_rels = [i for i in rel_idx if i > first_verb]
         if dest_objs:
             frame["dest"] = noun_phrase([toks[dest_objs[0]]])
             frame["dest_rel"] = toks[dest_rels[0]][1] if dest_rels else "ust"
-    else:  # Goal şablonu: X-i Y-nin üst-ü-ne koy / Y-nin üst-ü-ne X-i koy
+    else:  # Goal template: X-i Y-nin üst-ü-ne koy / Y-nin üst-ü-ne X-i koy
         acc = [i for i in obj_idx if toks[i][2] == "acc"]
         rel = rel_idx[0] if rel_idx else None
         if acc:
             tpos = acc[0]
-        else:  # tr_bare: ilk OBJ hedef
+        else:  # tr_bare: the first OBJ is the target
             tpos = obj_idx[0] if obj_idx else None
         if tpos is None:
             return frame
@@ -164,13 +164,13 @@ def parse(cmd):
             frame["dest"] = noun_phrase([toks[others[0]]])
         frame["dest_rel"] = toks[rel][1] if rel is not None else None
         if frame["dest_rel"] is None and frame["dest"]:
-            # "şarap şişesini rafa koy": ilişki adı yok → DAT = on
+            # "şarap şişesini rafa koy": no relational noun -> DAT = on
             frame["dest_rel"] = "ust"
     return frame
 
 
 def render(frame):
-    """Çerçeveden LIBERO İngilizce şablonu."""
+    """The LIBERO English template from the frame."""
     if not frame["verb"] or not frame["target"]:
         return None
     if frame["verb"] == "pick":
@@ -208,7 +208,7 @@ def render(frame):
             return None
         d = d.format(ref=frame["dest"])
         if frame["dest_rel"] == "ust" and frame["dest"] == "the cabinet":
-            d = "on top of the cabinet"  # LIBERO-Goal görev 4'ün adı böyle
+            d = "on top of the cabinet"  # that is the name of LIBERO-Goal task 4
         return f"put {frame['target']} {d}"
     if frame["verb"] == "push":
         if not frame["dest"] or not frame["dest_rel"]:
@@ -235,23 +235,23 @@ def run_set(csv_path, out_path):
     with open(out_path, "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=list(out[0].keys()))
         w.writeheader(); w.writerows(out)
-    print(f"{'yüzey':<9}{'n':>4}{'birebir':>9}{'yanlış EN':>11}{'parse yok':>11}")
+    print(f"{'surface':<9}{'n':>4}{'exact':>9}{'wrong EN':>11}{'no parse':>11}")
     for v in ("tr_a", "tr_ascii", "tr_bare", "tr_b"):
         s = stats.get(v, {})
         n = sum(s.values())
         print(f"{v:<9}{n:>4}{s.get('ok',0):>9}{s.get('wrong_en',0):>11}{s.get('parse_fail',0):>11}")
     tot = sum(sum(s.values()) for s in stats.values()); ok = sum(s["ok"] for s in stats.values())
-    print(f"{'toplam':<9}{tot:>4}{ok:>9}   ({100*ok/tot:.0f}%)   → {out_path}")
+    print(f"{'total':<9}{tot:>4}{ok:>9}   ({100*ok/tot:.0f}%)   -> {out_path}")
     fails = [o for o in out if o["result"] != "ok"]
     if fails:
-        print("\nBaşarısızlar:")
+        print("\nFailures:")
         for o in fails:
             print(f"  {o['id']:<14} {o['tr']}\n      → {o['en_pred'] or '∅'}\n      ≠ {o['en_gold']}")
     return stats
 
 
 def run_heldout(path):
-    """Parser dondurulduktan SONRA yazılmış 12 yeni Türkçe yüzey: sözlük/şablon dışına çıkınca ne oluyor?"""
+    """12 new Turkish surface forms written AFTER the parser was frozen: what happens outside the lexicon/templates?"""
     rows = list(csv.DictReader(open(path, encoding="utf-8")))
     ok = 0
     print(f"\nHeld-out ({path.name}):")

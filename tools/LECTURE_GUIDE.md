@@ -1,46 +1,48 @@
-# Ders yazım rehberi (otomatik görev ve Claude için)
+# Lecture writing guide (for the automated task and for Claude)
 
-Bu dosya, `lectures/lecture-NN.md` dosyalarının nasıl yazılacağını tanımlar. Her yeni ders bu kurallara uyar.
+This file defines how `lectures/lecture-NN.md` files are written. Every new lecture follows these rules.
 
-## Sıra ve konu
-- **Aşama 0 Ders 31'de bitti (23 Kas 2026).** Mesut açıkça istemedikçe lecture-32 ve sonrası yazılmaz.
-- Yeni dersin numarası = `lectures/` altındaki en büyük `lecture-NN` + 1.
-- Konu: `plan/lecture-plan.md` tablosunda aynı numaralı "Gün" satırı. 30'dan sonra: `README.md`'deki aşamalar (literatür → deney altyapısı → deneyler → tez yazımı) ve `plan/daily-log.md`'deki notlar/sorular doğrultusunda, bir önceki dersin "Sonraki ders" bölümünde vaat edilen konu.
-- Önceki dersin "Sonraki ders" bölümüne sadık kal; `plan/daily-log.md`'de Mesut'un bıraktığı not/soru varsa dersin başında bir paragrafla cevapla.
+**Project language: English.** Lectures, notes, plans and code comments are written in English; Turkish is kept only for the research material itself (Turkish commands, morpheme segmentations, examples, Turkish paper titles, data files).
 
-## Format (lecture-01…11 ile birebir aynı iskelet)
-1. `# Ders N — Başlık` (başlıkta iki noktadan önce kısa ad; menüde o kullanılır)
-2. Meta satırı: `**Faz X / Gün N** · **Okuma süresi:** ~40 dk` · ön koşul · kaynak/kod yolu
-3. `> **Bugünün tek cümlesi:** …` (tek cümle, anahtar fikir)
-4. `---` ile ayrılmış 5–8 numaralı bölüm; her bölümde en az bir somut örnek; toplam okuma ≤ 40 dk, uygulama günlerinde ≤ 60 dk toplam
-   - `## 0. Dürüstlük notu` (ne çalıştırıldı / ne hipotez dökümü) bölümü YAZMA; bölümler 1'den başlar. Mesut her şeyi kendisi deniyor. Çalıştırılamayan bir şey varsa ilgili bölümde tek cümleyle söyle.
-5. `## N. Yazılımcı için köprüler` (Mesut 10 yıllık C#/.NET backend geliştirici; benzetmeler buradan)
-6. `## N. Bugünün görevi (15 dk)` — tek somut görev; "çıktı doldurma" bölümü KOYMA
-7. Uygulama günlerinde `## Takılırsan` tablosu (belirti → çözüm)
-8. `## Sonraki ders (Ders N+1)` — bir paragraf
-9. `## Kaynaklar` — arXiv/GitHub bağlantılarıyla; görsellerin nasıl üretildiği notu
+## Order and topic
+- **Stage 0 ended at Lecture 31 (23 Nov 2026).** Do not write lecture-32 or later unless Mesut explicitly asks.
+- New lecture number = largest `lecture-NN` under `lectures/` + 1.
+- Topic: the row with the same "Day" number in the `plan/lecture-plan.md` table. After 30: follow the stages in `README.md` (literature → experiment infrastructure → experiments → thesis writing) and the notes/questions in `plan/daily-log.md`, using the topic promised in the previous lecture's "Next lecture" section.
+- Stay faithful to the previous lecture's "Next lecture" section; if Mesut left a note/question in `plan/daily-log.md`, answer it in one paragraph at the start of the lecture.
 
-Soru bölümü YAZMA: `Kendini sına`, `Çoktan seçmeli` ve `Cevaplar` bölümleri tüm derslerden kaldırıldı (22 Kas 2026); yeni derslere de eklenmez.
+## Format (same skeleton as lecture-01…11)
+1. `# Lecture N — Title` (short name before the colon; the menu uses it)
+2. Meta line: `**Phase X / Day N**` · `**Reading time:** ~40 min` · prerequisite · source/code path. The `**Phase X / Day N**` token must appear in the first 8 lines (`tools/gen_sidebar.py` parses it).
+3. `> **Today in one sentence:** …` (one sentence, the key idea)
+4. 5–8 numbered sections separated by `---`; at least one concrete example in each; total reading ≤ 40 min, ≤ 60 min total on hands-on days
+   - Do NOT write a `## 0. Honesty note` section (what was run / what is hypothesis); sections start at 1. Mesut tries everything himself. If something could not be run, say so in one sentence in the relevant section.
+5. `## N. Bridges for the software developer` (Mesut is a 10-year C#/.NET backend developer; analogies come from there)
+6. `## N. Today's task (15 min)` — a single concrete task; do NOT add an "fill in the output" section
+7. On hands-on days, an `## If you get stuck` table (Symptom | Fix)
+8. `## Next lecture (Lecture N+1)` — one paragraph
+9. `## References` — with arXiv/GitHub links; a note on how the figures were produced
 
-## Görseller (zorunlu, en az 3)
-- Klasör: `lectures/images/lecture-NN/`; derste `![alt](images/lecture-NN/01-ad.png)`
-- Diyagramlar Mermaid ile (`mmdc -i x.mmd -o x.png -b white -w 1500 -s 2`), `.mmd` kaynağı yanına konur. Mermaid sequenceDiagram'da özel karakter (→, ≠, parantez içinde ok) kullanma.
-- Grafikler matplotlib ile; gerçek makale değerleri kullanılıyorsa kaynağı başlıkta yaz; temsili/sentetik veri ise altında belirt.
-- Renk dili: sarı `#ffd166` = model/policy/anahtar fikir, mavi `#cfe8ff` = gözlem/girdi, yeşil `#d4f5d4` = action/çıktı, kırmızı `#ffd6d6` = sorun.
-- Çalıştırılabilen her şeyi gerçekten çalıştır (MuJoCo, robosuite, scriptler) ve gerçek çıktıyı görsel olarak kullan; çalıştırılamıyorsa derste açıkça söyle.
+Do NOT write question sections: `Test yourself`, `Multiple choice` and `Answers` sections were removed from all lectures (22 Nov 2026); they are not added to new lectures either.
 
-## Kod
-- Uygulama günlerinde script'ler `code/dayNN/` altına; dersteki komutlar `curl -O https://raw.githubusercontent.com/mesutd0nmez/vla-robot-learning-tr/main/code/dayNN/x.py` ile indirilebilir olmalı.
-- Her `code/dayNN/` klasörüne README.md: her script için `## ad.py` + ```python bloğu (site bunu gösterir).
-- Donanım: MacBook Pro M2 32 GB (CUDA yok, MPS var) + ücretsiz Colab/Kaggle T4. Mac'te çalışmayan şey (flash-attn, bitsandbytes, VLANeXt eval) Colab'a; Colab notebook'ları `code/dayNN/*.ipynb`.
-- Sürüm pinleri: `numpy<2`, `mujoco==2.3.7`, `robosuite==1.4.1`, Python 3.10.
+## Figures (mandatory, at least 3)
+- Folder: `lectures/images/lecture-NN/`; in the lecture `![alt](images/lecture-NN/01-name.png)`
+- Diagrams with Mermaid (`mmdc -i x.mmd -o x.png -b white -w 1500 -s 2`), keep the `.mmd` source next to the PNG. In Mermaid sequenceDiagram do not use special characters (→, ≠, arrows inside parentheses).
+- Charts with matplotlib; if real paper values are used, state the source in the title; if data is representative/synthetic, say so underneath.
+- Color language: yellow `#ffd166` = model/policy/key idea, blue `#cfe8ff` = observation/input, green `#d4f5d4` = action/output, red `#ffd6d6` = problem.
+- Actually run everything that can be run (MuJoCo, robosuite, scripts) and use the real output as a figure; if it cannot be run, say so explicitly in the lecture.
 
-## Dil ve ton
-- Türkçe; teknik terimler İngilizce bırakılır (policy, action, success rate). Mesut'a "sen" diye hitap. Pazarlama dili yok. Her iddia kaynaklı; emin olunmayan şey "hipotez" diye işaretlenir.
-- Tez ekseni (aday, danışmanla kesinleşmedi): Türkçe mekânsal komutların VLA'larda grounding'i; OpenVLA (LLaMA-2 tokenizer) vs VLANeXt (Qwen3-VL) karşılaştırması; LIBERO/LIBERO-Plus; boş-komut tabanı. Her ders bu eksene en az bir cümleyle bağlanır.
+## Code
+- On hands-on days, scripts go under `code/dayNN/`; commands in the lecture must be downloadable with `curl -O https://raw.githubusercontent.com/mesutd0nmez/vla-robot-learning-tr/main/code/dayNN/x.py`.
+- Each `code/dayNN/` folder gets a README.md: for each script `## name.py` + a ```python block (the site displays it).
+- Hardware: MacBook Pro M2 32 GB (no CUDA, MPS available) + free Colab/Kaggle T4. What does not work on the Mac (flash-attn, bitsandbytes, VLANeXt eval) goes to Colab; Colab notebooks live in `code/dayNN/*.ipynb`.
+- Version pins: `numpy<2`, `mujoco==2.3.7`, `robosuite==1.4.1`, Python 3.10.
 
-## Bitirirken
-1. `plan/daily-log.md` sonuna `## Ders N — Konu` girişi (Durum / Ders / Görev / Notlar).
+## Language and tone
+- English; technical terms as is (policy, action, success rate). Address Mesut as "you". No marketing language. Every claim is sourced; anything uncertain is marked "hypothesis". Turkish text is used only where it is the research object (commands, segmentations, examples), with a short English gloss where helpful.
+- Thesis axis (candidate, not settled with the advisor): grounding of Turkish spatial commands in VLAs; OpenVLA (LLaMA-2 tokenizer) vs VLANeXt (Qwen3-VL) comparison; LIBERO/LIBERO-Plus; empty-command baseline. Every lecture ties back to this axis in at least one sentence.
+
+## When finishing
+1. Add a `## Lecture N — Topic` entry at the end of `plan/daily-log.md` (Status / Lecture / Task / Notes).
 2. `python tools/gen_sidebar.py`
-3. `home.md`'deki ders ızgarasına yeni kart; README'deki ders tablosuna satır.
-4. Commit mesajı: `Ders N: <konu>`; push.
+3. Add a new card to the lecture grid in `home.md`; add a row to the lecture table in the README.
+4. Commit message: `Lecture N: <topic>`; push.

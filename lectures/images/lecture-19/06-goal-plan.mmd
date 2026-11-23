@@ -1,26 +1,26 @@
 flowchart LR
-    subgraph P["Pilot (Ders 18): Spatial görev 0"]
+    subgraph P["Pilot (Lecture 18): Spatial task 0"]
         direction TB
-        P1["10 init × 4 koşul = 40 episode<br/>~1 saat T4"]:::in
-        P2["read_patterns.py → örüntü + paragraf"]:::key
+        P1["10 init × 4 conditions = 40 episodes<br/>~1 hour on T4"]:::in
+        P2["read_patterns.py → pattern + paragraph"]:::key
         P1 --> P2
     end
-    subgraph S["Spatial'da 50'lik koşu"]
+    subgraph S["50-episode run on Spatial"]
         direction TB
-        S1["num_trials_per_task: 50<br/>4 × 50 = 200 episode, 3–5 saat"]:::in
-        S2["Güç: Δ=29 için %96 (Fisher) / %100 (McNemar)<br/>ama sahne görevi söylüyor (9/10)"]:::bad
+        S1["num_trials_per_task: 50<br/>4 × 50 = 200 episodes, 3–5 hours"]:::in
+        S2["Power: 96% (Fisher) / 100% (McNemar) for Δ=29<br/>but the scene tells the task (9/10)"]:::bad
         S1 --> S2
     end
-    subgraph G["Goal görev 8: put the bowl on the plate"]
+    subgraph G["Goal task 8: put the bowl on the plate"]
         direction TB
-        G1["VLANeXt_libero_goal.pt (16.4 GB, ayrı indirme)<br/>t4_goal_config.yaml + conditions_goal8.json"]:::in
-        G2["clean / empty / wrong (= görev 1: on the stove) / tr<br/>aynı sahne, 10 hedef → komutsuz taban ≈ %10"]:::key
-        G3["wrong artık belirsiz değil:<br/>success(wrong) ≈ 0 ⇒ komut okunuyor<br/>success(wrong) ≈ clean ⇒ sahne eziyor"]:::out
+        G1["VLANeXt_libero_goal.pt (16.4 GB, separate download)<br/>t4_goal_config.yaml + conditions_goal8.json"]:::in
+        G2["clean / empty / wrong (= task 1: on the stove) / tr<br/>same scene, 10 goals → no-command baseline ≈ 10%"]:::key
+        G3["wrong is no longer ambiguous:<br/>success(wrong) ≈ 0 ⇒ the command is read<br/>success(wrong) ≈ clean ⇒ the scene overrides"]:::out
         G1 --> G2 --> G3
     end
-    P2 -->|"A ya da C çıktıysa"| G
-    P2 -->|"B ya da D çıktıysa"| S
-    S2 -.->|"tez tablosu: her iki suite"| G
+    P2 -->|"if A or C came out"| G
+    P2 -->|"if B or D came out"| S
+    S2 -.->|"thesis table: both suites"| G
     classDef in fill:#cfe8ff,stroke:#3b6fa0,color:#000
     classDef key fill:#ffd166,stroke:#b8860b,color:#000
     classDef out fill:#d4f5d4,stroke:#2e8b57,color:#000

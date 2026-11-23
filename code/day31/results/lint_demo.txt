@@ -1,10 +1,10 @@
-P0-ornek.md: TAM (8/8 alan)
-design-template.md: EKSİK (0/8 alan)
-  - Soru: doldurulmamış ('___' duruyor)  → dön: Ders 26 §1
-  - Null hipotez: doldurulmamış ('___' duruyor)  → dön: Ders 26 §2
-  - Değişkenler: doldurulmamış ('___' duruyor)  → dön: Ders 26 §3
-  - Hücreler: doldurulmamış ('___' duruyor)  → dön: Ders 27 §1
-  - Bütçe: doldurulmamış ('___' duruyor)  → dön: Ders 27 §4–5
-  - Başarı ölçütü: doldurulmamış ('___' duruyor)  → dön: Ders 26 §2, Ders 19
-  - Riskler: doldurulmamış ('___' duruyor)  → dön: Ders 27 §6, Ders 28
-  - Evet / hayır çıkarsa: doldurulmamış ('___' duruyor)  → dön: Ders 26 §1 (altıncı alan)
+P0-ornek.md: COMPLETE (8/8 fields)
+design-template.md: INCOMPLETE (0/8 fields)
+  - Question: not filled in ('___' still there)  → go back to: Lecture 26 §1
+  - Null hypothesis: not filled in ('___' still there)  → go back to: Lecture 26 §2
+  - Variables: not filled in ('___' still there)  → go back to: Lecture 26 §3
+  - Cells: not filled in ('___' still there)  → go back to: Lecture 27 §1
+  - Budget: not filled in ('___' still there)  → go back to: Lecture 27 §4–5
+  - Success criterion: not filled in ('___' still there)  → go back to: Lecture 26 §2, Lecture 19
+  - Risks: not filled in ('___' still there)  → go back to: Lecture 27 §6, Lecture 28
+  - If yes / if no: not filled in ('___' still there)  → go back to: Lecture 26 §1 (sixth field)

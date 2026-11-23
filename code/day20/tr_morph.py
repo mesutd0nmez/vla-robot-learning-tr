@@ -1,16 +1,17 @@
-"""Ders 20 — Mekânsal komutlar için küçük bir Türkçe ek üretici (kural tabanlı; sözlük + ünlü uyumu + kaynaştırma).
+"""Lecture 20 — a small Turkish suffix generator for spatial commands (rule-based; lexicon + vowel harmony + buffer consonants).
 
-Amaç genel bir morfolojik çözümleyici DEĞİL: komut setindeki ~20 ad ve ~12 ilişki adı için ekleri elle yazmak yerine
-üretmek, böylece (1) aynı biçimbirimin kaç yüzey biçimi (allomorf) olduğunu saymak, (2) sete yeni nesne eklerken
-"tabakın / dolapın" gibi hataları önlemek, (3) her komutun ek ayrımını (tabağ-ın üst-ü-ne) Ders 21'e sütun olarak vermek.
+The goal is NOT a general morphological analyzer: instead of writing the suffixes by hand for the ~20 nouns and ~12 relational
+nouns of the command set, we generate them, so that we can (1) count how many surface forms (allomorphs) the same morpheme has,
+(2) avoid errors like "tabakın / dolapın" when adding a new object to the set, (3) hand the suffix segmentation of every command
+(tabağ-ın üst-ü-ne) to Lecture 21 as a column.
 
-Kurallar (Göksel & Kerslake 2005, Bölüm 3 ve 6'daki genel kurallar; yalnızca bu setin ihtiyacı kadar):
-  I ∈ {ı, i, u, ü}: son ünlü kalın/ince × düz/yuvarlak        A ∈ {a, e}: son ünlü kalın/ince
+Rules (general rules from Göksel & Kerslake 2005, Chapters 3 and 6; only as much as this set needs):
+  I ∈ {ı, i, u, ü}: last vowel back/front × unrounded/rounded        A ∈ {a, e}: last vowel back/front
   GEN  -(n)In     POSS3 -(s)I     ACC -(y)I     DAT -(y)A     LOC -DA     ABL -DAn     -ki
-  POSS3'ten sonra "zamir n'si": -nI, -nA, -ndA, -ndAn, -nIn   (üst-ü-n-e, çekmece-si-n-de-ki)
-  Yumuşama (sözlükte işaretli): tabak → tabağ-ı, dolap → dolab-ı, ocak → ocağ-ı   (robot → robot-a: yumuşamaz)
+  After POSS3 the "pronominal n": -nI, -nA, -ndA, -ndAn, -nIn   (üst-ü-n-e, çekmece-si-n-de-ki)
+  Consonant softening (marked in the lexicon): tabak → tabağ-ı, dolap → dolab-ı, ocak → ocağ-ı   (robot → robot-a: does not soften)
 
-Kullanım:
+Usage:
   python tr_morph.py --selftest
   python tr_morph.py tabak gen        → tabağın   (tabağ-ın)
   python tr_morph.py üst dat --rel    → üstüne    (üst-ü-ne)
@@ -20,11 +21,11 @@ import sys
 VOWELS, BACK, ROUND = "aeıioöuüâîû", "aıouâû", "oöuüû"
 SOFTEN = {"k": "ğ", "p": "b", "ç": "c", "t": "d"}
 VOICELESS = "fstkçşhp"
-# sözlük: yalın biçim → son sesi yumuşar mı?  (yalnızca bu setteki adlar)
+# lexicon: bare form -> does the final consonant soften?  (only the nouns in this set)
 LEXICON = {
     "tabak": True, "ocak": True, "dolap": True, "kase": False, "kâse": False, "ramekin": False, "masa": False,
     "kutu": False, "çekmece": False, "raf": False, "şişe": False, "peynir": False, "robot": False, "taraf": False,
-    # ilişki adları (relational nouns): iyelik eki alıp hâl ekiyle çekimlenirler
+    # relational nouns: they take a possessive suffix and are inflected with a case suffix
     "üst": False, "alt": False, "yan": False, "ön": False, "arka": False, "iç": False, "ara": False, "orta": False,
     "sağ": False, "sol": False, "üzer": False, "karşı": False,
 }
@@ -34,7 +35,7 @@ def _last_vowel(s):
     for ch in reversed(s):
         if ch in VOWELS:
             return ch
-    raise ValueError(f"ünlü yok: {s}")
+    raise ValueError(f"no vowel: {s}")
 
 
 def _I(s):
@@ -51,7 +52,7 @@ def _ends_vowel(s):
 
 
 def _soft(word):
-    """Ünlüyle başlayan ek öncesi gövde: sözlükte işaretliyse son ünsüz yumuşar."""
+    """Stem before a vowel-initial suffix: if marked in the lexicon, the final consonant softens."""
     head = word.split()[-1]
     if LEXICON.get(head, False) and word[-1] in SOFTEN:
         return word[:-1] + SOFTEN[word[-1]]
@@ -59,7 +60,7 @@ def _soft(word):
 
 
 def poss3(word):
-    """3. tekil iyelik: üst → üst-ü, arka → arka-sı, çekmece → çekmece-si, tabak → tabağ-ı."""
+    """3rd person singular possessive: üst → üst-ü, arka → arka-sı, çekmece → çekmece-si, tabak → tabağ-ı."""
     if _ends_vowel(word):
         return word + "s" + _I(word), word + "-s" + _I(word)
     g = _soft(word)
@@ -67,8 +68,8 @@ def poss3(word):
 
 
 def case(word, c, poss=False, seg=None):
-    """word'e hâl eki ekler. c ∈ {nom, gen, acc, dat, loc, abl}. poss=True: word zaten 3. tekil iyelikli (zamir n'si gelir).
-    (yüzey, ayrım) döndürür; seg verilirse ayrımın başı olarak kullanılır."""
+    """Adds a case suffix to word. c ∈ {nom, gen, acc, dat, loc, abl}. poss=True: word already carries the 3rd person possessive (the pronominal n appears).
+    Returns (surface, segmentation); if seg is given it is used as the beginning of the segmentation."""
     seg = seg or word
     if c == "nom":
         return word, seg
@@ -89,19 +90,19 @@ def case(word, c, poss=False, seg=None):
 
 
 def ki(surface, seg):
-    """-ki: yer bildiren ifadeyi sıfata çevirir (üstünde → üstündeki 'üstünde olan'). Ünlü uyumuna girmez."""
+    """-ki: turns a locative expression into an adjective (üstünde → üstündeki, "the one on top"). Does not take part in vowel harmony."""
     return surface + "ki", seg + "-ki"
 
 
 def rel(noun, c, with_ki=False):
-    """İlişki adı + POSS3 + hâl (+ki): rel('üst','dat') → üstüne; rel('ara','loc',True) → arasındaki."""
+    """Relational noun + POSS3 + case (+ki): rel('üst','dat') → üstüne; rel('ara','loc',True) → arasındaki."""
     p, pseg = poss3(noun)
     s, sseg = case(p, c, poss=True, seg=pseg)
     return ki(s, sseg) if with_ki else (s, sseg)
 
 
 def bare(noun, c, with_ki=False):
-    """İyeliksiz yön adı: sol-da-ki, sağ-da-ki, ön-de-ki (deiktik kullanım; referans nesne yok)."""
+    """Direction noun without possessive: sol-da-ki, sağ-da-ki, ön-de-ki (deictic use; no reference object)."""
     s, sseg = case(noun, c)
     return ki(s, sseg) if with_ki else (s, sseg)
 
@@ -140,8 +141,8 @@ def selftest():
         ok = got == (surf, seg)
         bad += not ok
         if not ok:
-            print(f"  HATA beklenen {surf} ({seg}) → üretilen {got[0]} ({got[1]})")
-    print(f"tr_morph selftest: {len(SELFTEST) - bad}/{len(SELFTEST)} doğru")
+            print(f"  ERROR expected {surf} ({seg}) → produced {got[0]} ({got[1]})")
+    print(f"tr_morph selftest: {len(SELFTEST) - bad}/{len(SELFTEST)} correct")
     return bad == 0
 
 

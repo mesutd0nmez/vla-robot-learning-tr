@@ -1,14 +1,14 @@
-"""Ders 16 — VLANeXt LIBERO-Plus eval.log → episode tablosu + runs.csv satırları.
+"""Lecture 16 — VLANeXt LIBERO-Plus eval.log → episode table + runs.csv rows.
 
-Kullanım:
+Usage:
   python parse_plus_log.py <eval.log> --run-id vlanext_plus_t4_01 --condition rewritten --lang en --csv results/runs.csv
-  python parse_plus_log.py --selftest      # script'in kendi format string'iyle üretilmiş log'la sınar
+  python parse_plus_log.py --selftest      # tests with a log produced by the script's own format string
 
-Log biçimi scripts/libero_plus_bench_eval.py'dendir (Ders 12'deki libero_bench_eval'den FARKLI: trial/episode_time yok,
-category var):
+The log format is from scripts/libero_plus_bench_eval.py (DIFFERENT from libero_bench_eval in Lecture 12: no trial/episode_time,
+there is a category):
   Episode result: task=%d/%d category=%s success=%s rollout_steps=%d total_episodes=%d/%d total_successes=%d total_success_rate=%.1f%% video=%s
-runs.csv sözleşmesi (CLAUDE.md): run_id, model, checkpoint, suite, task_id, lang, condition, n_episodes, success_rate
-task_id = LIBERO-Plus indeksi (0 tabanlı, VLANEXT_TASK_IDS ile aynı).
+runs.csv convention (CLAUDE.md): run_id, model, checkpoint, suite, task_id, lang, condition, n_episodes, success_rate
+task_id = LIBERO-Plus index (0-based, same as VLANEXT_TASK_IDS).
 """
 import argparse, csv, pathlib, re, sys, tempfile
 from collections import defaultdict
@@ -25,21 +25,21 @@ def parse(text):
     eps = [m.groups() for m in EP.finditer(text)]
     s = SUITE.search(text); c = CKPT.search(text); o = OVR.search(text)
     return {"suite": s.group(1) if s else "?", "checkpoint": pathlib.Path(c.group(1)).name if c else "?",
-            "override": o.group(1).strip() if o else "(satır yok — yama 4 uygulanmamış olabilir)", "episodes": eps}
+            "override": o.group(1).strip() if o else "(no line — patch 4 may not have been applied)", "episodes": eps}
 
 
 def report(info, run_id, lang, condition, csv_path=None):
     eps = info["episodes"]
     if not eps:
-        sys.exit("Log'da 'Episode result' satırı yok — eval başlamadan düşmüş olabilir; log'un sonuna bak.")
-    print(f"suite={info['suite']}  checkpoint={info['checkpoint']}  override={info['override']}  episode={len(eps)}")
+        sys.exit("No 'Episode result' line in the log — the eval may have crashed before starting; look at the end of the log.")
+    print(f"suite={info['suite']}  checkpoint={info['checkpoint']}  override={info['override']}  episodes={len(eps)}")
     per = defaultdict(lambda: [0, 0]); cats = {}
-    print(f"{'indeks':>6} {'kategori':>10} {'success':>7} {'adım':>5}  video")
+    print(f"{'index':>6} {'category':>10} {'success':>7} {'steps':>5}  video")
     for task, n, cat, ok, steps, *_rest, video in eps:
         i = int(task) - 1; per[i][0] += 1; per[i][1] += ok == "True"; cats[i] = cat
         print(f"{i:6d} {cat:>10} {ok:>7} {int(steps):5d}  {pathlib.Path(video).name[:60]}")
     tn = sum(v[0] for v in per.values()); ts = sum(v[1] for v in per.values())
-    print(f"Toplam: {ts}/{tn} = {100 * ts / tn:.1f}%")
+    print(f"Total: {ts}/{tn} = {100 * ts / tn:.1f}%")
     if csv_path:
         out = pathlib.Path(csv_path); out.parent.mkdir(parents=True, exist_ok=True)
         new = not out.exists()
@@ -50,7 +50,7 @@ def report(info, run_id, lang, condition, csv_path=None):
             for i, (n, s) in sorted(per.items()):
                 w.writerow([run_id, "VLANeXt-B", info["checkpoint"], info["suite"] + "_plus", i, lang, condition, n,
                             round(s / n, 4)])
-        print(f"{len(per)} satır eklendi → {out}")
+        print(f"{len(per)} rows appended → {out}")
     return ts, tn
 
 
@@ -70,7 +70,7 @@ def selftest():
         ts, tn = report(parse("\n".join(lines)), "selftest", "none", "empty", csvp)
         rows = list(csv.DictReader(csvp.open(encoding="utf-8")))
     assert (ts, tn) == (2, 3) and len(rows) == 3 and rows[0]["task_id"] == "988", rows
-    print("SELFTEST OK (sentetik log; gerçek sonuç değildir)")
+    print("SELFTEST OK (synthetic log; not a real result)")
 
 
 if __name__ == "__main__":

@@ -1,84 +1,84 @@
-# Aday araştırma soruları (RQ) — taslak v0.1 (Ders 26)
+# Candidate research questions (RQ) — draft v0.1 (Lecture 26)
 
-Üç aday soru; her biri aynı altı alanla yazılır. Bu dosya bir **ön kayıt** (pre-registration) taslağıdır: sayılar gelmeden önce soru, null hipotez, ölçüt ve eşikler buraya yazılır ve commit edilir; sonuç geldikten sonra eşik oynatılmaz, oynatılırsa tarih + gerekçeyle yazılır. Sıralama **koşulludur**: Ders 18 tablosu (S1) repoya girince `plan/faz3-open-questions.md`'deki örüntüye göre birincil RQ seçilir (Ders 26 §6 ağacı).
+Three candidate questions; each is written with the same six fields. This file is a **preregistration** draft: before the numbers arrive, the question, null hypothesis, measure and thresholds are written here and committed; after the results arrive the threshold is not moved, and if it is moved it is written with a date + justification. The ordering is **conditional**: once the Lecture 18 table (S1) enters the repo, the primary RQ is chosen according to the pattern in `plan/faz3-open-questions.md` (Lecture 26 §6 tree).
 
-Kısaltmalar: `clean` = orijinal İngilizce komut, `empty` = boş komut, `wrong` = aynı sahnede başka hedefi tarif eden İngilizce komut, `tr_*` = `datasets/04` yüzeyleri (`tr_a` üretilmiş, `tr_b` elle, `tr_ascii` Türkçe harfsiz, `tr_bare` eksiz), blok A/B/C/D = `datasets/04/data/pairs.csv` (A: Spatial eğitilmiş 6, B: aynı sahnede eğitimde olmayan tarif 6, C: Goal eğitilmiş 6, D: eğitilmemiş yerleştirme 2). Sistemler: **S-OV** = `openvla/openvla-7b-finetuned-libero-spatial` (LLaMA-2 tokenizer, 256-bin action token), **S-VN** = VLANeXt-B (Qwen3-VL-2B omurga, flow-matching action başı). İki sistem arasındaki fark "omurga farkı" değil **sistem farkı**dır (omurga + action başı + eğitim verisi birlikte değişir; Chen vd. 2606.15714).
+Abbreviations: `clean` = the original English command, `empty` = empty command, `wrong` = an English command describing another goal in the same scene, `tr_*` = the `datasets/04` surfaces (`tr_a` generated, `tr_b` by hand, `tr_ascii` without Turkish letters, `tr_bare` without suffixes), block A/B/C/D = `datasets/04/data/pairs.csv` (A: Spatial trained 6, B: an untrained recipe in the same scene 6, C: Goal trained 6, D: untrained placement 2). Systems: **S-OV** = `openvla/openvla-7b-finetuned-libero-spatial` (LLaMA-2 tokenizer, 256-bin action tokens), **S-VN** = VLANeXt-B (Qwen3-VL-2B backbone, flow-matching action head). The difference between the two systems is a **system difference**, not a "backbone difference" (backbone + action head + training data change together; Chen et al. 2606.15714).
 
-Ortak istatistik protokolü (Ders 18, 23): her hücre eşli (aynı init state'ler, aynı süreç); `n_koşu × n_episode` yazılır; koşu içi Wilson %95, koşudan koşuya tahmin aralığı (PI, ≥3 tekrar); eşli fark için McNemar exact; "fark yok" iddiası için TOST (%90 CI, önceden yazılmış δ). Eşikler (`code/day26/rq_power.py` ile hesaplandı): n=50 eşli init state, ters gürültü r=0,05 iken %80 güçle yakalanan en küçük fark ≈ 23 puan; Δ=15 için n≈100; eşdeğerlik δ=15 için n≈25, δ=10 için n≈55 (q=0,20 uyumsuz çift).
-
----
-
-## RQ-a — Fark var mı?
-
-**Soru:** LIBERO'da aynı başlangıç sahnesinde, Türkçe komut (`tr_a`) ile orijinal İngilizce komut (`clean`) arasında kapalı-döngü success rate farkı var mı; varsa bu fark boş komut tabanına (`empty`) göre nerede duruyor — ve bu örüntü S-OV ile S-VN'de aynı mı?
-
-**Null hipotez:** H0-a1: aynı init state'lerde P(başarı | tr_a) = P(başarı | clean) (eşli fark 0; eşdeğerlik sınırı δ = 15 puan). H0-a2: P(başarı | tr_a) = P(başarı | empty) (δ = 10 puan; Ders 19'un "tr ≈ empty" eşiği). İki null birlikte okunur: a1 reddedilip a2 reddedilemezse "Türkçe okunmuyor" (örüntü B); ikisi de reddedilirse "okunuyor ama eksik" (D); a1 reddedilemezse `empty` satırı sonucu ikiye ayırır (A: dil görmezden geliniyor; D: Türkçe çalışıyor).
-
-**Değişkenler:** Bağımsız: komut koşulu {clean, empty, wrong, tr_a} (sahne içi, eşli); sistem {S-OV, S-VN} (sahneler arası, aynı init state dosyaları). Bağımlı: episode başarı (0/1, LIBERO predicate). Ortak değişkenler: komutun token sayısı ve ilişki ekinin parça sayısı (`datasets/05/tokens.csv`), görevin komutsuz üst sınırı (Ders 19: Spatial 9/10, Goal 1/10). Sabit tutulan: init state kümesi, `num_steps_wait`, kamera/çözünürlük, checkpoint sürümü, seed listesi.
-
-**Ölçüt ve eşik:** Birincil: eşli fark Δ(tr_a − clean) ve Δ(tr_a − empty), puan; McNemar exact p; Wilson %95 (koşu içi) + PI (≥3 tekrar). "Fark var" kararı: McNemar p < 0,05 **ve** |Δ| ≥ 15. "Fark yok" kararı: TOST %90 CI ⊂ (−δ, +δ). İkisi de değilse "belirsiz" (n artırılır, eşik oynatılmaz). İkincil: `grasped_bowl` etiketi (hangi nesneye gidildi) — başarısızlığın "yanlış hedef" mi "hiç hareket yok" mu olduğunu ayırır.
-
-**Suite / blok / örneklem:** Spatial blok A (6 görev) + Goal blok C (6 görev). Pilot: Spatial görev 0 × 10 init state × 4 koşul × ≥3 tekrar (= Ders 18 koşusu + tekrarlar). Tez: görev başına 50 init state (S-VN için `.pruned_init`'teki 50'nin hepsi); Spatial'da `empty` tavana yakınsa (≥ 80) ağırlık Goal'a kayar (Ders 19 kuralı, S7). Toplam episode (tez): 12 görev × 50 init × 4 koşul × 2 sistem = 4.800 (+ tekrarlar); T4 bütçesi Ders 27'de.
-
-**Sistemler:** S-OV (OpenVLA-7B Spatial LoRA; Goal için ayrı checkpoint `openvla-7b-finetuned-libero-goal`), S-VN (VLANeXt-B; Spatial ve Goal checkpoint'leri). Her sistem kendi eğitildiği suite'te değerlendirilir; sistemler arası karşılaştırma **betimseldir** (nedensel değil — sistem farkı).
-
-**Evet / hayır çıkarsa tez ne der:** *Evet (a1 reddedildi, |Δ| ≥ 15):* "Türkçe komut, aynı sahnede, iki açık VLA'da başarıyı X / Y puan düşürüyor; düşüş `empty` tabanına [yaklaşıyor / yaklaşmıyor]" → tezin ana ölçüm katkısı; RQ-b'ye geçilir. *Hayır (eşdeğer):* `empty` ≈ `clean` ise (A) "bu görevlerde dil ölçülemiyor; Goal/B bloğuna geç"; `empty` ≪ `clean` ise (D) "Türkçe bu sistemde zaten okunuyor" → tez Qwen3-VL omurgasının Türkçe'yi nerede okuduğunu (RQ-b) ve LLaMA-2 ile farkını raporlar. *Belirsiz:* n ve tekrar artırılır; tez "yön" kipiyle yazılır. Hiçbir sonuç tezi boşa çıkarmaz; her dal bir sonraki soruyu seçer.
+Common statistics protocol (Lectures 18, 23): every cell is paired (same init states, same process); `n_runs × n_episodes` is written; within-run Wilson 95%, run-to-run prediction interval (PI, ≥3 repetitions); McNemar exact for the paired difference; TOST (90% CI, δ written in advance) for a "no difference" claim. Thresholds (computed with `code/day26/rq_power.py`): with n=50 paired init states and inverse noise r=0.05, the smallest difference caught with 80% power is ≈ 23 points; n≈100 for Δ=15; for equivalence n≈25 with δ=15 and n≈55 with δ=10 (q=0.20 discordant pairs).
 
 ---
 
-## RQ-b — Nerede kırılıyor?
+## RQ-a — Is there a difference?
 
-**Soru:** Türkçe'deki düşüş (RQ-a'nın Δ'sı) komutun hangi özelliğine bağlı: ilişki ailesi (CDC/yön, RCC/topoloji, mesafe, bölge), yüzey (`tr_a / tr_b / tr_ascii / tr_bare`), referans çerçevesi (B07–B09: LIBERO / görüntü / robot) — ve eğitimde olmayan Türkçe tarif (blok B) modelde **boş komutun üstüne** çıkıyor mu?
+**Question:** In LIBERO, in the same initial scene, is there a closed-loop success-rate difference between the Turkish command (`tr_a`) and the original English command (`clean`); if so, where does this difference stand relative to the empty-command baseline (`empty`) — and is this pattern the same in S-OV and S-VN?
 
-**Null hipotez:** H0-b1: Δ(tr − clean) ilişki ailesine göre değişmez (aile × koşul etkileşimi yok). H0-b2: Δ yüzeye göre değişmez; özelde Δ(tr_ascii) = Δ(tr_a) her iki sistemde (Ders 22: LLaMA-2'de Türkçe harf bedeli 4,9 token, Qwen3'te 0,9 → H0-b2'nin S-OV'de reddedilip S-VN'de reddedilememesi tokenizasyon açıklamasının ilk kanıtı). H0-b3 (güçlü okuma): blok B'de P(başarı | tr_B) = P(başarı | empty) — Türkçe yeni tarif, boş komuttan farksız. H0-b4 (çerçeve): B07/B08'de (*soldaki/sağdaki*) gidilen kâse üç çerçeveden rastgele seçilmiş gibi dağılır.
+**Null hypothesis:** H0-a1: on the same init states P(success | tr_a) = P(success | clean) (paired difference 0; equivalence bound δ = 15 points). H0-a2: P(success | tr_a) = P(success | empty) (δ = 10 points; the "tr ≈ empty" threshold of Lecture 19). The two nulls are read together: if a1 is rejected and a2 cannot be rejected, "Turkish is not read" (pattern B); if both are rejected, "read but incomplete" (D); if a1 cannot be rejected, the `empty` row splits the result in two (A: language is ignored; D: Turkish works).
 
-**Değişkenler:** Bağımsız: ilişki ailesi (4 düzey; `pairs.csv` `relation`), yüzey (4 Türkçe + en), blok (A/B/C), çerçeve (B07–B09'da `ref_libero/ref_image/ref_robot`). Bağımlı: episode başarı; blok B'de ayrıca **gidilen nesne** (`grasped_bowl` ∈ {bowl_1, bowl_2, yok}) ve karşı-olgusal BDDL ile ölçülen başarı (`bddl_cf/`, hedef bowl_2). Ortak değişken: token sayısı, ilişki ekinin parça sayısı, `ref_min_margin` (cm/px). Sabit: RQ-a'nın init state'leri ve protokolü.
+**Variables:** Independent: command condition {clean, empty, wrong, tr_a} (within scene, paired); system {S-OV, S-VN} (across scenes, same init state files). Dependent: episode success (0/1, LIBERO predicate). Covariates: number of tokens in the command and number of pieces of the relation suffix (`datasets/05/tokens.csv`), the no-command upper bound of the task (Lecture 19: Spatial 9/10, Goal 1/10). Held fixed: init state set, `num_steps_wait`, camera/resolution, checkpoint version, seed list.
 
-**Ölçüt ve eşik:** Hücre başına success + Wilson; aile ve yüzey için eşli fark tabloları (Δ ve %95 CI); etkileşim iddiası ancak hücre CI'ları ayrışıyorsa yazılır (küçük n: 6 çift × 50 init, aile başına 1–3 görev → **betimsel**, "yön" kipi; Ders 23). H0-b3 için: tr_B − empty ≥ 15 ve McNemar p < 0,05 → "güçlü okuma kanıtı"; TOST δ=10 içinde → "yok". H0-b4 için: gidilen kâsenin üç çerçeveden hangisiyle uyuştuğu, ki-kare yerine sayım tablosu + Wilson (n küçük).
+**Criterion and threshold:** Primary: paired difference Δ(tr_a − clean) and Δ(tr_a − empty), in points; McNemar exact p; Wilson 95% (within run) + PI (≥3 repetitions). "There is a difference" decision: McNemar p < 0.05 **and** |Δ| ≥ 15. "No difference" decision: TOST 90% CI ⊂ (−δ, +δ). If neither, "inconclusive" (n is increased, the threshold is not moved). Secondary: the `grasped_bowl` label (which object was approached) — separates whether a failure is "wrong target" or "no movement at all".
 
-**Suite / blok / örneklem:** Spatial blok A + **B** (B'nin EN sütunu da koşulur: EN-B − clean "yeni tarif" bedelini, TR-B − EN-B "Türkçe" bedelini ayırır; LangGap'in "Spatial Description" hücresi EN-B'nin dış referansı: π0.5 %11). Goal blok C (topoloji/EC, token tarafı en temiz Türkçe). Blok D (*sağına/soluna*) yalnızca dil tarafı (predicate yok) → bu RQ'da **yok**. Tier 2 satırlar (B07–B11) karşı-olgusal BDDL ister (`datasets/04/data/bddl_cf/`, 5 dosya hazır; gerçek env'de yükleme S-durumu: hipotez). Örneklem: görev başına 50 init; yüzey ekseni için önce pilot (10 init × 5 yüzey × 1 görev / blok). Suite ağırlığı danışman kararı (S7).
+**Suite / block / sample:** Spatial block A (6 tasks) + Goal block C (6 tasks). Pilot: Spatial task 0 × 10 init states × 4 conditions × ≥3 repetitions (= the Lecture 18 run + repetitions). Thesis: 50 init states per task (all 50 in `.pruned_init` for S-VN); if `empty` is near the ceiling in Spatial (≥ 80), the weight shifts to Goal (Lecture 19 rule, S7). Total episodes (thesis): 12 tasks × 50 init × 4 conditions × 2 systems = 4,800 (+ repetitions); the T4 budget is in Lecture 27.
 
-**Sistemler:** S-OV ve S-VN, RQ-a ile aynı checkpoint'ler. Yüzey karşılaştırması (özellikle `tr_ascii`) iki sistemde **zıt yön** beklenen tek hücre (Ders 22 hipotezi) → iki sistemin birlikte koşulması bu RQ'da zorunlu.
+**Systems:** S-OV (OpenVLA-7B Spatial LoRA; a separate checkpoint `openvla-7b-finetuned-libero-goal` for Goal), S-VN (VLANeXt-B; Spatial and Goal checkpoints). Each system is evaluated in the suite it was trained on; the comparison across systems is **descriptive** (not causal — system difference).
 
-**Evet / hayır çıkarsa tez ne der:** *Aile/yüzey etkisi var:* "Türkçe düşüşü tekdüze değil; [topoloji/CDC] ailesinde ve [tr_ascii] yüzeyinde yoğunlaşıyor; S-OV'de harf bedeli görünüyor, S-VN'de görünmüyor" → tokenizasyon ile ön-eğitim açıklamaları ayrışır, Tatar vd.'nin hipotezi kapalı döngüde sınanmış olur. *Yok (tekdüze):* "Düşüş komutun biçiminden bağımsız, dilin kendisinden" → çözüm tarafında yüzey düzeltmeleri (ASCII'leştirme, eksiz yazım) elenir, RQ-c omurga/eğitim yoluna daralır. *H0-b3 reddedildi:* güçlü okuma kanıtı — tezin en iddialı cümlesi. *H0-b3 reddedilemedi:* "Türkçe yeni tarif boş komuta eşdeğer" → RQ-c'nin ölçütü zayıf okumaya iner (S10).
-
----
-
-## RQ-c — Nasıl kapanır?
-
-**Soru:** Modele dokunmayan iki müdahale (MT çeviri katmanı, kural tabanlı parser → İngilizce şablon) ve modele dokunan bir müdahale (EN+TR co-training LoRA, bütçe izin verirse) Türkçe açığını (RQ-a'nın Δ'sı) ne kadar kapatır — ve kapanış **zayıf okuma** (blok A/C'de `tr ≈ clean`) düzeyinde mi kalır, **güçlü okuma** (blok B'de `empty` üstü) düzeyine çıkar mı?
-
-**Null hipotez:** H0-c1: müdahale M ∈ {MT, parser, LoRA} için P(başarı | tr, M) = P(başarı | tr, müdahale yok). H0-c2 (tavan): P(başarı | tr, M) = P(başarı | clean) — müdahale açığı tamamen kapatır (eşdeğerlik, δ = 15). H0-c3 (güçlü okuma, yalnız LoRA): blok B'de P(başarı | tr_B, LoRA) = P(başarı | empty). H0-c4 (yan etki, yalnız LoRA): P(başarı | clean, LoRA) = P(başarı | clean) — İngilizce bozulmuyor (Chen: E-FT/M-CT'de EN −2,7; δ = 5).
-
-**Değişkenler:** Bağımsız: müdahale {yok, MT (Opus-MT tr-en), parser (`tr_parse.py` → EN şablon), LoRA (EN+TR karışık, 4-bit, T4)}; komut koşulu {clean, tr_a, tr_B, empty}. Bağımlı: episode başarı; MT/parser için ayrıca **ara çıktı doğruluğu** (çeviri/parse birebir mi, "yanlış ama geçerli" mi — Ders 24 H04) ve gecikme (ms). Ortak değişken: çeviri/parse hatası türü. Sabit: RQ-a protokolü; LoRA için eğitim verisi oranı EN:TR ve adım sayısı önceden yazılır.
-
-**Ölçüt ve eşik:** Birincil: kapanış oranı κ = [SR(tr, M) − SR(tr)] / [SR(clean) − SR(tr)] (0 = hiç, 1 = tam), %95 CI bootstrap (eşli episode'lar üzerinden). "İşe yarıyor": κ ≥ 0,5 ve McNemar p < 0,05. "Tam kapatıyor": H0-c2 TOST içinde. Güçlü okuma: H0-c3 reddi (tr_B − empty ≥ 15). Yan etki: H0-c4 TOST δ=5 dışına çıkarsa raporlanır. MT/parser için hata ayrıştırması: açığın ne kadarı ara katman hatasından (çeviri yanlış → komut yanlış) geliyor (Ders 24'ün "yanlış ama geçerli" sayımı).
-
-**Suite / blok / örneklem:** Zayıf okuma: Spatial A + Goal C (RQ-a hücreleri yeniden kullanılır; müdahale yalnızca yeni satır ekler). Güçlü okuma: Spatial **B** (yalnız LoRA; MT/parser B'de tanım gereği İngilizce'ye indirir, EN-B'nin sonucunu alır). Örneklem: RQ-a'nın 50 init'i; LoRA koşulu yalnızca S-OV'de (OpenVLA `finetune.py --use_quantization`; Ders 24 tahmini 65–98 T4 saati, S9 danışman kararı); MT/parser her iki sistemde (Mac'te saniye/ms).
-
-**Sistemler:** MT ve parser: S-OV + S-VN (modele dokunmaz, ikisine de uygulanır). LoRA: S-OV (açık eğitim kodu; VLANeXt eğitimi T4'e sığmaz — hipotez, Ders 24). Sistem farkı uyarısı geçerli: "MT S-VN'de daha az kapatıyor" cümlesi sistem düzeyinde kalır.
-
-**Evet / hayır çıkarsa tez ne der:** *MT/parser κ ≥ 0,5:* "Türkçe açığı büyük ölçüde girdi düzeyinde kapatılabilir; model Türkçe anlamıyor, İngilizce'ye indirilmiş komutla çalışıyor" (zayıf okuma; S10'a göre tez bununla biter ya da taban olur). *MT/parser κ < 0,5:* açığın bir kısmı ara katman hatasından değil (çeviri doğruyken de düşük) → model içi sorun; LoRA/omurga yolu gerekçelenir. *LoRA H0-c3 reddi:* "Türkçe mekânsal tarif, aynı sahnede, boş komutun üstüne çıktı" → güçlü okuma, tezin ana katkısı; H0-c4 yan etkisiyle birlikte raporlanır. *LoRA H0-c3 reddedilemedi:* "co-training eğitilmiş cümleleri öğretti, tarifi değil" → LangGap'in "veri tek başına yetmez" bulgusunun Türkçe karşılığı; tez bunu negatif sonuç olarak yazar.
+**If yes / if no, what the thesis says:** *Yes (a1 rejected, |Δ| ≥ 15):* "A Turkish command, in the same scene, lowers success by X / Y points in two open VLAs; the drop [approaches / does not approach] the `empty` baseline" → the main measurement contribution of the thesis; move on to RQ-b. *No (equivalent):* if `empty` ≈ `clean` (A) "language cannot be measured in these tasks; move to Goal / block B"; if `empty` ≪ `clean` (D) "Turkish is already read in this system" → the thesis reports where the Qwen3-VL backbone reads Turkish (RQ-b) and its difference from LLaMA-2. *Inconclusive:* n and repetitions are increased; the thesis is written in "direction" mode. No result makes the thesis void; every branch selects the next question.
 
 ---
 
-## Sıralama kuralı (S1 örüntüsüne göre; Ders 26 §6)
+## RQ-b — Where does it break?
 
-| S1 örüntüsü (Ders 19) | Birincil RQ | Gerekçe | Hemen yapılacak |
+**Question:** What feature of the command does the drop in Turkish (RQ-a's Δ) depend on: the relation family (CDC/direction, RCC/topology, distance, region), the surface (`tr_a / tr_b / tr_ascii / tr_bare`), the reference frame (B07–B09: LIBERO / image / robot) — and does an untrained Turkish recipe (block B) rise **above the empty command** in the model?
+
+**Null hypothesis:** H0-b1: Δ(tr − clean) does not vary by relation family (no family × condition interaction). H0-b2: Δ does not vary by surface; specifically Δ(tr_ascii) = Δ(tr_a) in both systems (Lecture 22: the Turkish letter cost is 4.9 tokens in LLaMA-2 and 0.9 in Qwen3 → H0-b2 being rejected in S-OV and not rejected in S-VN would be the first evidence for the tokenization explanation). H0-b3 (strong reading): in block B P(success | tr_B) = P(success | empty) — the Turkish new recipe is no different from the empty command. H0-b4 (frame): in B07/B08 (*soldaki/sağdaki*, "the one on the left / right") the approached bowl is distributed as if chosen at random from the three frames.
+
+**Variables:** Independent: relation family (4 levels; `pairs.csv` `relation`), surface (4 Turkish + en), block (A/B/C), frame (`ref_libero/ref_image/ref_robot` in B07–B09). Dependent: episode success; in block B also the **approached object** (`grasped_bowl` ∈ {bowl_1, bowl_2, none}) and the success measured with the counterfactual BDDL (`bddl_cf/`, target bowl_2). Covariates: number of tokens, number of pieces of the relation suffix, `ref_min_margin` (cm/px). Fixed: RQ-a's init states and protocol.
+
+**Criterion and threshold:** Success + Wilson per cell; paired difference tables for family and surface (Δ and 95% CI); an interaction claim is written only if the cell CIs separate (small n: 6 pairs × 50 init, 1–3 tasks per family → **descriptive**, "direction" mode; Lecture 23). For H0-b3: tr_B − empty ≥ 15 and McNemar p < 0.05 → "evidence of strong reading"; within TOST δ=10 → "none". For H0-b4: which of the three frames the approached bowl agrees with, a count table + Wilson instead of chi-square (small n).
+
+**Suite / block / sample:** Spatial block A + **B** (the EN column of B is also run: EN-B − clean separates the "new recipe" cost, TR-B − EN-B the "Turkish" cost; LangGap's "Spatial Description" cell is the external reference for EN-B: π0.5 11%). Goal block C (topology/EC, the cleanest Turkish on the token side). Block D (*sağına/soluna*, "to the right / left") is language side only (no predicate) → **not** in this RQ. Tier 2 rows (B07–B11) need the counterfactual BDDL (`datasets/04/data/bddl_cf/`, 5 files ready; loading in a real env is status: hypothesis). Sample: 50 inits per task; for the surface axis, a pilot first (10 init × 5 surfaces × 1 task / block). Suite weight is an advisor decision (S7).
+
+**Systems:** S-OV and S-VN, the same checkpoints as RQ-a. The surface comparison (especially `tr_ascii`) is the only cell where **opposite directions** are expected in the two systems (Lecture 22 hypothesis) → running the two systems together is mandatory in this RQ.
+
+**If yes / if no, what the thesis says:** *Family/surface effect exists:* "The Turkish drop is not uniform; it is concentrated in the [topology/CDC] family and the [tr_ascii] surface; the letter cost shows in S-OV and not in S-VN" → the tokenization and pre-training explanations separate, and the hypothesis of Tatar et al. is tested in closed loop. *None (uniform):* "The drop is independent of the form of the command, it comes from the language itself" → surface fixes (ASCII-fication, suffix-free writing) are eliminated on the solution side, RQ-c narrows to the backbone/training path. *H0-b3 rejected:* evidence of strong reading — the boldest sentence of the thesis. *H0-b3 could not be rejected:* "the Turkish new recipe is equivalent to the empty command" → RQ-c's criterion drops to weak reading (S10).
+
+---
+
+## RQ-c — How does it close?
+
+**Question:** How much of the Turkish gap (RQ-a's Δ) is closed by two interventions that do not touch the model (MT translation layer, rule-based parser → English template) and one that does (EN+TR co-training LoRA, if the budget allows) — and does the closure stay at the level of **weak reading** (`tr ≈ clean` in blocks A/C) or reach **strong reading** (above `empty` in block B)?
+
+**Null hypothesis:** H0-c1: for intervention M ∈ {MT, parser, LoRA} P(success | tr, M) = P(success | tr, no intervention). H0-c2 (ceiling): P(success | tr, M) = P(success | clean) — the intervention closes the gap completely (equivalence, δ = 15). H0-c3 (strong reading, LoRA only): in block B P(success | tr_B, LoRA) = P(success | empty). H0-c4 (side effect, LoRA only): P(success | clean, LoRA) = P(success | clean) — English is not degraded (Chen: EN −2.7 with E-FT/M-CT; δ = 5).
+
+**Variables:** Independent: intervention {none, MT (Opus-MT tr-en), parser (`tr_parse.py` → EN template), LoRA (EN+TR mixed, 4-bit, T4)}; command condition {clean, tr_a, tr_B, empty}. Dependent: episode success; for MT/parser also the **intermediate output accuracy** (is the translation/parse exact, or "wrong but valid" — Lecture 24 H04) and latency (ms). Covariate: translation/parse error type. Fixed: RQ-a protocol; for LoRA the EN:TR training data ratio and the number of steps are written in advance.
+
+**Criterion and threshold:** Primary: closure rate κ = [SR(tr, M) − SR(tr)] / [SR(clean) − SR(tr)] (0 = none, 1 = full), 95% bootstrap CI (over paired episodes). "It works": κ ≥ 0.5 and McNemar p < 0.05. "Closes fully": H0-c2 within TOST. Strong reading: rejection of H0-c3 (tr_B − empty ≥ 15). Side effect: reported if H0-c4 falls outside TOST δ=5. For MT/parser, error decomposition: how much of the gap comes from intermediate-layer error (translation wrong → command wrong) (the "wrong but valid" count of Lecture 24).
+
+**Suite / block / sample:** Weak reading: Spatial A + Goal C (RQ-a cells are reused; the intervention only adds new rows). Strong reading: Spatial **B** (LoRA only; MT/parser reduce to English in B by definition, and take EN-B's result). Sample: RQ-a's 50 inits; the LoRA condition only on S-OV (OpenVLA `finetune.py --use_quantization`; Lecture 24 estimate 65–98 T4 hours, S9 advisor decision); MT/parser on both systems (seconds/ms on the Mac).
+
+**Systems:** MT and parser: S-OV + S-VN (do not touch the model, applied to both). LoRA: S-OV (open training code; VLANeXt training does not fit the T4 — hypothesis, Lecture 24). The system-difference warning applies: a sentence like "MT closes less on S-VN" stays at the system level.
+
+**If yes / if no, what the thesis says:** *MT/parser κ ≥ 0.5:* "The Turkish gap can largely be closed at the input level; the model does not understand Turkish, it works with a command reduced to English" (weak reading; depending on S10 the thesis ends here or this becomes the floor). *MT/parser κ < 0.5:* part of the gap is not from intermediate-layer error (it is low even when the translation is correct) → an in-model problem; the LoRA/backbone path is justified. *LoRA H0-c3 rejected:* "A Turkish spatial recipe, in the same scene, rose above the empty command" → strong reading, the main contribution of the thesis; reported together with the H0-c4 side effect. *LoRA H0-c3 not rejected:* "co-training taught the trained sentences, not the recipe" → the Turkish counterpart of LangGap's "data alone is not enough" finding; the thesis writes this as a negative result.
+
+---
+
+## Ordering rule (by S1 pattern; Lecture 26 §6)
+
+| S1 pattern (Lecture 19) | Primary RQ | Rationale | Do immediately |
 |---|---|---|---|
-| A — dil görmezden geliniyor | RQ-b (suite ekseni) | Spatial görev 0'da ölçek yok; Goal C ve Spatial B'ye geç | `conditions_goal8.json` koşusu |
-| B — Türkçe okunmuyor (tr ≈ empty) | RQ-c (MT/parser önce) | Açık büyük, girdi düzeyi müdahale ucuz; güçlü okuma için LoRA S9'a bağlı | `mt_layer_mac.py`, Ders 18'e `tr_mt` koşulu |
-| C — wrong biased | RQ-b (çerçeve + `grasped_bowl`) | Hedef sahneden seçiliyor; Türkçe'nin payı ancak B bloğunda görünür | 10 `wrong` videosunu etiketle |
-| D — Türkçe okunuyor | RQ-a (iki sistem) → RQ-b (yüzey) | Fark küçükse eşdeğerlik testi, S-OV ile karşılaştırma öne çıkar | S-OV Spatial 4 koşul koşusu |
-| belirsiz | RQ-a (n artır) | n=10 normal sonucu | 50 init + ≥3 tekrar |
+| A — language is ignored | RQ-b (suite axis) | No scale in Spatial task 0; move to Goal C and Spatial B | `conditions_goal8.json` run |
+| B — Turkish is not read (tr ≈ empty) | RQ-c (MT/parser first) | The gap is large, the input-level intervention is cheap; LoRA for strong reading depends on S9 | `mt_layer_mac.py`, a `tr_mt` condition for Lecture 18 |
+| C — wrong biased | RQ-b (frame + `grasped_bowl`) | The target is chosen from the scene; Turkish's share shows only in block B | Label the 10 `wrong` videos |
+| D — Turkish is read | RQ-a (two systems) → RQ-b (surface) | If the difference is small, the equivalence test and the comparison with S-OV come forward | S-OV Spatial 4-condition run |
+| inconclusive | RQ-a (increase n) | n=10 normal result | 50 init + ≥3 repetitions |
 
-## Önceden yazılan tahminler (Mesut doldurur — koşudan ÖNCE, commit ile)
+## Predictions written in advance (Mesut fills in — BEFORE the run, with a commit)
 
 ```
-RQ-a: Δ(tr_a − clean) S-VN: ___ puan   S-OV: ___ puan   ; tr − empty: ___
-RQ-b: en çok kırılan aile: ______  yüzey: ______  ; tr_B > empty? evet / hayır
+RQ-a: Δ(tr_a − clean) S-VN: ___ points   S-OV: ___ points   ; tr − empty: ___
+RQ-b: most broken family: ______  surface: ______  ; tr_B > empty? yes / no
 RQ-c: MT κ ≈ ___   parser κ ≈ ___   LoRA tr_B − empty ≈ ___
-Birincil RQ tahminim: RQ-_   (gerekçe bir cümle: ______________________)
+My primary RQ prediction: RQ-_   (one-sentence rationale: ______________________)
 ```
 
-Sürüm: v0.1 — Ders 26 (otomatik taslak; sıralama koşullu). Değişiklikler bu bölüme tarihle eklenir.
+Version: v0.1 — Lecture 26 (automatic draft; ordering is conditional). Changes are added to this section with a date.

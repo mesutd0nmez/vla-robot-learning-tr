@@ -1,15 +1,15 @@
-"""Ders 19 — "Shortcut mümkün mü?" sorusunu BDDL'den oku: dört LIBERO suite'inde sahne (nesneler + init bölgeleri)
-hedefi (goal) tek başına belirliyor mu?
+"""Lecture 19 — read the question "is a shortcut possible?" off the BDDL files: in the four LIBERO suites, does the scene
+(objects + init regions) alone determine the goal?
 
-Mantık: bir policy komutu hiç okumadan görevi ancak sahne görevi "söylüyorsa" çözebilir. Suite'teki her görev için
-  sahne imzası = (nesne türleri çoklu kümesi, her nesnenin init bölgesi; aynı türden nesneler ayırt edilemez)
-  hedef       = (:goal) ifadesi
-Aynı sahne imzasına birden fazla hedef düşüyorsa sahne→görev bir fonksiyon değildir: komut okunmadan görev seçilemez.
+Logic: a policy can solve a task without reading the command at all only if the scene "tells" it the task. For each task in the suite
+  scene signature = (multiset of object types, init region of each object; objects of the same type are indistinguishable)
+  goal            = the (:goal) expression
+If more than one goal falls on the same scene signature, scene -> task is not a function: the task cannot be chosen without reading the command.
 
-Kullanım:
-  python suite_structure.py --libero /yol/LIBERO            # klon kökü (libero/libero/bddl_files altını okur)
-  python suite_structure.py --libero /yol/LIBERO --out results/suite_structure.csv --md results/suite_structure.md
-Yalnızca dosya okur (regex ile); LIBERO paketini import etmez, model/GPU gerekmez.
+Usage:
+  python suite_structure.py --libero /path/LIBERO            # clone root (reads under libero/libero/bddl_files)
+  python suite_structure.py --libero /path/LIBERO --out results/suite_structure.csv --md results/suite_structure.md
+Only reads files (with regex); does not import the LIBERO package, no model/GPU needed.
 """
 import argparse, csv, pathlib, re
 from collections import Counter, defaultdict
@@ -33,16 +33,16 @@ def parse_bddl(path):
     init = re.findall(r"\((On|In)\s+(\S+)\s+(\S+)\)", init_txt)
     where = {o: reg for _, o, reg in init}
     goal = re.sub(r"\s+", " ", re.search(r"\(:goal\s*(.*?)\)\s*\)\s*$", t, re.S).group(1).strip())
-    # sahne imzası: nesne TÜRÜ + bölge (adlar değil: iki siyah kâse görüntüde ayırt edilemez)
+    # scene signature: object TYPE + region (not names: two black bowls are indistinguishable in the image)
     scene = tuple(sorted((objs.get(o, o), reg) for _, o, reg in init if o in objs))
     fixtures = tuple(sorted((o, reg) for _, o, reg in init if o not in objs))
-    # göreli hedef: nesne adlarını "tür@init-bölgesi" ile değiştir → aynı sahnede farklı fiziksel hedefler ayrışır
+    # relative goal: replace object names with "type@init-region" -> different physical goals in the same scene become distinct
     rel_goal = re.sub(r"\b([a-z_]+_\d)\b", lambda m_: f"{objs.get(m_.group(1), m_.group(1))}@{where.get(m_.group(1), '-')}", goal)
     return dict(task=path.stem, language=lang, objects=objs, where=where, scene=scene, fixtures=fixtures, goal=goal, rel_goal=rel_goal)
 
 
 def official_order(root, suite):
-    """libero_suite_task_map.py'deki sıra (benchmark'ın task_id'si; alfabetik DEĞİL). Dosya okunur, import edilmez."""
+    """Order in libero_suite_task_map.py (the benchmark's task_id; NOT alphabetical). The file is read, not imported."""
     t = (root / "libero" / "libero" / "benchmark" / "libero_suite_task_map.py").read_text(encoding="utf-8")
     block = re.search(r'"%s":\s*\[(.*?)\]' % suite, t, re.S).group(1)
     return re.findall(r'"([^"]+)"', block)
@@ -59,9 +59,9 @@ def analyze(root):
             by_scene[t["scene"] + t["fixtures"]].append(t)
         n_scenes = len(scenes)
         max_share = max(scenes.values())
-        # sahneden hedef çıkar mı: her sahneye tek hedef düşüyorsa evet
+        # does the goal follow from the scene: yes if exactly one goal falls on each scene
         deterministic = all(len({x["rel_goal"] for x in v}) == 1 for v in by_scene.values())
-        # komut okunmadan en iyi durumda (sahneye en sık düşen hedefi seçerek) kaç görev çözülür
+        # in the best case without reading the command (picking the most frequent goal per scene), how many tasks are solved
         best_blind = sum(max(Counter(x["rel_goal"] for x in v).values()) for v in by_scene.values())
         obj_sets = Counter(tuple(sorted(Counter(t["objects"].values()).items())) for t in tasks)
         rows.append(dict(suite=suite, n_tasks=len(tasks), n_scenes=n_scenes, n_object_sets=len(obj_sets),
@@ -72,7 +72,7 @@ def analyze(root):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--libero", required=True, help="LIBERO klon kökü")
+    ap.add_argument("--libero", required=True, help="LIBERO clone root")
     ap.add_argument("--out", default=None)
     ap.add_argument("--md", default=None)
     a = ap.parse_args()
@@ -81,27 +81,27 @@ def main():
     print("| " + " | ".join(hdr) + " |"); print("|" + "---|" * len(hdr))
     for r in rows:
         print("| " + " | ".join(str(r[h]) for h in hdr) + " |")
-    print("\nAçıklama: n_scenes = farklı sahne imzası (nesne türü + init bölgesi; fixture dahil); scene_determines_goal = her sahneye tek hedef;"
-          "\nblind_upper_bound = komutu hiç okumayan ama sahneyi mükemmel tanıyan bir policy'nin çözebileceği görev sayısı (üst sınır).")
+    print("\nLegend: n_scenes = distinct scene signatures (object type + init region; fixtures included); scene_determines_goal = exactly one goal per scene;"
+          "\nblind_upper_bound = number of tasks a policy that never reads the command but recognizes the scene perfectly could solve (upper bound).")
     sp = next(r for r in rows if r["suite"] == "libero_spatial")
     short = lambda reg: reg.replace("main_table_", "").replace("wooden_cabinet_1_", "cab:").replace("flat_stove_1_", "stove:").replace("_region", "")
-    print("\nlibero_spatial — görev: kâse bölgeleri (BDDL :init) → hedef kâse (:goal):")
+    print("\nlibero_spatial — task: bowl regions (BDDL :init) -> target bowl (:goal):")
     for i, t in enumerate(sp["tasks"]):
         tgt = re.search(r"\(On\s+(\S+)\s+plate_1\)", t["goal"]).group(1)
-        print(f"  {i}: bowl_1@{short(t['where']['akita_black_bowl_1']):<22} bowl_2@{short(t['where']['akita_black_bowl_2']):<22} hedef={tgt} ({short(t['where'][tgt])})")
-    role = defaultdict(lambda: {"hedef": [], "öteki": []})
+        print(f"  {i}: bowl_1@{short(t['where']['akita_black_bowl_1']):<22} bowl_2@{short(t['where']['akita_black_bowl_2']):<22} target={tgt} ({short(t['where'][tgt])})")
+    role = defaultdict(lambda: {"target": [], "other": []})
     for i, t in enumerate(sp["tasks"]):
         tgt = re.search(r"\(On\s+(\S+)\s+plate_1\)", t["goal"]).group(1)
         for o in ("akita_black_bowl_1", "akita_black_bowl_2"):
-            role[short(t["where"][o])]["hedef" if o == tgt else "öteki"].append(i)
-    print("\nBölge → hangi görevlerde hedef / öteki kâse:")
+            role[short(t["where"][o])]["target" if o == tgt else "other"].append(i)
+    print("\nRegion -> in which tasks it holds the target / other bowl:")
     for reg, d in sorted(role.items()):
-        print(f"  {reg:<22} hedef:{d['hedef']}  öteki:{d['öteki']}")
-    print("\nAynı sahne imzasını paylaşan görevler (komut okunmadan ayrılamaz):")
+        print(f"  {reg:<22} target:{d['target']}  other:{d['other']}")
+    print("\nTasks sharing the same scene signature (cannot be told apart without reading the command):")
     for r in rows:
         for v in r["by_scene"].values():
             if len(v) > 1:
-                print(f"  {r['suite']}: " + " | ".join(f"{x['task']} → {x['rel_goal']}" for x in v))
+                print(f"  {r['suite']}: " + " | ".join(f"{x['task']} -> {x['rel_goal']}" for x in v))
     if a.out:
         with open(a.out, "w", newline="", encoding="utf-8") as f:
             w = csv.writer(f); w.writerow(hdr)

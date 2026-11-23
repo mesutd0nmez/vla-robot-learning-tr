@@ -1,27 +1,27 @@
-# Proje 1 — İlk MuJoCo sahnesi (Mac'te kurulum doğrulaması)
+# Project 1 — First MuJoCo scene (setup verification on the Mac)
 
-**Durum:** tamam · **İlgili dersler:** [Ders 9](../../lectures/lecture-09.md)
+**Status:** done · **Related lectures:** [Lecture 9](../../lectures/lecture-09.md)
 
-## Amaç
-Mac'te (M2, MPS) `vla` conda ortamının ve MuJoCo offscreen render'ının çalıştığını doğrulamak: masa + tabak + düşen top sahnesini kendi makinemde üretmek.
+## Goal
+Verify that the `vla` conda environment and MuJoCo offscreen rendering work on the Mac (M2, MPS): produce the table + plate + falling ball scene on my own machine.
 
-## Çalıştırma
+## Running
 ```bash
 conda activate vla
-python check_env.py      # python / numpy / mujoco / torch(MPS) sürümleri
-python first_scene.py    # first_scene.png üretir
+python check_env.py      # python / numpy / mujoco / torch(MPS) versions
+python first_scene.py    # produces first_scene.png
 ```
 
-## Sonuçlar
-Dört deneme; XML'de konum/boyut/kamera değiştirilerek sahne tekrar render edildi.
+## Results
+Four trials; the scene was re-rendered after changing positions/sizes/camera in the XML.
 
-| Deneme | Çıktı |
+| Trial | Output |
 |---|---|
 | 1 | ![](first_scene-try-1.png) |
 | 2 | ![](first_scene-try-2.png) |
 | 3 | ![](first_scene-try-3.png) |
 | 4 | ![](first_scene-try-4.png) |
 
-## Bulgular ve notlar
-- Offscreen render Mac'te `MUJOCO_GL` ayarı olmadan çalıştı.
-- Sonraki adım: Proje 2 (robosuite + LIBERO).
+## Findings and notes
+- Offscreen rendering worked on the Mac without setting `MUJOCO_GL`.
+- Next step: Project 2 (robosuite + LIBERO).

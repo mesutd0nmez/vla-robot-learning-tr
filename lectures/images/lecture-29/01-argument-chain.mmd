@@ -1,17 +1,17 @@
 flowchart LR
-  P["Problem<br/>VLA'lar neredeyse yalnız İngilizce eğitiliyor<br/>yabancı dil kaybı = komutsuz kayıp"]:::prob --> G["Boşluk<br/>Türkçe için yalnız açık döngü, tek kare<br/>boş-komut tabanı yok"]:::prob
-  G --> A["Amaç<br/>Türkçe mekânsal komutun<br/>kapalı döngüde temellendirilmesini ölç"]:::key
-  A --> RA["RQ-a<br/>fark var mı"]:::key
-  A --> RB["RQ-b<br/>nerede kırılıyor"]:::key
-  A --> RC["RQ-c<br/>nasıl kapanır"]:::key
-  D["Veri<br/>datasets/04: 20 eşli komut<br/>A / B / C / D blokları"]:::in --> M
-  S["Sistemler<br/>S-OV 4-bit, S-VN<br/>LIBERO Spatial + Goal"]:::in --> M
-  RA --> M["Yöntem<br/>clean / empty / wrong / tr eşli<br/>McNemar + TOST, ön kayıtlı eşik<br/>iddia birimi = blok"]:::key
+  P["Problem<br/>VLAs are trained almost only in English<br/>foreign-language loss = command-free loss"]:::prob --> G["Gap<br/>For Turkish only open loop, single frame<br/>no empty-command baseline"]:::prob
+  G --> A["Aim<br/>Measure closed-loop grounding<br/>of Turkish spatial commands"]:::key
+  A --> RA["RQ-a<br/>is there a gap"]:::key
+  A --> RB["RQ-b<br/>where does it break"]:::key
+  A --> RC["RQ-c<br/>how does it close"]:::key
+  D["Data<br/>datasets/04: 20 paired commands<br/>blocks A / B / C / D"]:::in --> M
+  S["Systems<br/>S-OV 4-bit, S-VN<br/>LIBERO Spatial + Goal"]:::in --> M
+  RA --> M["Method<br/>clean / empty / wrong / tr paired<br/>McNemar + TOST, pre-registered threshold<br/>claim unit = block"]:::key
   RB --> M
   RC --> M
-  M --> K1["Katkı 1<br/>Türkçe mekânsal komut seti"]:::out
-  M --> K2["Katkı 2<br/>ilk kapalı döngü, boş-komut tabanlı<br/>Türkçe VLA ölçümü"]:::out
-  M --> K3["Katkı 3<br/>ücretsiz T4 ile tekrarlanabilir protokol"]:::out
+  M --> K1["Contribution 1<br/>Turkish spatial command set"]:::out
+  M --> K2["Contribution 2<br/>first closed-loop Turkish VLA<br/>measurement with an empty-command baseline"]:::out
+  M --> K3["Contribution 3<br/>protocol reproducible on a free T4"]:::out
   classDef key fill:#ffd166,stroke:#c79a00,color:#000
   classDef in fill:#cfe8ff,stroke:#3b6ea8,color:#000
   classDef out fill:#d4f5d4,stroke:#2e8b57,color:#000

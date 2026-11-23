@@ -1,19 +1,19 @@
-"""Ders 18 — 4 koşullu deneyin eval.log'unu oku → episodes.csv + runs.csv + Wilson aralıklı sonuç tablosu + eşli testler.
+"""Lecture 18 — Read the eval.log of the 4-condition experiment → episodes.csv + runs.csv + result table with Wilson intervals + paired tests.
 
-Kullanım:
+Usage:
   python analyze_4cond.py <eval.log> --run-id vlanext_sp0_4cond_01 --out results/
   python analyze_4cond.py --logs clean=a/eval.log empty=b/eval.log wrong=c/eval.log tr=d/eval.log --out results/
-        (B planı: Ders 16'nın VLANEXT_INSTR_OVERRIDE'ıyla koşul başına ayrı koşu; log'larda condition= alanı yok)
-  python analyze_4cond.py --selftest      # eval script'inin format string'iyle üretilmiş sentetik log'la sınar
+        (Plan B: a separate run per condition using Lecture 16's VLANEXT_INSTR_OVERRIDE; the logs have no condition= field)
+  python analyze_4cond.py --selftest      # tests with a synthetic log produced with the eval script's format string
 
-Log biçimi (Ders 18 yaması 3): Episode result: task=%d/%d trial=%d condition=%s success=%s rollout_steps=%d episode_time=%s ...
-trial = init state indeksi (build_episode_specs: initial_states[episode_idx]) → koşullar aynı trial'da AYNI sahneyi görür → eşli.
+Log format (Lecture 18 patch 3): Episode result: task=%d/%d trial=%d condition=%s success=%s rollout_steps=%d episode_time=%s ...
+trial = init state index (build_episode_specs: initial_states[episode_idx]) → the conditions see the SAME scene in the same trial → paired.
 
-Çıktılar (--out klasörü):
+Outputs (--out folder):
   episodes.csv  run_id, suite, task_id, condition, init_state, success, rollout_steps, episode_time_s
-  runs.csv      CLAUDE.md sözleşmesi: run_id, model, checkpoint, suite, task_id, lang, condition, n_episodes, success_rate (koşul başına 1 satır; varsa dosyaya eklenir)
-  table.md      koşul | k/n | SR | Wilson %95 | Δ vs clean | uyumsuz çiftler (clean✓x✗ / clean✗x✓) | McNemar exact p | Fisher p
-Model / GPU gerekmez; yalnızca scipy (Fisher) — yoksa Fisher sütunu "—" olur.
+  runs.csv      CLAUDE.md convention: run_id, model, checkpoint, suite, task_id, lang, condition, n_episodes, success_rate (1 row per condition; appended if the file exists)
+  table.md      condition | k/n | SR | Wilson 95% | Δ vs clean | discordant pairs (clean✓x✗ / clean✗x✓) | McNemar exact p | Fisher p
+No model / GPU needed; only scipy (Fisher) — if missing the Fisher column becomes "—".
 """
 import argparse, csv, math, pathlib, re, sys, tempfile
 from collections import OrderedDict, defaultdict
@@ -29,7 +29,7 @@ HEADER_RUNS = ["run_id", "model", "checkpoint", "suite", "task_id", "lang", "con
 
 
 def parse_duration(s):
-    """format_duration (src/utils/logging_utils.py) çıktısı 'HH:MM:SS'; esneklik için '1m23s' / '45.2s' de kabul."""
+    """The output of format_duration (src/utils/logging_utils.py) is 'HH:MM:SS'; for flexibility '1m23s' / '45.2s' are also accepted."""
     s = s.strip()
     m = re.fullmatch(r"(?:(\d+)h)?\s*(?:(\d+)m)?\s*(?:([\d.]+)s)?", s)
     if m and any(m.groups()):
@@ -54,7 +54,7 @@ def wilson(k, n, z=1.96):
 
 
 def binom_two_sided(b, c):
-    """McNemar exact: uyumsuz çift sayıları b (clean✓, x✗) ve c (clean✗, x✓); H0: b ~ Binom(b+c, 0.5)."""
+    """McNemar exact: discordant pair counts b (clean✓, x✗) and c (clean✗, x✓); H0: b ~ Binom(b+c, 0.5)."""
     n = b + c
     if n == 0:
         return float("nan")
@@ -116,8 +116,8 @@ def fmt_p(p):
 
 
 def table_md(rows, suite, task_id):
-    out = [f"Suite `{suite}`, görev {task_id}; n = init state sayısı; Wilson %95; eşli testler clean'e göre (aynı init state).", "",
-           "| koşul | k/n | SR | Wilson %95 | Δ vs clean | uyumsuz (clean✓x✗ / clean✗x✓) | McNemar exact p | Fisher p | ort. adım | ort. süre |",
+    out = [f"Suite `{suite}`, task {task_id}; n = number of init states; Wilson 95%; paired tests relative to clean (same init state).", "",
+           "| condition | k/n | SR | Wilson 95% | Δ vs clean | discordant (clean✓x✗ / clean✗x✓) | McNemar exact p | Fisher p | mean steps | mean time |",
            "|---|---|---|---|---|---|---|---|---|---|"]
     for r in rows:
         if r["condition"] == "clean":
@@ -152,7 +152,7 @@ def write_outputs(info, eps, rows, run_id, out_dir, model="VLANeXt-B"):
 
 
 def selftest():
-    # Ders 18 yaması 3'ün format string'i (libero_bench_eval.py) ile üretilmiş sahte log: 10 init × 4 koşul; sonuçlar TEMSİLİ
+    # fake log produced with the format string of Lecture 18 patch 3 (libero_bench_eval.py): 10 init × 4 conditions; results are ILLUSTRATIVE
     fmt = ("Episode result: task=%d/%d trial=%d condition=%s success=%s rollout_steps=%d episode_time=%s total_episodes=%d/%d "
            "total_successes=%d task_success_rate=%.1f%% total_success_rate=%.1f%% elapsed=%s avg_episode=%.2fs eta=%s video=%s")
     pattern = {"clean": [1, 1, 1, 1, 1, 1, 1, 1, 1, 0], "empty": [1, 1, 0, 1, 0, 1, 0, 0, 1, 0],
@@ -175,23 +175,23 @@ def selftest():
         assert [r["condition"] for r in rows] == ["clean", "empty", "wrong", "tr"]
         assert rows[0]["k"] == 9 and rows[1]["k"] == 5 and rows[3]["k"] == 4
         tr = rows[3]; assert (tr["b"], tr["c"]) == (5, 0), (tr["b"], tr["c"])       # clean✓tr✗ 5, clean✗tr✓ 0
-        assert abs(tr["p_mcnemar"] - 2 * 0.5 ** 5) < 1e-9                          # 0.0625: 5 uyumsuz çift tek yönlüyse bile p = 0.0625
+        assert abs(tr["p_mcnemar"] - 2 * 0.5 ** 5) < 1e-9                          # 0.0625: even if all 5 discordant pairs are one-directional, p = 0.0625
         assert abs(wilson(9, 10)[0] - 0.5958) < 1e-3 and abs(wilson(9, 10)[1] - 0.9821) < 1e-3
         assert abs(parse_duration("00:01:31") - 91) < 1e-9 and abs(parse_duration("1m23s") - 83) < 1e-9
         assert abs(rows[0]["mean_time"] - (9 * 91 + 184) / 10) < 1e-9
         md = write_outputs(info, eps, rows, "selftest", pathlib.Path(d) / "results")
         assert (pathlib.Path(d) / "results" / "runs.csv").read_text().count("\n") == 5
-        # B planı: condition= alanı olmayan log + zorlanmış koşul adı
+        # Plan B: a log without a condition= field + a forced condition name
         p2 = pathlib.Path(d) / "e2.log"; p2.write_text("\n".join(lines).replace(" condition=tr", "").replace(" condition=clean", ""), encoding="utf-8")
         info2 = read_log(p2, forced_condition="empty"); assert {e["condition"] for e in info2["episodes"]} == {"empty"}
         print(md)
-        print("\nselftest OK (sayılar TEMSİLİ; gerçek log'la çalıştır)")
+        print("\nselftest OK (numbers are ILLUSTRATIVE; run with a real log)")
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("log", nargs="?")
-    ap.add_argument("--logs", nargs="*", default=[], help="B planı: koşul=yol çiftleri")
+    ap.add_argument("--logs", nargs="*", default=[], help="Plan B: condition=path pairs")
     ap.add_argument("--run-id", default="vlanext_sp0_4cond_01")
     ap.add_argument("--out", default="results")
     ap.add_argument("--selftest", action="store_true")
@@ -200,26 +200,26 @@ def main():
         return selftest()
     if a.log:
         info = read_log(a.log); eps = info["episodes"]
-        if eps and all(e["condition"] == "clean" for e in eps) and info["conditions_line"] in (None, "<yok: task.language>"):
-            print("UYARI: log'da condition= alanı yok — Ders 18 yaması uygulanmamış ya da VLANEXT_CONDITIONS boş; hepsi 'clean' sayıldı")
+        if eps and all(e["condition"] == "clean" for e in eps) and info["conditions_line"] in (None, "<none: task.language>"):
+            print("WARNING: no condition= field in the log — the Lecture 18 patch was not applied or VLANEXT_CONDITIONS is empty; all counted as 'clean'")
     elif a.logs:
         info = None; eps = []
         for item in a.logs:
             cnd, _, path = item.partition("=")
             inf = read_log(path, forced_condition=cnd); eps += inf["episodes"]; info = info or inf
     else:
-        ap.error("eval.log ya da --logs ver (ya da --selftest)")
+        ap.error("give an eval.log or --logs (or --selftest)")
     if not eps:
-        sys.exit("Log'da 'Episode result' satırı yok — eval başlamadan düşmüş olabilir; log'un sonuna bak.")
-    print(f"suite={info['suite']}  checkpoint={info['checkpoint']}  episode={len(eps)}  koşullar={info['conditions_line'] or info['override'] or '—'}")
+        sys.exit("No 'Episode result' line in the log — the eval may have crashed before starting; look at the end of the log.")
+    print(f"suite={info['suite']}  checkpoint={info['checkpoint']}  episodes={len(eps)}  conditions={info['conditions_line'] or info['override'] or '—'}")
     rows = summarize(eps)
     print(write_outputs(info, eps, rows, a.run_id, a.out))
-    print(f"\n→ {a.out}/episodes.csv, runs.csv ({len(rows)} satır eklendi), table.md")
+    print(f"\n→ {a.out}/episodes.csv, runs.csv ({len(rows)} rows appended), table.md")
     inits = defaultdict(set)
     for e in eps:
         inits[e["condition"]].add(e["init_state"])
     if len({frozenset(v) for v in inits.values()}) > 1:
-        print("UYARI: koşulların init state kümeleri farklı — eşli test yalnızca ortak init state'lerde hesaplandı")
+        print("WARNING: the conditions have different sets of init states — the paired test was computed only on the common init states")
 
 
 if __name__ == "__main__":

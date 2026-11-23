@@ -1,48 +1,51 @@
-selftest OK: MDE(50; r=0,05)=23, MDE(100)=15, MDE(50; r=0)=16 — rq_power.py ile aynı
+selftest OK: MDE(50; r=0.05)=23, MDE(100)=15, MDE(50; r=0)=16 — same as rq_power.py
 
-Saniye/episode (orta senaryo, beklenen):
+Seconds/episode (mid scenario, expected):
   S-VN      Spatial clean     47  empty     67 | Goal clean     57  empty     88
   S-OV      Spatial clean    106  empty    156 | Goal clean    133  empty    207
   S-OV-mac  Spatial clean    255  empty    377 | Goal clean    320  empty    503
 
-hücre rq  kat   yer episode  koşan   iyimser      orta  kötümser  durum
-K1    cal core  T4      100    100       1.9       2.9       5.8  hazır
-K2    cal core  T4      100    100       0.6       1.3       2.5  hazır
-K3    cal core  Mac      50     50       3.1       4.0       6.1  hazır
-P1    a   pilot T4      120    120       0.9       2.0       3.9  hazır (S1)
-P2    a   pilot T4       40     40       1.0       1.5       3.0  hazır
-A1    a   core  T4     1200   1200       9.3      20.1      38.6  hazır
-A2    a   core  T4     1200   1200      11.9      25.8      49.8  hazır
-A3    a   core  T4     1200   1200      29.6      46.1      90.8  hazır
-A4    a   core  T4     1200   1200      38.6      60.4     119.1  hazır
-B1    b   core  T4      600    600       5.2      11.2      21.7  hazır
-B2    b   core  T4      600    600      16.7      26.1      51.4  hazır
-B3    b   core  T4      600    600       5.3      11.4      22.0  engelli (bddl_cf yükleme testi)
-B4    b   core  T4      600    600      16.9      26.4      52.0  engelli (bddl_cf yükleme testi)
-B5    b   core  T4      100    100       1.8       3.1       6.1  hazır
-B6    b   ext   T4     2400   2400      45.5      77.7     152.1  hazır
-C1    c   core  T4     1200    720      11.1      18.9      36.9  engelli (MT çıktısı yok: HF)
-C2    c   core  T4     1200     15       0.2       0.4       0.7  hazır
-C3    c   ext   T4        0      0      65.0      80.0      98.0  engelli (S9 danışman)
-C4    c   ext   T4     1800   1800      43.0      67.1     132.0  engelli (C3)
+cell  rq  tier  at  episode    run  optimistic         mid pessimistic  status
+K1    cal core  T4      100    100         1.9         2.9         5.8  ready
+K2    cal core  T4      100    100         0.6         1.3         2.5  ready
+K3    cal core  Mac      50     50         3.1         4.0         6.1  ready
+P1    a   pilot T4      120    120         0.9         2.0         3.9  ready (S1)
+P2    a   pilot T4       40     40         1.0         1.5         3.0  ready
+A1    a   core  T4     1200   1200         9.3        20.1        38.6  ready
+A2    a   core  T4     1200   1200        11.9        25.8        49.8  ready
+A3    a   core  T4     1200   1200        29.6        46.1        90.8  ready
+A4    a   core  T4     1200   1200        38.6        60.4       119.1  ready
+B1    b   core  T4      600    600         5.2        11.2        21.7  ready
+B2    b   core  T4      600    600        16.7        26.1        51.4  ready
+B3    b   core  T4      600    600         5.3        11.4        22.0  blocked (bddl_cf loading test)
+B4    b   core  T4      600    600        16.9        26.4        52.0  blocked (bddl_cf loading test)
+B5    b   core  T4      100    100         1.8         3.1         6.1  ready
+B6    b   ext   T4     1200   1200        21.9        37.4        73.1  ready
+C1    c   core  T4     1200    720        11.1        18.9        36.9  blocked (no MT output: HF)
+C2    c   core  T4     1200     15         0.2         0.4         0.7  ready
+C3    c   ext   T4        0      0        65.0        80.0        98.0  blocked (S9 advisor)
+C4    c   ext   T4     1800   1800        43.0        67.1       132.0  blocked (C3)
+AB1   b   core  T4     1200   1200        25.8        44.0        86.2  ready
+AB2   b   ext   T4     1200   1200        19.8        33.7        65.9  ready
+AB3   c   ext   T4     1200   1200        21.9        37.4        73.1  blocked (no tr_cs surface)
 
-Toplamlar (saat):
-  pilot T4: iyimser    1.9  orta    3.5  kötümser    6.9   → Kaggle haftası (orta, tek T4):  0.1; T4×2:  0.1
-  core  T4: iyimser  149.1  orta  254.1  kötümser  497.4   → Kaggle haftası (orta, tek T4):  8.5; T4×2:  4.2
-  core  Mac: iyimser    3.1  orta    4.0  kötümser    6.1
-  ext   T4: iyimser  153.5  orta  224.8  kötümser  382.1   → Kaggle haftası (orta, tek T4):  7.5; T4×2:  3.7
-  RQ-cal (pilot+core): orta    8.2 sa, episode 250
-  RQ-a   (pilot+core): orta  155.9 sa, episode 4960
-  RQ-b   (pilot+core): orta   78.2 sa, episode 2500
-  RQ-c   (pilot+core): orta   19.3 sa, episode 735
+Totals (hours):
+  pilot T4: optimistic    1.9  mid    3.5  pessimistic    6.9   → Kaggle weeks (mid, single T4):  0.1; T4×2:  0.1
+  core  T4: optimistic  174.9  mid  298.1  pessimistic  583.6   → Kaggle weeks (mid, single T4):  9.9; T4×2:  5.0
+  core  Mac: optimistic    3.1  mid    4.0  pessimistic    6.1
+  ext   T4: optimistic  171.6  mid  255.6  pessimistic  442.1   → Kaggle weeks (mid, single T4):  8.5; T4×2:  4.3
+  RQ-cal (pilot+core): mid    8.2 h, episode 250
+  RQ-a   (pilot+core): mid  155.9 h, episode 4960
+  RQ-b   (pilot+core): mid  122.2 h, episode 3700
+  RQ-c   (pilot+core): mid   19.3 h, episode 735
 
-Yalın matris (çekirdekte görev başına 20 init, blok havuzu n=120, MDE 13 puan): iyimser   63.0  orta  107.7  kötümser  210.7  → Kaggle haftası (orta): 3.6; T4×2: 1.8
+Lean matrix (20 init per task in the core, block pool n=120, MDE 13 points): optimistic   73.3  mid  125.3  pessimistic  245.2  → Kaggle weeks (mid): 4.2; T4×2: 2.1
 
-Tersine: RQ-a Spatial, S-OV, iki koşul (clean, tr_a), 6 görev — bütçe → n → MDE (r=0,05):
-    5 T4 sa → görev başına 12 init, havuz n= 72 → MDE görev   68 / blok   18 puan
-   10 T4 sa → görev başına 24 init, havuz n=144 → MDE görev   41 / blok   12 puan
-   20 T4 sa → görev başına 49 init, havuz n=294 → MDE görev   24 / blok    7 puan
-   30 T4 sa → görev başına 50 init, havuz n=300 → MDE görev   23 / blok    7 puan
-   40 T4 sa → görev başına 50 init, havuz n=300 → MDE görev   23 / blok    7 puan
-   60 T4 sa → görev başına 50 init, havuz n=300 → MDE görev   23 / blok    7 puan
-yazıldı: 02, 03, 04 → ../../lectures/images/lecture-27
+Inverse: RQ-a Spatial, S-OV, two conditions (clean, tr_a), 6 tasks — budget → n → MDE (r=0.05):
+    5 T4 h → 12 init per task, pooled n= 72 → MDE task   68 / block   18 points
+   10 T4 h → 24 init per task, pooled n=144 → MDE task   41 / block   12 points
+   20 T4 h → 49 init per task, pooled n=294 → MDE task   24 / block    7 points
+   30 T4 h → 50 init per task, pooled n=300 → MDE task   23 / block    7 points
+   40 T4 h → 50 init per task, pooled n=300 → MDE task   23 / block    7 points
+   60 T4 h → 50 init per task, pooled n=300 → MDE task   23 / block    7 points
+written: 02, 03, 04 → ../../lectures/images/lecture-27

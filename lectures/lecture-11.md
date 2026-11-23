@@ -1,64 +1,64 @@
-# Ders 11 — Klavye Günü 3: LIBERO Demo Verisi — HDF5'in İçi ve Gerçek Bir Trajectory
+# Lecture 11 — Keyboard Day 3: LIBERO Demo Data — Inside the HDF5 and a Real Trajectory
 
-**Faz 2 / Gün 11** · **Süre:** ~55 dk (okuma 15 + indirme 10 + inceleme 30)
-**Ön koşul:** Ders 10 (LIBERO çalışıyor), Ders 1 (trajectory/episode) · **Kod:** `code/day11/`
+**Phase 2 / Day 11** · **Time:** ~55 min (reading 15 + download 10 + inspection 30)
+**Prerequisite:** Lecture 10 (LIBERO works), Lecture 1 (trajectory/episode) · **Code:** `code/day11/`
 
-> **Bugünün tek cümlesi:** Bir VLA'nın öğrendiği şeyin tamamı bu dosyalarda: her görev için 50 insan demosu, her demo için `(görüntü, robot durumu, action)` zaman serisi — bugün bunu açıp Ders 1'deki soyut `(o_t, a_t)` çiftlerini gerçek sayılar olarak göreceksin.
-
----
-
-## 1. Demo verisi ne, nereden geliyor?
-
-LIBERO'nun 130 görevi için insanlar 3D fare (SpaceMouse) ile Panda kolunu teleoperasyonla yönetti; her görev 50 kez. Her oturum bir **episode**, her episode'un her kontrol adımı bir `(observation, action)` çifti. Behavior cloning (Ders 1) bu çiftleri `X → y` olarak öğrenir. OpenVLA'nın LIBERO fine-tune'u, VLANeXt'in eğitimi, OFT — hepsi bu dosyalardan (ya da onların RLDS/LeRobot'a dönüştürülmüş kopyalarından) besleniyor.
-
-Dosya formatı **HDF5**: hiyerarşik, dizi tabanlı, disk üzerinde kısmi okunabilen bir konteyner. Yazılımcı gözüyle: klasör ağacı gibi gruplar (`data/demo_3/obs/`) ve yapraklarda numpy dizileri; dosya 1 GB olsa da `f["data/demo_3/actions"][:10]` yalnızca 10 satırı okur.
+> **Today in one sentence:** Everything a VLA learns is in these files: 50 human demos for each task, and for each demo a `(image, robot state, action)` time series — today you will open one and see the abstract `(o_t, a_t)` pairs from Lecture 1 as real numbers.
 
 ---
 
-## 2. İndirme
+## 1. What is the demo data and where does it come from?
+
+For LIBERO's 130 tasks, humans teleoperated the Panda arm with a 3D mouse (SpaceMouse); 50 times per task. Each session is one **episode**, and each control step of an episode is one `(observation, action)` pair. Behavior cloning (Lecture 1) learns these pairs as `X → y`. OpenVLA's LIBERO fine-tune, VLANeXt's training, OFT — all of them are fed from these files (or from their copies converted to RLDS/LeRobot).
+
+The file format is **HDF5**: a hierarchical, array-based container that can be partially read from disk. From a software developer's point of view: groups like a folder tree (`data/demo_3/obs/`) and numpy arrays at the leaves; even if the file is 1 GB, `f["data/demo_3/actions"][:10]` reads only 10 rows.
+
+---
+
+## 2. Download
 
 ```bash
 conda activate vla
 cd ~/vla-work/LIBERO
 python benchmark_scripts/download_libero_datasets.py --datasets libero_spatial --use-huggingface
 ```
-Yalnızca Spatial suite (10 dosya, birkaç GB); tamamı (4 suite) ~10 GB. İndirme `~/.libero/config.yaml`'daki `datasets` yoluna gider (varsayılan: `LIBERO/libero/datasets/`). Bitince:
+Only the Spatial suite (10 files, a few GB); all of it (4 suites) is ~10 GB. The download goes to the `datasets` path in `~/.libero/config.yaml` (default: `LIBERO/libero/datasets/`). When it finishes:
 
 ```bash
 ls libero/datasets/libero_spatial/
 # pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate_demo.hdf5
-# ... (10 dosya)
+# ... (10 files)
 ```
 
-Hugging Face erişimi yavaşsa `--use-huggingface` bayrağını kaldır (UT Austin sunucusundan iner).
+If Hugging Face access is slow, remove the `--use-huggingface` flag (it downloads from the UT Austin server).
 
 ---
 
-## 3. Dosyanın içi
+## 3. Inside the file
 
-![HDF5 yapısı](images/lecture-11/01-hdf5-tree.png)
+![HDF5 structure](images/lecture-11/01-hdf5-tree.png)
 
-| Yol | Ne | Boyut |
+| Path | What | Shape |
 |---|---|---|
-| `data.attrs["problem_info"]` | JSON; `language_instruction` burada — modele giden komut | — |
-| `data.attrs["bddl_file_name"]` | görevin BDDL'i (success predicate) | — |
-| `data/demo_k/actions` | 7-DoF action dizisi | (T, 7) |
-| `data/demo_k/obs/agentview_rgb` | üçüncü şahıs kamera | (T, 128, 128, 3) uint8 |
-| `data/demo_k/obs/eye_in_hand_rgb` | bilek kamerası | (T, 128, 128, 3) |
-| `data/demo_k/obs/ee_states` | uç eyleyici konum (3) + quaternion (4) | (T, 7) |
-| `data/demo_k/obs/gripper_states` | iki parmağın açıklığı | (T, 2) |
-| `data/demo_k/obs/joint_states` | 7 eklem açısı | (T, 7) |
-| `data/demo_k/states` | tam MuJoCo durumu (replay için) | (T, ·) |
-| `rewards`, `dones` | seyrek ödül (son adımda 1), bitiş bayrağı | (T,) |
+| `data.attrs["problem_info"]` | JSON; `language_instruction` is here — the command that goes to the model | — |
+| `data.attrs["bddl_file_name"]` | the task's BDDL (success predicate) | — |
+| `data/demo_k/actions` | 7-DoF action array | (T, 7) |
+| `data/demo_k/obs/agentview_rgb` | third-person camera | (T, 128, 128, 3) uint8 |
+| `data/demo_k/obs/eye_in_hand_rgb` | wrist camera | (T, 128, 128, 3) |
+| `data/demo_k/obs/ee_states` | end-effector position (3) + quaternion (4) | (T, 7) |
+| `data/demo_k/obs/gripper_states` | opening of the two fingers | (T, 2) |
+| `data/demo_k/obs/joint_states` | 7 joint angles | (T, 7) |
+| `data/demo_k/states` | full MuJoCo state (for replay) | (T, ·) |
+| `rewards`, `dones` | sparse reward (1 at the last step), termination flag | (T,) |
 
-T episode'dan episode'a değişir (insan bazen hızlı, bazen yavaş): Spatial'da tipik 100–250 adım, 20 Hz'de 5–12 saniye.
+T varies from episode to episode (a human is sometimes fast, sometimes slow): typically 100–250 steps in Spatial, i.e. 5–12 seconds at 20 Hz.
 
-### Görüntüler 128×128
-OpenVLA 224×224 ister; eğitimde görüntüler yeniden boyutlandırılır (ve 180° döndürülür — Ders 10). VLANeXt 256'ya kadar çıkar. Küçük görüntü = küçük dosya; ama "sağındaki kâse" gibi ince mekânsal ayrımlar 128 pikselde zorlaşır — tezinde çözünürlüğü bir değişken olarak not et.
+### Images are 128×128
+OpenVLA wants 224×224; during training the images are resized (and rotated 180° — Lecture 10). VLANeXt goes up to 256. Small image = small file; but fine spatial distinctions like "the bowl on its right" get harder at 128 pixels — note resolution down as a variable in your thesis.
 
 ---
 
-## 4. İnceleme script'i
+## 4. The inspection script
 
 ```bash
 cd ~/vla-work
@@ -67,46 +67,46 @@ python inspect_hdf5.py LIBERO/libero/datasets/libero_spatial/pick_up_the_black_b
 open actions_demo0.png frames_demo0.png
 ```
 
-Script sırasıyla: attr'ları ve komutu yazdırır → 50 episode'un uzunluk dağılımını verir → seçilen demo'nun ağacını döker → action istatistiklerini (min/max/ort, gripper'ın benzersiz değerleri) yazar → iki PNG üretir.
+The script, in order: prints the attrs and the command → gives the length distribution of the 50 episodes → dumps the tree of the selected demo → prints the action statistics (min/max/mean, unique values of the gripper) → produces two PNGs.
 
-Aşağıdaki çıktılar bu dersi hazırlarken **aynı script**le, LIBERO şemasında üretilmiş küçük bir örnek dosyadan alındı (robosuite "Lift" görevi, scripted bir yaklaş–tut–kaldır politikası; insan demosu değil). Senin çıktın gerçek insan teleoperasyonu olacak — daha gürültülü, daha uzun:
+The outputs below were taken, while preparing this lecture, with the **same script** from a small example file produced in the LIBERO schema (the robosuite "Lift" task, a scripted approach–grasp–lift policy; not a human demo). Your output will be real human teleoperation — noisier, longer:
 
-![Action dizisi](images/lecture-11/02-actions-demo.png)
+![Action sequence](images/lecture-11/02-actions-demo.png)
 
-Okuma: t<45 yaklaşma (Δx, Δy, Δz sıfıra yakınsıyor: hedefe vardıkça delta küçülür), t=45 gripper −1 → +1 (tut), t≥60 Δz pozitif sabit (kaldır). Ders 1'deki temsili grafik, gerçek bir rollout'ta böyle görünüyor.
+Reading: t<45 approach (Δx, Δy, Δz converge to zero: the delta shrinks as you get closer to the target), t=45 gripper −1 → +1 (grasp), t≥60 Δz constant positive (lift). The schematic plot from Lecture 1 looks like this in a real rollout.
 
-![Kareler](images/lecture-11/03-frames-demo.png)
+![Frames](images/lecture-11/03-frames-demo.png)
 
-İlk / orta / son kare, 180° döndürülmüş. Senin dosyanda: kâse masada → gripper'da → tabakta.
+First / middle / last frame, rotated 180°. In your file: bowl on the table → in the gripper → on the plate.
 
-### Gripper sözleşmesini doğrula
-Script'in yazdığı `gripper benzersiz değerler` satırına bak. LIBERO ham demolarında gripper **−1 = açık, +1 = kapalı** (robosuite). Ama OpenVLA'nın "modified_libero_rlds" veri setinde gripper 0/1'e ve bazı yerlerde *ters* işarete çevrilmiştir; OpenVLA eval kodu bunu geri çevirir (`invert_gripper_action`). Bir modelin çıktısını LIBERO'ya verirken bu dönüşümü kaçırmak, Tatar vd.'nin "gripper ters" bulgusunun yapay bir kopyasını üretir. Tez deneyinde **ilk kontrol listesi maddesi** bu olsun.
-
----
-
-## 5. Oyna (10 dk)
-1. `--demo 0`, `--demo 25`, `--demo 49`: üç insanın (ya da aynı insanın üç denemesinin) T'si ve Δ profilleri ne kadar farklı? BC bu çeşitlilikten tek bir policy öğreniyor.
-2. Goal suite'ten bir dosya indir (`--datasets libero_goal`) ve "turn on the stove" demosuna bak: gripper hiç kapanıyor mu?
-3. `h5py` ile `f["data"].attrs["env_info"]`'yu yazdır: kamera adları ve kontrolcü ayarları burada; Ders 10'daki `camera_heights=128`in kaynağı.
+### Verify the gripper convention
+Look at the `gripper unique values` line the script prints. In LIBERO raw demos the gripper is **−1 = open, +1 = closed** (robosuite). But in OpenVLA's "modified_libero_rlds" dataset the gripper has been converted to 0/1 and in some places to the *opposite* sign; OpenVLA's eval code reverts this (`invert_gripper_action`). Missing this conversion when feeding a model's output to LIBERO produces an artificial copy of Tatar et al.'s "gripper inverted" finding. Make this the **first item on the checklist** in your thesis experiment.
 
 ---
 
-## 6. Takılırsan
-| Belirti | Çözüm |
+## 5. Play (10 min)
+1. `--demo 0`, `--demo 25`, `--demo 49`: how different are the T and the Δ profiles of three humans (or three attempts of the same human)? BC learns a single policy from this variety.
+2. Download a file from the Goal suite (`--datasets libero_goal`) and look at the "turn on the stove" demo: does the gripper ever close?
+3. Print `f["data"].attrs["env_info"]` with `h5py`: the camera names and controller settings are here; the source of the `camera_heights=128` in Lecture 10.
+
+---
+
+## 6. If you get stuck
+| Symptom | Fix |
 |---|---|
-| İndirme 403 / çok yavaş | `--use-huggingface` bayrağını kaldır ya da ekle (iki kaynak var) |
-| `KeyError: 'agentview_rgb'` | OpenVLA'nın RLDS'e dönüştürdüğü veri değil, LIBERO'nun ham HDF5'i olmalı; dosya adı `_demo.hdf5` ile bitmeli |
-| Bellek dolu | `imgs[i]` tek kare okur; tüm diziyi (`imgs[:]`) yükleme |
-| PNG'de görüntü ters | `[::-1, ::-1]` satırını kontrol et; LIBERO ham görüntüsü ters gelir |
+| Download 403 / very slow | Remove or add the `--use-huggingface` flag (there are two sources) |
+| `KeyError: 'agentview_rgb'` | It must be LIBERO's raw HDF5, not the data OpenVLA converted to RLDS; the file name must end with `_demo.hdf5` |
+| Out of memory | `imgs[i]` reads a single frame; do not load the whole array (`imgs[:]`) |
+| Image upside down in the PNG | Check the `[::-1, ::-1]` line; LIBERO's raw image comes out upside down |
 
-## Sonraki ders (Ders 12)
-Colab T4'e geçiş: VLANeXt kurulumu, Hugging Face checkpoint'i, `libero_bench_eval` ile 2–3 episode — ilk success rate sayın. Hazır bir notebook iskeletiyle.
+## Next lecture (Lecture 12)
+Moving to the Colab T4: installing VLANeXt, the Hugging Face checkpoint, 2–3 episodes with `libero_bench_eval` — your first success rate number. With a ready-made notebook skeleton.
 
 ---
 
-## Kaynaklar
-- LIBERO `scripts/create_dataset.py` (HDF5 şeması), `benchmark_scripts/download_libero_datasets.py`: [github.com/Lifelong-Robot-Learning/LIBERO](https://github.com/Lifelong-Robot-Learning/LIBERO)
-- Hugging Face veri seti: [yifengzhu-hf/LIBERO-datasets](https://huggingface.co/datasets/yifengzhu-hf/LIBERO-datasets)
-- OpenVLA `experiments/robot/libero/regenerate_libero_dataset.py` ve `libero_utils.py` (RLDS dönüşümü, gripper işareti, 180° döndürme): [github.com/openvla/openvla](https://github.com/openvla/openvla)
-- h5py dokümantasyonu: [docs.h5py.org](https://docs.h5py.org)
-- Kod: `code/day11/inspect_hdf5.py`; görseller `images/lecture-11/` aynı script'le, LIBERO şemasındaki örnek dosyadan üretildi.
+## References
+- LIBERO `scripts/create_dataset.py` (HDF5 schema), `benchmark_scripts/download_libero_datasets.py`: [github.com/Lifelong-Robot-Learning/LIBERO](https://github.com/Lifelong-Robot-Learning/LIBERO)
+- Hugging Face dataset: [yifengzhu-hf/LIBERO-datasets](https://huggingface.co/datasets/yifengzhu-hf/LIBERO-datasets)
+- OpenVLA `experiments/robot/libero/regenerate_libero_dataset.py` and `libero_utils.py` (RLDS conversion, gripper sign, 180° rotation): [github.com/openvla/openvla](https://github.com/openvla/openvla)
+- h5py documentation: [docs.h5py.org](https://docs.h5py.org)
+- Code: `code/day11/inspect_hdf5.py`; the images in `images/lecture-11/` were produced with the same script from an example file in the LIBERO schema.

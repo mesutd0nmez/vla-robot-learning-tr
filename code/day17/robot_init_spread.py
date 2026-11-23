@@ -1,14 +1,14 @@
-"""Ders 17 — LIBERO-Plus 'Robot Initial States': 500 MountedPanda alt sınıfının init_qpos'unu dosyadan okur ve çizer.
+"""Lecture 17 — LIBERO-Plus 'Robot Initial States': reads the init_qpos of the 500 MountedPanda subclasses from the file and plots it.
 
-Model/asset/MuJoCo GEREKMEZ. `envs/robots/mounted_panda.py` içindeki her `class MountedPandaK(MountedPanda)`
-yalnızca `init_qpos` property'sini ezer; bu script o 7 sayıyı `ast` ile çeker, taban pozdan farkını hesaplar.
+NO model/assets/MuJoCo needed. Every `class MountedPandaK(MountedPanda)` in `envs/robots/mounted_panda.py`
+overrides only the `init_qpos` property; this script extracts those 7 numbers with `ast` and computes the difference from the base pose.
 
-Kullanım:  python robot_init_spread.py <LIBERO-plus kökü> <çıktı.png> [--csv out.csv] [--suite libero_spatial]
+Usage:  python robot_init_spread.py <LIBERO-plus root> <output.png> [--csv out.csv] [--suite libero_spatial]
 """
 import argparse, ast, csv, json, pathlib, re
 import numpy as np
 
-JOINTS = ["j1 taban yaw", "j2 omuz", "j3 üst kol", "j4 dirsek", "j5 ön kol", "j6 bilek", "j7 el yaw"]
+JOINTS = ["j1 base yaw", "j2 shoulder", "j3 upper arm", "j4 elbow", "j5 forearm", "j6 wrist", "j7 hand yaw"]
 
 
 def main():
@@ -39,23 +39,23 @@ def main():
     base = qpos[0]
     ks = sorted(k for k in qpos if k != 0)
     Q = np.stack([qpos[k] for k in ks]); D = Q - base
-    print(f"{len(ks)} varyant sınıfı; taban init_qpos = {np.round(base, 3)}")
-    print("eklem başına |Δ| (rad): ort", np.round(np.abs(D).mean(0), 3), " max", np.round(np.abs(D).max(0), 3))
+    print(f"{len(ks)} variant classes; base init_qpos = {np.round(base, 3)}")
+    print("per-joint |Δ| (rad): mean", np.round(np.abs(D).mean(0), 3), " max", np.round(np.abs(D).max(0), 3))
     norm = np.linalg.norm(D, axis=1)
-    print(f"7-boyutlu ||Δ||: min {norm.min():.3f} ort {norm.mean():.3f} max {norm.max():.3f} rad")
+    print(f"7-dim ||Δ||: min {norm.min():.3f} mean {norm.mean():.3f} max {norm.max():.3f} rad")
 
     tasks = json.load(open(root / "libero/libero/benchmark/task_classification.json", encoding="utf-8"))[a.suite]
     used = {}
     for t in tasks:
         if t["category"] == "Robot Initial States":
             i = int(t["name"].split("_initstate_")[1].split("_")[0]); used[i] = t["difficulty_level"]
-    print(f"{a.suite} Robot görevlerinde kullanılan I: {len(used)} farklı ({min(used)}..{max(used)})")
-    # zorluk vs sapma büyüklüğü (hipotez testi: büyük sapma → zor mu?)
+    print(f"{a.suite} Robot tasks: {len(used)} distinct I used ({min(used)}..{max(used)})")
+    # difficulty vs deviation magnitude (hypothesis test: is a large deviation → hard?)
     diff_norm = {}
     for i, lvl in used.items():
         diff_norm.setdefault(lvl, []).append(np.linalg.norm(qpos[i] - base))
     for lvl in sorted(diff_norm):
-        v = np.array(diff_norm[lvl]); print(f"  zorluk L{lvl}: n={len(v):3d}  ||Δ|| ort {v.mean():.3f}  medyan {np.median(v):.3f}")
+        v = np.array(diff_norm[lvl]); print(f"  difficulty L{lvl}: n={len(v):3d}  ||Δ|| mean {v.mean():.3f}  median {np.median(v):.3f}")
     if a.csv:
         with open(a.csv, "w", newline="", encoding="utf-8") as f:
             w = csv.writer(f); w.writerow(["init_state"] + [f"q{i+1}" for i in range(7)] + ["norm_delta", "difficulty_spatial"])
@@ -72,9 +72,9 @@ def main():
     for m in bp["medians"]: m.set_color("#000")
     ax.axhline(0, color="#999", lw=0.8)
     ax.set_xticks(range(1, 8)); ax.set_xticklabels(JOINTS, rotation=20, ha="right")
-    ax.set_ylabel("init_qpos − taban (derece)")
-    ax.set_title(f"(a) {len(ks)} MountedPandaK sınıfı: eklem başına sapma (mounted_panda.py)")
-    ax.text(0.02, 0.97, f"taban: {np.round(np.degrees(base),1)}°", transform=ax.transAxes, fontsize=8, va="top", color="#555")
+    ax.set_ylabel("init_qpos − base (degrees)")
+    ax.set_title(f"(a) {len(ks)} MountedPandaK classes: deviation per joint (mounted_panda.py)")
+    ax.text(0.02, 0.97, f"base: {np.round(np.degrees(base),1)}°", transform=ax.transAxes, fontsize=8, va="top", color="#555")
     ax = axes[1]
     cols = {1: "#d4f5d4", 2: "#e8f5c8", 3: "#ffd166", 4: "#ffb3a7", 5: "#ffd6d6"}
     data = [np.array(diff_norm[l]) for l in sorted(diff_norm)]
@@ -82,14 +82,14 @@ def main():
     for p, l in zip(bp["boxes"], sorted(diff_norm)): p.set_facecolor(cols[l]); p.set_edgecolor("#888")
     for m in bp["medians"]: m.set_color("#000")
     ax.set_xticks(range(1, len(data) + 1)); ax.set_xticklabels([f"L{l}\n(n={len(diff_norm[l])})" for l in sorted(diff_norm)])
-    ax.set_ylabel("||Δ init_qpos|| (rad, 7 eklem)"); ax.set_xlabel("zorluk seviyesi (4 modelden kaçı çözdü)")
-    ax.set_title(f"(b) {a.suite}: sapma büyüklüğü vs zorluk")
+    ax.set_ylabel("||Δ init_qpos|| (rad, 7 eklem)"); ax.set_xlabel("difficulty level (how many of 4 models solved it)")
+    ax.set_title(f"(b) {a.suite}: deviation magnitude vs difficulty")
     nc = sorted(((round(float(n), 2)), int(c)) for n, c in zip(*np.unique(np.round(norm, 2), return_counts=True)))
-    ax.text(0.02, 0.03, "500 sınıfta ||Δ|| = " + ", ".join(f"{n} rad ×{c}" for n, c in nc) + "\n(rastgele yön, 5 sabit büyüklük)",
+    ax.text(0.02, 0.03, "across the 500 classes ||Δ|| = " + ", ".join(f"{n} rad ×{c}" for n, c in nc) + "\n(random direction, 5 fixed magnitudes)",
             transform=ax.transAxes, fontsize=7.5, color="#555", va="bottom")
-    fig.suptitle("LIBERO-Plus 'Robot Initial States': bozulma = yalnızca 7 eklem açısının başlangıç değeri — gerçek dosyadan okundu (robot_init_spread.py)", fontsize=10.5)
+    fig.suptitle("LIBERO-Plus 'Robot Initial States': the perturbation = only the initial values of the 7 joint angles — read from the real file (robot_init_spread.py)", fontsize=10.5)
     fig.tight_layout(rect=(0, 0, 1, 0.94)); fig.savefig(a.out, dpi=170); plt.close(fig)
-    print("yazıldı:", a.out)
+    print("written:", a.out)
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-"""Gün 9 — Ortam kontrolü. Her satır OK demeli."""
+"""Day 9 — Environment check. Every line should say OK."""
 import sys, platform
 print("python :", sys.version.split()[0], "| mimari:", platform.machine(), "(arm64 bekleniyor)")
 import numpy; print("numpy  :", numpy.__version__)

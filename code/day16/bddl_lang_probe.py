@@ -1,21 +1,21 @@
-"""Ders 16 — Türkçe bir komut LIBERO-Plus'ın BDDL ayrıştırıcısından geçince modele ne olarak ulaşır?
+"""Lecture 16 — When a Turkish command passes through LIBERO-Plus's BDDL parser, what reaches the model?
 
-LIBERO-Plus, `_language_` görevlerinde komutu BDDL dosyasının `(:language ...)` alanından okur
+For `_language_` tasks, LIBERO-Plus reads the command from the `(:language ...)` field of the BDDL file
 (libero/libero/benchmark/__init__.py → grab_language_from_filename → bddl_utils.get_problem_info).
-O yol `bddl.parsing.scan_tokens` kullanır: (1) ';' ile satır sonuna kadar her şeyi YORUM sayıp siler,
-(2) tüm dosyayı Python `str.lower()` ile küçültür, (3) '(' ve ')' karakterlerini yapı olarak okur,
-(4) kelimeleri tek boşlukla yeniden birleştirir.
+That path uses `bddl.parsing.scan_tokens`: (1) treats everything from ';' to the end of the line as a COMMENT and deletes it,
+(2) lowercases the whole file with Python `str.lower()`, (3) reads the '(' and ')' characters as structure,
+(4) rejoins the words with single spaces.
 
-Bu script gerçek `bddl` paketini (pip install bddl==1.0.1 future) kullanır; yoksa aynı 3 satırı taklit eder.
-Kullanım:  python bddl_lang_probe.py [--csv cikti.csv]
+This script uses the real `bddl` package (pip install bddl==1.0.1 future); if it is missing it imitates the same 3 steps.
+Usage:  python bddl_lang_probe.py [--csv output.csv]
 """
 import argparse, csv, re, unicodedata
 
 try:
-    from bddl.parsing import scan_tokens          # LIBERO / LIBERO-Plus'ın kullandığı fonksiyon
-    SRC = "bddl.parsing.scan_tokens (gerçek paket)"
+    from bddl.parsing import scan_tokens          # the function LIBERO / LIBERO-Plus use
+    SRC = "bddl.parsing.scan_tokens (real package)"
 except Exception:                                  # pragma: no cover
-    SRC = "taklit (bddl kurulu değil)"
+    SRC = "imitation (bddl is not installed)"
 
     def scan_tokens(string):
         s = re.sub(r";.*$", "", string, flags=re.MULTILINE).lower()
@@ -36,34 +36,34 @@ except Exception:                                  # pragma: no cover
 TEMPLATE = "(define (problem LIBERO_Tabletop_Manipulation)\n  (:domain robosuite)\n  (:language {cmd})\n)\n"
 
 CASES = [
-    ("EN referans", "pick up the black bowl between the plate and the ramekin and place it on the plate"),
-    ("TR küçük harf", "tabak ile ramekinin arasındaki siyah kaseyi al ve tabağın üstüne koy"),
-    ("TR büyük I", "Işığın altındaki kâseyi al"),
-    ("TR büyük İ", "İki tabağın arasındaki kâseyi al"),
-    ("TR TAMAMI BÜYÜK", "SIRADAKİ KASEYİ AL"),
-    ("noktalı virgül", "kâseyi al; tabağa koy"),
-    ("parantez", "kâseyi (siyah olanı) tabağa koy"),
-    ("kesme işareti", "ramekin'in yanındaki kâseyi al"),
-    ("boş", ""),
+    ("EN reference", "pick up the black bowl between the plate and the ramekin and place it on the plate"),
+    ("TR lowercase", "tabak ile ramekinin arasındaki siyah kaseyi al ve tabağın üstüne koy"),
+    ("TR uppercase I", "Işığın altındaki kâseyi al"),
+    ("TR uppercase İ", "İki tabağın arasındaki kâseyi al"),
+    ("TR ALL CAPS", "SIRADAKİ KASEYİ AL"),
+    ("semicolon", "kâseyi al; tabağa koy"),
+    ("parentheses", "kâseyi (siyah olanı) tabağa koy"),
+    ("apostrophe", "ramekin'in yanındaki kâseyi al"),
+    ("empty", ""),
 ]
 
 
 def parse_language(cmd):
     tokens = scan_tokens(string=TEMPLATE.format(cmd=cmd))
-    # libero/libero/envs/bddl_utils.py get_problem_info: tokens.pop(0)=="define", sondan gruplar, ":language" grubu
+    # libero/libero/envs/bddl_utils.py get_problem_info: tokens.pop(0)=="define", groups from the end, the ":language" group
     tokens = list(tokens)
     assert tokens.pop(0) == "define"
     lang = ""
     while tokens:
         g = tokens.pop()
         if isinstance(g, list) and g and g[0] == ":language":
-            lang = " ".join(g[1:])   # bddl_utils.py:83 ile aynı; iç içe liste varsa TypeError
+            lang = " ".join(g[1:])   # same as bddl_utils.py:83; TypeError if there is a nested list
     return lang
 
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--csv"); a = ap.parse_args()
-    print("ayrıştırıcı:", SRC)
+    print("parser:", SRC)
     rows = []
     for label, cmd in CASES:
         try:
@@ -72,13 +72,13 @@ def main():
             out, err = "", f"{type(e).__name__}: {e}"
         same = out == cmd
         extra = [f"U+{ord(c):04X}" for c in out if unicodedata.combining(c)]
-        note = err or ("aynı" if same else "DEĞİŞTİ") + (f" (birleşik işaret {','.join(extra)})" if extra else "")
+        note = err or ("same" if same else "CHANGED") + (f" (combining mark {','.join(extra)})" if extra else "")
         rows.append({"durum": label, "girdi": cmd, "modele_giden": out, "len_in": len(cmd), "len_out": len(out), "not": note})
         print(f"- {label:16s} | {cmd!r}\n  {'':16s} → {out!r}  [{note}]")
     if a.csv:
         with open(a.csv, "w", newline="", encoding="utf-8") as f:
             w = csv.DictWriter(f, fieldnames=list(rows[0])); w.writeheader(); w.writerows(rows)
-        print("yazıldı:", a.csv)
+        print("written:", a.csv)
 
 
 if __name__ == "__main__":

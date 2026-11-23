@@ -4,28 +4,28 @@ flowchart TB
   classDef output fill:#d4f5d4,stroke:#333,color:#000
   classDef problem fill:#ffd6d6,stroke:#333,color:#000
 
-  Q["Faz 3'ün tek sorusu<br/>Komut değişince davranış değişiyor mu —<br/>ve Türkçe komut modele ne kadar ulaşıyor?"]:::model
+  Q["The single question of Phase 3<br/>Does behavior change when the command changes —<br/>and how much of the Turkish command reaches the model?"]:::model
 
-  subgraph BENCH["Benchmark tarafı: ne ölçülebilir?"]
-    D17["Ders 17 · LIBERO-Plus kodda<br/>7 bozulma, 3 taşıyıcı; Language = 50 yeniden yazım<br/>R1 26 / R2 16+6 / R0 2 — 'between' 48/50 duruyor:<br/>ilişki ifadesi test edilmiyor"]:::problem
-    D19["Ders 19 · Yapısal üst sınır (BDDL)<br/>komutsuz tavan: Spatial 9/10, Object 10/10,<br/>Goal 1/10, Long 9/10; 50 init state yayılımı ≤ 3 cm<br/>→ okuma protokolü A/B/C/D"]:::input
+  subgraph BENCH["Benchmark side: what can be measured?"]
+    D17["Lecture 17 · LIBERO-Plus in code<br/>7 perturbations, 3 carriers; Language = 50 rewrites<br/>R1 26 / R2 16+6 / R0 2 — 'between' stands in 48/50:<br/>the relation expression is not tested"]:::problem
+    D19["Lecture 19 · Structural upper bound (BDDL)<br/>command-free ceiling: Spatial 9/10, Object 10/10,<br/>Goal 1/10, Long 9/10; 50 init-state spread ≤ 3 cm<br/>→ reading protocol A/B/C/D"]:::input
   end
 
-  subgraph EXP["Deney tarafı: nasıl ölçülür?"]
-    D18["Ders 18 · Dört koşul, eşli<br/>clean / empty / wrong / tr × 10 init state<br/>Wilson 9/10 = 60–98 (n=10) → pilot;<br/>tez için 50 + ≥3 tekrar"]:::output
-    D23["Ders 23 · Cohn hattı, 3 bulgu<br/>derinlikle çöküş (LIBERO'da k=1 yok),<br/>yüzey değişince düşüş, tek skor rapor etme<br/>→ Wilson + PI yan yana"]:::input
+  subgraph EXP["Experiment side: how to measure?"]
+    D18["Lecture 18 · Four conditions, paired<br/>clean / empty / wrong / tr × 10 init states<br/>Wilson 9/10 = 60–98 (n=10) → pilot;<br/>for the thesis 50 + ≥3 repeats"]:::output
+    D23["Lecture 23 · Cohn line, 3 findings<br/>collapse with depth (no k=1 in LIBERO),<br/>drop when the surface changes, do not report a single score<br/>→ Wilson + PI side by side"]:::input
   end
 
-  subgraph TR["Türkçe tarafı: komut nedir?"]
-    D20["Ders 20 · datasets/04<br/>20 EN–TR çift × 5 yüzey; ilişki = ad + 3 ek;<br/>üç çerçeve (libero / görüntü / robot);<br/>B bloğu = eğitimde olmayan tarif"]:::input
-    D22["Ders 22 · Tokenizasyon<br/>tr_a/en şişme LLaMA-2 1,63× vs Qwen3 1,41×;<br/>Türkçe harf bedeli 4,9 vs 0,9 token;<br/>-ki eki 3 / 5 biçim; action aralığı temiz"]:::problem
+  subgraph TR["Turkish side: what is a command?"]
+    D20["Lecture 20 · datasets/04<br/>20 EN–TR pairs × 5 surfaces; relation = noun + 3 suffixes;<br/>three frames (libero / image / robot);<br/>block B = recipe not in training"]:::input
+    D22["Lecture 22 · Tokenization<br/>tr_a/en inflation LLaMA-2 1.63× vs Qwen3 1.41×;<br/>Turkish-letter cost 4.9 vs 0.9 tokens;<br/>-ki suffix 3 / 5 forms; action range clean"]:::problem
   end
 
-  subgraph SOL["Çözüm tarafı: ne yapılır?"]
-    D24["Ders 24 · Beş yaklaşım<br/>MT / parser (indirir) · omurga / TR LoRA (aday)<br/>· hidden-state (teşhis); parser held-out 5/12;<br/>QLoRA T4 ≈ 7,7 GB, 65–98 sa (tahmin)"]:::model
+  subgraph SOL["Solution side: what to do?"]
+    D24["Lecture 24 · Five approaches<br/>MT / parser (reduce) · backbone / TR LoRA (candidates)<br/>· hidden-state (diagnosis); parser held-out 5/12;<br/>QLoRA T4 ≈ 7.7 GB, 65–98 h (estimate)"]:::model
   end
 
-  D21["Ders 21 · Webots (yan dal)<br/>fizik + sarmalayıcı var, benchmark yok;<br/>karar: ana deney LIBERO'da, Webots iki koşulla"]:::input
+  D21["Lecture 21 · Webots (side branch)<br/>physics + wrapper exist, benchmark does not;<br/>decision: main experiment in LIBERO, Webots with two conditions"]:::input
 
   Q --> BENCH
   Q --> EXP
@@ -37,6 +37,6 @@ flowchart TB
   D20 --> D24
   D22 --> D24
   D23 --> D24
-  D19 -. "üst sınır → okuma" .-> D24
-  D21 -. "ikinci ortam?" .-> OUT
-  D24 --> OUT["Faz 4 girdisi (Ders 26)<br/>açık sorular → 3 aday RQ"]:::output
+  D19 -. "upper bound → reading" .-> D24
+  D21 -. "second environment?" .-> OUT
+  D24 --> OUT["Phase 4 input (Lecture 26)<br/>open questions → 3 candidate RQs"]:::output

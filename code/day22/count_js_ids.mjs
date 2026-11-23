@@ -1,5 +1,5 @@
-// Ders 22 — Ders 15'in açık hipotezini kapatmak için: llama-tokenizer-js (Ders 14–15'te kullandığımız JS uyarlaması)
-// ile HF `tokenizers` (Rust, transformers'ın kullandığı) aynı LLaMA-2 id dizisini veriyor mu?
+// Lecture 22 — to close the open hypothesis of Lecture 15: does llama-tokenizer-js (the JS port we used in Lectures 14–15)
+// give the same LLaMA-2 id sequence as HF `tokenizers` (Rust, the one transformers uses)?
 //   npm install llama-tokenizer-js
 //   node count_js_ids.mjs ../../datasets/04-tr-spatial-commands/data/commands.csv js_ids.json
 //   python tokenize_set.py --jsids js_ids.json ...   → crosscheck.md
@@ -25,6 +25,6 @@ function parseCSV(s) {
 const [header, ...data] = parseCSV(text).filter(r => r.length > 1);
 const col = Object.fromEntries(header.map((h, i) => [h, i]));
 const out = {};
-for (const r of data) out[r[col.id]] = llamaTokenizer.encode(r[col.instruction], false, true); // BOS yok, öndeki boşluk (dummy prefix ▁) VAR — prompt içindeki hâl
+for (const r of data) out[r[col.id]] = llamaTokenizer.encode(r[col.instruction], false, true); // no BOS, WITH the leading space (dummy prefix ▁) — as it appears inside the prompt
 fs.writeFileSync(outPath, JSON.stringify(out));
-console.log(`${Object.keys(out).length} komut → ${outPath}`);
+console.log(`${Object.keys(out).length} commands -> ${outPath}`);

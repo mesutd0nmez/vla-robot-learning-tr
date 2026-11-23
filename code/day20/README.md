@@ -1,19 +1,19 @@
 # day20
 
-Ders 20 — Türkçe mekânsal komut seti tasarımı: 20 EN–TR çift × 5 yüzey = 100 satır (`datasets/04-tr-spatial-commands/`). Komutlar elle yazılmaz, **üretilir**: ekler `tr_morph.py`'den, "hangi kâse?" etiketi LIBERO'nun 50 init state'inden (`scene_frames.py`), karşı-olgusal success predicate'i `make_cf_bddl.py`'den gelir; `validate_set.py` seti sekiz kurala göre denetler.
+Lecture 20 — Designing the Turkish spatial command set: 20 EN–TR pairs × 5 surface forms = 100 rows (`datasets/04-tr-spatial-commands/`). The commands are not written by hand, they are **generated**: the suffixes come from `tr_morph.py`, the "which bowl?" label from LIBERO's 50 init states (`scene_frames.py`), the counterfactual success predicate from `make_cf_bddl.py`; `validate_set.py` checks the set against eight rules.
 
-| Dosya | Ne | Durum |
+| File | What | Status |
 |---|---|---|
-| `tr_morph.py` | Küçük Türkçe ek üretici: GEN/POSS3/ACC/DAT/LOC/ABL/-ki, ünlü uyumu, kaynaştırma, yumuşama, zamir n'si; yüzey + ayrım (`tabağ-ın üst-ü-ne`) | çalıştırıldı (`--selftest` 42/42) |
-| `scene_frames.py` | 10 Spatial sahnesi × 9 tarif: üç çerçevede (LIBERO adlandırması / modelin gördüğü görüntü / robot) kastedilen kâse + 50 init state'teki en küçük fark; `--conventions` LIBERO-90/10'un left/right/front/back bölgelerinden sözleşmeyi doğrular | çalıştırıldı (gerçek `.pruned_init`; 5/5 left = −y, 2/2 front = +x) |
-| `make_tr_set.py` | 20 çifti üretir: `pairs.csv` (ayrım, ilişki sözcüğü, referans, tier, EN eğitimde mi) + `commands.csv` (en / tr_a / tr_b / tr_ascii / tr_bare) | çalıştırıldı |
-| `validate_set.py` | BDDL-güvenli metin, ek tutarlılığı, `datasets/01` ile süreklilik, referans belirliliği, denge, minimal çiftler (11), allomorf tablosu, bilgi konumu | çalıştırıldı (TEMİZ) |
-| `make_cf_bddl.py` | Komut `bowl_2`'yi gösteriyorsa hedefi `(On akita_black_bowl_2 plate_1)` olan BDDL kopyası; `bddl` paketiyle geri okuma | çalıştırıldı (5 dosya; dil birebir, sahne aynı) — **LIBERO env'inde yüklenmedi** (bu ortamda MuJoCo/LIBERO yok) |
-| `plot_day20.py` | Görsel 02 (üç çerçeve; senin project-2 render'ın üstünde), 03 (tasarım matrisi), 04 (referans tablosu), 05 (allomorf + bilgi konumu) | çalıştırıldı |
+| `tr_morph.py` | Small Turkish suffix generator: GEN/POSS3/ACC/DAT/LOC/ABL/-ki, vowel harmony, buffer consonants, consonant softening, pronominal n; surface form + segmentation (`tabağ-ın üst-ü-ne`) | ran (`--selftest` 42/42) |
+| `scene_frames.py` | 10 Spatial scenes × 9 descriptions: the intended bowl in three frames (LIBERO naming / the image the model sees / robot) + the smallest gap over the 50 init states; `--conventions` verifies the convention from the left/right/front/back regions of LIBERO-90/10 | ran (real `.pruned_init`; 5/5 left = −y, 2/2 front = +x) |
+| `make_tr_set.py` | Generates the 20 pairs: `pairs.csv` (segmentation, relation word, referent, tier, EN in training?) + `commands.csv` (en / tr_a / tr_b / tr_ascii / tr_bare) | ran |
+| `validate_set.py` | BDDL-safe text, suffix consistency, continuity with `datasets/01`, referent definiteness, balance, minimal pairs (11), allomorph table, information position | ran (CLEAN) |
+| `make_cf_bddl.py` | If the command points to `bowl_2`, a BDDL copy whose goal is `(On akita_black_bowl_2 plate_1)`; read back with the `bddl` package | ran (5 files; language identical, scene unchanged) — **not loaded in the LIBERO env** (no MuJoCo/LIBERO in this environment) |
+| `plot_day20.py` | Figure 02 (three frames; on top of your project-2 render), 03 (design matrix), 04 (referent table), 05 (allomorphs + information position) | ran |
 
-Mac'te (model gerekmez; `vla` env, numpy + matplotlib; `bddl` isteğe bağlı):
+On the Mac (no model needed; `vla` env, numpy + matplotlib; `bddl` optional):
 ```bash
-git clone --depth 1 https://github.com/Lifelong-Robot-Learning/LIBERO ~/src/LIBERO    # Ders 19'da klonladıysan atla
+git clone --depth 1 https://github.com/Lifelong-Robot-Learning/LIBERO ~/src/LIBERO    # skip if you cloned it in Lecture 19
 cd code/day20
 python tr_morph.py --selftest
 python scene_frames.py --libero ~/src/LIBERO --conventions
@@ -28,19 +28,20 @@ python plot_day20.py --libero ~/src/LIBERO --data ../../datasets/04-tr-spatial-c
 ## tr_morph.py
 
 ```python
-"""Ders 20 — Mekânsal komutlar için küçük bir Türkçe ek üretici (kural tabanlı; sözlük + ünlü uyumu + kaynaştırma).
+"""Lecture 20 — a small Turkish suffix generator for spatial commands (rule-based; lexicon + vowel harmony + buffer consonants).
 
-Amaç genel bir morfolojik çözümleyici DEĞİL: komut setindeki ~20 ad ve ~12 ilişki adı için ekleri elle yazmak yerine
-üretmek, böylece (1) aynı biçimbirimin kaç yüzey biçimi (allomorf) olduğunu saymak, (2) sete yeni nesne eklerken
-"tabakın / dolapın" gibi hataları önlemek, (3) her komutun ek ayrımını (tabağ-ın üst-ü-ne) Ders 21'e sütun olarak vermek.
+The goal is NOT a general morphological analyzer: instead of writing the suffixes by hand for the ~20 nouns and ~12 relational
+nouns of the command set, we generate them, so that we can (1) count how many surface forms (allomorphs) the same morpheme has,
+(2) avoid errors like "tabakın / dolapın" when adding a new object to the set, (3) hand the suffix segmentation of every command
+(tabağ-ın üst-ü-ne) to Lecture 21 as a column.
 
-Kurallar (Göksel & Kerslake 2005, Bölüm 3 ve 6'daki genel kurallar; yalnızca bu setin ihtiyacı kadar):
-  I ∈ {ı, i, u, ü}: son ünlü kalın/ince × düz/yuvarlak        A ∈ {a, e}: son ünlü kalın/ince
+Rules (general rules from Göksel & Kerslake 2005, Chapters 3 and 6; only as much as this set needs):
+  I ∈ {ı, i, u, ü}: last vowel back/front × unrounded/rounded        A ∈ {a, e}: last vowel back/front
   GEN  -(n)In     POSS3 -(s)I     ACC -(y)I     DAT -(y)A     LOC -DA     ABL -DAn     -ki
-  POSS3'ten sonra "zamir n'si": -nI, -nA, -ndA, -ndAn, -nIn   (üst-ü-n-e, çekmece-si-n-de-ki)
-  Yumuşama (sözlükte işaretli): tabak → tabağ-ı, dolap → dolab-ı, ocak → ocağ-ı   (robot → robot-a: yumuşamaz)
+  After POSS3 the "pronominal n": -nI, -nA, -ndA, -ndAn, -nIn   (üst-ü-n-e, çekmece-si-n-de-ki)
+  Consonant softening (marked in the lexicon): tabak → tabağ-ı, dolap → dolab-ı, ocak → ocağ-ı   (robot → robot-a: does not soften)
 
-Kullanım:
+Usage:
   python tr_morph.py --selftest
   python tr_morph.py tabak gen        → tabağın   (tabağ-ın)
   python tr_morph.py üst dat --rel    → üstüne    (üst-ü-ne)
@@ -50,11 +51,11 @@ import sys
 VOWELS, BACK, ROUND = "aeıioöuüâîû", "aıouâû", "oöuüû"
 SOFTEN = {"k": "ğ", "p": "b", "ç": "c", "t": "d"}
 VOICELESS = "fstkçşhp"
-# sözlük: yalın biçim → son sesi yumuşar mı?  (yalnızca bu setteki adlar)
+# lexicon: bare form -> does the final consonant soften?  (only the nouns in this set)
 LEXICON = {
     "tabak": True, "ocak": True, "dolap": True, "kase": False, "kâse": False, "ramekin": False, "masa": False,
     "kutu": False, "çekmece": False, "raf": False, "şişe": False, "peynir": False, "robot": False, "taraf": False,
-    # ilişki adları (relational nouns): iyelik eki alıp hâl ekiyle çekimlenirler
+    # relational nouns: they take a possessive suffix and are inflected with a case suffix
     "üst": False, "alt": False, "yan": False, "ön": False, "arka": False, "iç": False, "ara": False, "orta": False,
     "sağ": False, "sol": False, "üzer": False, "karşı": False,
 }
@@ -64,7 +65,7 @@ def _last_vowel(s):
     for ch in reversed(s):
         if ch in VOWELS:
             return ch
-    raise ValueError(f"ünlü yok: {s}")
+    raise ValueError(f"no vowel: {s}")
 
 
 def _I(s):
@@ -81,7 +82,7 @@ def _ends_vowel(s):
 
 
 def _soft(word):
-    """Ünlüyle başlayan ek öncesi gövde: sözlükte işaretliyse son ünsüz yumuşar."""
+    """Stem before a vowel-initial suffix: if marked in the lexicon, the final consonant softens."""
     head = word.split()[-1]
     if LEXICON.get(head, False) and word[-1] in SOFTEN:
         return word[:-1] + SOFTEN[word[-1]]
@@ -89,7 +90,7 @@ def _soft(word):
 
 
 def poss3(word):
-    """3. tekil iyelik: üst → üst-ü, arka → arka-sı, çekmece → çekmece-si, tabak → tabağ-ı."""
+    """3rd person singular possessive: üst → üst-ü, arka → arka-sı, çekmece → çekmece-si, tabak → tabağ-ı."""
     if _ends_vowel(word):
         return word + "s" + _I(word), word + "-s" + _I(word)
     g = _soft(word)
@@ -97,8 +98,8 @@ def poss3(word):
 
 
 def case(word, c, poss=False, seg=None):
-    """word'e hâl eki ekler. c ∈ {nom, gen, acc, dat, loc, abl}. poss=True: word zaten 3. tekil iyelikli (zamir n'si gelir).
-    (yüzey, ayrım) döndürür; seg verilirse ayrımın başı olarak kullanılır."""
+    """Adds a case suffix to word. c ∈ {nom, gen, acc, dat, loc, abl}. poss=True: word already carries the 3rd person possessive (the pronominal n appears).
+    Returns (surface, segmentation); if seg is given it is used as the beginning of the segmentation."""
     seg = seg or word
     if c == "nom":
         return word, seg
@@ -119,19 +120,19 @@ def case(word, c, poss=False, seg=None):
 
 
 def ki(surface, seg):
-    """-ki: yer bildiren ifadeyi sıfata çevirir (üstünde → üstündeki 'üstünde olan'). Ünlü uyumuna girmez."""
+    """-ki: turns a locative expression into an adjective (üstünde → üstündeki, "the one on top"). Does not take part in vowel harmony."""
     return surface + "ki", seg + "-ki"
 
 
 def rel(noun, c, with_ki=False):
-    """İlişki adı + POSS3 + hâl (+ki): rel('üst','dat') → üstüne; rel('ara','loc',True) → arasındaki."""
+    """Relational noun + POSS3 + case (+ki): rel('üst','dat') → üstüne; rel('ara','loc',True) → arasındaki."""
     p, pseg = poss3(noun)
     s, sseg = case(p, c, poss=True, seg=pseg)
     return ki(s, sseg) if with_ki else (s, sseg)
 
 
 def bare(noun, c, with_ki=False):
-    """İyeliksiz yön adı: sol-da-ki, sağ-da-ki, ön-de-ki (deiktik kullanım; referans nesne yok)."""
+    """Direction noun without possessive: sol-da-ki, sağ-da-ki, ön-de-ki (deictic use; no reference object)."""
     s, sseg = case(noun, c)
     return ki(s, sseg) if with_ki else (s, sseg)
 
@@ -170,8 +171,8 @@ def selftest():
         ok = got == (surf, seg)
         bad += not ok
         if not ok:
-            print(f"  HATA beklenen {surf} ({seg}) → üretilen {got[0]} ({got[1]})")
-    print(f"tr_morph selftest: {len(SELFTEST) - bad}/{len(SELFTEST)} doğru")
+            print(f"  ERROR expected {surf} ({seg}) → produced {got[0]} ({got[1]})")
+    print(f"tr_morph selftest: {len(SELFTEST) - bad}/{len(SELFTEST)} correct")
     return bad == 0
 
 
@@ -187,22 +188,22 @@ if __name__ == "__main__":
 ## scene_frames.py
 
 ```python
-"""Ders 20 — "soldaki kâse" hangisi? LIBERO-Spatial'ın 10 sahnesinde iki siyah kâseyi ayıran tarifleri
-(sol/sağ, ön/arka, tabağa yakın/uzak, robota yakın/uzak, yüksekte) 50 init state'in GERÇEK koordinatlarından hesaplar
-ve her tarif için ÜÇ çerçevede hangi kâsenin kastedildiğini yazar:
+"""Lecture 20 — which one is "the bowl on the left"? In the 10 scenes of LIBERO-Spatial, computes the descriptions that
+separate the two black bowls (left/right, front/back, near/far from the plate, near/far from the robot, higher) from the
+REAL coordinates of the 50 init states, and writes which bowl is meant in THREE frames for each description:
 
-  libero : LIBERO'nun kendi BDDL adlandırması (agentview kamerasının yerinde duran gözlemci; ayna yok)
-           sağ = +y, sol = -y, ön = +x (gözlemciye yakın), arka = -x      [LIBERO-90/10 bölge adlarından doğrulandı]
-  image  : modelin gördüğü piksel (obs[::-1, ::-1] = gerçek görüntünün yatay AYNASI): sol = küçük u, ön = büyük v
-  robot  : robotun kendi gövdesi (taban x = -0.66, +x'e bakıyor): sol = +y, ön/yakın = tabana yakın
+  libero : LIBERO's own BDDL naming (an observer standing where the agentview camera is; no mirror)
+           right = +y, left = -y, front = +x (near the observer), back = -x      [verified from the LIBERO-90/10 region names]
+  image  : the pixels the model sees (obs[::-1, ::-1] = horizontal MIRROR of the real image): left = small u, front = large v
+  robot  : the robot's own body (base x = -0.66, facing +x): left = +y, front/near = near the base
 
-torch / LIBERO / MuJoCo GEREKMEZ: .pruned_init kısıtlı numpy unpickler ile açılır (Ders 19), kamera pozu
-libero_tabletop_manipulation.py:188-197'den elle alınmıştır (fovy = MuJoCo varsayılanı 45 derece).
+torch / LIBERO / MuJoCo are NOT needed: .pruned_init is opened with a restricted numpy unpickler (Lecture 19), the camera pose
+was taken by hand from libero_tabletop_manipulation.py:188-197 (fovy = MuJoCo default 45 degrees).
 
-Kullanım:
-  python scene_frames.py --libero ~/src/LIBERO                    # 10 sahne × tarif tablosu
+Usage:
+  python scene_frames.py --libero ~/src/LIBERO                    # 10 scenes × description table
   python scene_frames.py --libero ~/src/LIBERO --csv referents.csv
-  python scene_frames.py --libero ~/src/LIBERO --conventions      # LIBERO-90/10'daki left/right/front/back bölgeleri
+  python scene_frames.py --libero ~/src/LIBERO --conventions      # left/right/front/back regions in LIBERO-90/10
 """
 import argparse, codecs, csv, glob, io, pathlib, pickle, re, zipfile
 import numpy as np
@@ -212,7 +213,7 @@ ORDER_FILE = "libero/libero/benchmark/libero_suite_task_map.py"
 CAM_POS = np.array([0.6586131746834771, 0.0, 1.6103500240372423])           # agentview (tabletop)
 CAM_QUAT = (0.6380177736282349, 0.3048497438430786, 0.30484986305236816, 0.6380177736282349)  # w x y z
 ROBOT_BASE = np.array([-0.66, 0.0])   # mounted_panda.py:45 → -0.16 - table_length/2, table_length = 1.0
-MIN_M, MIN_PX = 0.05, 20.0            # "belirsiz değil" eşiği: 50 sahnenin hepsinde en az 5 cm / 20 piksel fark
+MIN_M, MIN_PX = 0.05, 20.0            # "unambiguous" threshold: at least 5 cm / 20 pixels of difference in all 50 scenes
 
 
 class _NumpyOnly(pickle.Unpickler):
@@ -226,7 +227,7 @@ class _NumpyOnly(pickle.Unpickler):
         if (mod, name) == ("numpy", "ndarray"): return np.ndarray
         if (mod, name) == ("numpy", "dtype"): return np.dtype
         if (mod, name) == ("_codecs", "encode"): return codecs.encode
-        raise pickle.UnpicklingError(f"izin verilmeyen nesne: {mod}.{name}")
+        raise pickle.UnpicklingError(f"disallowed object: {mod}.{name}")
 
 
 def load_init(path):
@@ -264,8 +265,8 @@ def cam_rotation(q=CAM_QUAT):
 
 
 def project(p, W=256, fovy=45.0, mirror=True):
-    """Dünya noktası → piksel (u, v). MuJoCo kamerası -z'ye bakar, +x sağ, +y yukarı.
-    mirror=True: modelin gördüğü görüntü (ham görüntü dikey ters gelir; [::-1, ::-1] onu yatay aynaya çevirir)."""
+    """World point → pixel (u, v). The MuJoCo camera looks along -z, +x is right, +y is up.
+    mirror=True: the image the model sees (the raw image comes vertically flipped; [::-1, ::-1] turns it into a horizontal mirror)."""
     pc = (np.asarray(p) - CAM_POS) @ cam_rotation()
     f = 0.5 * W / np.tan(np.radians(fovy) / 2)
     u = W / 2 + f * pc[..., 0] / (-pc[..., 2])
@@ -274,16 +275,16 @@ def project(p, W=256, fovy=45.0, mirror=True):
 
 
 def positions(states, objects):
-    """{nesne: (50, 3)} — qpos = 1 zaman + 7 kol + 2 gripper + nesne başına 7 (x y z qw qx qy qz), BDDL :objects sırası."""
+    """{object: (50, 3)} — qpos = 1 time + 7 arm + 2 gripper + 7 per object (x y z qw qx qy qz), BDDL :objects order."""
     return {o: states[:, 10 + 7 * k: 13 + 7 * k] for k, o in enumerate(objects)}
 
 
 def _pick(score1, score2, thr, smaller_wins):
-    """İki kâsenin skorlarından (50,) kazananı ve 50 sahnedeki EN KÜÇÜK farkı döndür; işaret değişiyorsa 'belirsiz'."""
+    """From the scores of the two bowls (50,), return the winner and the SMALLEST gap over the 50 scenes; 'ambiguous' if the sign changes."""
     d = score2 - score1 if smaller_wins else score1 - score2     # > 0 → bowl_1 kazanır
     if (d > 0).all():  who = "bowl_1"
     elif (d < 0).all(): who = "bowl_2"
-    else: return "belirsiz", 0.0, False
+    else: return "ambiguous", 0.0, False
     margin = float(np.abs(d).min())
     return who, margin, margin >= thr
 
@@ -297,15 +298,15 @@ def descriptors(pos):
     def add(desc, frame, s1, s2, thr, smaller, unit):
         who, m, ok = _pick(s1, s2, thr, smaller)
         rows.append(dict(descriptor=desc, frame=frame, referent=who, min_margin=round(m * (100 if unit == "cm" else 1), 1), unit=unit, unambiguous=ok))
-    # sol / sağ
-    add("left", "libero", b1[:, 1], b2[:, 1], MIN_M, True, "cm")        # sol = küçük y
-    add("left", "image", uv1[:, 0], uv2[:, 0], MIN_PX, True, "px")     # sol = küçük u (aynalı görüntü)
-    add("left", "robot", b1[:, 1], b2[:, 1], MIN_M, False, "cm")       # robotun solu = büyük y
-    # ön (arka = öteki kâse)
-    add("front", "libero", b1[:, 0], b2[:, 0], MIN_M, False, "cm")     # ön = büyük x (gözlemciye yakın)
-    add("front", "image", uv1[:, 1], uv2[:, 1], MIN_PX, False, "px")   # ön = görüntüde aşağıda (büyük v)
-    add("front", "robot", dr1, dr2, MIN_M, True, "cm")                 # robotun önündeki/yakınındaki = tabana yakın
-    # çerçeveden bağımsız (referans nesne açık)
+    # left / right
+    add("left", "libero", b1[:, 1], b2[:, 1], MIN_M, True, "cm")        # left = small y
+    add("left", "image", uv1[:, 0], uv2[:, 0], MIN_PX, True, "px")     # left = small u (mirrored image)
+    add("left", "robot", b1[:, 1], b2[:, 1], MIN_M, False, "cm")       # the robot's left = large y
+    # front (back = the other bowl)
+    add("front", "libero", b1[:, 0], b2[:, 0], MIN_M, False, "cm")     # front = large x (near the observer)
+    add("front", "image", uv1[:, 1], uv2[:, 1], MIN_PX, False, "px")   # front = lower in the image (large v)
+    add("front", "robot", dr1, dr2, MIN_M, True, "cm")                 # in front of / near the robot = near the base
+    # frame-independent (reference object is explicit)
     add("near_plate", "none", dp1, dp2, MIN_M, True, "cm")
     add("near_robot", "none", dr1, dr2, MIN_M, True, "cm")
     add("higher", "none", b1[:, 2], b2[:, 2], MIN_M, False, "cm")
@@ -318,13 +319,13 @@ def analyze(root):
         info = parse_bddl(root / "libero/libero/bddl_files" / SUITE / (name + ".bddl"))
         st = load_init(root / "libero/libero/init_files" / SUITE / (name + ".pruned_init"))
         pos = positions(st, info["objects"])
-        # sıra kontrolü: masa bölgeli nesneler kendi bölgesinin ±1.5 cm içinde mi (Ders 19'daki doğrulama)
+        # order check: are objects with a table region within ±1.5 cm of their own region (the verification from Lecture 19)
         for o, xyz in pos.items():
             r = info["regions"].get(info["where"].get(o))
             if r:
                 x0, y0, x1, y1 = r
                 ok = ((xyz[:, 0] > x0 - .015) & (xyz[:, 0] < x1 + .015) & (xyz[:, 1] > y0 - .015) & (xyz[:, 1] < y1 + .015)).all()
-                assert ok, f"görev {i}: {o} bölgesinde değil — nesne sırası varsayımı bozuk"
+                assert ok, f"task {i}: {o} is not in its region — the object-order assumption is broken"
         for d in descriptors(pos):
             out.append(dict(task_id=i, bowl_1_at=info["where"]["akita_black_bowl_1"].replace("main_table_", ""),
                             bowl_2_at=info["where"]["akita_black_bowl_2"].replace("main_table_", ""), **d))
@@ -332,7 +333,7 @@ def analyze(root):
 
 
 def conventions(root):
-    """LIBERO-90/10 BDDL'lerinde adı left/right/front/back içeren bölgelerin merkezleri: çerçeve sözleşmesinin kanıtı."""
+    """Centers of the regions whose names contain left/right/front/back in the LIBERO-90/10 BDDLs: evidence for the frame convention."""
     seen = {}
     for p in sorted(glob.glob(str(root / "libero/libero/bddl_files/libero_90/*.bddl")) + glob.glob(str(root / "libero/libero/bddl_files/libero_10/*.bddl"))):
         scene = re.match(r"([A-Z_]+SCENE\d+)", pathlib.Path(p).name).group(1)
@@ -340,7 +341,7 @@ def conventions(root):
             m = re.search(r"(left|right|front|back)", k)
             if r and m and "contain" not in k:
                 seen[(scene, k)] = (m.group(1), (r[0] + r[2]) / 2, (r[1] + r[3]) / 2)
-    # aynı sahnede left/right ve front/back çiftlerini karşılaştır
+    # compare the left/right and front/back pairs in the same scene
     pairs = []
     for (scene, k), (word, x, y) in seen.items():
         other = {"left": "right", "front": "back"}.get(word)
@@ -358,29 +359,29 @@ def main():
     root = pathlib.Path(a.libero).expanduser()
     if a.conventions:
         pr = conventions(root)
-        print(f"{'sahne':24s} {'çift':46s} Δx (cm)  Δy (cm)   okuma")
+        print(f"{'scene':24s} {'pair':46s} Δx (cm)  Δy (cm)   reading")
         ok_lr = ok_fb = n_lr = n_fb = 0
         for scene, k, k2, word, x, y, x2, y2 in pr:
             dx, dy = (x - x2) * 100, (y - y2) * 100
             if word == "left":
-                n_lr += 1; ok_lr += dy < 0; note = "left = daha küçük y" if dy < 0 else "TERS"
+                n_lr += 1; ok_lr += dy < 0; note = "left = smaller y" if dy < 0 else "REVERSED"
             else:
-                n_fb += 1; ok_fb += dx > 0; note = "front = daha büyük x" if dx > 0 else "TERS"
+                n_fb += 1; ok_fb += dx > 0; note = "front = larger x" if dx > 0 else "REVERSED"
             label = k.split("table_")[-1] + " | " + k2.split("table_")[-1]
             print(f"{scene:24s} {label[:46]:46s} {dx:7.1f}  {dy:7.1f}   {note}")
-        print(f"\nleft/right çiftleri: {ok_lr}/{n_lr} 'left = -y';  front/back çiftleri: {ok_fb}/{n_fb} 'front = +x'")
+        print(f"\nleft/right pairs: {ok_lr}/{n_lr} 'left = -y';  front/back pairs: {ok_fb}/{n_fb} 'front = +x'")
         return
     rows = analyze(root)
     cur = None
     for r in rows:
         if r["task_id"] != cur:
-            cur = r["task_id"]; print(f"\ngörev {cur}: bowl_1 @ {r['bowl_1_at']} | bowl_2 @ {r['bowl_2_at']}")
-        flag = "" if r["unambiguous"] else "   (belirsiz: eşik altı)"
-        print(f"   {r['descriptor']:11s} {r['frame']:7s} → {r['referent']:8s} min fark {r['min_margin']:6.1f} {r['unit']}{flag}")
+            cur = r["task_id"]; print(f"\ntask {cur}: bowl_1 @ {r['bowl_1_at']} | bowl_2 @ {r['bowl_2_at']}")
+        flag = "" if r["unambiguous"] else "   (ambiguous: below threshold)"
+        print(f"   {r['descriptor']:11s} {r['frame']:7s} → {r['referent']:8s} min gap {r['min_margin']:6.1f} {r['unit']}{flag}")
     if a.csv:
         with open(a.csv, "w", newline="", encoding="utf-8") as f:
             w = csv.DictWriter(f, fieldnames=list(rows[0])); w.writeheader(); w.writerows(rows)
-        print(f"\nyazıldı: {a.csv} ({len(rows)} satır)")
+        print(f"\nwritten: {a.csv} ({len(rows)} rows)")
 
 
 if __name__ == "__main__":
@@ -390,21 +391,23 @@ if __name__ == "__main__":
 ## make_tr_set.py
 
 ```python
-"""Ders 20 — 20 çiftlik EN–TR mekânsal komut setini üretir: datasets/04-tr-spatial-commands/data/{pairs,commands}.csv
+"""Lecture 20 — generates the 20-pair EN–TR spatial command set: datasets/04-tr-spatial-commands/data/{pairs,commands}.csv
 
-Tasarım (derste Bölüm 5):
-  A (6)  LIBERO-Spatial'ın EĞİTİLMİŞ komutları — seçim: "X'in REL-POSS-LOC-ki siyah kaseyi al ..."
-  B (6)  aynı Spatial sahnelerinde HİÇBİR eğitim cümlesine denk düşmeyen tarifler (sol/sağ/ön, robota/tabağa yakın-uzak);
-         hangi kâsenin kastedildiği scene_frames.py'nin 50 init state'ten hesapladığı referents.csv'den okunur
-  C (6)  LIBERO-Goal'ın eğitilmiş komutları — yerleştirme: "... X'in REL-POSS-DAT koy"
-  D (2)  eğitilmemiş yerleştirme (sağına / soluna): predicate yok → bugün yalnızca dil tarafı (Ders 21 tokenizasyon)
+Design (Section 5 of the lecture):
+  A (6)  the TRAINED commands of LIBERO-Spatial — selection: "X'in REL-POSS-LOC-ki siyah kaseyi al ..." (take the black bowl that is REL of X ...)
+  B (6)  descriptions in the same Spatial scenes that match NO training sentence (left/right/front, near/far from the robot/plate);
+         which bowl is meant is read from referents.csv, which scene_frames.py computes from the 50 init states
+  C (6)  the trained commands of LIBERO-Goal — placement: "... X'in REL-POSS-DAT koy" (put ... on REL of X)
+  D (2)  untrained placement (to the right / to the left): no predicate -> today only the language side (Lecture 21 tokenization)
 
-Her çift için 5 yüzey: en | tr_a (ek üreticiyle ÜRETİLİR, ayrımıyla) | tr_b (elle yazılmış ikinci biçim) |
-  tr_ascii (tr_a'nın Türkçe karaktersiz hâli) | tr_bare (ekleri atılmış sözcük torbası)   → 20 × 5 = 100 satır.
+5 surface forms per pair: en | tr_a (GENERATED with the suffix generator, with its segmentation) | tr_b (a second, hand-written form) |
+  tr_ascii (tr_a without Turkish characters) | tr_bare (bag of words with the suffixes stripped)   -> 20 × 5 = 100 rows.
 
-Kullanım:
+Note: the cell values written to pairs.csv / commands.csv (relation, evet/hayır, note, ...) are DATA and deliberately stay Turkish.
+
+Usage:
   python make_tr_set.py --out ../../datasets/04-tr-spatial-commands/data [--referents .../referents.csv] [--libero ~/src/LIBERO]
-  --libero verilirse EN komutun LIBERO'nun 130 görev adında geçip geçmediği (en_seen_*) doldurulur.
+  If --libero is given, en_seen_* is filled in: whether the EN command occurs among LIBERO's 130 task names.
 """
 import argparse, csv, pathlib, re
 import tr_morph as M
@@ -413,7 +416,7 @@ TR2ASCII = str.maketrans("çğıöşüâîû", "cgiosuaiu")
 
 
 def N(lemma, c="nom", poss=False):
-    """Ad + hâl → (yüzey, ayrım, yalın). poss=True: lemma zaten iyelikli tamlama (kurabiye kutusu, şarap şişesi)."""
+    """Noun + case → (surface, segmentation, bare). poss=True: lemma is already a possessive compound (kurabiye kutusu, şarap şişesi)."""
     s, seg = M.case(lemma, c, poss=poss)
     return (s, seg, lemma)
 
@@ -433,7 +436,7 @@ def W(*words):
 
 
 def POSSN(owner_gen, head, c, ki=False):
-    """Belirtili tamlamanın iyelikli başı: (dolab-ın) üst çekmece-si-nde-ki."""
+    """Possessed head of a definite compound: (dolab-ın) üst çekmece-si-nde-ki."""
     p, pseg = M.poss3(head)
     s, seg = M.case(p, c, poss=True, seg=pseg)
     if ki:
@@ -452,8 +455,8 @@ BASE = {0: "pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_i
         9: "pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate"}
 PICK = "pick up the black bowl {} and place it on the plate"
 
-# (id, blok, tier, suite, sahne görevi, ilişki, ilişki adı, hâl, çerçeveye bağlı mı, EN, tr_a parçaları, ilişki sözcüğünün parça indeksi,
-#  referans adın parça indeksi (yoksa None), tr_b, descriptor (referents.csv anahtarı ya da None), goal predicate, not)
+# (id, block, tier, suite, scene task, relation, relational noun, case, frame-dependent?, EN, tr_a parts, part index of the relation word,
+#  part index of the reference noun (None if absent), tr_b, descriptor (referents.csv key or None), goal predicate, note)
 P = [
  ("A01", "A", 1, "libero_spatial", 0, "2 referans", "ara", "LOC+ki", "hayır", PICK.format("between the plate and the ramekin"),
   [N("tabak")] + W("ile") + [N("ramekin", "gen"), R("ara", "loc", True)] + SEL_TAIL, 3, 2,
@@ -516,7 +519,7 @@ P = [
   [N("kase", "acc"), N("tabak", "gen"), R("sol", "dat")] + W("koy"), 2, 1,
   "tabağın sol tarafına kâseyi koy", None, "yok — yeni bölge predicate'i gerekir", "D19'un minimal çifti: sağ-ı-na / sol-u-na (I ünlüsü ı/u)"),
 ]
-COMPLEMENT = {"right": ("left", True), "far_plate": ("near_plate", True)}   # öteki kâse
+COMPLEMENT = {"right": ("left", True), "far_plate": ("near_plate", True)}   # the other bowl
 
 
 def load_referents(path):
@@ -564,7 +567,7 @@ def main():
         tr_bare = " ".join(p[2] for p in parts)
         tr_ascii = tr_a.translate(TR2ASCII)
         rl = {f: referent(refs, task, desc, f) for f in ("libero", "image", "robot", "none")} if desc else {}
-        if desc and rl["none"][0]:                       # çerçeveden bağımsız tarif: üç sütuna aynı değer
+        if desc and rl["none"][0]:                       # frame-independent description: the same value in all three columns
             rl = {f: rl["none"] for f in rl}
         row = dict(pair_id=pid, block=block, tier=tier, suite=suite, scene_task_id=task, relation=relation, rel_noun=relnoun,
                    case=case, frame_dependent=framedep, en=en, tr_a=tr_a, tr_a_seg=tr_seg, tr_b=tr_b, tr_ascii=tr_ascii, tr_bare=tr_bare,
@@ -584,7 +587,7 @@ def main():
     for name, rows in [("pairs.csv", pairs), ("commands.csv", cmds)]:
         with open(out / name, "w", newline="", encoding="utf-8") as f:
             w = csv.DictWriter(f, fieldnames=list(rows[0])); w.writeheader(); w.writerows(rows)
-    print(f"yazıldı: {out/'pairs.csv'} ({len(pairs)} çift), {out/'commands.csv'} ({len(cmds)} satır)\n")
+    print(f"written: {out/'pairs.csv'} ({len(pairs)} pairs), {out/'commands.csv'} ({len(cmds)} rows)\n")
     for r in pairs:
         ref = "" if r["ref_libero"] in ("n/a",) else f"  [libero {r['ref_libero']} | image {r['ref_image']} | robot {r['ref_robot']}]"
         print(f"{r['pair_id']} T{r['tier']} {r['en']}\n      {r['tr_a']}\n      {r['tr_a_seg']}{ref}")
@@ -597,20 +600,20 @@ if __name__ == "__main__":
 ## validate_set.py
 
 ```python
-"""Ders 20 — Komut setinin (pairs.csv + commands.csv) tasarım kurallarına uyduğunu denetler ve özet tabloları basar.
+"""Lecture 20 — checks that the command set (pairs.csv + commands.csv) conforms to the design rules and prints summary tables.
 
-Denetimler:
-  1. Biçim: 20 çift × 5 yüzey = 100 satır; kimlikler benzersiz; BDDL-güvenli metin (Ders 16: küçük harf, ';' ve parantez yok, NFC,
-     U+0307 yok, çift boşluk yok) — her satır yarın bir BDDL (:language …) satırına girebilmeli.
-  2. Ek tutarlılığı: rel_span / rel_seg tr_morph ile yeniden üretilir ve karşılaştırılır; tr_a içinde geçer.
-  3. Süreklilik: A01–A04'ün tr_a'sı datasets/01'in sp0/1/2/4 `tr` satırlarıyla birebir aynı (Ders 15 ile karşılaştırılabilirlik).
-  4. Referans belirliliği: B bloğundaki her tarif 50 init state'in hepsinde aynı kâseyi gösteriyor (referents.csv, eşik üstü).
-  5. Denge: blok × tier, ilişki türü, hâl dağılımı; çerçeveye bağlı satır sayısı.
-  6. Minimal çiftler: tr_a'sı tam olarak BİR sözcükte ayrılan çiftler (ek/ilişki adı etkisini yalıtan karşılaştırmalar).
-  7. Allomorf tablosu: tr_a ayrımlarında her biçimbirimin kaç farklı yüzey biçimi var (Ders 21'in girdisi).
-  8. Ortak kuyruk: Spatial komutlarında TR ve EN'de ayırt edici bilginin cümledeki konumu (ilk farklı sözcük indeksi).
+Checks:
+  1. Format: 20 pairs × 5 surface forms = 100 rows; unique ids; BDDL-safe text (Lecture 16: lowercase, no ';' or parentheses, NFC,
+     no U+0307, no double spaces) — every row must be able to go into a BDDL (:language …) line tomorrow.
+  2. Suffix consistency: rel_span / rel_seg are regenerated with tr_morph and compared; they occur inside tr_a.
+  3. Continuity: tr_a of A01–A04 is identical to the sp0/1/2/4 `tr` rows of datasets/01 (comparability with Lecture 15).
+  4. Referent definiteness: every description in block B points to the same bowl in all 50 init states (referents.csv, above threshold).
+  5. Balance: block × tier, relation type, case distribution; number of frame-dependent rows.
+  6. Minimal pairs: pairs whose tr_a differs in exactly ONE word (comparisons that isolate the effect of the suffix / relational noun).
+  7. Allomorph table: how many distinct surface forms each morpheme has in the tr_a segmentations (input of Lecture 21).
+  8. Common tail: position of the distinguishing information in the sentence for Spatial commands in TR and EN (index of the first differing word).
 
-Kullanım:  python validate_set.py ../../datasets/04-tr-spatial-commands/data [--d01 ../../datasets/01-libero-spatial-tr-mini/data/commands.csv]
+Usage:  python validate_set.py ../../datasets/04-tr-spatial-commands/data [--d01 ../../datasets/01-libero-spatial-tr-mini/data/commands.csv]
 """
 import argparse, csv, itertools, pathlib, re, sys, unicodedata
 from collections import Counter, defaultdict
@@ -620,16 +623,16 @@ import tr_morph as M
 def bddl_safe(t):
     p = []
     if ";" in t: p.append("';'")
-    if "(" in t or ")" in t: p.append("parantez")
-    if t != t.lower(): p.append("büyük harf")
+    if "(" in t or ")" in t: p.append("parentheses")
+    if t != t.lower(): p.append("uppercase")
     if "̇" in t: p.append("U+0307")
-    if unicodedata.normalize("NFC", t) != t: p.append("NFC değil")
-    if "  " in t or t != t.strip(): p.append("boşluk")
+    if unicodedata.normalize("NFC", t) != t: p.append("not NFC")
+    if "  " in t or t != t.strip(): p.append("whitespace")
     return p
 
 
 def morpheme_of(seg_token):
-    """'tabağ-ın' → [('GEN','ın')], 'üst-ü-nde-ki' → POSS3, LOC, ki … (yalnızca bu setin ekleri)."""
+    """'tabağ-ın' → [('GEN','ın')], 'üst-ü-nde-ki' → POSS3, LOC, ki … (only the suffixes of this set)."""
     parts = seg_token.split("-")
     out = []
     for i, s in enumerate(parts[1:], 1):
@@ -654,51 +657,51 @@ def main():
     cmds = list(csv.DictReader(open(d / "commands.csv", encoding="utf-8")))
     errors = []
     # 1
-    if len(pairs) != 20 or len(cmds) != 100: errors.append(f"boyut: {len(pairs)} çift, {len(cmds)} satır")
-    if len({c["id"] for c in cmds}) != len(cmds): errors.append("yinelenen id")
+    if len(pairs) != 20 or len(cmds) != 100: errors.append(f"size: {len(pairs)} pairs, {len(cmds)} rows")
+    if len({c["id"] for c in cmds}) != len(cmds): errors.append("duplicate id")
     for c in cmds:
         p = bddl_safe(c["instruction"])
-        if p: errors.append(f"{c['id']}: BDDL-güvensiz ({', '.join(p)})")
+        if p: errors.append(f"{c['id']}: not BDDL-safe ({', '.join(p)})")
     by_pair = defaultdict(dict)
     for c in cmds: by_pair[c["pair_id"]][c["variant"]] = c["instruction"]
     for pid, v in by_pair.items():
-        if len(set(v.values())) != 5: errors.append(f"{pid}: 5 yüzey birbirinden farklı değil")
-    print(f"1. biçim: {len(pairs)} çift, {len(cmds)} satır, BDDL-güvenli: {'evet' if not errors else 'HAYIR'}")
+        if len(set(v.values())) != 5: errors.append(f"{pid}: the 5 surface forms are not all different")
+    print(f"1. format: {len(pairs)} pairs, {len(cmds)} rows, BDDL-safe: {'yes' if not errors else 'NO'}")
     # 2
     n_ok = 0
     for r in pairs:
         seg_tokens = r["tr_a_seg"].split()
-        if r["rel_span"] not in r["tr_a"]: errors.append(f"{r['pair_id']}: rel_span tr_a'da yok")
+        if r["rel_span"] not in r["tr_a"]: errors.append(f"{r['pair_id']}: rel_span is not in tr_a")
         if r["rel_seg"].replace("-", "") != r["rel_span"]: errors.append(f"{r['pair_id']}: rel_seg ≠ rel_span")
-        if r["tr_a_seg"].replace("-", "") != r["tr_a"]: errors.append(f"{r['pair_id']}: ayrım yüzeyle uyuşmuyor")
+        if r["tr_a_seg"].replace("-", "") != r["tr_a"]: errors.append(f"{r['pair_id']}: segmentation does not match the surface form")
         if r["rel_noun"] in M.LEXICON and r["case"] in ("LOC+ki", "DAT"):
             c = "loc" if r["case"] == "LOC+ki" else "dat"
             exp = M.rel(r["rel_noun"], c, r["case"] == "LOC+ki")
             if exp != (r["rel_span"], r["rel_seg"]): errors.append(f"{r['pair_id']}: tr_morph {exp} ≠ {r['rel_span']}")
             else: n_ok += 1
-    print(f"2. ek tutarlılığı: {n_ok} ilişki sözcüğü tr_morph ile yeniden üretildi, hepsi aynı")
+    print(f"2. suffix consistency: {n_ok} relational words regenerated with tr_morph, all identical")
     # 3
     if a.d01:
         d01 = {r["id"]: r["instruction"] for r in csv.DictReader(open(a.d01, encoding="utf-8"))}
         same = [(p, k) for p, k in [("A01", "sp0_tr"), ("A02", "sp1_tr"), ("A03", "sp2_tr"), ("A04", "sp4_tr")] if by_pair[p]["tr_a"] == d01[k]]
-        if len(same) != 4: errors.append("datasets/01 ile süreklilik bozuk")
-        print(f"3. süreklilik: datasets/01 ile birebir aynı tr_a: {len(same)}/4")
+        if len(same) != 4: errors.append("continuity with datasets/01 is broken")
+        print(f"3. continuity: tr_a identical to datasets/01: {len(same)}/4")
     # 4
     refs = {(int(r["task_id"]), r["descriptor"], r["frame"]): r for r in csv.DictReader(open(d / "referents.csv", encoding="utf-8"))}
-    print("4. referans belirliliği (B bloğu; 50 init state):")
+    print("4. referent definiteness (block B; 50 init states):")
     for r in pairs:
         if r["block"] != "B": continue
-        amb = [f for f in ("ref_libero", "ref_image", "ref_robot") if r[f].endswith("?") or r[f] in ("", "belirsiz")]
-        if amb: errors.append(f"{r['pair_id']}: belirsiz referans {amb}")
+        amb = [f for f in ("ref_libero", "ref_image", "ref_robot") if r[f].endswith("?") or r[f] in ("", "belirsiz", "ambiguous")]
+        if amb: errors.append(f"{r['pair_id']}: ambiguous referent {amb}")
         agree = len({r["ref_libero"], r["ref_image"], r["ref_robot"]}) == 1
-        print(f"   {r['pair_id']} görev {r['scene_task_id']} {r['rel_span']:10s} libero={r['ref_libero']} image={r['ref_image']} robot={r['ref_robot']}"
-              f"  {'çerçeveler UYUŞUYOR' if agree else 'çerçeveler AYRIŞIYOR'}  (en küçük fark: {r['ref_min_margin']})")
+        print(f"   {r['pair_id']} task {r['scene_task_id']} {r['rel_span']:10s} libero={r['ref_libero']} image={r['ref_image']} robot={r['ref_robot']}"
+              f"  {'frames AGREE' if agree else 'frames DISAGREE'}  (smallest gap: {r['ref_min_margin']})")
     # 5
-    print("5. denge:")
+    print("5. balance:")
     for key in ("block", "tier", "relation", "case", "frame_dependent", "suite"):
         print(f"   {key:16s}", dict(sorted(Counter(r[key] for r in pairs).items())))
     # 6
-    print("6. minimal çiftler (tr_a tek sözcükte ayrılıyor):")
+    print("6. minimal pairs (tr_a differs in a single word):")
     n_min = 0
     for x, y in itertools.combinations(pairs, 2):
         tx, ty = x["tr_a"].split(), y["tr_a"].split()
@@ -707,18 +710,18 @@ def main():
             if len(diff) == 1:
                 n_min += 1
                 print(f"   {x['pair_id']} ~ {y['pair_id']}: {diff[0][0]} / {diff[0][1]}")
-    print(f"   toplam {n_min} minimal çift")
+    print(f"   total {n_min} minimal pairs")
     # 7
     allo = defaultdict(Counter)
     for r in pairs:
         for tok in r["tr_a_seg"].split():
             for m, s in morpheme_of(tok):
                 allo[m][s] += 1
-    print("7. allomorf tablosu (tr_a, 20 komut):")
+    print("7. allomorph table (tr_a, 20 commands):")
     for m in ("GEN", "POSS3", "ACC", "DAT", "LOC", "ABL", "ki", "?"):
         if allo[m]:
-            print(f"   {m:6s} {len(allo[m])} biçim: " + ", ".join(f"-{s}×{n}" for s, n in allo[m].most_common()))
-    if allo["?"]: errors.append("sınıflanamayan ek var")
+            print(f"   {m:6s} {len(allo[m])} forms: " + ", ".join(f"-{s}×{n}" for s, n in allo[m].most_common()))
+    if allo["?"]: errors.append("unclassifiable suffix present")
     # 8
     sp = [r for r in pairs if r["suite"] == "libero_spatial"]
     def first_diff_positions(key):
@@ -738,9 +741,9 @@ def main():
         n = 0
         while all(len(t) > n for t in toks) and len({t[n] for t in toks}) == 1: n += 1
         return n
-    print(f"8. ayırt edici bilginin konumu (12 Spatial komutu): EN ortak baş {common_head('en')} sözcük, ortak kuyruk {common_tail('en')}; "
-          f"TR ortak baş {common_head('tr_a')}, ortak kuyruk {common_tail('tr_a')}")
-    print("\nSONUÇ:", "TEMİZ — hata yok" if not errors else f"{len(errors)} HATA")
+    print(f"8. position of the distinguishing information (12 Spatial commands): EN common head {common_head('en')} words, common tail {common_tail('en')}; "
+          f"TR common head {common_head('tr_a')}, common tail {common_tail('tr_a')}")
+    print("\nRESULT:", "CLEAN — no errors" if not errors else f"{len(errors)} ERRORS")
     for e in errors: print("  -", e)
     sys.exit(1 if errors else 0)
 
@@ -752,19 +755,19 @@ if __name__ == "__main__":
 ## make_cf_bddl.py
 
 ```python
-"""Ders 20 — Karşı-olgusal (counterfactual) hedefli BDDL üretir: komut sahnedeki ÖTEKİ kâseyi (akita_black_bowl_2) tarif
-ediyorsa, LIBERO'nun success predicate'i (On akita_black_bowl_1 plate_1) modeli haksız yere cezalandırır (Ders 19 §5).
-Bu script pairs.csv'de herhangi bir çerçevede bowl_2'yi gösteren her satır için orijinal BDDL'in kopyasını üretir:
+"""Lecture 20 — generates BDDL files with a counterfactual goal: if the command describes the OTHER bowl in the scene (akita_black_bowl_2),
+LIBERO's success predicate (On akita_black_bowl_1 plate_1) unfairly penalizes the model (Lecture 19 §5).
+For every row of pairs.csv that points to bowl_2 in any frame, this script produces a copy of the original BDDL:
   (:goal (And (On akita_black_bowl_2 plate_1)))   +   (:obj_of_interest akita_black_bowl_2 plate_1)   +   (:language <tr_a>)
-Sahne (:init) ve bölgeler DEĞİŞMEZ → orijinal görevin 50 init state'i aynen kullanılabilir.
+The scene (:init) and regions do NOT CHANGE -> the 50 init states of the original task can be used as they are.
 
-Üretilen her dosya `bddl` paketiyle (pip install bddl==1.0.1 future) geri okunur: :language yazdığımız metinle birebir mi,
-:goal bowl_2 mi, :init orijinalle aynı mı. Paket yoksa aynı kontroller regex ile yapılır.
+Every generated file is read back with the `bddl` package (pip install bddl==1.0.1 future): is :language identical to the text we wrote,
+is :goal bowl_2, is :init the same as the original. If the package is missing, the same checks are done with regex.
 
-Kullanım:
+Usage:
   python make_cf_bddl.py --libero ~/src/LIBERO --pairs ../../datasets/04-tr-spatial-commands/data/pairs.csv --out .../data/bddl_cf
-Not: orijinal LIBERO'da modele giden komut BDDL'den DEĞİL dosya adından gelir (Ders 13); komutu VLANEXT_INSTR_OVERRIDE ile
-verirsin, bu dosya yalnızca success predicate'ini değiştirir. Dosya adı = <pair_id>_<çerçeve>_bowl2.bddl
+Note: in the original LIBERO the command sent to the model comes from the file name, NOT from the BDDL (Lecture 13); you supply the command
+with VLANEXT_INSTR_OVERRIDE, this file only changes the success predicate. File name = <pair_id>_<frame>_bowl2.bddl
 """
 import argparse, csv, pathlib, re
 
@@ -781,7 +784,7 @@ def rewrite(src, text):
     t, n1 = re.subn(r"\(:language[^)]*\)", f"(:language {text})", t)
     t, n2 = re.subn(r"\(:goal\s*\(And \(On akita_black_bowl_1 plate_1\)\)\s*\)", "(:goal\n    (And (On akita_black_bowl_2 plate_1))\n  )", t)
     t, n3 = re.subn(r"\(:obj_of_interest\s*akita_black_bowl_1", "(:obj_of_interest\n    akita_black_bowl_2", t)
-    assert (n1, n2, n3) == (1, 1, 1), f"şablon tutmadı: language={n1} goal={n2} obj_of_interest={n3}"
+    assert (n1, n2, n3) == (1, 1, 1), f"template did not match: language={n1} goal={n2} obj_of_interest={n3}"
     return t
 
 
@@ -802,7 +805,7 @@ def verify(path, text, orig_path):
         lang = re.search(r"\(:language\s+([^)]*)\)", raw).group(1).strip().lower()
         goal = raw.split("(:goal")[1]
         init = lambda s: re.sub(r"\s+", " ", re.search(r"\(:init(.*?)\)\s*\(:goal", s, re.S).group(1))
-        same_init = init(raw) == init(raw0); src = "regex (bddl paketi yok)"
+        same_init = init(raw) == init(raw0); src = "regex (no bddl package)"
     return lang == text, "akita_black_bowl_2" in goal and "akita_black_bowl_1" not in goal, same_init, src
 
 
@@ -824,11 +827,11 @@ def main():
         ok_lang, ok_goal, ok_init, src = verify(dst, r["tr_a"], orig)
         index.append(dict(pair_id=r["pair_id"], frames_pointing_to_bowl2=tag, base_task_id=r["scene_task_id"], base_bddl=orig.name,
                           cf_bddl=dst.name, instruction=r["tr_a"], language_roundtrip=ok_lang, goal_is_bowl2=ok_goal, init_unchanged=ok_init))
-        print(f"{dst.name:28s} görev {r['scene_task_id']}  dil birebir: {ok_lang}  hedef bowl_2: {ok_goal}  sahne aynı: {ok_init}  [{src}]")
+        print(f"{dst.name:28s} task {r['scene_task_id']}  language identical: {ok_lang}  goal bowl_2: {ok_goal}  scene unchanged: {ok_init}  [{src}]")
         assert ok_lang and ok_goal and ok_init
     with open(out / "index.csv", "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=list(index[0])); w.writeheader(); w.writerows(index)
-    print(f"\n{len(index)} karşı-olgusal BDDL + index.csv → {out}")
+    print(f"\n{len(index)} counterfactual BDDL + index.csv → {out}")
 
 
 if __name__ == "__main__":
@@ -838,7 +841,7 @@ if __name__ == "__main__":
 ## plot_day20.py
 
 ```python
-"""Ders 20 görselleri (02–05). Gerçek veri: LIBERO BDDL + .pruned_init (scene_frames.py), pairs.csv, Mesut'un project-2 render'ı.
+"""Lecture 20 figures (02–05). Real data: LIBERO BDDL + .pruned_init (scene_frames.py), pairs.csv, Mesut's project-2 render.
   python plot_day20.py --libero ~/src/LIBERO --data ../../datasets/04-tr-spatial-commands/data \
       --render ../../projects/project-2/libero_first_episode-task-1.png --out ../../lectures/images/lecture-20
 """
@@ -860,32 +863,32 @@ def scene(root, task):
     return SF.positions(st, info["objects"])
 
 
-LBL = {"akita_black_bowl_1": "bowl_1", "akita_black_bowl_2": "bowl_2", "plate_1": "tabak", "cookies_1": "kurabiye\nkutusu",
+LBL = {"akita_black_bowl_1": "bowl_1", "akita_black_bowl_2": "bowl_2", "plate_1": "plate", "cookies_1": "cookie\nbox",
        "glazed_rim_porcelain_ramekin_1": "ramekin"}
 COL = {"akita_black_bowl_1": "#1f77b4", "akita_black_bowl_2": "#d98c00", "plate_1": "#c0392b", "cookies_1": "#7f6000",
        "glazed_rim_porcelain_ramekin_1": "#666666"}
 
 
 def topdown(ax, pos, title, mode):
-    """Kuş bakışı; ekranda yukarı = -x (robot üstte), sağ = -y → modelin gördüğü görüntüyle aynı yerleşim."""
-    ax.add_patch(Rectangle((-0.6, -0.5), 1.2, 1.0, fc="#f7f1e3", ec="#999", lw=1))            # masa (y yatay, x dikey)
+    """Top-down view; up on screen = -x (robot at the top), right = -y -> same layout as the image the model sees."""
+    ax.add_patch(Rectangle((-0.6, -0.5), 1.2, 1.0, fc="#f7f1e3", ec="#999", lw=1))            # table (y horizontal, x vertical)
     for o, xyz in pos.items():
         ax.scatter(-xyz[:, 1], -xyz[:, 0], s=14, c=COL[o], alpha=0.5, lw=0)
         m = xyz.mean(0)
         ax.annotate(LBL[o], (-m[1], -m[0]), xytext=(7, 6), textcoords="offset points", fontsize=9, color=COL[o], weight="bold")
-    ax.scatter([0], [0.66], marker="s", s=260, c=Y, ec="k", zorder=3); ax.text(0, 0.735, "robot tabanı (x = −0.66)", ha="center", fontsize=9)
-    ax.scatter([0], [-0.66], marker="v", s=220, c=B, ec="k", zorder=3); ax.text(0, -0.76, "agentview kamerası (x = +0.66)", ha="center", fontsize=9)
+    ax.scatter([0], [0.66], marker="s", s=260, c=Y, ec="k", zorder=3); ax.text(0, 0.735, "robot base (x = −0.66)", ha="center", fontsize=9)
+    ax.scatter([0], [-0.66], marker="v", s=220, c=B, ec="k", zorder=3); ax.text(0, -0.76, "agentview camera (x = +0.66)", ha="center", fontsize=9)
     ax.annotate("", xy=(0, 0.48), xytext=(0, 0.62), arrowprops=dict(arrowstyle="<-", color="k"))
     if mode == "lr":
         ax.annotate("", xy=(-0.55, -0.44), xytext=(0.55, -0.44), arrowprops=dict(arrowstyle="<->", color="#2e7d32", lw=2))
         ax.text(-0.57, -0.40, "+y", fontsize=9, color="#2e7d32"); ax.text(0.50, -0.40, "−y", fontsize=9, color="#2e7d32")
-        ax.text(-0.58, 0.60, "görüntü: SOL\nrobot: SOL\nLIBERO: right", fontsize=9, va="top", bbox=dict(fc=G, ec="none"))
-        ax.text(0.58, 0.60, "görüntü: SAĞ\nrobot: SAĞ\nLIBERO: left", fontsize=9, va="top", ha="right", bbox=dict(fc=R, ec="none"))
+        ax.text(-0.58, 0.60, "image: LEFT\nrobot: LEFT\nLIBERO: right", fontsize=9, va="top", bbox=dict(fc=G, ec="none"))
+        ax.text(0.58, 0.60, "image: RIGHT\nrobot: RIGHT\nLIBERO: left", fontsize=9, va="top", ha="right", bbox=dict(fc=R, ec="none"))
     else:
         ax.annotate("", xy=(0.52, 0.42), xytext=(0.52, -0.42), arrowprops=dict(arrowstyle="<->", color="#2e7d32", lw=2))
         ax.text(0.55, 0.36, "−x", fontsize=9, color="#2e7d32"); ax.text(0.55, -0.40, "+x", fontsize=9, color="#2e7d32")
-        ax.text(-0.58, 0.44, "robot: ÖN (yakın)\ngörüntü: ARKA (üstte)\nLIBERO: back", fontsize=9, va="top", bbox=dict(fc=R, ec="none"))
-        ax.text(-0.58, -0.44, "robot: uzak\ngörüntü: ÖN (altta)\nLIBERO: front", fontsize=9, va="bottom", bbox=dict(fc=G, ec="none"))
+        ax.text(-0.58, 0.44, "robot: FRONT (near)\nimage: BACK (top)\nLIBERO: back", fontsize=9, va="top", bbox=dict(fc=R, ec="none"))
+        ax.text(-0.58, -0.44, "robot: far\nimage: FRONT (bottom)\nLIBERO: front", fontsize=9, va="bottom", bbox=dict(fc=G, ec="none"))
     ax.set_xlim(-0.68, 0.68); ax.set_ylim(-0.82, 0.80); ax.set_aspect("equal"); ax.set_xticks([]); ax.set_yticks([])
     ax.set_title(title, fontsize=10.5)
 
@@ -897,27 +900,35 @@ def fig_frames(root, render, out):
     if render and pathlib.Path(render).exists():
         img = plt.imread(render)[:256, :256]
         ax.imshow(img, extent=(0, 256, 256, 0))
-        src = "Mesut'un project-2 render'ı (görev 1, init 0, [::-1, ::-1] uygulanmış)"
+        src = "Mesut's project-2 render (task 1, init 0, [::-1, ::-1] applied)"
     else:
-        ax.set_facecolor("#eee"); src = "render bulunamadı — yalnızca projeksiyon"
+        ax.set_facecolor("#eee"); src = "render not found — projection only"
     for o, xyz in p1.items():
         uv = SF.project(xyz[0])
         ax.scatter(*uv, s=70, fc="none", ec=COL[o], lw=2)
         ax.annotate(LBL[o].replace("\n", " "), uv, xytext=(8, -8), textcoords="offset points", fontsize=9, color="white",
                     bbox=dict(fc=COL[o], ec="none", pad=1.5))
     ax.set_xlim(0, 256); ax.set_ylim(256, 0); ax.set_xticks([0, 128, 256]); ax.set_yticks([0, 128, 256])
-    ax.set_xlabel("u (piksel) — küçük u = görüntünün solu = dünya +y")
-    ax.set_title("(a) Modelin gördüğü kare + init state'ten HESAPLANAN konumlar\n" + src, fontsize=10.5)
-    topdown(axs[1], p1, "(b) Görev 1 sahnesi, 50 init state (kuş bakışı, görüntüyle aynı yön)\n«soldaki siyah kase»: görüntü/robot → bowl_1, LIBERO sözleşmesi → bowl_2", "lr")
-    topdown(axs[2], p8, "(c) Görev 8 sahnesi, 50 init state\n«öndeki siyah kase»: görüntü/LIBERO → bowl_1, robot → bowl_2", "fb")
-    fig.suptitle("Üç çerçeve, bir sahne: sol/sağ'da LIBERO adlandırması, ön/arka'da robot çerçevesi ayrışıyor "
-                 "(kaynak: LIBERO .pruned_init + kamera pozu libero_tabletop_manipulation.py; fovy 45°)", fontsize=11.5)
-    fig.tight_layout(rect=(0, 0.03, 1, 0.95)); fig.savefig(out / "02-three-frames.png", dpi=130, bbox_inches="tight"); plt.close(fig)
+    ax.set_xlabel("u (pixels) — small u = left of the image = world +y")
+    ax.set_title("(a) The frame the model sees + positions\nCOMPUTED from the init state\n" + src, fontsize=10.5)
+    topdown(axs[1], p1, "(b) Task 1 scene, 50 init states (top-down, as in the image)\n«soldaki siyah kase» (\"the black bowl on the left\"):\nimage/robot → bowl_1, LIBERO convention → bowl_2", "lr")
+    topdown(axs[2], p8, "(c) Task 8 scene, 50 init states\n«öndeki siyah kase» (\"the black bowl in front\"):\nimage/LIBERO → bowl_1, robot → bowl_2", "fb")
+    fig.suptitle("Three frames, one scene: for left/right the LIBERO naming diverges, for front/back the robot frame diverges "
+                 "(source: LIBERO .pruned_init + camera pose from libero_tabletop_manipulation.py; fovy 45°)", fontsize=11.5)
+    fig.tight_layout(rect=(0, 0.03, 1, 0.94)); fig.savefig(out / "02-three-frames.png", dpi=130, bbox_inches="tight"); plt.close(fig)
+
+
+def D(v):
+    """Display translation of Turkish data-cell values (evet/hayır, case notes); the CSV itself stays Turkish."""
+    v = str(v)
+    for a, b in (("evet", "yes"), ("hayır", "no"), ("iyeliksiz", "no possessive"), ("sıfat", "adjective"), ("yalın", "bare")):
+        v = v.replace(a, b)
+    return v
 
 
 def fig_matrix(pairs, out):
-    cols = [("pair_id", "çift", 0.6), ("tier", "tier", 0.5), ("scene", "sahne", 1.1), ("en_short", "EN (ayırt edici kısım)", 3.6), ("rel_seg", "TR ilişki sözcüğü (ayrım)", 2.4),
-            ("case", "hâl", 1.9), ("frame_dependent", "çerçeve?", 0.9), ("en_seen_suite", "EN eğitimde?", 1.1), ("refs", "kastedilen kâse\nlibero | görüntü | robot", 2.6)]
+    cols = [("pair_id", "pair", 0.6), ("tier", "tier", 0.5), ("scene", "scene", 1.1), ("en_short", "EN (distinguishing part)", 3.6), ("rel_seg", "TR relation word (segmentation)", 2.4),
+            ("case", "case", 1.9), ("frame_dependent", "frame?", 0.9), ("en_seen_suite", "EN in training?", 1.1), ("refs", "intended bowl\nlibero | image | robot", 2.6)]
     fig, ax = plt.subplots(figsize=(17, 9.2)); ax.axis("off")
     xs = np.cumsum([0] + [c[2] for c in cols]); H = 1.0
     for j, (_, name, w) in enumerate(cols):
@@ -936,12 +947,12 @@ def fig_matrix(pairs, out):
             if k == "frame_dependent" and r[k] == "evet": fc = R
             if k == "en_seen_suite": fc = G if r[k] == "evet" else Y
             ax.add_patch(Rectangle((xs[j], y), w, H, fc=fc, ec="#bbb", lw=0.6))
-            ax.text(xs[j] + (0.08 if k in ("en_short", "rel_seg", "case") else w / 2), y + H / 2, str(r[k]), ha="left" if k in ("en_short", "rel_seg", "case") else "center", va="center", fontsize=9)
+            ax.text(xs[j] + (0.08 if k in ("en_short", "rel_seg", "case") else w / 2), y + H / 2, D(r[k]), ha="left" if k in ("en_short", "rel_seg", "case") else "center", va="center", fontsize=9)
     ax.set_xlim(0, xs[-1]); ax.set_ylim(-len(pairs) * H - 1.6, H * 1.4)
-    ax.text(0, -len(pairs) * H - 0.55, "Bloklar: A (mavi) Spatial eğitim komutları · B (sarı) aynı sahnelerde eğitim cümlesi OLMAYAN tarifler · C (yeşil) Goal eğitim komutları · D (kırmızı) eğitilmemiş yerleştirme (predicate yok).\n"
-            "Tier 1: mevcut checkpoint + mevcut predicate · Tier 2: mevcut checkpoint + karşı-olgusal BDDL (bowl_2) · Tier 3: yeni predicate + fine-tune.  Kâse sütunu: 1 = bowl_1 (eğitimdeki hedef), 2 = bowl_2; kırmızı = çerçeveler ayrışıyor.",
+    ax.text(0, -len(pairs) * H - 0.55, "Blocks: A (blue) Spatial training commands · B (yellow) descriptions with NO training sentence in the same scenes · C (green) Goal training commands · D (red) untrained placement (no predicate).\n"
+            "Tier 1: current checkpoint + current predicate · Tier 2: current checkpoint + counterfactual BDDL (bowl_2) · Tier 3: new predicate + fine-tune.  Bowl column: 1 = bowl_1 (the training target), 2 = bowl_2; red = the frames disagree.",
             fontsize=9.5, va="top")
-    ax.set_title("datasets/04-tr-spatial-commands — 20 EN–TR çiftinin tasarım matrisi (pairs.csv; kâse sütunu 50 init state'ten hesaplandı)", fontsize=12)
+    ax.set_title("datasets/04-tr-spatial-commands — design matrix of the 20 EN–TR pairs (pairs.csv; the bowl column was computed from the 50 init states)", fontsize=12)
     fig.tight_layout(); fig.savefig(out / "03-design-matrix.png", dpi=130); plt.close(fig)
 
 
@@ -949,7 +960,7 @@ def fig_referents(data, out):
     rows = list(csv.DictReader(open(data / "referents.csv", encoding="utf-8")))
     keys = [("left", "libero"), ("left", "image"), ("left", "robot"), ("front", "libero"), ("front", "image"), ("front", "robot"),
             ("near_plate", "none"), ("near_robot", "none"), ("higher", "none")]
-    names = ["sol\nLIBERO", "sol\ngörüntü", "sol\nrobot", "ön\nLIBERO", "ön\ngörüntü", "ön\nrobot", "tabağa\nyakın", "robota\nyakın", "daha\nyüksekte"]
+    names = ["left\nLIBERO", "left\nimage", "left\nrobot", "front\nLIBERO", "front\nimage", "front\nrobot", "near\nplate", "near\nrobot", "higher\nup"]
     d = {(int(r["task_id"]), r["descriptor"], r["frame"]): r for r in rows}
     fig, ax = plt.subplots(figsize=(13.5, 7.2))
     for t in range(10):
@@ -958,15 +969,15 @@ def fig_referents(data, out):
             ok = r["unambiguous"] == "True"
             fc = R if not ok else (B if r["referent"] == "bowl_1" else Y)
             ax.add_patch(Rectangle((j, 9 - t), 1, 1, fc=fc, ec="white", lw=2))
-            txt = "belirsiz" if r["referent"] == "belirsiz" else f"{r['referent']}\n{float(r['min_margin']):.0f} {r['unit']}"
+            txt = "ambiguous" if r["referent"] in ("belirsiz", "ambiguous") else f"{r['referent']}\n{float(r['min_margin']):.0f} {r['unit']}"
             ax.text(j + .5, 9 - t + .5, txt, ha="center", va="center", fontsize=8.5, color="#333" if ok else "#a00")
-        ax.text(-0.1, 9 - t + .5, f"görev {t}\n1: {d[(t,'left','libero')]['bowl_1_at'].replace('_region','').replace('wooden_cabinet_1_','dolap ').replace('flat_stove_1_','ocak ')}\n2: {d[(t,'left','libero')]['bowl_2_at'].replace('_region','').replace('wooden_cabinet_1_','dolap ').replace('flat_stove_1_','ocak ')}",
+        ax.text(-0.1, 9 - t + .5, f"task {t}\n1: {d[(t,'left','libero')]['bowl_1_at'].replace('_region','').replace('wooden_cabinet_1_','cabinet ').replace('flat_stove_1_','stove ')}\n2: {d[(t,'left','libero')]['bowl_2_at'].replace('_region','').replace('wooden_cabinet_1_','cabinet ').replace('flat_stove_1_','stove ')}",
                 ha="right", va="center", fontsize=7.6)
     for j, n in enumerate(names): ax.text(j + .5, 10.15, n, ha="center", va="bottom", fontsize=9.5)
     for x in (3, 6): ax.plot([x, x], [0, 10], color="k", lw=1.5)
     ax.set_xlim(-2.6, 9); ax.set_ylim(0, 11.2); ax.axis("off")
-    ax.set_title("«Hangi kâse?» — 10 Spatial sahnesi × 9 tarif; hücre: kastedilen kâse + 50 init state'teki EN KÜÇÜK fark\n"
-                 "mavi = bowl_1 (eğitimdeki hedef), sarı = bowl_2, kırmızı = belirsiz (< 5 cm / 20 px ya da işaret değişiyor) — kaynak: LIBERO .pruned_init", fontsize=11)
+    ax.set_title("\"Which bowl?\" — 10 Spatial scenes × 9 descriptions; cell: the intended bowl + the SMALLEST gap over the 50 init states\n"
+                 "blue = bowl_1 (the training target), yellow = bowl_2, red = ambiguous (< 5 cm / 20 px or the sign changes) — source: LIBERO .pruned_init", fontsize=11)
     fig.tight_layout(); fig.savefig(out / "04-referents.png", dpi=130); plt.close(fig)
 
 
@@ -986,10 +997,10 @@ def fig_allomorph(pairs, out):
             if n >= 2: ax.text(x, bottom + n / 2, f"-{s} ×{n}", ha="center", va="center", fontsize=9)
             bottom += n
         small = [f"-{s}" for s, n in allo[m].most_common() if n < 2]
-        if small: ax.text(x, bottom + 0.6, " ".join(small) + "\n(birer kez)", ha="center", va="bottom", fontsize=8.5)
-        ticks.append(f"{m}\n{len(allo[m])} biçim"); x += 1
-    ax.set_xticks(range(len(ticks))); ax.set_xticklabels(ticks); ax.set_ylabel("tr_a'da geçiş sayısı (20 komut)"); ax.set_ylim(0, 31)
-    ax.set_title("(a) Bir biçimbirim, birden çok yüzey: 20 komutta ek allomorfları\n(tr_morph ayrımlarından sayıldı — gerçek)", fontsize=10.5)
+        if small: ax.text(x, bottom + 0.6, " ".join(small) + "\n(once each)", ha="center", va="bottom", fontsize=8.5)
+        ticks.append(f"{m}\n{len(allo[m])} forms"); x += 1
+    ax.set_xticks(range(len(ticks))); ax.set_xticklabels(ticks); ax.set_ylabel("occurrences in tr_a (20 commands)"); ax.set_ylim(0, 31)
+    ax.set_title("(a) One morpheme, several surface forms: suffix allomorphs in 20 commands\n(counted from the tr_morph segmentations — real)", fontsize=10.5)
     ax = axs[1]
     sp = [r for r in pairs if r["suite"] == "libero_spatial"]
     NH, NT = 5, 7
@@ -1002,11 +1013,11 @@ def fig_allomorph(pairs, out):
             ax.text(x + .5, 1 - row + .2, next(iter(vals)) if len(vals) == 1 else "", ha="center", va="center", fontsize=6.5)
         ax.text(NH + .5, 1 - row + .4, "…", ha="center", va="center", fontsize=14)
         ax.text(-0.3, 1 - row + .4, lab, ha="right", va="center", fontsize=10)
-    ax.text(NH / 2, 2.0, "ilk 5 sözcük (baştan hizalı)", ha="center", fontsize=9); ax.text(NH + 1 + NT / 2, 2.0, "son 7 sözcük (sondan hizalı)", ha="center", fontsize=9)
+    ax.text(NH / 2, 2.0, "first 5 words (aligned from the start)", ha="center", fontsize=9); ax.text(NH + 1 + NT / 2, 2.0, "last 7 words (aligned from the end)", ha="center", fontsize=9)
     ax.set_xlim(-2.2, NH + NT + 1.2); ax.set_ylim(-1.3, 2.4); ax.axis("off")
-    ax.text(0, -0.25, "hücre = o konumda 12 Spatial komutunda kaç FARKLI sözcük var\nyeşil = hep aynı (ayırt edici bilgi yok) · sarı = ayırt edici\n"
-            "EN: tarif ORTADA — «pick up the black bowl» + tarif + «and place it on the plate»\nTR: tarif EN BAŞTA — tarif + «siyah kaseyi al ve tabağın üstüne koy»", fontsize=9, va="top")
-    ax.set_title("(b) Ayırt edici bilgi cümlenin neresinde? (sözcük konumu, 12 Spatial komutu)", fontsize=10.5)
+    ax.text(0, -0.25, "cell = number of DISTINCT words at that position across the 12 Spatial commands\ngreen = always the same (no distinguishing information) · yellow = distinguishing\n"
+            "EN: the description is in the MIDDLE — «pick up the black bowl» + description + «and place it on the plate»\nTR: the description comes FIRST — description + «siyah kaseyi al ve tabağın üstüne koy»", fontsize=9, va="top")
+    ax.set_title("(b) Where in the sentence is the distinguishing information? (word position, 12 Spatial commands)", fontsize=10.5)
     fig.tight_layout(); fig.savefig(out / "05-allomorphs-position.png", dpi=130); plt.close(fig)
 
 
@@ -1017,7 +1028,7 @@ def main():
     root, data, out = pathlib.Path(a.libero).expanduser(), pathlib.Path(a.data), pathlib.Path(a.out); out.mkdir(parents=True, exist_ok=True)
     pairs = list(csv.DictReader(open(data / "pairs.csv", encoding="utf-8")))
     fig_frames(root, a.render, out); fig_matrix(pairs, out); fig_referents(data, out); fig_allomorph(pairs, out)
-    print("yazıldı:", *sorted(p.name for p in out.glob("0[2-5]-*.png")))
+    print("written:", *sorted(p.name for p in out.glob("0[2-5]-*.png")))
 
 
 if __name__ == "__main__":

@@ -1,11 +1,11 @@
-"""Ders 13 görselleri (matplotlib).
+"""Lecture 13 figures (matplotlib).
 
-03-denormalize.png   : VLANeXt'in [-1,1] çıktısını LIBERO action aralığına geri ölçekleme.
-                       Sayılar src/datasets/libero_act.py LIBERO_ACTION_STATS["legacy"]'den (gerçek).
-04-connection-language.png : VLANeXt makalesi Tablo 1, "VLM-Policy Connection" satırları (gerçek).
-05-flow-matching-toy.png   : 5 adımlı flow-matching Euler çözücünün TEMSİLİ 1-B gösterimi
-                       (sigma takvimi gerçek: diffusers FlowMatchEulerDiscreteScheduler, shift=1).
-Kullanım: python plot_day13.py [çıktı_klasörü]
+03-denormalize.png   : rescaling VLANeXt's [-1,1] output back to the LIBERO action range.
+                       Numbers are from src/datasets/libero_act.py LIBERO_ACTION_STATS["legacy"] (real).
+04-connection-language.png : VLANeXt paper Table 1, "VLM-Policy Connection" rows (real).
+05-flow-matching-toy.png   : ILLUSTRATIVE 1-D view of the 5-step flow-matching Euler solver
+                       (the sigma schedule is real: diffusers FlowMatchEulerDiscreteScheduler, shift=1).
+Usage: python plot_day13.py [output_folder]
 """
 import sys
 from pathlib import Path
@@ -20,7 +20,7 @@ OUT.mkdir(parents=True, exist_ok=True)
 YEL, BLU, GRN, RED = "#ffd166", "#cfe8ff", "#d4f5d4", "#ffd6d6"
 YEL_D, BLU_D, GRN_D, RED_D = "#b8860b", "#2f6fb3", "#2e8b57", "#c0392b"
 
-# ---- libero_act.py LIBERO_ACTION_STATS["legacy"] (ilk 6 boyut; gripper ayrı) ----
+# ---- libero_act.py LIBERO_ACTION_STATS["legacy"] (first 6 dims; gripper is separate) ----
 STATS = {
     "mixed":   ([-0.9375, -0.9375, -0.9375, -0.24214286, -0.375, -0.36428571],
                 [0.9375, 0.9375, 0.9375, 0.35571429, 0.375, 0.375]),
@@ -44,17 +44,17 @@ def fig03():
     ax = axes[0]
     x = np.arange(6)
     ax.bar(x - 0.18, [h - l for l, h in zip(lo, hi)], 0.36, bottom=lo, color=BLU, edgecolor="#333",
-           label="legacy / mixed (checkpoint'in kullandığı)")
+           label="legacy / mixed (the one the checkpoint uses)")
     lo_s, hi_s = STATS["spatial"]
     ax.bar(x + 0.18, [h - l for l, h in zip(lo_s, hi_s)], 0.36, bottom=lo_s, color=YEL, edgecolor="#333",
-           label="legacy / spatial (karşılaştırma)")
+           label="legacy / spatial (for comparison)")
     for i in range(6):
         ax.text(i - 0.18, hi[i] + 0.02, f"{hi[i]:+.3f}", ha="center", fontsize=7.5)
         ax.text(i - 0.18, lo[i] - 0.07, f"{lo[i]:+.3f}", ha="center", fontsize=7.5)
     ax.axhline(0, color="#999", lw=0.8)
     ax.set_xticks(x, DIMS)
-    ax.set_ylabel("LIBERO action birimi (OSC_POSE delta, [-1,1] ölçeği)")
-    ax.set_title("Model çıktısı [-1,1] → bu aralıklara açılır\n(action_min/max: libero_act.py, legacy)", fontsize=10)
+    ax.set_ylabel("LIBERO action unit (OSC_POSE delta, [-1,1] scale)")
+    ax.set_title("Model output [-1,1] → expanded to these ranges\n(action_min/max: libero_act.py, legacy)", fontsize=10)
     ax.legend(fontsize=8, loc="lower right")
     ax.set_ylim(-1.15, 1.15)
 
@@ -63,28 +63,28 @@ def fig03():
     real = denorm(raw, lo, hi)
     names = DIMS + ["gripper"]
     y = np.arange(7)[::-1]
-    ax.barh(y + 0.18, raw, 0.36, color=YEL, edgecolor="#333", label="ham çıktı")
+    ax.barh(y + 0.18, raw, 0.36, color=YEL, edgecolor="#333", label="raw output")
     ax.barh(y - 0.18, real, 0.36, color=GRN, edgecolor="#333", label="denormalize")
     for yi, r, v in zip(y, raw, real):
         ax.text(1.12, yi, f"{r:+.2f} → {v:+.3f}", va="center", ha="left", fontsize=7.5)
     ax.set_yticks(y, names)
     ax.set_xlim(-1.25, 2.3)
     ax.axvline(0, color="#999", lw=0.8)
-    ax.set_title("Örnek: 7-D ham çıktı → gerçek action\n(gripper 0.03 > 0 → +1 = kapat)", fontsize=10)
+    ax.set_title("Example: 7-D raw output → real action\n(gripper 0.03 > 0 → +1 = close)", fontsize=10)
     ax.legend(fontsize=8, loc="lower left")
-    fig.suptitle("_denormalize_action: ilk 6 boyut doğrusal, 7. boyut eşik", fontsize=12)
+    fig.suptitle("_denormalize_action: first 6 dims linear, 7th dim thresholded", fontsize=12)
     fig.tight_layout()
     fig.savefig(OUT / "03-denormalize.png", dpi=170)
     plt.close(fig)
 
 
 def fig04():
-    # VLANeXt (Wu vd., ICML 2026) Tablo 1, "VLM-Policy Connection" satırları
-    cols = ["LIBERO Spatial\n(orijinal)", "LIBERO-plus Spatial\nLanguage", "LIBERO-plus Spatial\nRobot", "LIBERO-plus Spatial\nToplam"]
+    # VLANeXt (Wu et al., ICML 2026) Table 1, "VLM-Policy Connection" rows
+    cols = ["LIBERO Spatial\n(original)", "LIBERO-plus Spatial\nLanguage", "LIBERO-plus Spatial\nRobot", "LIBERO-plus Spatial\nOverall"]
     data = {
-        "Loose (MetaQuery, bağlayıcı yok)": [90.0, 74.6, 42.0, 53.7],
-        "Tight (katman katman, π0 tarzı)": [90.0, 81.0, 51.7, 55.4],
-        "Soft (katman katman + 16 meta query)": [91.8, 89.2, 58.3, 56.2],
+        "Loose (MetaQuery, no connector)": [90.0, 74.6, 42.0, 53.7],
+        "Tight (layer by layer, π0 style)": [90.0, 81.0, 51.7, 55.4],
+        "Soft (layer by layer + 16 meta queries)": [91.8, 89.2, 58.3, 56.2],
     }
     colors = [BLU, RED, YEL]
     fig, ax = plt.subplots(figsize=(10, 4.8))
@@ -97,8 +97,8 @@ def fig04():
     ax.set_xticks(x, cols)
     ax.set_ylabel("Success rate (%)")
     ax.set_ylim(0, 105)
-    ax.set_title("VLM–policy bağlantı türü ve dil bozulmasına dayanıklılık\n"
-                 "VLANeXt Tablo 1 (Wu vd., 2026; ablation modelleri, Qwen3-VL-2B, Spatial suite)", fontsize=10.5)
+    ax.set_title("VLM–policy connection type and robustness to language perturbation\n"
+                 "VLANeXt Table 1 (Wu et al., 2026; ablation models, Qwen3-VL-2B, Spatial suite)", fontsize=10.5)
     ax.legend(fontsize=8.5, loc="upper right")
     ax.grid(axis="y", alpha=0.3)
     fig.tight_layout()
@@ -107,29 +107,29 @@ def fig04():
 
 
 def fig05():
-    # Gerçek sigma takvimi: linspace(1.0, 1/1000, 5) + [0]  (FlowMatchEulerDiscreteScheduler, shift=1)
+    # Real sigma schedule: linspace(1.0, 1/1000, 5) + [0]  (FlowMatchEulerDiscreteScheduler, shift=1)
     sigmas = np.append(np.linspace(1.0, 1 / 1000, 5), 0.0)
     rng = np.random.default_rng(0)
-    x0 = 0.35                     # hedef action (temsili)
-    noise = rng.normal(0, 1, 4)   # 4 farklı başlangıç gürültüsü
+    x0 = 0.35                     # target action (illustrative)
+    noise = rng.normal(0, 1, 4)   # 4 different initial noise samples
     fig, ax = plt.subplots(figsize=(9, 4.4))
     for k, n in enumerate(noise):
         x = n
         xs = [x]
         for i in range(5):
-            # Kusursuz model varsayımı: velocity = noise - x0 (doğrusal akış); gerçek modelde tahmin edilir
+            # Perfect-model assumption: velocity = noise - x0 (linear flow); in a real model it is predicted
             v = (x - x0) / max(sigmas[i], 1e-6)   # x_t = (1-s) x0 + s*noise ⇒ v = noise - x0 = (x_t - x0)/s
             x = x + (sigmas[i + 1] - sigmas[i]) * v
             xs.append(x)
         ax.plot(sigmas, xs, marker="o", ms=5, lw=1.8, color=YEL_D if k == 0 else "#999",
-                label="Euler yörüngesi (temsili)" if k == 0 else None)
-    ax.axhline(x0, color=GRN_D, ls="--", lw=1.5, label="hedef action x₀ (temsili)")
+                label="Euler trajectory (illustrative)" if k == 0 else None)
+    ax.axhline(x0, color=GRN_D, ls="--", lw=1.5, label="target action x₀ (illustrative)")
     ax.invert_xaxis()
     ax.set_xticks([1.0, 0.75025, 0.5005, 0.25075, 0.0], ["1.0", "0.750", "0.500", "0.251", "0.001 → 0"])
-    ax.set_xlabel("sigma (1 = saf gürültü → 0 = temiz action); 5 scheduler.step çağrısı")
-    ax.set_ylabel("tek action boyutu, [-1,1] ölçeği")
-    ax.set_title("Flow-matching çözücü: predict_action içindeki 5 adımlık döngü\n"
-                 "(sigma takvimi gerçek — diffusers FlowMatchEuler, shift=1; yörünge TEMSİLİ, kusursuz model varsayımı)",
+    ax.set_xlabel("sigma (1 = pure noise → 0 = clean action); 5 scheduler.step calls")
+    ax.set_ylabel("a single action dimension, [-1,1] scale")
+    ax.set_title("Flow-matching solver: the 5-step loop inside predict_action\n"
+                 "(sigma schedule is real — diffusers FlowMatchEuler, shift=1; trajectory is ILLUSTRATIVE, perfect-model assumption)",
                  fontsize=10)
     ax.legend(fontsize=8.5)
     ax.grid(alpha=0.3)
@@ -140,4 +140,4 @@ def fig05():
 
 if __name__ == "__main__":
     fig03(); fig04(); fig05()
-    print("yazıldı:", *(sorted(p.name for p in OUT.glob("0[345]-*.png"))))
+    print("written:", *(sorted(p.name for p in OUT.glob("0[345]-*.png"))))

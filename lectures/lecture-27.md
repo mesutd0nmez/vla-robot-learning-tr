@@ -1,181 +1,181 @@
-# Ders 27 — Deney Matrisi: Her RQ için Veri, Model, Benchmark, Metrik, Maliyet — 19 Hücre, Episode Süresi Modeli, T4 Bütçesi ve Tersine Güç
+# Lecture 27 — Experiment Matrix: Data, Model, Benchmark, Metric, Cost for Each RQ — 19 Cells, the Episode-Time Model, the T4 Budget and Inverse Power
 
-**Faz 4 / Gün 27** · **Süre:** ~55 dk (okuma 40 + görev 15)
-**Ön koşul:** Ders 26 (RQ-a/b/c, `rq_power.py`), Ders 12 ve 18 (T4 notebook'u, chunk 8, `num_parallel_envs`), Ders 14 (OpenVLA tek adım, Mac MPS), Ders 24 (QLoRA bütçesi, parser 79/80) · **Kod:** `code/day27/` (`sim_step_bench.py` gerçek LIBERO ölçümü, `budget.py` bütçe + tersine güç, `plot_day27.py` — üçü de bu oturumda koştu) · **Çıktı:** `thesis/experiment-matrix.csv` (19 hücre, v0.1)
+**Phase 4 / Day 27** · **Time:** ~55 min (reading 40 + task 15)
+**Prerequisites:** Lecture 26 (RQ-a/b/c, `rq_power.py`), Lectures 12 and 18 (T4 notebook, chunk 8, `num_parallel_envs`), Lecture 14 (OpenVLA single step, Mac MPS), Lecture 24 (QLoRA budget, parser 79/80) · **Code:** `code/day27/` (`sim_step_bench.py` real LIBERO measurement, `budget.py` budget + inverse power, `plot_day27.py` — all three ran in this session) · **Output:** `thesis/experiment-matrix.csv` (19 cells, v0.1; the v0.1 snapshot is kept as `code/day27/experiment-matrix_v0.1.csv`)
 
-> **Bugünün tek cümlesi:** Üç RQ'yu 19 hücrelik bir matrise açınca (sistem × suite × blok × koşul × init × tekrar) pilot + çekirdek ≈ 8.400 koşan episode ve orta senaryoda ≈ 258 T4 saati çıkıyor (iyimser 151, kötümser 504) — bunun %63'ü S-OV, çünkü OpenVLA her adımda bir kez çağrılıyor (chunk 1) ve T4'e ancak 4-bit sığıyor; ama tersine güç hesabı bütçenin nereye gittiğini değiştiriyor: LIBERO'da görev başına yalnızca 50 init state var (n = 50 → en küçük görünen fark 23 puan), 15 puan ancak blok havuzunda görünür ve havuzda n = 120 (görev başına 20 init) zaten 13 puanı yakalar — **iddia birimini görevden bloğa taşırsan** aynı matris ≈ 108 saate, yani T4×2 ile ~2 Kaggle haftasına iner.
+> **Today in one sentence:** Unrolling the three RQs into a 19-cell matrix (system × suite × block × condition × init × repeats) gives pilot + core ≈ 8,400 episodes run and ≈ 258 T4 hours in the middle scenario (optimistic 151, pessimistic 504) — 63% of that is S-OV, because OpenVLA is called once at every step (chunk 1) and only 4-bit fits on the T4; but inverse power changes where the budget goes: LIBERO has only 50 init states per task (n = 50 → smallest visible difference 23 points), 15 points is visible only in the block pool, and in the pool n = 120 (20 init per task) already catches 13 points — **if you move the claim unit from the task to the block**, the same matrix drops to ≈ 108 hours, that is ~2 Kaggle weeks with T4×2.
 
 ---
 
-## 1. Matris ne, hücre ne?
+## 1. What is the matrix, what is a cell?
 
-Ders 26'nın altı alanı "ne soruluyor"u kilitledi; bugün "neyle, kaç kez, kaça" sorusu. Plan tablosu beş sütun istiyor — veri, model, benchmark, metrik, hesaplama maliyeti — ama bunları RQ başına bir satırla yazmak işe yaramıyor: RQ-a'nın içinde iki sistem, iki suite, dört koşul var ve her birinin maliyeti farklı. Doğru birim **hücre**: *bir sistem, bir suite, bir blok, bir koşul kümesi, görev başına n init state, bir tekrar sayısı*. Hücre koşulabilir en küçük iş paketi; CI'daki bir job gibi.
+Lecture 26's six fields locked "what is being asked"; today is "with what, how many times, for how much". The plan table wants five columns — data, model, benchmark, metric, compute cost — but writing these as one row per RQ does not work: within RQ-a there are two systems, two suites, four conditions, and each has a different cost. The right unit is the **cell**: *one system, one suite, one block, one condition set, n init states per task, one repeat count*. A cell is the smallest runnable work package; like a job in CI.
 
-![Matris akışı](images/lecture-27/01-matrix-flow.png)
+![Matrix flow](images/lecture-27/01-matrix-flow.png)
 
-`thesis/experiment-matrix.csv` 19 hücre içeriyor (sütunlar: `cell_id, rq, tier, purpose, system, suite, block, n_tasks, conditions, n_init, repeats, data_dep, model_dep, metric, status`). Özet:
+`thesis/experiment-matrix.csv` (v0.1; the snapshot used by this lecture's code is `code/day27/experiment-matrix_v0.1.csv`) contains 19 cells (columns: `cell_id, rq, tier, purpose, system, suite, block, n_tasks, conditions, n_init, repeats, data_dep, model_dep, metric, status`). Summary:
 
-| grup | hücreler | ne ölçer | veri | model | metrik |
+| group | cells | what it measures | data | model | metric |
 |---|---|---|---|---|---|
-| **Kalibrasyon** | K1, K2, K3 | sistemler yayımlanan sayıları tutturuyor mu; niceleme ne kadar kaydırıyor | LIBERO orijinal komutları | S-OV 4-bit (T4), S-VN, S-OV bf16 (Mac) | Wilson; K3'te eşli Δ(4-bit − bf16) |
-| **Pilot** | P1, P2 | Ders 18 koşusu + tekrar; S-OV ilk koşu | `datasets/03` | S-VN, S-OV 4-bit | Wilson + PI (3 tekrar) |
-| **RQ-a** | A1–A4 | dört koşul × iki sistem × Spatial A / Goal C | `datasets/04` A, C | iki sistem, Spatial ve Goal checkpoint'leri | McNemar + TOST, **blok havuzunda** |
-| **RQ-b** | B1–B5 çekirdek, B6 genişletme | `tr_ascii` zıt-yön testi; B bloğu EN-B / TR-B; B'nin `empty`'si | `datasets/04` A+C, B + `bddl_cf/` | iki sistem | eşli Δ; tr_B − empty |
-| **RQ-c** | C1, C2 çekirdek; C3, C4 genişletme | MT ve parser kapanışı; QLoRA eğitimi + eval | MT/parser çıktıları; EN+TR RLDS | iki sistem; S-OV-LoRA | κ, H0-c3, H0-c4 (δ = 5) |
+| **Calibration** | K1, K2, K3 | do the systems hit the published numbers; how much does quantization shift | LIBERO original commands | S-OV 4-bit (T4), S-VN, S-OV bf16 (Mac) | Wilson; in K3 paired Δ(4-bit − bf16) |
+| **Pilot** | P1, P2 | the Lecture 18 run + repeats; S-OV first run | `datasets/03` | S-VN, S-OV 4-bit | Wilson + PI (3 repeats) |
+| **RQ-a** | A1–A4 | four conditions × two systems × Spatial A / Goal C | `datasets/04` A, C | two systems, Spatial and Goal checkpoints | McNemar + TOST, **in the block pool** |
+| **RQ-b** | B1–B5 core, B6 extension | `tr_ascii` opposite-direction test; block B EN-B / TR-B; B's `empty` | `datasets/04` A+C, B + `bddl_cf/` | two systems | paired Δ; tr_B − empty |
+| **RQ-c** | C1, C2 core; C3, C4 extension | MT and parser closure; QLoRA training + eval | MT/parser outputs; EN+TR RLDS | two systems; S-OV-LoRA | κ, H0-c3, H0-c4 (δ = 5) |
 
-Ders 26'dan bir değişiklik öneriyorum (dosyada `repeats` sütunu): RQ-a "≥3 tekrar" diyordu; matris tekrarı **yalnızca pilotta** (P1) tutuyor, çekirdekte 1. Gerekçe §5'te — tekrar, bağımsız init state'in yerini tutmuyor. Bu bir ön kayıt değişikliği; `thesis/rq-candidates.md` v0.2'ye senin onayınla girer.
+I propose one change from Lecture 26 (the `repeats` column in the file): RQ-a said "≥3 repeats"; the matrix keeps repeats **only in the pilot** (P1), 1 in the core. The justification is in §5 — a repeat does not take the place of an independent init state. This is a pre-registration change; it enters `thesis/rq-candidates.md` v0.2 with your approval.
 
 ---
 
-## 2. Bir episode neye harcanır? Ölçülen yarı ve tahmin edilen yarı
+## 2. What is an episode spent on? The measured half and the estimated half
 
-Bütçe = Σ hücre (episode sayısı × episode süresi). Episode süresini parçalarına ayırınca neyi ölçebildiğimiz, neyi tahmin ettiğimiz netleşiyor:
+Budget = Σ cells (number of episodes × episode duration). Splitting the episode duration into its parts makes clear what we can measure and what we estimate:
 
 `T_ep = t_reset + (W + L) · t_sim + ⌈L / chunk⌉ · t_call`
 
-- **W = 10** bekleme adımı (`num_steps_wait`; model çağrılmaz) ve **L** = başarılıysa episode'un uzunluğu, değilse `max_steps`. `max_steps` gerçek kod: Spatial 220, Goal 300 (OpenVLA `c8f03f4`, `run_libero_eval.py:173-180`; yorum satırı "longest training demo has 193/270 steps"). Başarılı uzunluk Spatial için ~100 (Ders 18'in Ders 11'den aldığı ~96), Goal için 120 — **hipotez**.
-- **chunk**: S-VN 8 (Ders 12, `num_steps_execute: 8`), S-OV **1** — OpenVLA her adımda bir 7-DoF action üretir; makale action chunking'i "gelecek iş" diye anıyor (§6). Başarısız bir Spatial episode'unda S-VN 28 kez, S-OV 220 kez çağrılır. Bütçenin asıl asimetrisi bu.
-- **t_sim** ve **t_reset**: bunları bu oturumda **gerçekten ölçtüm** (`sim_step_bench.py`; LIBERO deposu, robosuite 1.4.1, mujoco 3.3.0, 2 çekirdekli Linux, GPU yok):
+- **W = 10** wait steps (`num_steps_wait`; the model is not called) and **L** = the length of the episode if successful, `max_steps` if not. `max_steps` is real code: Spatial 220, Goal 300 (OpenVLA `c8f03f4`, `run_libero_eval.py:173-180`; the comment line "longest training demo has 193/270 steps"). The successful length is ~100 for Spatial (the ~96 Lecture 18 took from Lecture 11), 120 for Goal — **hypothesis**.
+- **chunk**: S-VN 8 (Lecture 12, `num_steps_execute: 8`), S-OV **1** — OpenVLA produces one 7-DoF action at every step; the paper mentions action chunking as "future work" (§6). In a failed Spatial episode S-VN is called 28 times, S-OV 220 times. This is the real asymmetry of the budget.
+- **t_sim** and **t_reset**: I **really measured** these in this session (`sim_step_bench.py`; LIBERO repo, robosuite 1.4.1, mujoco 3.3.0, 2-core Linux, no GPU):
 
-![Gerçek ölçüm](images/lecture-27/06-sim-measured.png)
+![Real measurement](images/lecture-27/06-sim-measured.png)
 
-Render kapalıyken bir `env.step` fizik olarak Spatial'da 19–23 ms, Goal'da 12–13 ms; reset 0,9–1,5 s (render'lı 2,1–2,7 s). Dört görevin dördünde `get_task_init_states` tam **50** init state döndürdü — bu sayı §5'te bütün hesabı belirliyor. Render ise bu makinede adım başına 150–240 ms ekliyor, çünkü GPU yok ve EGL yazılımsal çalışıyor. Colab/Kaggle'da EGL T4 üstünde donanımsal çalışmalı (iki küçük kamera, ms mertebesi — **hipotez**); `MUJOCO_GL` yanlış ayarlanıp render yazılıma düşerse her episode'a 30–60 s eklenir. Bu yüzden Takılırsan tablosunda ilk satır bu.
+With rendering off, one `env.step` is 19–23 ms in physics on Spatial, 12–13 ms on Goal; reset 0.9–1.5 s (with rendering 2.1–2.7 s). On all four of four tasks `get_task_init_states` returned exactly **50** init states — this number determines the whole calculation in §5. Rendering, on the other hand, adds 150–240 ms per step on this machine, because there is no GPU and EGL runs in software. On Colab/Kaggle EGL should run in hardware on the T4 (two small cameras, ms scale — **hypothesis**); if `MUJOCO_GL` is set wrong and rendering falls to software, 30–60 s is added to every episode. That is why this is the first row in the If you get stuck table.
 
-**t_call** ölçemediğimiz yarı ve bütçenin %90'ından fazlası. Senaryolarım şu dayanaklarla kuruldu:
+**t_call** is the half we cannot measure and it is more than 90% of the budget. My scenarios were built on these grounds:
 
-| sistem / yer | iyimser | orta | kötümser | dayanak |
+| system / place | optimistic | middle | pessimistic | basis |
 |---|---|---|---|---|
-| S-VN, T4 | 1,0 s | 2,5 s | 5,0 s | Ders 18'in "başarılı episode ~1 dk / 12 çağrı" tahmini üst uç; bf16 T4'te emülasyon (Ders 12) |
-| S-OV 4-bit, T4 | 0,5 s | 0,8 s | 1,6 s | OpenVLA §5.4: int4 A5000'de **3 Hz**; T4 bellek bant genişliği 320 GB/s, A5000 768 GB/s → 3 × 320/768 ≈ 1,25 Hz ≈ 0,8 s (7B'de üretim bant genişliğine bağlı varsayımı) |
-| S-OV bf16, Mac M2 | 1,5 s | 2,0 s | 3,0 s | Ders 14 tahmini (1,5–3 s/action) |
+| S-VN, T4 | 1.0 s | 2.5 s | 5.0 s | the upper end of Lecture 18's "successful episode ~1 min / 12 calls" estimate; bf16 emulation on the T4 (Lecture 12) |
+| S-OV 4-bit, T4 | 0.5 s | 0.8 s | 1.6 s | OpenVLA §5.4: int4 **3 Hz** on an A5000; T4 memory bandwidth 320 GB/s, A5000 768 GB/s → 3 × 320/768 ≈ 1.25 Hz ≈ 0.8 s (assuming 7B generation is bandwidth-bound) |
+| S-OV bf16, Mac M2 | 1.5 s | 2.0 s | 3.0 s | Lecture 14 estimate (1.5–3 s/action) |
 
-Karşılaştırma için makalenin tek bf16 hız cümlesi: RTX 4090'da "approximately 6Hz" (§3.5). Ve VLAQuantBench (Xu vd., Eyl 2026) OpenVLA-OFT'yi RTX 4090'da gerçek çekirdeklerle ölçtü: tam çıkarım bf16 139,9 ms, NF4 152,6 ms, LLM.int8() 379,5 ms (Tablo 10) — yani 4-bit belleği yarıdan fazla düşürüyor ama **hızlandırmıyor**, 8-bit ise 2,7× yavaşlatıyor. 8-bit'i bu yüzden hiç düşünmüyoruz.
+For comparison, the paper's single bf16 speed sentence: "approximately 6Hz" on an RTX 4090 (§3.5). And VLAQuantBench (Xu et al., Sep 2026) measured OpenVLA-OFT on an RTX 4090 with real kernels: full inference bf16 139.9 ms, NF4 152.6 ms, LLM.int8() 379.5 ms (Table 10) — that is, 4-bit cuts memory by more than half but does **not speed up**, and 8-bit slows by 2.7×. That is why we never consider 8-bit.
 
-![Episode maliyeti](images/lecture-27/02-episode-cost.png)
+![Episode cost](images/lecture-27/02-episode-cost.png)
 
-Görsel 02 başarısız (en pahalı) episode'u gösteriyor: S-VN T4'te orta senaryoda 1,3 dk, S-OV 4-bit T4'te 3,1 dk, S-OV bf16 Mac'te 7,5 dk (Spatial). Sarı (model çağrısı) her çubuğu domine ediyor; ölçtüğümüz mavi kısım ince bir şerit. Dolayısıyla matrisin ilk yapılacak işi **t_call'u ölçmek**: K1 ve K2 kalibrasyon hücreleri aynı zamanda saat ölçümüdür; `budget.py --calls-sv X --calls-ov Y` ile ölçülen değerler yerine konup bütçe yeniden çıkarılır.
-
----
-
-## 3. S-OV T4'e nasıl sığar — ve sığdırmak neyi değiştirir?
-
-OpenVLA bf16 ağırlıklarla 16,8 GB ister (makale Tablo 2; §3.5'te "15GB" deniyor — iki sayı makalenin kendi içinde farklı). T4'ün kullanılabilir belleği ~15 GB; görüntü + KV önbelleği eklenince bf16 sığmıyor. Seçenekler: 8-bit (10,2 GB; A5000'de 1,2 Hz ve Tablo 2'de BridgeData başarısı 71,3 → **58,1**), 4-bit (7,0 GB; 3 Hz; başarı **71,9** — bf16 ile aynı). Resmî LIBERO eval script'i 4-bit'i bayrakla destekliyor (`--load_in_4bit`, `openvla_utils.py:48`), yani kod yazmak gerekmiyor. Seçim belli: **T4'te S-OV = 4-bit.**
-
-![Nerede koşulur](images/lecture-27/05-where-to-run.png)
-
-Ama "4-bit S-OV" yayımlanan sistemle aynı sistem değil. Tablo 2'nin eşitliği BridgeData'da 8 görevde, 80 rollout'ta; LIBERO checkpoint'inde ölçülmemiş. VLAQuantBench'in OpenVLA-OFT satırı uyarıcı: basit 4-bit yuvarlama (RTN W4) Spatial'da 100 → 96 ama **Goal'da 96 → 82** (Tablo 1). Bu OFT, bizim OpenVLA değil, ve RTN, bizim NF4 değil (aynı makalenin NF4 satırları yalnız LLM kısmı nicelendiğinde Spatial'da ~98; ilgili ek tabloyu doğrudan okuyamadım, **doğrulanmadı**). Yine de ders net: niceleme bir suite'te zararsız, ötekinde 14 puanlık bir kayma olabilir.
-
-Bunun deney tasarımına iki sonucu var:
-
-1. **Eşli fark geçerli kalır.** RQ-a'nın soruları koşullar arası fark (`tr_a − clean`); bütün koşullar aynı 4-bit modelde koşulursa niceleme her iki tarafta da aynı. Değişen şey yorumun öznesi: tezde "OpenVLA" değil "**OpenVLA (4-bit NF4)**" yazılır.
-2. **İki kalibrasyon hücresi zorunlu.** K1: 4-bit S-OV, `clean`, 10 Spatial görevi × 10 init (~3 T4 saati) — yayımlanan 84,7 ± 0,9'un Wilson aralığı içinde mi? K3: Mac'te bf16 S-OV ile **aynı** 25 init'te `clean` ve `tr_a` — 4-bit'le eşli karşılaştırma, niceleme etkisini doğrudan ölçer ve "Türkçe düşüşü nicelemeden mi" itirazını kapatır. K3 Mac'te ~4 saat (orta) = bir gece; kota harcamaz. Mac'in matristeki asıl rolü bu: yavaş ama bf16 ve bedava bir **referans**.
+Figure 02 shows the failed (most expensive) episode: S-VN on the T4 in the middle scenario 1.3 min, S-OV 4-bit on the T4 3.1 min, S-OV bf16 on the Mac 7.5 min (Spatial). Yellow (model call) dominates every bar; the blue part we measured is a thin strip. So the matrix's first job is to **measure t_call**: the K1 and K2 calibration cells are also clock measurements; with `budget.py --calls-sv X --calls-ov Y` the measured values are substituted and the budget is recomputed.
 
 ---
 
-## 4. Toplam: 19 hücre, 258 saat — nereye gidiyor?
+## 3. How does S-OV fit on the T4 — and what does fitting it change?
 
-`budget.py` matrisi okuyup her hücreyi (sistem, suite, koşul) parçalarına açıyor ve beklenen episode süresini koşulun beklenen başarısıyla karıştırıyor (başarılı episode kısa: `clean` 0,8, `empty` 0,3, `tr_a` 0,5 … — bunlar **sonuç tahmini değil**, yalnızca maliyet karışımı için; ±0,2 oynatınca toplam ~%10 değişiyor).
+OpenVLA with bf16 weights wants 16.8 GB (paper Table 2; §3.5 says "15GB" — the two numbers differ within the paper itself). The T4's usable memory is ~15 GB; once the image + KV cache are added, bf16 does not fit. Options: 8-bit (10.2 GB; 1.2 Hz on an A5000, and in Table 2 BridgeData success 71.3 → **58.1**), 4-bit (7.0 GB; 3 Hz; success **71.9** — the same as bf16). The official LIBERO eval script supports 4-bit with a flag (`--load_in_4bit`, `openvla_utils.py:48`), so no code needs to be written. The choice is clear: **S-OV on the T4 = 4-bit.**
 
-![Hücre başına T4 saati](images/lecture-27/03-cell-hours.png)
+![Where to run](images/lecture-27/05-where-to-run.png)
 
-| | episode (koşan) | T4 saati iyimser / **orta** / kötümser |
+But "4-bit S-OV" is not the same system as the published one. Table 2's equality is on BridgeData, 8 tasks, 80 rollouts; it was not measured on the LIBERO checkpoint. VLAQuantBench's OpenVLA-OFT row is a warning: simple 4-bit rounding (RTN W4) goes 100 → 96 on Spatial but **96 → 82 on Goal** (Table 1). That OFT is not our OpenVLA, and RTN is not our NF4 (the same paper's NF4 rows are ~98 on Spatial when only the LLM part is quantized; I could not read the relevant appendix table directly, **not verified**). Still, the lesson is clear: quantization may be harmless on one suite and a 14-point shift on another.
+
+This has two consequences for the experiment design:
+
+1. **The paired difference stays valid.** RQ-a's questions are differences between conditions (`tr_a − clean`); if all conditions run on the same 4-bit model, quantization is the same on both sides. What changes is the subject of the interpretation: in the thesis one writes not "OpenVLA" but "**OpenVLA (4-bit NF4)**".
+2. **Two calibration cells are mandatory.** K1: 4-bit S-OV, `clean`, 10 Spatial tasks × 10 init (~3 T4 hours) — is it within the Wilson interval of the published 84.7 ± 0.9? K3: bf16 S-OV on the Mac with the **same** 25 init, `clean` and `tr_a` — a paired comparison with the 4-bit one directly measures the quantization effect and closes the objection "is the Turkish drop from quantization". K3 is ~4 hours (middle) on the Mac = one night; it spends no quota. This is the Mac's real role in the matrix: a slow but bf16 and free **reference**.
+
+---
+
+## 4. Total: 19 cells, 258 hours — where does it go?
+
+`budget.py` reads the matrix, breaks each cell (system, suite, condition) into its parts and mixes the expected episode duration with the condition's expected success (a successful episode is short: `clean` 0.8, `empty` 0.3, `tr_a` 0.5 … — these are **not result predictions**, only for the cost mix; moving them ±0.2 changes the total by ~10%).
+
+![T4 hours per cell](images/lecture-27/03-cell-hours.png)
+
+| | episodes (run) | T4 hours optimistic / **middle** / pessimistic |
 |---|---|---|
-| Kalibrasyon K1–K2 (+ K3 Mac 4 sa) | 200 | 2 / **4** / 8 |
-| RQ-a (P1, P2, A1–A4) | 4.960 | 91 / **156** / 305 |
-| RQ-b çekirdek (B1–B5) | 2.500 | 46 / **78** / 153 |
-| RQ-c çekirdek (C1, C2) | 735 | 11 / **19** / 38 |
-| **Pilot + çekirdek** | **≈ 8.400** | **151 / 258 / 504** |
-| Genişletme (B6, C3 eğitim, C4) | 4.200 + eğitim | 154 / **225** / 382 |
+| Calibration K1–K2 (+ K3 Mac 4 h) | 200 | 2 / **4** / 8 |
+| RQ-a (P1, P2, A1–A4) | 4,960 | 91 / **156** / 305 |
+| RQ-b core (B1–B5) | 2,500 | 46 / **78** / 153 |
+| RQ-c core (C1, C2) | 735 | 11 / **19** / 38 |
+| **Pilot + core** | **≈ 8,400** | **151 / 258 / 504** |
+| Extension (B6, C3 training, C4) | 4,200 + training | 154 / **225** / 382 |
 
-Üç okuma:
+Three readings:
 
-- **S-OV hücreleri 258 saatin 163'ü (%63).** A3 + A4 tek başına 106 saat. Chunk farkı sistem karşılaştırmasının maliyetini asimetrik yapıyor: S-VN'nin bir episode'u ~1 dk, S-OV'unki ~2–3 dk.
-- **Kaggle'da ≈ 8,6 hafta, T4×2 ile ≈ 4,3.** Kaggle'ın haftalık GPU kotası resmî belgede sayı olarak yazılmıyor, hesap ayarlarında görünüyor; ikincil kaynaklar "~30 saat" diyor (biri bunun kullanıcı raporu olduğunu ayrıca belirtiyor). Oturum 12 saatle sınırlı. Kaggle T4×2 veriyor: iki GPU'ya iki ayrı eval süreci (`CUDA_VISIBLE_DEVICES=0/1`, her biri bir hücre) duvar saatini yarıya indirmeli — **hipotez**; RAM (Ders 18: ~29 GB) iki sürece yetmeli. Kota saati ikisinde de aynı yanar mı, yoksa GPU başına mı sayılır — hesabında kontrol et.
-- **C2 neredeyse bedava: 1.200 episode'dan 15'i koşar.** Parser çıktısı `clean` cümlesiyle birebir aynıysa, o episode `clean` episode'unun kendisidir (S-OV greedy: `do_sample=False`, `openvla_utils.py:169` → aynı girdi aynı action; S-VN'de dağılım aynı). Ders 24'te parser set içinde 80'in 79'unu birebir çevirdi → koşulacak olan 1/80. MT için aynı önbellek %60 koşu varsayıyor (**hipotez**; HF erişimi olmadığı için MT çıktısı hâlâ yok → C1 engelli). Yazılımcı dilinde: girdi dizesine göre memoization.
+- **S-OV cells are 163 of the 258 hours (63%).** A3 + A4 alone are 106 hours. The chunk difference makes the cost of the system comparison asymmetric: one S-VN episode is ~1 min, one S-OV episode ~2–3 min.
+- **≈ 8.6 weeks on Kaggle, ≈ 4.3 with T4×2.** Kaggle's weekly GPU quota is not written as a number in the official documentation, it appears in the account settings; secondary sources say "~30 hours" (one notes separately that this is a user report). A session is limited to 12 hours. Kaggle gives T4×2: two separate eval processes on two GPUs (`CUDA_VISIBLE_DEVICES=0/1`, one cell each) should halve the wall-clock time — **hypothesis**; RAM (Lecture 18: ~29 GB) must be enough for two processes. Whether quota hours burn the same on both or are counted per GPU — check in your account.
+- **C2 is almost free: 15 of 1,200 episodes run.** If the parser output is identical to the `clean` sentence, that episode is the `clean` episode itself (S-OV greedy: `do_sample=False`, `openvla_utils.py:169` → same input, same action; in S-VN the distribution is the same). In Lecture 24 the parser translated 79 of the 80 in-set rows exactly → what will run is 1/80. For MT the same cache assumes 60% runs (**hypothesis**; with no HF access the MT output still does not exist → C1 is blocked). In software terms: memoization by input string.
 
 ---
 
-## 5. Tersine güç: bütçe → n → görünen en küçük fark
+## 5. Inverse power: budget → n → smallest visible difference
 
-Ders 26'nın tablosu "n = 100 ile 15 puan görünür" diyordu. Bugün gerçek ölçüm bir kısıt ekledi: **bir LIBERO görevinde 50'den fazla init state yok.** Görev başına n'yi 50'nin üstüne çıkaramazsın; tekrar (aynı init'i yeniden koşmak) da çare değil — S-OV'da greedy çözüm aynı init'te aynı sonucu verir (GPU belirlenimsizliği hariç), S-VN'de ise tekrarlar aynı init'e bağlı oldukları için bağımsız çift sayılmaz. Yani tek bir görevde %80 güçle görünen en küçük fark, ne kadar bütçe koyarsan koy, ~23 puanda kalır.
+Lecture 26's table said "with n = 100, 15 points are visible". Today's real measurement added a constraint: **there are no more than 50 init states in a LIBERO task.** You cannot raise n per task above 50; repeating (re-running the same init) is no remedy either — in S-OV the greedy solution gives the same result at the same init (apart from GPU nondeterminism), and in S-VN repeats do not count as independent pairs because they depend on the same init. So on a single task the smallest difference visible at 80% power stays at ~23 points, however much budget you put in.
 
-![Tersine güç](images/lecture-27/04-inverse-power.png)
+![Inverse power](images/lecture-27/04-inverse-power.png)
 
-Çıkış yolu iddia birimini değiştirmek: RQ-a'nın sorusu zaten blok düzeyinde ("Spatial A'da Türkçe düşüş var mı"). Blok altı görevden oluşur; eşli çiftleri görevler arasında havuzlayınca n = 6 × n_init. Havuzlu McNemar, "hiçbir görevde fark yok" null'u altında geçerli bir testtir — her görevde uyumsuz çiftler simetrik — ama bulduğu fark **blok ortalamasıdır**; tek tek görev için betimsel kalır. `budget.py`'nin tersine tablosu (S-OV, Spatial, `clean` + `tr_a`, orta senaryo):
+The way out is to change the claim unit: RQ-a's question is already at the block level ("is there a Turkish drop on Spatial A"). A block consists of six tasks; pooling the paired pairs across tasks gives n = 6 × n_init. The pooled McNemar is a valid test under the null "there is no difference in any task" — in every task the discordant pairs are symmetric — but the difference it finds is **the block average**; for an individual task it stays descriptive. `budget.py`'s inverse table (S-OV, Spatial, `clean` + `tr_a`, middle scenario):
 
-| T4 saati | görev başına init | havuz n | MDE görev | MDE blok |
+| T4 hours | init per task | pool n | MDE task | MDE block |
 |---|---|---|---|---|
 | 5 | 12 | 72 | 68 | 18 |
 | 10 | 24 | 144 | 41 | 12 |
 | 20 | 49 | 294 | 24 | 7 |
-| 30+ | 50 (tavan) | 300 | 23 | 7 |
+| 30+ | 50 (ceiling) | 300 | 23 | 7 |
 
-`budget.py`'nin güç fonksiyonu `rq_power.py` ile aynı model ama vektörleştirildi (b + c ~ Binom, b | m ~ Binom); selftest Ders 26'nın üç değerini birebir veriyor (23 / 15 / 16), n = 300 saniyeler sürüyor. Okuma: blok düzeyinde 15 puanlık eşik için n ≈ 100 yeter (MDE 15), n = 120 ile 13. **Yalın matris** çekirdek hücrelerde görev başına 20 init kullanıyor: RQ-a 64, RQ-b 31, RQ-c 8, kalibrasyon 4 → **≈ 108 T4 saati, ≈ 3,6 Kaggle haftası, T4×2 ile ≈ 1,8** (iyimser 63, kötümser 211).
+`budget.py`'s power function is the same model as `rq_power.py` but vectorized (b + c ~ Binom, b | m ~ Binom); the selftest gives Lecture 26's three values exactly (23 / 15 / 16), n = 300 takes seconds. Reading: for a 15-point threshold at the block level n ≈ 100 suffices (MDE 15), with n = 120 it is 13. The **lean matrix** uses 20 init per task in the core cells: RQ-a 64, RQ-b 31, RQ-c 8, calibration 4 → **≈ 108 T4 hours, ≈ 3.6 Kaggle weeks, ≈ 1.8 with T4×2** (optimistic 63, pessimistic 211).
 
-İki uyarı. (i) Havuz hesabı görevlerin aynı r ters gürültüsüne ve aynı Δ'ya sahip olduğunu varsayıyor; görevler arasında Δ çok değişirse (biri −40, biri 0) havuz ortalaması 20 der ama "her görevde düşüş" demez — o yüzden görev başına Δ'lar yine tabloda, "yön" kipinde raporlanır. (ii) TOST için de aynı mantık: δ = 15 eşdeğerliği n ≈ 25'te, δ = 10 n ≈ 55'te kuruluyordu; görev başına 20 init ile bunlar ancak blokta mümkün. Yalın matris "fark yok" iddiasını da bloğa taşır. Bu, tezin iddia biriminin ne olacağına dair bir karar ve **danışmanla konuşulacak** (Ders 30 listesi): "LIBERO Spatial'ın şu altı görevinde ortalama" mı, "her görevde" mi?
+Two warnings. (i) The pool calculation assumes the tasks have the same reverse noise r and the same Δ; if Δ varies a lot across tasks (one −40, one 0) the pooled average says 20 but does not say "a drop in every task" — that is why the per-task Δs are still in the table, reported in "direction" mode. (ii) The same logic holds for TOST: δ = 15 equivalence was established at n ≈ 25, δ = 10 at n ≈ 55; with 20 init per task these are possible only at the block. The lean matrix moves the "no difference" claim to the block as well. This is a decision about what the thesis's claim unit will be and **will be discussed with the advisor** (Lecture 30 list): "average over these six tasks of LIBERO Spatial", or "in every task"?
 
-Tez bağlantısı: Türkçe mekânsal grounding iddiası tek görevde 23 puandan küçük bir düşüşü asla "ölçülemez"den öteye taşıyamaz; Dong vd.'nin Spatial'daki 35–50 puanlık düşüşleri görev düzeyinde de görünür, Chen'in 7 puanlık Qwen3-VL Çince hücresi gibi bir fark ise ancak blok havuzunda ve n ≥ ~250'de. S-VN ile S-OV arasındaki "hangisi daha az düşüyor" sorusu da aynı sınırla yaşıyor.
+Link to the thesis: the claim of Turkish spatial grounding can never move a drop smaller than 23 points on a single task beyond "unmeasurable"; Dong et al.'s 35–50 point drops on Spatial are visible at the task level too, while a difference like Chen's 7-point Qwen3-VL Chinese cell is visible only in the block pool and at n ≥ ~250. The question "which of S-VN and S-OV drops less" lives with the same limit.
 
 ---
 
-## 6. Bütçeye sığmayanlar ve engelliler — matrisin kırmızı ve taralı hücreleri
+## 6. What does not fit the budget and what is blocked — the red and hatched cells of the matrix
 
-Görsel 03'te taralı çubuklar ön koşulu eksik hücreler, kırmızılar genişletme:
+In figure 03 the hatched bars are cells with a missing precondition, the red ones are extensions:
 
-| hücre | neden bekliyor | açan şey |
+| cell | why it waits | what unlocks it |
 |---|---|---|
-| **B3, B4** (B bloğu, 52 sa orta) | 5 tier-2 çift karşı-olgusal BDDL ister (`datasets/04/data/bddl_cf/`); dosyalar hazır, gerçek env'de yüklenip `check_success`'in `bowl_2`'yi saydığı test edilmedi | bir `env.reset()` + bir `check_success` denemesi (Mac, 5 dk) |
-| **C1** (MT, 19 sa) | MT çıktısı yok (bu ortamda HF erişimi yok) | `mt_layer_mac.py` (Ders 24) Mac'te bir kez → çıktılar CSV |
-| **C3** (QLoRA eğitimi, 65–98 sa) | S9: danışman kararı; Ders 24'ün bütçesi tahmin | danışman + K1 (4-bit S-OV LIBERO'da çalışıyor mu) |
-| **C4** (LoRA eval, 67 sa) | C3'e bağlı | C3 |
-| **B6** (öbür yüzeyler `tr_b`, `tr_bare`; 78 sa) | sığar ama ancak RQ-b birincilse değer | S1 örüntüsü (Ders 26 §6) |
-| **P1** (Ders 18 pilotu) | S1 hâlâ repoda değil (`projects/05-spatial0-4kosul/` yok, `plan/faz3-open-questions.md` Durum boş) | Ders 18 notebook'u |
+| **B3, B4** (block B, 52 h middle) | 5 tier-2 pairs need a counterfactual BDDL (`datasets/04/data/bddl_cf/`); the files are ready, but loading them in a real env and testing that `check_success` counts `bowl_2` has not been done | one `env.reset()` + one `check_success` try (Mac, 5 min) |
+| **C1** (MT, 19 h) | no MT output (no HF access in this environment) | `mt_layer_mac.py` (Lecture 24) once on the Mac → outputs to CSV |
+| **C3** (QLoRA training, 65–98 h) | S9: advisor decision; Lecture 24's budget is an estimate | advisor + K1 (does 4-bit S-OV work on LIBERO) |
+| **C4** (LoRA eval, 67 h) | depends on C3 | C3 |
+| **B6** (other surfaces `tr_b`, `tr_bare`; 78 h) | fits but is worth it only if RQ-b is primary | the S1 pattern (Lecture 26 §6) |
+| **P1** (Lecture 18 pilot) | S1 is still not in the repo (`projects/05-spatial0-4kosul/` does not exist, `plan/faz3-open-questions.md` Status is empty) | the Lecture 18 notebook |
 
-Bir de engel olmayan ama sırayı belirleyen şey: her şey **S1 ve K1/K2'den** sonra. S1 örüntüyü (dolayısıyla hangi RQ'nun birincil olduğunu), K1/K2 gerçek t_call'u (dolayısıyla bütçenin kendisini) verir. Matrisin ilk haftası bu üç küçük hücre: P1 (~2 sa), K1 (~3 sa), K2 (~1 sa). Sonra `budget.py --calls-sv … --calls-ov …` ile bütçe yeniden çıkar, birincil RQ'nun çekirdeği koşulur, öbürleri yalın sürümde.
-
----
-
-## 7. Yazılımcı için köprüler
-
-- **Hücre = CI matrix job'u.** GitHub Actions'taki `strategy.matrix: {os: [...], dotnet: [...]}` gibi: RQ × sistem × suite × koşul açılımı, her kombinasyon ayrı job. `experiment-matrix.csv` o YAML'ın kendisi; `budget.py` "bu matris kaç runner-dakikası yakar" hesabı. Gereksiz kombinasyonu `exclude` ile atarsın — B6 ve C4'ün kırmızı olması bu.
-- **T_ep formülü = kapasite planlaması.** İstek süresi = sabit maliyet (reset) + işlem başı maliyet (adım × t_sim) + downstream çağrı (çağrı × t_call). Profiler'ı açmadan önce hangi terimin domine ettiğini bil: burada downstream (model) %90+; fizik optimizasyonu boşa emek.
-- **chunk = batching / N+1 problemi.** S-OV her adımda modele gidiyor (ORM'de satır başına bir sorgu), S-VN 8 adımı tek çağrıda alıyor (`Include` ile toplu yükleme). Aynı iş, 8 kat az round-trip.
-- **4-bit = farklı build konfigürasyonu.** Release ile Debug aynı kaynak koddan çıkar ama performans testini Debug'da yapıp Release için rapor etmezsin; K1/K3 "bu konfigürasyon yayımlanan davranışla aynı mı" smoke testi, tezde etiket "OpenVLA (4-bit)".
-- **String önbelleği = idempotent istek için memoization.** Aynı girdi + deterministik servis → cevabı yeniden hesaplama. C2'nin 1.200 episode'dan 15'e inmesi bu; önbellek anahtarı komut dizesi + init state + checkpoint hash'i.
-- **50 init tavanı = örneklem tavanı olan A/B testi.** Bir tenant'ta yalnızca 50 kullanıcı varsa o tenant için küçük etkiyi asla göremezsin; tenant'ları havuzlarsın ve sonucu "tüm tenant'larda ortalama" diye raporlarsın. Tekrar ölçüm aynı kullanıcıdan yeni kullanıcı yaratmaz.
+There is also something that is not a blocker but determines the order: everything comes after **S1 and K1/K2**. S1 gives the pattern (hence which RQ is primary), K1/K2 give the real t_call (hence the budget itself). The first week of the matrix is these three small cells: P1 (~2 h), K1 (~3 h), K2 (~1 h). Then the budget is recomputed with `budget.py --calls-sv … --calls-ov …`, the core of the primary RQ is run, the others in the lean version.
 
 ---
 
-## 8. Bugünün görevi (15 dk)
+## 7. Bridges for the software developer
 
-`thesis/experiment-matrix.csv`'yi aç ve **iddia birimi** kararını ver: RQ-a'nın ana iddiası görev düzeyinde mi, blok düzeyinde mi? Karara göre çekirdek hücrelerin `n_init` değerini değiştir (blok → 20, görev → 50) ve `cd code/day27 && python budget.py --lean 20` çalıştır; çıkan "pilot + çekirdek" orta toplamını ve Kaggle hafta sayısını dosyanın altına bir satırla yaz. Sonra iki şeyi kendi hesabından kontrol et: Kaggle → Settings'te haftalık GPU kotan kaç saat görünüyor, ve Mac'te `python sim_step_bench.py --libero <LIBERO klonu> --tasks libero_spatial:0 --steps 30` ile fizik + 128 px render süresini ölç (Mac'te render donanımsal; sayıyı bu dersteki 208 ms ile karşılaştır). Commit: `Ders 27: iddia birimi + kota`. K1'i koşacak vaktin varsa (Kaggle, ~3 saat) ilk çağrı süresini `--calls-ov` ile yerine koy — bu, matrisin ilk gerçek maliyet sayısı olur.
+- **Cell = CI matrix job.** Like `strategy.matrix: {os: [...], dotnet: [...]}` in GitHub Actions: the RQ × system × suite × condition expansion, each combination a separate job. `experiment-matrix.csv` is that YAML itself; `budget.py` is the "how many runner-minutes does this matrix burn" calculation. You drop unnecessary combinations with `exclude` — B6 and C4 being red is this.
+- **The T_ep formula = capacity planning.** Request time = fixed cost (reset) + per-item cost (steps × t_sim) + downstream call (calls × t_call). Before opening the profiler, know which term dominates: here the downstream (model) is 90%+; optimizing physics is wasted effort.
+- **chunk = batching / the N+1 problem.** S-OV goes to the model at every step (one query per row in an ORM), S-VN takes 8 steps in a single call (batch loading with `Include`). The same work, 8 times fewer round trips.
+- **4-bit = a different build configuration.** Release and Debug come from the same source but you do not do the performance test on Debug and report it for Release; K1/K3 is a smoke test of "is this configuration the same as the published behavior", and in the thesis the label is "OpenVLA (4-bit)".
+- **String cache = memoization for idempotent requests.** Same input + deterministic service → do not recompute the answer. C2 dropping from 1,200 episodes to 15 is this; the cache key is command string + init state + checkpoint hash.
+- **The 50-init ceiling = an A/B test with a sample ceiling.** If a tenant has only 50 users, you can never see a small effect for that tenant; you pool the tenants and report the result as "average across all tenants". A repeat measurement does not create new users from the same user.
 
-## Takılırsan
+---
 
-| Belirti | Çözüm |
+## 8. Today's task (15 min)
+
+Open `thesis/experiment-matrix.csv` and decide the **claim unit**: is RQ-a's main claim at the task level or at the block level? According to the decision change the `n_init` value of the core cells (block → 20, task → 50) and run `cd code/day27 && python budget.py --matrix experiment-matrix_v0.1.csv --lean 20` (or without `--matrix` for the current file); write the resulting "pilot + core" middle total and the number of Kaggle weeks as one line at the bottom of the file. Then check two things from your own account: how many hours your weekly GPU quota under Kaggle → Settings shows, and measure the physics + 128 px render time on the Mac with `python sim_step_bench.py --libero <LIBERO clone> --tasks libero_spatial:0 --steps 30` (on the Mac rendering is in hardware; compare the number with the 208 ms in this lecture). Commit: `Lecture 27: claim unit + quota`. If you have time to run K1 (Kaggle, ~3 hours), substitute the first call time with `--calls-ov` — this will be the matrix's first real cost number.
+
+## If you get stuck
+
+| Symptom | Fix |
 |---|---|
-| Colab/Kaggle'da episode beklenenden 3–5× yavaş | Render yazılıma düşmüş olabilir: `MUJOCO_GL=egl` ayarlı mı, `PYOPENGL_PLATFORM=egl` da ayarla; `sim_step_bench.py --tasks libero_spatial:0 --steps 20` ile 128 px adım süresine bak (yazılımsal ~200 ms, donanımsal çok daha az olmalı) |
-| `sim_step_bench.py`: `AssertionError` (`get_joint_qpos_addr`) | mujoco çok yeni (4.x) — robosuite 1.4.1 ile uyumsuz. Mac'te pin `mujoco==2.3.7`; Python 3.12+ Linux'ta 3.3.0 bu oturumda çalıştı |
-| `OSError: libmujoco.so... cannot open` | Eski sürüm kalıntısı: `pip uninstall mujoco`, `site-packages/mujoco` klasörünü sil, yeniden kur |
-| `No module named 'gym'` | LIBERO `envs/venv.py` eski `gym`'i içe aktarıyor: `pip install gym` |
-| `torch.load` → `Weights only load failed` | torch ≥ 2.6; script `weights_only=False` yamasını içeriyor, kendi kodunda da aynısını yap (init dosyaları güvenilir kaynak: LIBERO deposu) |
-| LIBERO interaktif olarak dataset yolu soruyor | Script `LIBERO_CONFIG_PATH`'i `results/.libero_cfg`'ye yönlendirip `config.yaml` yazıyor; kendi kodunda da aynı ortam değişkeni |
-| `budget.py`: `KeyError: 'goal'` | `suite` sütununda iki suite `libero_spatial+libero_goal` diye tam adla yazılmalı |
-| OpenVLA 4-bit T4'te `bitsandbytes` hatası | `pip install bitsandbytes` (CUDA'lı runtime'da); Mac'te 4-bit yok — Mac'te yalnız bf16 (K3) |
+| On Colab/Kaggle the episode is 3–5× slower than expected | Rendering may have fallen to software: is `MUJOCO_GL=egl` set, also set `PYOPENGL_PLATFORM=egl`; look at the 128 px step time with `sim_step_bench.py --tasks libero_spatial:0 --steps 20` (software ~200 ms, hardware should be much less) |
+| `sim_step_bench.py`: `AssertionError` (`get_joint_qpos_addr`) | mujoco is too new (4.x) — incompatible with robosuite 1.4.1. On the Mac pin `mujoco==2.3.7`; on Linux with Python 3.12+ 3.3.0 worked in this session |
+| `OSError: libmujoco.so... cannot open` | Leftover of an old version: `pip uninstall mujoco`, delete the `site-packages/mujoco` folder, reinstall |
+| `No module named 'gym'` | LIBERO `envs/venv.py` imports old `gym`: `pip install gym` |
+| `torch.load` → `Weights only load failed` | torch ≥ 2.6; the script contains the `weights_only=False` patch, do the same in your own code (the init files come from a trusted source: the LIBERO repo) |
+| LIBERO interactively asks for the dataset path | The script redirects `LIBERO_CONFIG_PATH` to `results/.libero_cfg` and writes `config.yaml`; use the same environment variable in your own code |
+| `budget.py`: `KeyError: 'goal'` | In the `suite` column the two suites must be written in full as `libero_spatial+libero_goal` |
+| OpenVLA 4-bit `bitsandbytes` error on the T4 | `pip install bitsandbytes` (in a CUDA runtime); there is no 4-bit on the Mac — on the Mac only bf16 (K3) |
 
 ---
 
-## Sonraki ders (Ders 28)
-**Baseline + ablation tasarımı.** Bugünkü matris *ne koşulacağını* söyledi; Ders 28 *neyle karşılaştırılacağını* yazar. Her RQ için baseline'lar (koşulsuz tavan, `empty`, `wrong`, İngilizce `clean`, LangGap'in EN-B dış referansı) ve ablation'lar: RQ-b'de yüzey ablation'ı (`tr_a → tr_ascii → tr_bare`: harf, ek, ikisi), RQ-c'de MT ve parser'ın "kâhin" sürümleri (insan çevirisi = MT'nin tavanı; doğru şablon = parser'ın tavanı), niceleme ablation'ı (K3: bf16 vs 4-bit) ve sistem farkını parçalamanın bütçemizde mümkün olmadığı (Chen'in StarVLA düzeni) — ne zaman "ablation" deyip ne zaman "betimsel karşılaştırma" diyeceğimiz. Her ablation matrise yeni bir hücre ya da var olan bir hücrenin yeniden okunması olarak eklenir ve `budget.py` ile fiyatlandırılır.
+## Next lecture (Lecture 28)
+**Baseline + ablation design.** Today's matrix said *what will be run*; Lecture 28 writes *what it will be compared with*. For each RQ the baselines (command-free ceiling, `empty`, `wrong`, English `clean`, LangGap's EN-B external reference) and the ablations: for RQ-b a surface ablation (`tr_a → tr_ascii → tr_bare`: letters, suffixes, both), for RQ-c the "oracle" versions of MT and the parser (human translation = MT's ceiling; correct template = the parser's ceiling), the quantization ablation (K3: bf16 vs 4-bit) and that decomposing the system difference is not possible on our budget (Chen's StarVLA setup) — when we say "ablation" and when we say "descriptive comparison". Every ablation is added to the matrix as a new cell or a re-reading of an existing cell and priced with `budget.py`.
 
 ---
 
-## Kaynaklar
-- Çıktı: `thesis/experiment-matrix.csv` (19 hücre, v0.1). Girdiler: `thesis/rq-candidates.md` (Ders 26), `datasets/04/data/pairs.csv` (blok A 6 / B 6 / C 6), Ders 12 (`t4_bench_config.yaml`: chunk 8, `num_parallel_envs`), Ders 14 (Mac MPS tahmini), Ders 18 (episode süresi tahmini, ~96 adım), Ders 24 (`qlora_budget.py` 65–98 sa, parser 79/80).
-- **[1]** Kim vd. (2024). *OpenVLA: An Open-Source Vision-Language-Action Model.* [arXiv:2406.09246](https://arxiv.org/abs/2406.09246) — §3.5 (bf16 ~15 GB; RTX 4090'da ~6 Hz), §5.4 + Tablo 2 (bf16 71,3 % / 16,8 GB; int8 58,1 % / 10,2 GB / A5000 1,2 Hz; int4 71,9 % / 7,0 GB / A5000 3 Hz; BridgeData 8 görev), §6 (action chunking gelecek iş). Kod: [openvla/openvla](https://github.com/openvla/openvla) `c8f03f4` — `experiments/robot/libero/run_libero_eval.py:72-73,156,173-180` (`num_steps_wait` 10, 50 trial, 256 px, max_steps 220/280/300/520), `experiments/robot/openvla_utils.py:48,169` (`load_in_4bit`, `do_sample=False`).
-- **[2]** Xu, Jin, Chen, Wang, Sui, Shi (2026). *VLAQuantBench: Closed-Loop Evaluation of Post-Training Quantization for Vision-Language-Action Models.* [arXiv:2609.25376](https://arxiv.org/abs/2609.25376) · [kod](https://github.com/jiuyixu25/VLAQuantBench) — Tablo 1 (OpenVLA-OFT RTN W4: Spatial 100 → 96, Goal 96 → 82; W8 tabana yakın), Tablo 10 (RTX 4090, OFT: bf16 139,9 ms / 15,0 GiB, NF4 152,6 ms / 6,3 GiB, LLM.int8() 379,5 ms / 9,0 GiB). Doğruluk deneyleri simüle niceleme (makalenin kendi notu). NF4 LIBERO satırları (ek tablo) doğrudan okunamadı.
-- **[3]** Kaggle kotası ve oturum sınırı (ikincil kaynaklar; Kaggle belgesini doğrudan okumadım): [gpuperhour.com, Eyl 2026](https://gpuperhour.com/blog/free-cloud-gpus-and-credits) (Kaggle belgesinden alıntı: 12 sa oturum; "~30 saat" kullanıcı raporu, belgede sayı yok), [awesome-free-compute-2026](https://amitpandeytiktok.github.io/awesome-free-compute-2026/compute.html) (30 GPU sa/hafta, T4×2). Colab ücretsiz katman limitleri yayımlanmıyor ([Colab SSS](https://research.google.com/colaboratory/faq.html)).
-- **[4]** Bellek bant genişlikleri (üretici belgeleri): [NVIDIA T4](https://www.nvidia.com/en-us/data-center/tesla-t4/) 320 GB/s, [RTX A5000](https://www.nvidia.com/en-us/design-visualization/rtx-a5000/) 768 GB/s. "7B üretimi bant genişliğine bağlı" ölçeklemesi bu dersin varsayımı (hipotez).
-- **[5]** LIBERO: Liu vd. (2023), [arXiv:2306.03310](https://arxiv.org/abs/2306.03310) · [Lifelong-Robot-Learning/LIBERO](https://github.com/Lifelong-Robot-Learning/LIBERO) — `get_task_init_states` (4 görevde 50 sayıldı). Güç ve TOST: Ders 26 kaynakları (McNemar exact; Lakens 2017). Dong vd. [2606.11906](https://arxiv.org/abs/2606.11906), Chen vd. [2606.15714](https://arxiv.org/abs/2606.15714) (§5'teki büyüklük karşılaştırması).
-- Kod: `code/day27/` — `sim_step_bench.py` (bu oturumda koştu: Linux, 2 çekirdek, GPU yok, Python 3.13, mujoco 3.3.0, robosuite 1.4.1, torch 2.15; `results/sim_step.csv`), `budget.py` (koştu; selftest OK; `results/budget.csv`, `budget_lean.csv`, `inverse.csv`, `budget_stdout.txt`), `plot_day27.py` (koştu).
-- Görseller: 01 ve 05 Mermaid (`.mmd` yanında); 02 ve 03 `budget.py` **model tahmini** (reset ve fizik ölçülmüş; t_call, render ve başarılı episode uzunluğu senaryo — başlıklarda yazılı); 04 kesin güç hesabı + orta senaryo saat ekseni; 06 **gerçek ölçüm** (`sim_step.csv`). Model bu oturumda çalıştırılmadı (GPU yok); sistem t_call değerleri Mesut'un K1/K2 koşusuyla yerine konacak.
+## References
+- Output: `thesis/experiment-matrix.csv` (19 cells, v0.1). Inputs: `thesis/rq-candidates.md` (Lecture 26), `datasets/04/data/pairs.csv` (block A 6 / B 6 / C 6), Lecture 12 (`t4_bench_config.yaml`: chunk 8, `num_parallel_envs`), Lecture 14 (Mac MPS estimate), Lecture 18 (episode duration estimate, ~96 steps), Lecture 24 (`qlora_budget.py` 65–98 h, parser 79/80).
+- **[1]** Kim et al. (2024). *OpenVLA: An Open-Source Vision-Language-Action Model.* [arXiv:2406.09246](https://arxiv.org/abs/2406.09246) — §3.5 (bf16 ~15 GB; ~6 Hz on an RTX 4090), §5.4 + Table 2 (bf16 71.3% / 16.8 GB; int8 58.1% / 10.2 GB / A5000 1.2 Hz; int4 71.9% / 7.0 GB / A5000 3 Hz; BridgeData 8 tasks), §6 (action chunking is future work). Code: [openvla/openvla](https://github.com/openvla/openvla) `c8f03f4` — `experiments/robot/libero/run_libero_eval.py:72-73,156,173-180` (`num_steps_wait` 10, 50 trials, 256 px, max_steps 220/280/300/520), `experiments/robot/openvla_utils.py:48,169` (`load_in_4bit`, `do_sample=False`).
+- **[2]** Xu, Jin, Chen, Wang, Sui, Shi (2026). *VLAQuantBench: Closed-Loop Evaluation of Post-Training Quantization for Vision-Language-Action Models.* [arXiv:2609.25376](https://arxiv.org/abs/2609.25376) · [code](https://github.com/jiuyixu25/VLAQuantBench) — Table 1 (OpenVLA-OFT RTN W4: Spatial 100 → 96, Goal 96 → 82; W8 close to baseline), Table 10 (RTX 4090, OFT: bf16 139.9 ms / 15.0 GiB, NF4 152.6 ms / 6.3 GiB, LLM.int8() 379.5 ms / 9.0 GiB). The accuracy experiments are simulated quantization (the paper's own note). The NF4 LIBERO rows (appendix table) could not be read directly.
+- **[3]** Kaggle quota and session limit (secondary sources; I did not read the Kaggle documentation directly): [gpuperhour.com, Sep 2026](https://gpuperhour.com/blog/free-cloud-gpus-and-credits) (quote from the Kaggle documentation: 12 h session; "~30 hours" is a user report, no number in the documentation), [awesome-free-compute-2026](https://amitpandeytiktok.github.io/awesome-free-compute-2026/compute.html) (30 GPU h/week, T4×2). Colab free-tier limits are not published ([Colab FAQ](https://research.google.com/colaboratory/faq.html)).
+- **[4]** Memory bandwidths (manufacturer documents): [NVIDIA T4](https://www.nvidia.com/en-us/data-center/tesla-t4/) 320 GB/s, [RTX A5000](https://www.nvidia.com/en-us/design-visualization/rtx-a5000/) 768 GB/s. The scaling "7B generation is bandwidth-bound" is this lecture's assumption (hypothesis).
+- **[5]** LIBERO: Liu et al. (2023), [arXiv:2306.03310](https://arxiv.org/abs/2306.03310) · [Lifelong-Robot-Learning/LIBERO](https://github.com/Lifelong-Robot-Learning/LIBERO) — `get_task_init_states` (50 counted on 4 tasks). Power and TOST: Lecture 26 sources (McNemar exact; Lakens 2017). Dong et al. [2606.11906](https://arxiv.org/abs/2606.11906), Chen et al. [2606.15714](https://arxiv.org/abs/2606.15714) (the magnitude comparison in §5).
+- Code: `code/day27/` — `sim_step_bench.py` (ran in this session: Linux, 2 cores, no GPU, Python 3.13, mujoco 3.3.0, robosuite 1.4.1, torch 2.15; `results/sim_step.csv`), `budget.py` (ran; selftest OK; `results/budget.csv`, `budget_lean.csv`, `inverse.csv`, `budget_stdout.txt`), `plot_day27.py` (ran). Note: the `code/day27/results/*` files and figures 02–04 were produced for the **v0.1 matrix** (`python budget.py --matrix experiment-matrix_v0.1.csv`); the current `thesis/experiment-matrix.csv` is v0.2 (22 cells, AB1–AB3 added in Lecture 28), and its v0.2 numbers are in Lecture 28 (`code/day28/results/budget_v01_v02.csv`).
+- Figures: 01 and 05 are Mermaid (`.mmd` alongside); 02 and 03 are the `budget.py` **model estimate** (reset and physics measured; t_call, rendering and successful episode length are scenarios — stated in the titles); 04 exact power calculation + middle-scenario hour axis; 06 **real measurement** (`sim_step.csv`). The model was not run in this session (no GPU); the systems' t_call values will be substituted with Mesut's K1/K2 run.

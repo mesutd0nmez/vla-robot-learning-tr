@@ -1,25 +1,25 @@
 # day19
 
-Ders 19 — Sonuç analizi: shortcut learning var mı, hangi suite'te? Üç soruya üç araç: (1) Ders 18'in 4 satırlık tablosunu dört örüntüye göre okuyan ve paragraf taslağı üreten `read_patterns.py`; (2) "shortcut yapısal olarak mümkün mü?" sorusunu BDDL'den cevaplayan `suite_structure.py` (Spatial 9/10, Object 10/10, Goal 1/10, Long 9/10); (3) "hangi init state kırılgan?" sorusuna sahne özellikleri çıkaran `init_state_geometry.py` (50 init state, torch/LIBERO kurulmadan). Hiçbiri model/GPU istemez; yalnızca LIBERO deposunun **dosyalarını** okurlar (`git clone --depth 1 https://github.com/Lifelong-Robot-Learning/LIBERO`).
+Lecture 19 — Result analysis: is there shortcut learning, and in which suite? Three questions, three tools: (1) `read_patterns.py`, which reads Lecture 18's 4-row table against four patterns and produces a paragraph draft; (2) `suite_structure.py`, which answers "is a shortcut structurally possible?" from the BDDL files (Spatial 9/10, Object 10/10, Goal 1/10, Long 9/10); (3) `init_state_geometry.py`, which extracts scene features to answer "which init states are fragile?" (50 init states, without installing torch/LIBERO). None of them needs a model/GPU; they only read the **files** of the LIBERO repository (`git clone --depth 1 https://github.com/Lifelong-Robot-Learning/LIBERO`).
 
-| Dosya | Ne | Durum |
+| File | What | Status |
 |---|---|---|
-| `read_patterns.py` | `episodes.csv` → Wilson, Δ, uyumsuz çiftler, McNemar; dört örüntüden (A/B/C/D, C+B, C+D, belirsiz) birine karar; `--features` ile uyumsuz sahnelerin geometrisi, `--labels` ile `grasped_bowl` → faithful/biased; "1 paragraf yorum" taslağı | `--demo` (görsel 07'nin 4 örüntüsü doğru sınıflandı) ve `--selftest` (Ders 18 tablosu → B) geçti; features + labels ile uçtan uca çalıştırıldı |
-| `suite_structure.py` | Dört suite'in BDDL'lerinden sahne imzası (nesne türü + init bölgesi) ve göreli hedef; sahne→hedef bir fonksiyon mu, komutsuz üst sınır kaç; Spatial 10 görev × bölge tablosu | gerçek dosyalarla çalıştırıldı (`libero_suite_task_map.py` sırası) |
-| `init_state_geometry.py` | `.pruned_init` (torch zip içinde numpy pickle) → kısıtlı unpickler ile (50, 92) dizi; nesne (x, y), bölge doğrulaması, kâse–kâse / kâse–tabak mesafeleri, robot eklem sapması → `init_features_task0.csv` | 10 Spatial görevi + Goal görev 8 için çalıştırıldı; 5 nesne × 50 state bölge içinde |
-| `plot_day19.py` | Görsel 02 (komutsuz SR × suite, üç makale + yapısal üst sınır), 03 (50 init state, gerçek), 04 (Spatial sahne matrisi), 05 (LIBERO-CF faithful/biased) | çalıştırıldı |
-| `conditions_goal8.json`, `t4_goal_config.yaml` | Aynı deneyin LIBERO-Goal görev 8'e taşınmış hâli (`wrong` = görev 1 "put the bowl on the stove") | yazıldı; koşulmadı |
+| `read_patterns.py` | `episodes.csv` -> Wilson, Δ, discordant pairs, McNemar; decides on one of the four patterns (A/B/C/D, C+B, C+D, unclear); with `--features` the geometry of the discordant scenes, with `--labels` `grasped_bowl` -> faithful/biased; a "one-paragraph interpretation" draft | `--demo` (the 4 patterns of figure 07 classified correctly) and `--selftest` (Lecture 18 table -> B) passed; run end to end with features + labels |
+| `suite_structure.py` | Scene signature (object type + init region) and relative goal from the BDDLs of the four suites; is scene -> goal a function, what is the no-command upper bound; Spatial 10 tasks × region table | run on the real files (`libero_suite_task_map.py` order) |
+| `init_state_geometry.py` | `.pruned_init` (numpy pickle inside a torch zip) -> (50, 92) array via a restricted unpickler; object (x, y), region verification, bowl-bowl / bowl-plate distances, robot joint deviation -> `init_features_task0.csv` | run for the 10 Spatial tasks + Goal task 8; 5 objects × 50 states inside the region |
+| `plot_day19.py` | Figure 02 (no-command SR × suite, three papers + structural upper bound), 03 (50 init states, real), 04 (Spatial scene matrix), 05 (LIBERO-CF faithful/biased) | ran |
+| `conditions_goal8.json`, `t4_goal_config.yaml` | The same experiment moved to LIBERO-Goal task 8 (`wrong` = task 1 "put the bowl on the stove") | written; not run |
 
-Mac'te (model gerekmez; `vla` env yeter, numpy ve matplotlib):
+On the Mac (no model needed; the `vla` env is enough, numpy and matplotlib):
 ```bash
-git clone --depth 1 https://github.com/Lifelong-Robot-Learning/LIBERO ~/src/LIBERO    # yalnızca dosyaları okuyacağız
+git clone --depth 1 https://github.com/Lifelong-Robot-Learning/LIBERO ~/src/LIBERO    # we will only read the files
 cd code/day19
 python read_patterns.py --demo
 python read_patterns.py --selftest
 python suite_structure.py --libero ~/src/LIBERO
 python init_state_geometry.py --libero ~/src/LIBERO --task 0 --csv init_features_task0.csv
 python plot_day19.py --libero ~/src/LIBERO --out ../../lectures/images/lecture-19
-# Colab koşun bittiğinde (Ders 18 analiz çıktısı):
+# When the Colab run finishes (Lecture 18 analysis output):
 python read_patterns.py ../../projects/05-spatial0-4kosul/results/episodes.csv \
        --features ../../datasets/03-libero-spatial0-4cond/data/init_features_task0.csv \
        --labels   ../../projects/05-spatial0-4kosul/results/grasped.csv      # init_state,condition,grasped_bowl
@@ -28,26 +28,26 @@ python read_patterns.py ../../projects/05-spatial0-4kosul/results/episodes.csv \
 ## read_patterns.py
 
 ```python
-"""Ders 19 — 4 koşullu tabloyu (Ders 18 çıktısı) dört örüntüye göre oku ve "1 paragraf yorum" taslağı üret.
+"""Lecture 19 — read the 4-condition table (Lecture 18 output) against four patterns and produce a "one-paragraph interpretation" draft.
 
-Girdi: Ders 18'in episodes.csv'si (run_id, suite, task_id, condition, init_state, success, ...).
-İsteğe bağlı: --features init_features_task0.csv (init_state_geometry.py) → uyumsuz çiftlerin sahne özellikleri;
-              --labels grasped.csv (init_state, condition, grasped_bowl ∈ {bowl_1, bowl_2, none}) → faithful/biased sayımı.
+Input: Lecture 18's episodes.csv (run_id, suite, task_id, condition, init_state, success, ...).
+Optional: --features init_features_task0.csv (init_state_geometry.py) -> scene features of the discordant pairs;
+          --labels grasped.csv (init_state, condition, grasped_bowl ∈ {bowl_1, bowl_2, none}) -> faithful/biased counts.
 
-Kullanım:
+Usage:
   python read_patterns.py results/episodes.csv [--features init_features_task0.csv] [--labels grasped.csv]
-  python read_patterns.py --demo          # Ders 18 görsel 07'nin dört temsili örüntüsünü sınıflandırır
-  python read_patterns.py --selftest      # Ders 18 selftest tablosu (9/5/7/4) → beklenen çıktı
+  python read_patterns.py --demo          # classifies the four representative patterns of Lecture 18 figure 07
+  python read_patterns.py --selftest      # Lecture 18 selftest table (9/5/7/4) -> expected output
 
-Kurallar (pilot için sezgisel eşikler; parametre, dogma değil):
-  near  = fark ≤ NEAR (varsayılan 15 puan)   → "yakın"
-  far   = fark ≥ FAR  (varsayılan 25 puan)   → "uzak"
-  A  dil görmezden geliniyor : empty ve wrong clean'e yakın
-  C  yanlış komut 'biased'   : wrong clean'e yakın AMA empty uzak (komut 'bir kâse al' diyor, sahne hangisini seçiyor)
-  B  Türkçe okunmuyor        : dil okunuyor (empty uzak) ve tr ≈ empty (tr − empty ≤ NEAR/1.5)
-  D  çok dilli omurga        : dil okunuyor ve tr − empty ≥ FAR
-  aradakiler "belirsiz" → daha çok episode. C, tr eksenine eklenir: "C+B", "C+D" (görsel 07'nin C paneli tr=empty olduğu için C+B'dir).
-Wilson aralıkları çakışıyorsa (n=10'da hemen hep çakışır) sonuç "yön", "bulgu" değil; script bunu her satıra yazar.
+Rules (heuristic thresholds for the pilot; parameters, not dogma):
+  near  = gap ≤ NEAR (default 15 points)   -> "near"
+  far   = gap ≥ FAR  (default 25 points)   -> "far"
+  A  language is ignored       : empty and wrong are near clean
+  C  wrong command 'biased'    : wrong is near clean BUT empty is far (the command says "pick a bowl", the scene chooses which)
+  B  Turkish is not read       : language is read (empty far) and tr ≈ empty (tr − empty ≤ NEAR/1.5)
+  D  multilingual backbone     : language is read and tr − empty ≥ FAR
+  anything in between is "unclear" -> more episodes. C is added to the tr axis: "C+B", "C+D" (panel C of figure 07 has tr=empty, so it is C+B).
+If the Wilson intervals overlap (almost always at n=10) the result is a "direction", not a "finding"; the script writes this on every row.
 """
 import argparse, csv, math, pathlib, sys
 from collections import OrderedDict, defaultdict
@@ -81,55 +81,55 @@ def load_episodes(path):
 
 
 def classify(sr, near=NEAR, far=FAR):
-    """sr: {koşul: yüzde}. Dönüş: (harf, gerekçe listesi)."""
+    """sr: {condition: percent}. Returns (letter, list of reasons)."""
     c, e, w, t = sr["clean"], sr["empty"], sr.get("wrong"), sr.get("tr")
     why = []
     gap_e = c - e
     lang_read = gap_e >= far
     if gap_e <= near and (w is None or c - w <= near):
-        why.append(f"empty clean'e yakın (Δ={gap_e:+.0f}); wrong da yakın" if w is not None else f"empty clean'e yakın (Δ={gap_e:+.0f})")
+        why.append(f"empty is near clean (Δ={gap_e:+.0f}); wrong is near too" if w is not None else f"empty is near clean (Δ={gap_e:+.0f})")
         return "A", why
     if w is not None and c - w <= near and lang_read:
-        why.append(f"wrong clean'e yakın (Δ={c - w:+.0f}) ama empty uzak (Δ={gap_e:+.0f}) → komutun 'bir kâse al' kısmı okunuyor, hedef sahneden")
+        why.append(f"wrong is near clean (Δ={c - w:+.0f}) but empty is far (Δ={gap_e:+.0f}) -> the 'pick a bowl' part of the command is read, the target comes from the scene")
         letter_w = "C"
     else:
         letter_w = None
     if t is not None and lang_read:
         if t - e <= near / 1.5:
-            why.append(f"tr ≈ empty (tr−empty={t - e:+.0f}) → Türkçe'den sahnenin üstüne bir şey çıkmıyor")
+            why.append(f"tr ≈ empty (tr−empty={t - e:+.0f}) -> nothing beyond the scene is gained from Turkish")
             return (letter_w or "B") if letter_w != "C" else "C+B", why
         if t - e >= far:
-            why.append(f"tr empty'nin çok üstünde (tr−empty={t - e:+.0f}) → Türkçe'den en azından nesne/eylem çıkıyor")
+            why.append(f"tr is well above empty (tr−empty={t - e:+.0f}) -> at least the object/action is extracted from Turkish")
             return (letter_w or "D") if letter_w != "C" else "C+D", why
-        why.append(f"tr empty ile clean arasında (tr−empty={t - e:+.0f}): B ile D arasında belirsiz")
-        return (letter_w or "belirsiz"), why
+        why.append(f"tr is between empty and clean (tr−empty={t - e:+.0f}): unclear between B and D")
+        return (letter_w or "unclear"), why
     if letter_w:
         return letter_w, why
-    why.append(f"empty düşüşü {gap_e:+.0f} puan: {near} ile {far} arasında — ne 'görmezden geliyor' ne 'okuyor' denebilir")
-    return "belirsiz", why
+    why.append(f"empty drop {gap_e:+.0f} points: between {near} and {far} — one can say neither 'ignores' nor 'reads'")
+    return "unclear", why
 
 
 def paragraph(letter, rows, n):
     c = rows["clean"]; e = rows["empty"]; w = rows.get("wrong"); t = rows.get("tr")
-    head = {"A": "Bu pilotta komutun içeriği sonucu değiştirmedi",
-            "B": "Model komutu okuyor ama Türkçe komut sahne tabanının üstüne çıkmıyor",
-            "C": "Model komutun eylem kısmını okuyor, hedef nesneyi sahneden seçiyor",
-            "D": "Türkçe komut sahne tabanının belirgin üstünde",
-            "C+B": "Yanlış komut 'biased', Türkçe komut tabanda", "C+D": "Yanlış komut 'biased' ama Türkçe'den bir şey çıkıyor",
-            "belirsiz": "Pilot yön vermiyor"}[letter]
-    s = (f"{head}: LIBERO-Spatial görev 0'da {n} eşli init state'te success rate clean {c['k']}/{n}, empty {e['k']}/{n}"
+    head = {"A": "In this pilot the content of the command did not change the result",
+            "B": "The model reads the command but the Turkish command does not rise above the scene baseline",
+            "C": "The model reads the action part of the command and picks the target object from the scene",
+            "D": "The Turkish command is clearly above the scene baseline",
+            "C+B": "Wrong command is 'biased', Turkish command is at the baseline", "C+D": "Wrong command is 'biased' but something is gained from Turkish",
+            "unclear": "The pilot gives no direction"}[letter]
+    s = (f"{head}: on {n} paired init states of LIBERO-Spatial task 0, success rate is clean {c['k']}/{n}, empty {e['k']}/{n}"
          + (f", wrong {w['k']}/{n}" if w else "") + (f", tr {t['k']}/{n}" if t else "") + ". ")
-    s += f"Uyumsuz çiftler (clean✓x✗ / clean✗x✓): empty {e['b']}/{e['c']}" + (f", wrong {w['b']}/{w['c']}" if w else "") + (f", tr {t['b']}/{t['c']}" if t else "") + ". "
-    s += ("Wilson %95 aralıkları çakıştığı için bu bir yön bulgusudur; 50 init state'lik koşu (Ders 18 §5) aynı oranları verirse "
-          "anlamlılık ve etki büyüklüğü birlikte raporlanır. ")
+    s += f"Discordant pairs (clean✓x✗ / clean✗x✓): empty {e['b']}/{e['c']}" + (f", wrong {w['b']}/{w['c']}" if w else "") + (f", tr {t['b']}/{t['c']}" if t else "") + ". "
+    s += ("Because the Wilson 95% intervals overlap, this is a directional finding; if the 50-init-state run (Lecture 18 §5) gives the same rates, "
+          "significance and effect size are reported together. ")
     if letter in ("A",):
-        s += "Spatial görev 0'da sahne görevi tek başına belirliyor (suite_structure.py: 10 görevin 9'u sahneden ayrışır); Türkçe etkisi bu görevde ölçülemez — Goal suite'e geç."
+        s += "In Spatial task 0 the scene alone determines the task (suite_structure.py: 9 of the 10 tasks are separable from the scene); the Turkish effect cannot be measured on this task — move to the Goal suite."
     elif letter.startswith("C"):
-        s += "`wrong` videolarındaki grasped_bowl etiketi biased (bowl_1) ağırlıklıysa LIBERO-CF'in 'vision overrides language' örüntüsü; faithful (bowl_2) ağırlıklıysa model komutu okuyor ve success metriği onu cezalandırıyor."
+        s += "If the grasped_bowl labels in the `wrong` videos are mostly biased (bowl_1), this is LIBERO-CF's 'vision overrides language' pattern; if mostly faithful (bowl_2), the model reads the command and the success metric penalizes it."
     elif letter in ("B", "C+B"):
-        s += "Chen vd.'nin 'yabancı dil ≈ komut yok' örüntüsü; tokenizasyon (Ders 21) ve çeviri katmanı / Türkçe LoRA (Ders 23) karşılaştırmasının gerekçesi."
+        s += "Chen et al.'s 'foreign language ≈ no command' pattern; the rationale for comparing tokenization (Lecture 21) with a translation layer / Turkish LoRA (Lecture 23)."
     elif letter in ("D", "C+D"):
-        s += "Qwen3-VL'nin çok dilli ön-eğitimi Türkçe'den nesne/eylem çıkarıyor olabilir (hipotez); mekânsal ilişkinin (arasındaki) okunup okunmadığı distractor koşuluyla ayrıca test edilmeli (Ders 15)."
+        s += "Qwen3-VL's multilingual pre-training may be extracting the object/action from Turkish (hypothesis); whether the spatial relation (arasındaki, 'which is between') is read must be tested separately with a distractor condition (Lecture 15)."
     return s
 
 
@@ -145,48 +145,48 @@ def report(eps, features=None, labels=None, near=NEAR, far=FAR, title=""):
                          disc=[i for i in common if base[i] != d[i]])
     if title:
         print(f"\n=== {title}")
-    print(f"| koşul | k/n | SR | Wilson | Δ | uyumsuz b/c | McNemar | clean ile aralık |")
+    print(f"| condition | k/n | SR | Wilson | Δ | discordant b/c | McNemar | interval vs clean |")
     print("|---|---|---|---|---|---|---|---|")
     cl = rows["clean"]
     for cnd, r in rows.items():
-        overlap = "—" if cnd == "clean" else ("çakışıyor → yön" if r["hi"] >= cl["lo"] and cl["hi"] >= r["lo"] else "ayrışıyor")
+        overlap = "—" if cnd == "clean" else ("overlaps -> direction" if r["hi"] >= cl["lo"] and cl["hi"] >= r["lo"] else "separated")
         d = "—" if cnd == "clean" else f"{r['sr'] - cl['sr']:+.0f}"
         pm = "—" if cnd == "clean" else ("—" if r["p"] != r["p"] else f"{r['p']:.3f}")
         print(f"| {cnd} | {r['k']}/{r['n']} | {r['sr']:.0f}% | {r['lo']:.0f}–{r['hi']:.0f} | {d} | {'—' if cnd == 'clean' else f'{r['b']}/{r['c']}'} | {pm} | {overlap} |")
     sr = {c_: r["sr"] for c_, r in rows.items()}
     letter, why = classify(sr, near, far)
-    print(f"\nÖrüntü: **{letter}**  (eşikler: yakın ≤ {near}, uzak ≥ {far} puan)")
+    print(f"\nPattern: **{letter}**  (thresholds: near ≤ {near}, far ≥ {far} points)")
     for w_ in why:
         print(f"  - {w_}")
-    # uyumsuz çiftler sahne bazında
+    # discordant pairs per scene
     disc_all = sorted({i for c_, r in rows.items() if c_ != "clean" for i in r["disc"]})
     if disc_all:
-        print("\nUyumsuz init state'ler (clean ile farklı sonuç veren sahneler):")
+        print("\nDiscordant init states (scenes whose outcome differs from clean):")
         for i in disc_all:
             marks = " ".join(f"{c_}={'✓' if eps[c_][i] else '✗'}" for c_ in order)
             extra = ""
             if features and i in features:
                 f_ = features[i]
-                extra = f"  | kâse–kâse {100 * f_['d_bowl1_bowl2']:.1f} cm, hedef–tabak {100 * f_['d_bowl1_plate']:.1f} cm, robot sapma {f_['robot_q_dev']:.3f} rad"
+                extra = f"  | bowl-bowl {100 * f_['d_bowl1_bowl2']:.1f} cm, target-plate {100 * f_['d_bowl1_plate']:.1f} cm, robot deviation {f_['robot_q_dev']:.3f} rad"
             print(f"  init {i:2d}: {marks}{extra}")
         if features:
             fd = [features[i]["robot_q_dev"] for i in disc_all if i in features]
             fa = [features[i]["robot_q_dev"] for i in base if i in features]
             if fd and fa:
-                print(f"  robot başlangıç sapması: uyumsuz sahnelerde medyan {sorted(fd)[len(fd) // 2]:.3f} rad, tüm sahnelerde {sorted(fa)[len(fa) // 2]:.3f} rad "
-                      f"(fark büyükse kırılganlık robotun başlangıç pozundan; nesneler ±1.5 cm içinde, Ders 19 §3)")
+                print(f"  robot initial deviation: median {sorted(fd)[len(fd) // 2]:.3f} rad in discordant scenes, {sorted(fa)[len(fa) // 2]:.3f} rad in all scenes "
+                      f"(if the gap is large, the fragility comes from the robot's initial pose; objects are within ±1.5 cm, Lecture 19 §3)")
     if labels:
         cnt = defaultdict(lambda: defaultdict(int))
         for (cnd, i), g in labels.items():
             cnt[cnd][g] += 1
-        print("\ngrasped_bowl etiketleri (videodan, elle):")
+        print("\ngrasped_bowl labels (from video, by hand):")
         for cnd, d in cnt.items():
             tot = sum(d.values())
             s_ = ", ".join(f"{g}: {v}/{tot}" for g, v in sorted(d.items()))
             if cnd == "wrong":
-                s_ += f"  → faithful (bowl_2) {100 * d.get('bowl_2', 0) / tot:.0f}%, biased (bowl_1) {100 * d.get('bowl_1', 0) / tot:.0f}% (LIBERO-CF grounding ölçüsünün elle sayılmış hâli)"
+                s_ += f"  -> faithful (bowl_2) {100 * d.get('bowl_2', 0) / tot:.0f}%, biased (bowl_1) {100 * d.get('bowl_1', 0) / tot:.0f}% (hand-counted version of the LIBERO-CF grounding measure)"
             print(f"  {cnd}: {s_}")
-    print("\nParagraf taslağı:\n" + paragraph(letter, rows, n))
+    print("\nParagraph draft:\n" + paragraph(letter, rows, n))
     return letter
 
 
@@ -194,17 +194,17 @@ def demo():
     pats = {"A": (9, 8, 8, 8), "B": (9, 4, 4, 4), "C": (9, 4, 8, 4), "D": (9, 4, 4, 7)}
     for name, (c, e, w, t) in pats.items():
         eps = {"clean": {i: i < c for i in range(10)}, "empty": {i: i < e for i in range(10)}, "wrong": {i: i < w for i in range(10)}, "tr": {i: i < t for i in range(10)}}
-        got = report(eps, title=f"temsili örüntü {name} (Ders 18 görsel 07)")
+        got = report(eps, title=f"representative pattern {name} (Lecture 18 figure 07)")
         assert got == {"A": "A", "B": "B", "C": "C+B", "D": "D"}[name], (name, got)
-    print("\ndemo OK: dört temsili örüntü doğru sınıflandı")
+    print("\ndemo OK: the four representative patterns were classified correctly")
 
 
 def selftest():
     pattern = {"clean": [1, 1, 1, 1, 1, 1, 1, 1, 1, 0], "empty": [1, 1, 0, 1, 0, 1, 0, 0, 1, 0],
                "wrong": [1, 1, 1, 0, 1, 1, 1, 0, 1, 0], "tr": [1, 0, 0, 1, 0, 0, 1, 0, 1, 0]}
     eps = {c: {i: bool(v) for i, v in enumerate(vs)} for c, vs in pattern.items()}
-    got = report(eps, title="Ders 18 selftest tablosu (TEMSİLİ)")
-    assert got == "B", got   # empty −40 (uzak), wrong −20 (ne yakın ne uzak → C değil), tr−empty = −10 ≤ 10 → tr ≈ empty → B
+    got = report(eps, title="Lecture 18 selftest table (REPRESENTATIVE)")
+    assert got == "B", got   # empty −40 (far), wrong −20 (neither near nor far -> not C), tr−empty = −10 ≤ 10 -> tr ≈ empty -> B
     print("\nselftest OK")
 
 
@@ -220,10 +220,10 @@ def main():
     if a.selftest:
         return selftest()
     if not a.episodes:
-        ap.error("episodes.csv ver (ya da --demo / --selftest)")
+        ap.error("give episodes.csv (or --demo / --selftest)")
     eps = load_episodes(a.episodes)
     if "clean" not in eps or "empty" not in eps:
-        sys.exit("episodes.csv'de clean ve empty koşulları gerekli")
+        sys.exit("episodes.csv needs the clean and empty conditions")
     feats = None
     if a.features:
         with open(a.features, encoding="utf-8") as f:
@@ -242,18 +242,18 @@ if __name__ == "__main__":
 ## suite_structure.py
 
 ```python
-"""Ders 19 — "Shortcut mümkün mü?" sorusunu BDDL'den oku: dört LIBERO suite'inde sahne (nesneler + init bölgeleri)
-hedefi (goal) tek başına belirliyor mu?
+"""Lecture 19 — read the question "is a shortcut possible?" off the BDDL files: in the four LIBERO suites, does the scene
+(objects + init regions) alone determine the goal?
 
-Mantık: bir policy komutu hiç okumadan görevi ancak sahne görevi "söylüyorsa" çözebilir. Suite'teki her görev için
-  sahne imzası = (nesne türleri çoklu kümesi, her nesnenin init bölgesi; aynı türden nesneler ayırt edilemez)
-  hedef       = (:goal) ifadesi
-Aynı sahne imzasına birden fazla hedef düşüyorsa sahne→görev bir fonksiyon değildir: komut okunmadan görev seçilemez.
+Logic: a policy can solve a task without reading the command at all only if the scene "tells" it the task. For each task in the suite
+  scene signature = (multiset of object types, init region of each object; objects of the same type are indistinguishable)
+  goal            = the (:goal) expression
+If more than one goal falls on the same scene signature, scene -> task is not a function: the task cannot be chosen without reading the command.
 
-Kullanım:
-  python suite_structure.py --libero /yol/LIBERO            # klon kökü (libero/libero/bddl_files altını okur)
-  python suite_structure.py --libero /yol/LIBERO --out results/suite_structure.csv --md results/suite_structure.md
-Yalnızca dosya okur (regex ile); LIBERO paketini import etmez, model/GPU gerekmez.
+Usage:
+  python suite_structure.py --libero /path/LIBERO            # clone root (reads under libero/libero/bddl_files)
+  python suite_structure.py --libero /path/LIBERO --out results/suite_structure.csv --md results/suite_structure.md
+Only reads files (with regex); does not import the LIBERO package, no model/GPU needed.
 """
 import argparse, csv, pathlib, re
 from collections import Counter, defaultdict
@@ -277,16 +277,16 @@ def parse_bddl(path):
     init = re.findall(r"\((On|In)\s+(\S+)\s+(\S+)\)", init_txt)
     where = {o: reg for _, o, reg in init}
     goal = re.sub(r"\s+", " ", re.search(r"\(:goal\s*(.*?)\)\s*\)\s*$", t, re.S).group(1).strip())
-    # sahne imzası: nesne TÜRÜ + bölge (adlar değil: iki siyah kâse görüntüde ayırt edilemez)
+    # scene signature: object TYPE + region (not names: two black bowls are indistinguishable in the image)
     scene = tuple(sorted((objs.get(o, o), reg) for _, o, reg in init if o in objs))
     fixtures = tuple(sorted((o, reg) for _, o, reg in init if o not in objs))
-    # göreli hedef: nesne adlarını "tür@init-bölgesi" ile değiştir → aynı sahnede farklı fiziksel hedefler ayrışır
+    # relative goal: replace object names with "type@init-region" -> different physical goals in the same scene become distinct
     rel_goal = re.sub(r"\b([a-z_]+_\d)\b", lambda m_: f"{objs.get(m_.group(1), m_.group(1))}@{where.get(m_.group(1), '-')}", goal)
     return dict(task=path.stem, language=lang, objects=objs, where=where, scene=scene, fixtures=fixtures, goal=goal, rel_goal=rel_goal)
 
 
 def official_order(root, suite):
-    """libero_suite_task_map.py'deki sıra (benchmark'ın task_id'si; alfabetik DEĞİL). Dosya okunur, import edilmez."""
+    """Order in libero_suite_task_map.py (the benchmark's task_id; NOT alphabetical). The file is read, not imported."""
     t = (root / "libero" / "libero" / "benchmark" / "libero_suite_task_map.py").read_text(encoding="utf-8")
     block = re.search(r'"%s":\s*\[(.*?)\]' % suite, t, re.S).group(1)
     return re.findall(r'"([^"]+)"', block)
@@ -303,9 +303,9 @@ def analyze(root):
             by_scene[t["scene"] + t["fixtures"]].append(t)
         n_scenes = len(scenes)
         max_share = max(scenes.values())
-        # sahneden hedef çıkar mı: her sahneye tek hedef düşüyorsa evet
+        # does the goal follow from the scene: yes if exactly one goal falls on each scene
         deterministic = all(len({x["rel_goal"] for x in v}) == 1 for v in by_scene.values())
-        # komut okunmadan en iyi durumda (sahneye en sık düşen hedefi seçerek) kaç görev çözülür
+        # in the best case without reading the command (picking the most frequent goal per scene), how many tasks are solved
         best_blind = sum(max(Counter(x["rel_goal"] for x in v).values()) for v in by_scene.values())
         obj_sets = Counter(tuple(sorted(Counter(t["objects"].values()).items())) for t in tasks)
         rows.append(dict(suite=suite, n_tasks=len(tasks), n_scenes=n_scenes, n_object_sets=len(obj_sets),
@@ -316,7 +316,7 @@ def analyze(root):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--libero", required=True, help="LIBERO klon kökü")
+    ap.add_argument("--libero", required=True, help="LIBERO clone root")
     ap.add_argument("--out", default=None)
     ap.add_argument("--md", default=None)
     a = ap.parse_args()
@@ -325,27 +325,27 @@ def main():
     print("| " + " | ".join(hdr) + " |"); print("|" + "---|" * len(hdr))
     for r in rows:
         print("| " + " | ".join(str(r[h]) for h in hdr) + " |")
-    print("\nAçıklama: n_scenes = farklı sahne imzası (nesne türü + init bölgesi; fixture dahil); scene_determines_goal = her sahneye tek hedef;"
-          "\nblind_upper_bound = komutu hiç okumayan ama sahneyi mükemmel tanıyan bir policy'nin çözebileceği görev sayısı (üst sınır).")
+    print("\nLegend: n_scenes = distinct scene signatures (object type + init region; fixtures included); scene_determines_goal = exactly one goal per scene;"
+          "\nblind_upper_bound = number of tasks a policy that never reads the command but recognizes the scene perfectly could solve (upper bound).")
     sp = next(r for r in rows if r["suite"] == "libero_spatial")
     short = lambda reg: reg.replace("main_table_", "").replace("wooden_cabinet_1_", "cab:").replace("flat_stove_1_", "stove:").replace("_region", "")
-    print("\nlibero_spatial — görev: kâse bölgeleri (BDDL :init) → hedef kâse (:goal):")
+    print("\nlibero_spatial — task: bowl regions (BDDL :init) -> target bowl (:goal):")
     for i, t in enumerate(sp["tasks"]):
         tgt = re.search(r"\(On\s+(\S+)\s+plate_1\)", t["goal"]).group(1)
-        print(f"  {i}: bowl_1@{short(t['where']['akita_black_bowl_1']):<22} bowl_2@{short(t['where']['akita_black_bowl_2']):<22} hedef={tgt} ({short(t['where'][tgt])})")
-    role = defaultdict(lambda: {"hedef": [], "öteki": []})
+        print(f"  {i}: bowl_1@{short(t['where']['akita_black_bowl_1']):<22} bowl_2@{short(t['where']['akita_black_bowl_2']):<22} target={tgt} ({short(t['where'][tgt])})")
+    role = defaultdict(lambda: {"target": [], "other": []})
     for i, t in enumerate(sp["tasks"]):
         tgt = re.search(r"\(On\s+(\S+)\s+plate_1\)", t["goal"]).group(1)
         for o in ("akita_black_bowl_1", "akita_black_bowl_2"):
-            role[short(t["where"][o])]["hedef" if o == tgt else "öteki"].append(i)
-    print("\nBölge → hangi görevlerde hedef / öteki kâse:")
+            role[short(t["where"][o])]["target" if o == tgt else "other"].append(i)
+    print("\nRegion -> in which tasks it holds the target / other bowl:")
     for reg, d in sorted(role.items()):
-        print(f"  {reg:<22} hedef:{d['hedef']}  öteki:{d['öteki']}")
-    print("\nAynı sahne imzasını paylaşan görevler (komut okunmadan ayrılamaz):")
+        print(f"  {reg:<22} target:{d['target']}  other:{d['other']}")
+    print("\nTasks sharing the same scene signature (cannot be told apart without reading the command):")
     for r in rows:
         for v in r["by_scene"].values():
             if len(v) > 1:
-                print(f"  {r['suite']}: " + " | ".join(f"{x['task']} → {x['rel_goal']}" for x in v))
+                print(f"  {r['suite']}: " + " | ".join(f"{x['task']} -> {x['rel_goal']}" for x in v))
     if a.out:
         with open(a.out, "w", newline="", encoding="utf-8") as f:
             w = csv.writer(f); w.writerow(hdr)
@@ -363,20 +363,21 @@ if __name__ == "__main__":
 ## init_state_geometry.py
 
 ```python
-"""Ders 19 — "Hangi init state'ler kırılgan, kâseler yakınsa mı?" sorusuna veri: LIBERO-Spatial'ın 50 init state'ini
-torch/LIBERO/MuJoCo OLMADAN oku, nesne konumlarını çıkar, BDDL bölgeleriyle doğrula, sahne-başına özellik tablosu yaz.
+"""Lecture 19 — data for the question "which init states are fragile, and is it when the bowls are close?": read the 50 init
+states of LIBERO-Spatial WITHOUT torch/LIBERO/MuJoCo, extract the object positions, verify them against the BDDL regions,
+and write a per-scene feature table.
 
-.pruned_init dosyası torch.save(numpy_array) → zip içinde numpy pickle; burada kısıtlı bir Unpickler ile açılır (yalnızca
-numpy ndarray/dtype kurucularına izin verilir). Dizi (50, 92): MuJoCo flatten state = [time(1) | qpos | qvel].
-qpos = 7 kol eklemi + 2 gripper + nesne başına 7 (x y z | qw qx qy qz) — nesne sırası BDDL (:objects) sırası.
-Bu sıra VARSAYIM değil, kontrol: her nesnenin (x, y)'si kendi BDDL init bölgesinin (2 cm × 2 cm) ±1.5 cm komşuluğunda mı?
+A .pruned_init file is torch.save(numpy_array) -> a numpy pickle inside a zip; here it is opened with a restricted
+Unpickler (only numpy ndarray/dtype constructors are allowed). Array (50, 92): MuJoCo flattened state = [time(1) | qpos | qvel].
+qpos = 7 arm joints + 2 gripper + 7 per object (x y z | qw qx qy qz) — the object order is the BDDL (:objects) order.
+This order is not an ASSUMPTION but a check: is each object's (x, y) within +-1.5 cm of its own BDDL init region (2 cm x 2 cm)?
 
-Kullanım:
-  python init_state_geometry.py --libero /yol/LIBERO                      # 10 görevin özeti
-  python init_state_geometry.py --libero /yol/LIBERO --task 0 --csv init_features_task0.csv
-Çıktı CSV (init_state anahtarı Ders 18'in episodes.csv'siyle birleşir):
+Usage:
+  python init_state_geometry.py --libero /path/LIBERO                      # summary of the 10 tasks
+  python init_state_geometry.py --libero /path/LIBERO --task 0 --csv init_features_task0.csv
+Output CSV (the init_state key joins with Lecture 18's episodes.csv):
   init_state, bowl1_x, bowl1_y, bowl2_x, bowl2_y, plate_x, plate_y, d_bowl1_bowl2, d_bowl1_plate, d_bowl2_plate,
-  robot_q_dev (7 eklemin görev-ortalamasından sapma normu, rad), robot_q1..q7
+  robot_q_dev (norm of the deviation of the 7 joints from the task mean, rad), robot_q1..q7
 """
 import argparse, codecs, csv, io, pathlib, pickle, re, zipfile
 import numpy as np
@@ -388,7 +389,7 @@ N_ARM, N_GRIP = 7, 2
 class _NumpyOnly(pickle.Unpickler):
     def find_class(self, mod, name):
         if (mod, name) in {("numpy.core.multiarray", "_reconstruct"), ("numpy._core.multiarray", "_reconstruct")}:
-            import numpy._core.multiarray as m  # numpy>=2; numpy<2'de numpy.core.multiarray
+            import numpy._core.multiarray as m  # numpy>=2; for numpy<2 it is numpy.core.multiarray
             return m._reconstruct
         if (mod, name) == ("numpy", "ndarray"):
             return np.ndarray
@@ -396,7 +397,7 @@ class _NumpyOnly(pickle.Unpickler):
             return np.dtype
         if (mod, name) == ("_codecs", "encode"):
             return codecs.encode
-        raise pickle.UnpicklingError(f"izin verilmeyen nesne: {mod}.{name}")
+        raise pickle.UnpicklingError(f"disallowed object: {mod}.{name}")
 
 
 def load_init(path):
@@ -428,13 +429,13 @@ def parse_bddl(path):
 
 
 def object_xy(states, k):
-    """k. nesnenin (x, y, z) sütunları: 1 + 9 + 7k."""
+    """(x, y, z) columns of the k-th object: 1 + 9 + 7k."""
     base = 1 + N_ARM + N_GRIP + 7 * k
     return states[:, base:base + 3], states[:, base + 3:base + 7]
 
 
 def check_regions(states, info, tol=0.015):
-    """Masa bölgeli nesneler için: (x, y) bölge dikdörtgeninin tol komşuluğunda mı? → (nesne, bölge, uyan sayısı, n)"""
+    """For objects with a table region: is (x, y) within tol of the region rectangle? -> (object, region, matching count, n)"""
     out = []
     for k, o in enumerate(info["objects"]):
         reg = info["where"].get(o)
@@ -465,9 +466,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--libero", required=True)
     ap.add_argument("--suite", default="libero_spatial")
-    ap.add_argument("--task", type=int, default=None, help="tek görev; verilmezse 10 görevin özeti")
+    ap.add_argument("--task", type=int, default=None, help="single task; if omitted, a summary of all 10 tasks")
     ap.add_argument("--csv", default=None)
-    ap.add_argument("--n", type=int, default=None, help="yalnızca ilk n init state (Ders 18 pilotu: 10)")
+    ap.add_argument("--n", type=int, default=None, help="only the first n init states (Lecture 18 pilot: 10)")
     a = ap.parse_args()
     root = pathlib.Path(a.libero)
     names = official_order(root, a.suite)
@@ -477,31 +478,31 @@ def main():
         info = parse_bddl(root / "libero/libero/bddl_files" / a.suite / f"{name}.bddl")
         states = load_init(root / "libero/libero/init_files" / a.suite / f"{name}.pruned_init")
         raw = root / "libero/libero/init_files" / a.suite / f"{name}.init"
-        n_all = load_init(raw).shape[0] if raw.exists() else "yok"
+        n_all = load_init(raw).shape[0] if raw.exists() else "none"
         if a.n:
             states = states[:a.n]
         qpos_len = 1 + N_ARM + N_GRIP + 7 * len(info["objects"])
-        print(f"\n[{ti}] {name}\n  state {states.shape} (.init: {n_all} durum; .pruned_init: {len(states)}), nesneler {info['objects']}, "
-              f"beklenen qpos uzunluğu {qpos_len} → kalan {states.shape[1] - qpos_len} değer qvel (hepsi 0: {np.allclose(states[:, qpos_len:], 0)})")
+        print(f"\n[{ti}] {name}\n  state {states.shape} (.init: {n_all} states; .pruned_init: {len(states)}), objects {info['objects']}, "
+              f"expected qpos length {qpos_len} -> remaining {states.shape[1] - qpos_len} values are qvel (all 0: {np.allclose(states[:, qpos_len:], 0)})")
         for o, reg, ok, n in check_regions(states, info):
-            print(f"  bölge kontrolü {o:<32} {reg:<26} {ok}/{n} init state bölgenin ±1.5 cm içinde")
+            print(f"  region check {o:<32} {reg:<26} {ok}/{n} init states within ±1.5 cm of the region")
         q = states[:, 1:1 + N_ARM]
-        print(f"  robot eklem std (rad): {np.round(q.std(0), 3)}  | sapma normu medyan {np.median(np.linalg.norm(q - q.mean(0), axis=1)):.3f}, maks {np.linalg.norm(q - q.mean(0), axis=1).max():.3f}")
+        print(f"  robot joint std (rad): {np.round(q.std(0), 3)}  | deviation norm median {np.median(np.linalg.norm(q - q.mean(0), axis=1)):.3f}, max {np.linalg.norm(q - q.mean(0), axis=1).max():.3f}")
         for k, o in enumerate(info["objects"]):
             xyz, quat = object_xy(states, k)
             print(f"  {o:<32} x {xyz[:, 0].mean():+.3f}±{xyz[:, 0].std():.3f}  y {xyz[:, 1].mean():+.3f}±{xyz[:, 1].std():.3f}  z {xyz[:, 2].mean():.3f}  "
-                  f"yayılım (maks-min) x {np.ptp(xyz[:, 0]) * 100:.1f} cm, y {np.ptp(xyz[:, 1]) * 100:.1f} cm  | quat sabit: {np.allclose(quat, quat[0], atol=1e-3)}")
+                  f"spread (max-min) x {np.ptp(xyz[:, 0]) * 100:.1f} cm, y {np.ptp(xyz[:, 1]) * 100:.1f} cm  | quat constant: {np.allclose(quat, quat[0], atol=1e-3)}")
         if "akita_black_bowl_1" in info["objects"] and "akita_black_bowl_2" in info["objects"]:
             rows = features(states, info)
             d12 = np.array([r["d_bowl1_bowl2"] for r in rows]); d1p = np.array([r["d_bowl1_plate"] for r in rows])
-            print(f"  kâse–kâse mesafesi {d12.mean() * 100:.1f} cm (min {d12.min() * 100:.1f}, maks {d12.max() * 100:.1f}); hedef kâse–tabak {d1p.mean() * 100:.1f} cm "
-                  f"(min {d1p.min() * 100:.1f}, maks {d1p.max() * 100:.1f})")
+            print(f"  bowl-bowl distance {d12.mean() * 100:.1f} cm (min {d12.min() * 100:.1f}, max {d12.max() * 100:.1f}); target bowl-plate {d1p.mean() * 100:.1f} cm "
+                  f"(min {d1p.min() * 100:.1f}, max {d1p.max() * 100:.1f})")
             if a.csv and a.task is not None:
                 with open(a.csv, "w", newline="", encoding="utf-8") as f:
                     w = csv.DictWriter(f, fieldnames=list(rows[0])); w.writeheader()
                     for r in rows:
                         w.writerow({k: (f"{v:.4f}" if isinstance(v, float) else v) for k, v in r.items()})
-                print(f"  → {a.csv} ({len(rows)} satır)")
+                print(f"  -> {a.csv} ({len(rows)} rows)")
 
 
 if __name__ == "__main__":
@@ -511,12 +512,12 @@ if __name__ == "__main__":
 ## plot_day19.py
 
 ```python
-"""Ders 19 görselleri (matplotlib). Gerçek değerler: makale tabloları (kaynak başlıkta), BDDL ve .pruned_init dosyaları.
-  python plot_day19.py --libero /yol/LIBERO --out ../../lectures/images/lecture-19
-Görsel 02: komutsuz success rate × suite (Chen Ø / Zhan blank / Fang vision-only) + yapısal üst sınır (suite_structure.py)
-Görsel 03: LIBERO-Spatial görev 0'ın 50 init state'i (gerçek), BDDL bölgeleri, kâse–kâse mesafe dağılımı
-Görsel 04: Spatial 10 görev × bölge matrisi (hedef/öteki kâse) — görev 7 ve 9 aynı sahne
-Görsel 05: LIBERO-CF grounding: faithful vs biased (Fang vd. Tablo III)
+"""Lecture 19 figures (matplotlib). Real values: paper tables (source in the header), BDDL and .pruned_init files.
+  python plot_day19.py --libero /path/LIBERO --out ../../lectures/images/lecture-19
+Figure 02: no-command success rate × suite (Chen Ø / Zhan blank / Fang vision-only) + structural upper bound (suite_structure.py)
+Figure 03: the 50 init states of LIBERO-Spatial task 0 (real), BDDL regions, bowl-bowl distance distribution
+Figure 04: Spatial 10 tasks × region matrix (target/other bowl) — tasks 7 and 9 are the same scene
+Figure 05: LIBERO-CF grounding: faithful vs biased (Fang et al. Table III)
 """
 import argparse, pathlib, sys
 import numpy as np
@@ -529,22 +530,22 @@ Y, B, G, R = "#ffd166", "#cfe8ff", "#d4f5d4", "#ffd6d6"
 YE, BE, GE, RE = "#b8860b", "#3b6fa0", "#2e8b57", "#c0392b"
 SUITES = ["Spatial", "Object", "Goal", "Long"]
 
-# ---- gerçek değerler (makale tabloları) ----
-# Chen vd. 2606.15714 Tablo 6, Ø (komutsuz) sütunu; en sütunu parantezde
+# ---- real values (paper tables) ----
+# Chen et al. 2606.15714 Table 6, Ø (no-command) column; the en column in parentheses
 CHEN = {"π0.5": {"en": [97.5, 99.0, 94.0, 93.0], "Ø": [66.0, 64.5, 9.0, 70.0]},
         "OpenVLA-OFT": {"en": [93.5, 100.0, 97.5, 94.5], "Ø": [80.0, 91.5, 10.0, 76.5]},
         "Qwen3-VL-π": {"en": [93.0, 99.5, 97.0, 96.5], "Ø": [41.0, 57.5, 6.0, 60.0]},
         "Qwen3-VL-OFT": {"en": [92.5, 100.0, 99.0, 91.0], "Ø": [34.0, 42.5, 8.5, 45.0]}}
-# Zhan vd. 2601.04052 Tablo 8/9: original / blank
+# Zhan et al. 2601.04052 Table 8/9: original / blank
 ZHAN = {"π0.5": {"orig": [95.4, 98.4, 97.2, 89.6], "blank": [65.0, 51.8, 11.4, 72.0]},
         "π0": {"orig": [96.8, 98.8, 95.8, 85.2], "blank": [29.8, 41.2, 4.6, 25.2]}}
-# Fang vd. 2602.17659 Tablo I: V+L / vision-only
+# Fang et al. 2602.17659 Table I: V+L / vision-only
 FANG = {"π0.5": {"vl": [98.8, 98.2, 98.0, 92.4], "v": [68.2, 56.6, 10.2, 71.6]},
         "OpenVLA-OFT": {"vl": [97.6, 98.4, 97.9, 94.5], "v": [83.2, 98.2, 10.0, 85.0]},
         "π0": {"vl": [96.8, 98.8, 95.8, 85.2], "v": [28.0, 26.8, 3.4, 15.6]}}
-# suite_structure.py çıktısı: komutu okumayan ama sahneyi mükemmel tanıyan policy'nin üst sınırı (görev sayısı / 10)
+# suite_structure.py output: upper bound of a policy that does not read the command but recognizes the scene perfectly (number of tasks / 10)
 BLIND = {"Spatial": 90, "Object": 100, "Goal": 10, "Long": 90}
-# Fang vd. Tablo III, grounding (faithful / biased), CAG yok
+# Fang et al. Table III, grounding (faithful / biased), no CAG
 CF = {"OpenVLA-OFT": {"CF-Spatial": (6.8, 84.7), "CF-Object": (2.0, 99.6), "CF-Long": (4.0, 62.9), "CF-OOD": (6.0, 87.3)},
       "π0": {"CF-Spatial": (70.9, 37.1), "CF-Object": (6.0, 59.4), "CF-Long": (20.4, 83.1), "CF-OOD": (18.0, 72.4)},
       "π0.5": {"CF-Spatial": (39.3, 61.3), "CF-Object": (11.4, 68.8), "CF-Long": (51.6, 58.4), "CF-OOD": (20.7, 74.0)}}
@@ -562,14 +563,14 @@ def fig02(out):
             ax.bar(x, vals[si], color=fc, edgecolor=ec, linewidth=1.2)
             ax.text(x, vals[si] + 1.5, f"{vals[si]:.0f}", ha="center", fontsize=8)
         ax.axhline(BLIND[suite], color="k", ls="--", lw=1.2)
-        ax.text(len(series) - 0.4, BLIND[suite] + (2.5 if BLIND[suite] > 50 else 14), f"yapısal üst sınır {BLIND[suite]}", ha="right", fontsize=8.5, fontweight="bold")
+        ax.text(len(series) - 0.4, BLIND[suite] + (2.5 if BLIND[suite] > 50 else 14), f"structural upper bound {BLIND[suite]}", ha="right", fontsize=8.5, fontweight="bold")
         ax.set_title(f"LIBERO-{suite}", fontsize=12)
         ax.set_xticks(xs); ax.set_xticklabels([s[0].replace(" — ", "\n") for s in series], rotation=90, fontsize=7.5)
         ax.set_ylim(0, 108); ax.grid(axis="y", alpha=0.3); ax.spines[["top", "right"]].set_visible(False)
-    axes[0].set_ylabel("success rate (%) — KOMUTSUZ")
-    fig.suptitle("Komutsuz (boş / Ø / vision-only) success rate × suite — üç makale, gerçek tablo değerleri; kesikli çizgi: komutu okumayan ama sahneyi\n"
-                 "mükemmel tanıyan policy'nin üst sınırı (BDDL'den, suite_structure.py: Spatial 9/10, Object 10/10, Goal 1/10, Long 9/10). "
-                 "Kaynak: Chen vd. 2606.15714 T6; Zhan vd. 2601.04052 T9; Fang vd. 2602.17659 T1", fontsize=9.5)
+    axes[0].set_ylabel("success rate (%) — NO COMMAND")
+    fig.suptitle("No-command (empty / Ø / vision-only) success rate × suite — three papers, real table values; dashed line: upper bound of a policy that does not read\n"
+                 "the command but recognizes the scene perfectly (from BDDL, suite_structure.py: Spatial 9/10, Object 10/10, Goal 1/10, Long 9/10). "
+                 "Source: Chen et al. 2606.15714 T6; Zhan et al. 2601.04052 T9; Fang et al. 2602.17659 T1", fontsize=9.5)
     fig.tight_layout(rect=[0, 0, 1, 0.9]); fig.savefig(out / "02-empty-by-suite.png", dpi=150); plt.close(fig)
 
 
@@ -581,8 +582,8 @@ def fig03(out, libero):
     info = parse_bddl(root / "libero/libero/bddl_files/libero_spatial" / f"{name}.bddl")
     st = load_init(root / "libero/libero/init_files/libero_spatial" / f"{name}.pruned_init")
     fig, (ax, ax2) = plt.subplots(1, 2, figsize=(14, 6), gridspec_kw={"width_ratios": [1.6, 1]})
-    colors = {"akita_black_bowl_1": (Y, YE, "hedef kâse (bowl_1)"), "akita_black_bowl_2": (R, RE, "öteki kâse (bowl_2) — 'wrong' komutun hedefi"),
-              "plate_1": (G, GE, "tabak"), "cookies_1": (B, BE, "kurabiye kutusu"), "glazed_rim_porcelain_ramekin_1": ("#eeeeee", "#777777", "ramekin")}
+    colors = {"akita_black_bowl_1": (Y, YE, "target bowl (bowl_1)"), "akita_black_bowl_2": (R, RE, "other bowl (bowl_2) — target of the 'wrong' command"),
+              "plate_1": (G, GE, "plate"), "cookies_1": (B, BE, "cookie box"), "glazed_rim_porcelain_ramekin_1": ("#eeeeee", "#777777", "ramekin")}
     for k, o in enumerate(info["objects"]):
         xyz, _ = object_xy(st, k); fc, ec, lab = colors[o]
         reg = info["regions"][info["where"][o]][1]
@@ -590,18 +591,18 @@ def fig03(out, libero):
         ax.scatter(xyz[:, 1], xyz[:, 0], s=28, c=fc, edgecolors=ec, linewidths=0.6, label=lab, zorder=3, alpha=0.6)
         ax.scatter(xyz[:10, 1], xyz[:10, 0], s=70, facecolors="none", edgecolors="#333333", linewidths=0.9, zorder=4)
         ax.text(xyz[:, 1].mean(), xyz[:, 0].mean() + 0.03, lab.split(" — ")[0], ha="center", fontsize=8.5)
-    ax.scatter([], [], s=70, facecolors="none", edgecolors="k", label="siyah halka: ilk 10 init state (Ders 18 pilotu)")
-    ax.set_xlabel("y (m) — masa boyunca"); ax.set_ylabel("x (m) — robota doğru azalır (kamera robotun karşısında, Ders 17)")
+    ax.scatter([], [], s=70, facecolors="none", edgecolors="k", label="black ring: first 10 init states (Lecture 18 pilot)")
+    ax.set_xlabel("y (m) — along the table"); ax.set_ylabel("x (m) — decreases toward the robot\n(camera faces the robot, Lecture 17)")
     ax.set_aspect("equal"); ax.grid(alpha=0.3); ax.legend(fontsize=8, loc="lower left"); ax.set_ylim(-0.24, 0.12)
-    ax.set_title("LIBERO-Spatial görev 0: 50 init state'in nesne konumları (GERÇEK, .pruned_init)\nkesikli kutular = BDDL :init bölgeleri (2 cm × 2 cm); nesneler fiziksel oturmadan sonra ±1.5 cm içinde", fontsize=10)
+    ax.set_title("LIBERO-Spatial task 0: object positions of the 50 init states (REAL, .pruned_init)\ndashed boxes = BDDL :init regions (2 cm × 2 cm); objects within ±1.5 cm after physical settling", fontsize=10)
     b1, _ = object_xy(st, 0); b2, _ = object_xy(st, 1); pl, _ = object_xy(st, 4)
     d12 = np.linalg.norm(b1[:, :2] - b2[:, :2], axis=1) * 100; d1p = np.linalg.norm(b1[:, :2] - pl[:, :2], axis=1) * 100
     q = st[:, 1:8]; qdev = np.linalg.norm(q - q.mean(0), axis=1)
-    ax2.hist(d12, bins=12, color=R, edgecolor=RE, label=f"kâse–kâse: {d12.mean():.1f} cm (min {d12.min():.1f}, maks {d12.max():.1f})")
-    ax2.hist(d1p, bins=12, color=G, edgecolor=GE, alpha=0.9, label=f"hedef kâse–tabak: {d1p.mean():.1f} cm (min {d1p.min():.1f}, maks {d1p.max():.1f})")
-    ax2.set_xlabel("mesafe (cm)"); ax2.set_ylabel("init state sayısı (50)")
-    ax2.set_title(f"Sahneler birbirine ne kadar benziyor?\nnesne yayılımı ≤ 3 cm; kâse yönelimi sabit\nrobot eklem std ≈ {q.std(0).mean():.3f} rad (~1°), sapma normu medyan {np.median(qdev):.3f} rad\n"
-                  f"(karş. LIBERO-Plus robot bozulması 0.1–0.5 rad, Ders 17)", fontsize=10)
+    ax2.hist(d12, bins=12, color=R, edgecolor=RE, label=f"bowl-bowl: {d12.mean():.1f} cm (min {d12.min():.1f}, max {d12.max():.1f})")
+    ax2.hist(d1p, bins=12, color=G, edgecolor=GE, alpha=0.9, label=f"target bowl-plate: {d1p.mean():.1f} cm (min {d1p.min():.1f}, max {d1p.max():.1f})")
+    ax2.set_xlabel("distance (cm)"); ax2.set_ylabel("number of init states (50)")
+    ax2.set_title(f"How similar are the scenes to each other?\nobject spread ≤ 3 cm; bowl orientation constant\nrobot joint std ≈ {q.std(0).mean():.3f} rad (~1°), deviation norm median {np.median(qdev):.3f} rad\n"
+                  f"(cf. LIBERO-Plus robot perturbation 0.1–0.5 rad, Lecture 17)", fontsize=10)
     ax2.legend(fontsize=8.5); ax2.grid(alpha=0.3); ax2.spines[["top", "right"]].set_visible(False)
     fig.tight_layout(); fig.savefig(out / "03-init-states-task0.png", dpi=150); plt.close(fig)
 
@@ -625,8 +626,8 @@ def fig04(out, libero):
     ax.imshow(M, cmap=cmap, vmin=0, vmax=2, aspect="auto")
     for ti in range(10):
         for rj in range(len(regions)):
-            if M[ti, rj] == 2: ax.text(rj, ti, "HEDEF", ha="center", va="center", fontsize=8.5, fontweight="bold", color=YE)
-            elif M[ti, rj] == 1: ax.text(rj, ti, "öteki", ha="center", va="center", fontsize=8.5, color=RE)
+            if M[ti, rj] == 2: ax.text(rj, ti, "TARGET", ha="center", va="center", fontsize=8.5, fontweight="bold", color=YE)
+            elif M[ti, rj] == 1: ax.text(rj, ti, "other", ha="center", va="center", fontsize=8.5, color=RE)
     labels = [f"{ti}: …{re.sub(r'pick_up_the_black_bowl_|_and_place_it_on_the_plate', '', n).replace('_', ' ')}" for ti, n in enumerate(names)]
     ax.set_yticks(range(10)); ax.set_yticklabels(labels, fontsize=9)
     ax.set_xticks(range(len(regions))); ax.set_xticklabels(regions, rotation=35, ha="right", fontsize=9)
@@ -634,10 +635,10 @@ def fig04(out, libero):
     ax.grid(which="minor", color="#dddddd", lw=0.8); ax.tick_params(which="minor", length=0)
     for ti in (7, 9):
         ax.add_patch(Rectangle((-0.5, ti - 0.5), len(regions), 1, fill=False, ec="k", lw=2.2))
-    ax.text(len(regions) - 0.5, 8.0, "görev 7 ve 9: AYNI sahne (ocak + dolap üstü),\nhedef ters — yalnızca komut ayırır", ha="right", va="center", fontsize=9.5,
+    ax.text(len(regions) - 0.5, 8.0, "tasks 7 and 9: SAME scene (stove + top of cabinet),\ntarget reversed — only the command tells them apart", ha="right", va="center", fontsize=9.5,
             bbox=dict(boxstyle="round", fc="white", ec="k"))
-    ax.set_title("LIBERO-Spatial: hangi görevde iki kâse nerede? (BDDL :init, gerçek; satır = görev, sütun = bölge)\n"
-                 "10 görevin 9'u sahneden ayrışır → komutu okumayan policy'nin üst sınırı 9/10; görev 0'ın 'wrong' komutu (= görev 1) bowl_2'nin bölgesini tarif eder", fontsize=10.5)
+    ax.set_title("LIBERO-Spatial: where are the two bowls in each task? (BDDL :init, real; row = task, column = region)\n"
+                 "9 of the 10 tasks are separable from the scene -> upper bound 9/10 for a policy that does not read the command; task 0's 'wrong' command (= task 1) describes bowl_2's region", fontsize=10.5)
     fig.tight_layout(); fig.savefig(out / "04-spatial-scene-matrix.png", dpi=150); plt.close(fig)
 
 
@@ -647,16 +648,16 @@ def fig05(out):
     for ax, (model, d) in zip(axes, CF.items()):
         xs = np.arange(len(suites)); w = 0.38
         f = [d[s][0] for s in suites]; b = [d[s][1] for s in suites]
-        ax.bar(xs - w / 2, f, w, color=G, edgecolor=GE, label="faithful: komuttaki nesneye dokundu")
-        ax.bar(xs + w / 2, b, w, color=R, edgecolor=RE, label="biased: eğitimdeki görevin nesnesine dokundu")
+        ax.bar(xs - w / 2, f, w, color=G, edgecolor=GE, label="faithful: touched the object in the command")
+        ax.bar(xs + w / 2, b, w, color=R, edgecolor=RE, label="biased: touched the object of the training task")
         for x, (fv, bv) in enumerate(zip(f, b)):
             ax.text(x - w / 2, fv + 1.5, f"{fv:.0f}", ha="center", fontsize=8.5); ax.text(x + w / 2, bv + 1.5, f"{bv:.0f}", ha="center", fontsize=8.5)
         ax.set_xticks(xs); ax.set_xticklabels(suites, fontsize=9); ax.set_title(model, fontsize=12)
         ax.set_ylim(0, 108); ax.grid(axis="y", alpha=0.3); ax.spines[["top", "right"]].set_visible(False)
     axes[0].set_ylabel("grounding (%)")
     h, l = axes[0].get_legend_handles_labels(); fig.legend(h, l, loc="lower center", ncol=2, fontsize=9, frameon=False, bbox_to_anchor=(0.5, 0.0))
-    fig.suptitle("LIBERO-CF (Fang vd. 2602.17659, Tablo III, CAG yok): karşı-olgusal komutta gripper hangi nesneye gitti?\n"
-                 "Bizim 'wrong' satırımızdaki grasped_bowl etiketi bunun elle sayılmış hâli: bowl_2 = faithful, bowl_1 = biased", fontsize=10)
+    fig.suptitle("LIBERO-CF (Fang et al. 2602.17659, Table III, no CAG): which object did the gripper go to under the counterfactual command?\n"
+                 "The grasped_bowl label in our 'wrong' row is a hand-counted version of this: bowl_2 = faithful, bowl_1 = biased", fontsize=10)
     fig.tight_layout(rect=[0, 0.06, 1, 0.9]); fig.savefig(out / "05-cf-faithful-biased.png", dpi=150); plt.close(fig)
 
 
@@ -681,14 +682,14 @@ if __name__ == "__main__":
 ## t4_goal_config.yaml
 
 ```yaml
-# Ders 19 — aynı dört koşullu deney LIBERO-Goal görev 8'de ("put the bowl on the plate"): tek sahne, 10 hedef → komutsuz taban ≈ %10.
-# Ders 18'in t4_cond_config.yaml'ından yalnızca iki satır farklı: checkpoint ve task_suite_name. Yamalar aynı (Ders 12 + Ders 18).
-# Checkpoint: hf download DravenALG/VLANeXt VLANeXt_libero_goal.pt --local-dir checkpoints   (16.4 GB; Spatial checkpoint'i Goal'da KULLANILMAZ)
-# Kullanım (VLANeXt kökünde):
+# Lecture 19 — the same four-condition experiment on LIBERO-Goal task 8 ("put the bowl on the plate"): one scene, 10 goals -> no-command baseline ≈ 10%.
+# Differs from Lecture 18's t4_cond_config.yaml in only two lines: checkpoint and task_suite_name. Same patches (Lecture 12 + Lecture 18).
+# Checkpoint: hf download DravenALG/VLANeXt VLANeXt_libero_goal.pt --local-dir checkpoints   (16.4 GB; the Spatial checkpoint is NOT used on Goal)
+# Usage (in the VLANeXt root):
 #   VLANEXT_TASK_IDS=8 VLANEXT_CONDITIONS="$(cat conditions_goal8.json)" VLANEXT_RUN_TAG=_goal8_4cond \
 #   python -m scripts.libero_bench_eval --config config/t4_goal_config.yaml
-# wrong = Goal görev 1'in komutu ("put the bowl on the stove"): aynı sahnede uygulanabilir, hedef farklı → success(wrong) yalnızca
-# orijinal hedefi (bowl on plate) ölçer; ≈ 0 çıkarsa model komutu okuyor, ≈ clean çıkarsa sahne komutu eziyor (Ders 19 §6).
+# wrong = the command of Goal task 1 ("put the bowl on the stove"): feasible in the same scene, different goal -> success(wrong) measures only
+# the original goal (bowl on plate); if it comes out ≈ 0 the model reads the command, if ≈ clean the scene overrides the command (Lecture 19 §6).
 data:
   augmentation:
     center_crop: true

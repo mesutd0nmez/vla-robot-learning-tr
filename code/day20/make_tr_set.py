@@ -1,18 +1,20 @@
-"""Ders 20 — 20 çiftlik EN–TR mekânsal komut setini üretir: datasets/04-tr-spatial-commands/data/{pairs,commands}.csv
+"""Lecture 20 — generates the 20-pair EN–TR spatial command set: datasets/04-tr-spatial-commands/data/{pairs,commands}.csv
 
-Tasarım (derste Bölüm 5):
-  A (6)  LIBERO-Spatial'ın EĞİTİLMİŞ komutları — seçim: "X'in REL-POSS-LOC-ki siyah kaseyi al ..."
-  B (6)  aynı Spatial sahnelerinde HİÇBİR eğitim cümlesine denk düşmeyen tarifler (sol/sağ/ön, robota/tabağa yakın-uzak);
-         hangi kâsenin kastedildiği scene_frames.py'nin 50 init state'ten hesapladığı referents.csv'den okunur
-  C (6)  LIBERO-Goal'ın eğitilmiş komutları — yerleştirme: "... X'in REL-POSS-DAT koy"
-  D (2)  eğitilmemiş yerleştirme (sağına / soluna): predicate yok → bugün yalnızca dil tarafı (Ders 21 tokenizasyon)
+Design (Section 5 of the lecture):
+  A (6)  the TRAINED commands of LIBERO-Spatial — selection: "X'in REL-POSS-LOC-ki siyah kaseyi al ..." (take the black bowl that is REL of X ...)
+  B (6)  descriptions in the same Spatial scenes that match NO training sentence (left/right/front, near/far from the robot/plate);
+         which bowl is meant is read from referents.csv, which scene_frames.py computes from the 50 init states
+  C (6)  the trained commands of LIBERO-Goal — placement: "... X'in REL-POSS-DAT koy" (put ... on REL of X)
+  D (2)  untrained placement (to the right / to the left): no predicate -> today only the language side (Lecture 21 tokenization)
 
-Her çift için 5 yüzey: en | tr_a (ek üreticiyle ÜRETİLİR, ayrımıyla) | tr_b (elle yazılmış ikinci biçim) |
-  tr_ascii (tr_a'nın Türkçe karaktersiz hâli) | tr_bare (ekleri atılmış sözcük torbası)   → 20 × 5 = 100 satır.
+5 surface forms per pair: en | tr_a (GENERATED with the suffix generator, with its segmentation) | tr_b (a second, hand-written form) |
+  tr_ascii (tr_a without Turkish characters) | tr_bare (bag of words with the suffixes stripped)   -> 20 × 5 = 100 rows.
 
-Kullanım:
+Note: the cell values written to pairs.csv / commands.csv (relation, evet/hayır, note, ...) are DATA and deliberately stay Turkish.
+
+Usage:
   python make_tr_set.py --out ../../datasets/04-tr-spatial-commands/data [--referents .../referents.csv] [--libero ~/src/LIBERO]
-  --libero verilirse EN komutun LIBERO'nun 130 görev adında geçip geçmediği (en_seen_*) doldurulur.
+  If --libero is given, en_seen_* is filled in: whether the EN command occurs among LIBERO's 130 task names.
 """
 import argparse, csv, pathlib, re
 import tr_morph as M
@@ -21,7 +23,7 @@ TR2ASCII = str.maketrans("çğıöşüâîû", "cgiosuaiu")
 
 
 def N(lemma, c="nom", poss=False):
-    """Ad + hâl → (yüzey, ayrım, yalın). poss=True: lemma zaten iyelikli tamlama (kurabiye kutusu, şarap şişesi)."""
+    """Noun + case → (surface, segmentation, bare). poss=True: lemma is already a possessive compound (kurabiye kutusu, şarap şişesi)."""
     s, seg = M.case(lemma, c, poss=poss)
     return (s, seg, lemma)
 
@@ -41,7 +43,7 @@ def W(*words):
 
 
 def POSSN(owner_gen, head, c, ki=False):
-    """Belirtili tamlamanın iyelikli başı: (dolab-ın) üst çekmece-si-nde-ki."""
+    """Possessed head of a definite compound: (dolab-ın) üst çekmece-si-nde-ki."""
     p, pseg = M.poss3(head)
     s, seg = M.case(p, c, poss=True, seg=pseg)
     if ki:
@@ -60,8 +62,8 @@ BASE = {0: "pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_i
         9: "pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate"}
 PICK = "pick up the black bowl {} and place it on the plate"
 
-# (id, blok, tier, suite, sahne görevi, ilişki, ilişki adı, hâl, çerçeveye bağlı mı, EN, tr_a parçaları, ilişki sözcüğünün parça indeksi,
-#  referans adın parça indeksi (yoksa None), tr_b, descriptor (referents.csv anahtarı ya da None), goal predicate, not)
+# (id, block, tier, suite, scene task, relation, relational noun, case, frame-dependent?, EN, tr_a parts, part index of the relation word,
+#  part index of the reference noun (None if absent), tr_b, descriptor (referents.csv key or None), goal predicate, note)
 P = [
  ("A01", "A", 1, "libero_spatial", 0, "2 referans", "ara", "LOC+ki", "hayır", PICK.format("between the plate and the ramekin"),
   [N("tabak")] + W("ile") + [N("ramekin", "gen"), R("ara", "loc", True)] + SEL_TAIL, 3, 2,
@@ -124,7 +126,7 @@ P = [
   [N("kase", "acc"), N("tabak", "gen"), R("sol", "dat")] + W("koy"), 2, 1,
   "tabağın sol tarafına kâseyi koy", None, "yok — yeni bölge predicate'i gerekir", "D19'un minimal çifti: sağ-ı-na / sol-u-na (I ünlüsü ı/u)"),
 ]
-COMPLEMENT = {"right": ("left", True), "far_plate": ("near_plate", True)}   # öteki kâse
+COMPLEMENT = {"right": ("left", True), "far_plate": ("near_plate", True)}   # the other bowl
 
 
 def load_referents(path):
@@ -172,7 +174,7 @@ def main():
         tr_bare = " ".join(p[2] for p in parts)
         tr_ascii = tr_a.translate(TR2ASCII)
         rl = {f: referent(refs, task, desc, f) for f in ("libero", "image", "robot", "none")} if desc else {}
-        if desc and rl["none"][0]:                       # çerçeveden bağımsız tarif: üç sütuna aynı değer
+        if desc and rl["none"][0]:                       # frame-independent description: the same value in all three columns
             rl = {f: rl["none"] for f in rl}
         row = dict(pair_id=pid, block=block, tier=tier, suite=suite, scene_task_id=task, relation=relation, rel_noun=relnoun,
                    case=case, frame_dependent=framedep, en=en, tr_a=tr_a, tr_a_seg=tr_seg, tr_b=tr_b, tr_ascii=tr_ascii, tr_bare=tr_bare,
@@ -192,7 +194,7 @@ def main():
     for name, rows in [("pairs.csv", pairs), ("commands.csv", cmds)]:
         with open(out / name, "w", newline="", encoding="utf-8") as f:
             w = csv.DictWriter(f, fieldnames=list(rows[0])); w.writeheader(); w.writerows(rows)
-    print(f"yazıldı: {out/'pairs.csv'} ({len(pairs)} çift), {out/'commands.csv'} ({len(cmds)} satır)\n")
+    print(f"written: {out/'pairs.csv'} ({len(pairs)} pairs), {out/'commands.csv'} ({len(cmds)} rows)\n")
     for r in pairs:
         ref = "" if r["ref_libero"] in ("n/a",) else f"  [libero {r['ref_libero']} | image {r['ref_image']} | robot {r['ref_robot']}]"
         print(f"{r['pair_id']} T{r['tier']} {r['en']}\n      {r['tr_a']}\n      {r['tr_a_seg']}{ref}")

@@ -1,21 +1,21 @@
 flowchart TB
-  subgraph H["Heilmeier soruları"]
-    H1["Ne yapmaya çalışıyorsun, jargonsuz?"]:::in
-    H2["Bugün nasıl yapılıyor, sınırı ne?"]:::in
-    H3["Yeni olan ne, neden işe yarar?"]:::in
-    H4["Kimin umurunda, başarırsan ne değişir?"]:::in
-    H5["Riskler neler?"]:::in
-    H6["Ne kadara, ne kadar sürede?"]:::in
-    H7["Ara ve son sınav ne?"]:::in
+  subgraph H["Heilmeier questions"]
+    H1["What are you trying to do, without jargon?"]:::in
+    H2["How is it done today, what is the limit?"]:::in
+    H3["What is new, why would it work?"]:::in
+    H4["Who cares, what changes if you succeed?"]:::in
+    H5["What are the risks?"]:::in
+    H6["How much, how long?"]:::in
+    H7["What are the mid-term and final exams?"]:::in
   end
   subgraph O["proposal-v0.1.md"]
-    O2["2 Amaç"]:::key
-    O1["1 Problem ve önem"]:::key
-    O4["4 Yöntem: boş-komut tabanı, eşli tasarım"]:::key
-    O5["5 Beklenen katkılar"]:::out
-    O7["7 Riskler ve B planları"]:::prob
-    O6["6 Takvim: T4 saati, 16 hafta"]:::out
-    O6b["6 Takvim: hafta 5 RQ-a tablosu, hafta 16 taslak"]:::out
+    O2["2 Aim"]:::key
+    O1["1 Problem and significance"]:::key
+    O4["4 Method: empty-command baseline, paired design"]:::key
+    O5["5 Expected contributions"]:::out
+    O7["7 Risks and plan Bs"]:::prob
+    O6["6 Schedule: T4 hours, 16 weeks"]:::out
+    O6b["6 Schedule: week 5 RQ-a table, week 16 draft"]:::out
   end
   H1 --> O2
   H2 --> O1

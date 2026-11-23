@@ -5,18 +5,18 @@ flowchart TD
     classDef bad fill:#ffd6d6,stroke:#b00020,color:#000
 
     D["datasets/01 commands.csv<br/>sp0_tr: <i>tabak ile ramekinin arasındaki siyah kaseyi al ve tabağın üstüne koy</i>"]:::inp
-    K["Kural kontrolü (check_text)<br/>küçük harf? ';' yok? parantez yok? U+0307 yok?"]:::key
-    F["base.bddl kopyala, yalnızca (:language ...) değiştir<br/>→ base_language_tr1.bddl"]:::key
-    P["bddl.parsing.scan_tokens ile geri oku<br/>modele gidecek metin == yazılan?"]:::key
-    M["libero_suite_task_map.py<br/>listenin SONUNA:<br/>base_language_tr1_view_0_0_100_0_0_initstate_0"]:::key
-    J["task_classification.json<br/>id = son + 1, category = Language Instructions,<br/>difficulty_level = null"]:::key
-    E["VLANEXT_TASK_IDS = yeni indeksler<br/>(0 tabanlı = eski liste uzunluğu, +1, ...)<br/>libero_plus_bench_eval.py"]:::out
-    X["HATA: Missing close parenthesis / TypeError<br/>ya da 'Işığın' → 'işığın', 'İ' → 'i'+U+0307"]:::bad
-    ALT["Alternatif yol (Ders 16): BDDL'e dokunma,<br/>VLANEXT_INSTR_OVERRIDE ile eval katmanında ver<br/>(büyük/küçük harf korunur; 46 varyantla aynı protokol DEĞİL)"]:::inp
+    K["Rule check (check_text)<br/>lowercase? no ';'? no parentheses? no U+0307?"]:::key
+    F["copy base.bddl, change only (:language ...)<br/>→ base_language_tr1.bddl"]:::key
+    P["read back with bddl.parsing.scan_tokens<br/>text sent to the model == text written?"]:::key
+    M["libero_suite_task_map.py<br/>at the END of the list:<br/>base_language_tr1_view_0_0_100_0_0_initstate_0"]:::key
+    J["task_classification.json<br/>id = last + 1, category = Language Instructions,<br/>difficulty_level = null"]:::key
+    E["VLANEXT_TASK_IDS = new indices<br/>(0-based = old list length, +1, ...)<br/>libero_plus_bench_eval.py"]:::out
+    X["ERROR: Missing close parenthesis / TypeError<br/>or 'Işığın' → 'işığın', 'İ' → 'i'+U+0307"]:::bad
+    ALT["Alternative path (Lecture 16): do not touch the BDDL,<br/>supply via VLANEXT_INSTR_OVERRIDE at the eval layer<br/>(case preserved; NOT the same protocol as the 46 variants)"]:::inp
 
     D --> K
-    K -- geçti --> F --> P
-    K -- geçmedi --> X
-    P -- aynı --> M --> J --> E
-    P -- farklı --> X
+    K -- passed --> F --> P
+    K -- failed --> X
+    P -- same --> M --> J --> E
+    P -- different --> X
     D -.-> ALT -.-> E

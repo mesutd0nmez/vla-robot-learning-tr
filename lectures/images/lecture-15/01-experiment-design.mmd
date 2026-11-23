@@ -4,32 +4,32 @@ flowchart TB
   classDef out fill:#d4f5d4,stroke:#333,color:#000
   classDef bad fill:#ffd6d6,stroke:#333,color:#000
 
-  subgraph F["5 kare: LIBERO-Spatial görev 0–4, init 0, 10 no-op, 180° döndürülmüş"]
+  subgraph F["5 frames: LIBERO-Spatial tasks 0–4, init 0, 10 no-ops, rotated 180°"]
     direction LR
-    f0["task 0: arasındaki"]:::in
-    f1["task 1: yanındaki"]:::in
-    f2["task 2: ortasındaki"]:::in
-    f3["task 3: üstündeki"]:::in
-    f4["task 4: çekmecesindeki"]:::in
+    f0["task 0: arasındaki (between)"]:::in
+    f1["task 1: yanındaki (next to)"]:::in
+    f2["task 2: ortasındaki (in the middle of)"]:::in
+    f3["task 3: üstündeki (on top of)"]:::in
+    f4["task 4: çekmecesindeki (in the drawer of)"]:::in
   end
 
-  subgraph C["6 koşul (her kare için)"]
+  subgraph C["6 conditions (for each frame)"]
     direction LR
-    en["en: task.language (referans)"]:::in
-    pa["para: EN parafraz (grab / located / put)"]:::in
-    tr["tr: Türkçe, -daki yapısı, kase"]:::model
-    tr2["tr2: Türkçe, duran yapısı, kâse, kaldır"]:::model
-    di["distractor: öteki kâseyi tarif eden EN komut"]:::bad
-    em["empty: boş komut"]:::bad
+    en["en: task.language (reference)"]:::in
+    pa["para: EN paraphrase (grab / located / put)"]:::in
+    tr["tr: Turkish, -daki structure, kase"]:::model
+    tr2["tr2: Turkish, duran structure, kâse, kaldır"]:::model
+    di["distractor: EN command describing the other bowl"]:::bad
+    em["empty: empty command"]:::bad
   end
 
   F --> M
   C --> M
-  M["OpenVLA-7B LIBERO-Spatial ckpt, bf16, MPS, greedy<br/>30 çağrı, ~2 s/çağrı (hipotez)"]:::model
-  M --> T["7 token → bin (0..254) → [-1,1] → q01/q99"]:::out
-  T --> A["actions.csv: 30 satır × 7 token/bin/action + süre"]:::out
-  A --> K["analyze_day15.py<br/>referans = en, çiftler: para / tr / tr2 / distractor / empty + tr→tr2"]:::model
-  K --> m1["L2 ve cosine, 6 boyut, normalize uzay"]:::out
-  K --> m2["gripper uyumu (ayrı)"]:::out
-  K --> m3["farklı token sayısı, max bin farkı, within-5"]:::out
-  K --> m4["L2 7 boyut gerçek birim (Tatar ile karşılaştırma)"]:::out
+  M["OpenVLA-7B LIBERO-Spatial ckpt, bf16, MPS, greedy<br/>30 calls, ~2 s/call (hypothesis)"]:::model
+  M --> T["7 tokens → bin (0..254) → [-1,1] → q01/q99"]:::out
+  T --> A["actions.csv: 30 rows × 7 token/bin/action + time"]:::out
+  A --> K["analyze_day15.py<br/>reference = en, pairs: para / tr / tr2 / distractor / empty + tr→tr2"]:::model
+  K --> m1["L2 and cosine, 6 dims, normalized space"]:::out
+  K --> m2["gripper agreement (separate)"]:::out
+  K --> m3["number of differing tokens, max bin difference, within-5"]:::out
+  K --> m4["L2 7 dims real unit (comparison with Tatar)"]:::out

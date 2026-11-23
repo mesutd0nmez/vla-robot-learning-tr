@@ -1,19 +1,19 @@
-"""Ders 28 — Yüzey ablation'ı gerçekten tek faktör mü değiştiriyor?
+"""Lecture 28 — Does the surface ablation really change only one factor?
 
-RQ-b'nin yüzey ekseni dört Türkçe biçimle tanımlı (datasets/04): tr_a (Türkçe harf + ek), tr_ascii
-(harfler ASCII'ye katlanmış), tr_bare (ekler soyulmuş, harfler duruyor). Ablation dilinde bu bir 2×2:
-  harf {TR, ASCII} × ek {var, yok}  →  tr_a | tr_ascii | tr_bare | tr_bare_ascii (EKSİK HÜCRE — burada üretilir)
-Bir ablation adımı yalnızca bir faktörü değiştirmeli. Bu script her çift için bunu ölçer:
-  1. fold(tr_a) == tr_ascii ?           (harf adımı yalnızca harf mi değiştiriyor — sözcük, ek, sıra aynı mı)
-  2. tr_a_seg'in kökleri == tr_bare ?    (ek adımı yalnızca ek mi soyuyor — ünsüz yumuşaması geri alınarak)
-  3. Türkçe harf sayısı, ek sayısı, sözcük sayısı her yüzeyde
-  4. Token sayısı: LLaMA-2 (OpenVLA) ve Qwen3 (VLANeXt) — mevcut yüzeyler datasets/05 tokens.csv ile çapraz
-     kontrol edilir (birebir olmalı); yeni tr_bare_ascii aynı tokenizer'larla sayılır.
-  5. 2×2 token etkisi: harf etkisi, ek etkisi, etkileşim (tokenizer başına ortalama ± min/max).
+The surface axis of RQ-b is defined by four Turkish forms (datasets/04): tr_a (Turkish letters + suffixes), tr_ascii
+(letters folded to ASCII), tr_bare (suffixes stripped, letters kept). In ablation terms this is a 2×2:
+  letter {TR, ASCII} × suffix {present, absent}  →  tr_a | tr_ascii | tr_bare | tr_bare_ascii (MISSING CELL — produced here)
+An ablation step must change only one factor. This script measures that for every pair:
+  1. fold(tr_a) == tr_ascii ?           (does the letter step change only letters — same words, suffixes, order?)
+  2. stems of tr_a_seg == tr_bare ?     (does the suffix step strip only suffixes — with consonant softening undone)
+  3. Number of Turkish letters, suffixes and words on every surface
+  4. Token counts: LLaMA-2 (OpenVLA) and Qwen3 (VLANeXt) — the existing surfaces are cross-checked against
+     datasets/05 tokens.csv (must match exactly); the new tr_bare_ascii is counted with the same tokenizers.
+  5. 2×2 token effect: letter effect, suffix effect, interaction (mean per tokenizer ± min/max).
 
   python ablation_check.py --llama tokenizer.model --qwen package/models/tokenizer.json
-  # tokenizer'lar: code/day25/README.md (Meta tokenizer.model sha256 9e556afd…; npm @lenml/tokenizer-qwen3)
-  python ablation_check.py            # tokenizer'sız: yalnız 1–3 ve datasets/05'ten okunan sayılar
+  # tokenizers: code/day25/README.md (Meta tokenizer.model sha256 9e556afd…; npm @lenml/tokenizer-qwen3)
+  python ablation_check.py            # without tokenizers: only 1–3 and the counts read from datasets/05
 """
 import argparse, csv, os, statistics as st
 
@@ -22,12 +22,12 @@ D04 = os.path.join(HERE, "..", "..", "datasets", "04-tr-spatial-commands", "data
 D05 = os.path.join(HERE, "..", "..", "datasets", "05-tokenization-tr-commands", "data", "tokens.csv")
 TR = "çğıöşüâîûÇĞİÖŞÜÂÎÛ"
 FOLD = str.maketrans("çğıöşüâîûÇĞİÖŞÜÂÎÛ", "cgiosuaiuCGIOSUAIU")
-HARDEN = {"ğ": "k", "b": "p", "c": "ç", "d": "t"}   # tabağ- → tabak, dolab- → dolap (ünsüz yumuşamasının tersi)
+HARDEN = {"ğ": "k", "b": "p", "c": "ç", "d": "t"}   # tabağ- → tabak, dolab- → dolap (the reverse of consonant softening)
 
 
 def stem_ok(word_seg, bare_word):
-    """Kök = tr_a_seg'in ilk parçası; ekli sözcükte kök sonu yumuşamış olabilir (tabağ-ın → tabak),
-    ama her ğ/b/c/d yumuşama değildir (sağ-da-ki → sağ). İkisinden biri tutarsa kabul."""
+    """Stem = the first piece of tr_a_seg; in a suffixed word the stem end may have softened (tabağ-ın → tabak),
+    but not every ğ/b/c/d is softening (sağ-da-ki → sağ). Accept if either one matches."""
     s = word_seg.split("-")[0]
     cands = {s}
     if "-" in word_seg and s and s[-1] in HARDEN:
@@ -78,21 +78,21 @@ def main():
     with open(os.path.join(a.out, "ablation_surface.csv"), "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=list(rows[0])); w.writeheader(); w.writerows(rows)
     L = []
-    L.append(f"# Ders 28 — yüzey ablation kontrolü ({len(rows)} çift)\n")
-    L.append(f"- tr_a_seg tirelerden arındırılınca tr_a: {sum(r['seg_join_ok'] for r in rows)}/{len(rows)}")
-    L.append(f"- harf adımı (tr_a → tr_ascii) yalnız harf değiştiriyor: {sum(r['letter_step_only_letters'] for r in rows)}/{len(rows)}")
-    L.append(f"- ek adımı (tr_a → tr_bare) yalnız ek soyuyor (kök, gerekirse ünsüz sertleşmesi geri alınarak): {sum(r['suffix_step_only_suffixes'] for r in rows)}/{len(rows)}")
+    L.append(f"# Lecture 28 — surface ablation check ({len(rows)} pairs)\n")
+    L.append(f"- tr_a_seg with hyphens removed equals tr_a: {sum(r['seg_join_ok'] for r in rows)}/{len(rows)}")
+    L.append(f"- letter step (tr_a → tr_ascii) changes only letters: {sum(r['letter_step_only_letters'] for r in rows)}/{len(rows)}")
+    L.append(f"- suffix step (tr_a → tr_bare) strips only suffixes (stem, with consonant hardening undone where needed): {sum(r['suffix_step_only_suffixes'] for r in rows)}/{len(rows)}")
     bad = [r for r in rows if not r["suffix_step_only_suffixes"]]
     for r in bad:
-        L.append(f"  - {r['pair_id']}: kökler `{r['stems_if_diff']}` ≠ tr_bare")
-    L.append(f"- sözcük sayısı tr_a = tr_bare: {sum(r['n_words_tr_a']==r['n_words_bare'] for r in rows)}/{len(rows)}")
-    L.append(f"- ek sayısı tr_a: toplam {sum(r['n_suffix_tr_a'] for r in rows)}, çift başına {st.mean(r['n_suffix_tr_a'] for r in rows):.1f} (tr_bare'de 0)")
-    L.append(f"- Türkçe harf: tr_a {sum(r['trletters_tr_a'] for r in rows)}, tr_bare {sum(r['trletters_bare'] for r in rows)}, "
+        L.append(f"  - {r['pair_id']}: stems `{r['stems_if_diff']}` ≠ tr_bare")
+    L.append(f"- word count tr_a = tr_bare: {sum(r['n_words_tr_a']==r['n_words_bare'] for r in rows)}/{len(rows)}")
+    L.append(f"- suffix count tr_a: total {sum(r['n_suffix_tr_a'] for r in rows)}, per pair {st.mean(r['n_suffix_tr_a'] for r in rows):.1f} (0 in tr_bare)")
+    L.append(f"- Turkish letters: tr_a {sum(r['trletters_tr_a'] for r in rows)}, tr_bare {sum(r['trletters_bare'] for r in rows)}, "
              f"tr_ascii {sum(r['trletters_ascii'] for r in rows)}, tr_bare_ascii {sum(r['trletters_bare_ascii'] for r in rows)}")
     if toks:
-        L.append(f"- datasets/05 tokens.csv çapraz kontrol (4 yüzey × 20 × 2 tokenizer): uyuşmayan {mism}")
-    L.append("\n## 2×2 token tablosu (çift başına ortalama token; parantez min–max)\n")
-    L.append("| tokenizer | en | tr_a (TR, ek) | tr_ascii (ASCII, ek) | tr_bare (TR, eksiz) | tr_bare_ascii (ASCII, eksiz) | harf etkisi | ek etkisi | etkileşim |")
+        L.append(f"- datasets/05 tokens.csv cross-check (4 surfaces × 20 × 2 tokenizers): mismatches {mism}")
+    L.append("\n## 2×2 token table (mean tokens per pair; min–max in parentheses)\n")
+    L.append("| tokenizer | en | tr_a (TR, suffix) | tr_ascii (ASCII, suffix) | tr_bare (TR, no suffix) | tr_bare_ascii (ASCII, no suffix) | letter effect | suffix effect | interaction |")
     L.append("|---|---|---|---|---|---|---|---|---|")
     eff = {}
     for tk in ("llama2", "qwen3"):
@@ -103,7 +103,7 @@ def main():
         inter = (m["tr_a"] - m["tr_ascii"]) - (m["tr_bare"] - m["tr_bare_ascii"])
         eff[tk] = (letter, suffix, inter)
         L.append(f"| {tk} | " + " | ".join(f"{m[v]:.1f} ({rng[v][0]}–{rng[v][1]})" for v in m) + f" | {letter:+.1f} | {suffix:+.1f} | {inter:+.1f} |")
-    L.append("\nharf etkisi = TR harfli − ASCII (iki ek düzeyinin ortalaması); ek etkisi = ekli − eksiz; etkileşim = harf etkisinin ekli ve eksizdeki farkı.")
+    L.append("\nletter effect = TR letters − ASCII (mean over the two suffix levels); suffix effect = suffixed − bare; interaction = difference of the letter effect between suffixed and bare.")
     txt = "\n".join(L)
     open(os.path.join(a.out, "summary.md"), "w", encoding="utf-8").write(txt + "\n")
     print(txt)

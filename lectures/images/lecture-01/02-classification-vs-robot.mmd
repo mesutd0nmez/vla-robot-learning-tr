@@ -1,9 +1,9 @@
 flowchart TB
-    subgraph C["Görüntü sınıflandırma (tek atış)"]
+    subgraph C["Image classification (one shot)"]
         direction LR
         I1["Image"] --> M1["CNN / ViT"] --> L1["Class: 'cat'"]
     end
-    subgraph R["Robot learning (kapalı döngü)"]
+    subgraph R["Robot learning (closed loop)"]
         direction LR
         I2["Image + robot state<br/>+ language"] --> M2["Policy"] --> L2["Action"] --> E["Env.step()"] --> I2
     end

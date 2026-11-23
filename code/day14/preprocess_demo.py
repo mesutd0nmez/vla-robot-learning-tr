@@ -1,8 +1,8 @@
-"""Ders 14 — OpenVLA'nın görüntü ön işleme zincirini gerçek bir robosuite karesinde gösterir (model GEREKMEZ).
+"""Lecture 14 — Shows OpenVLA's image preprocessing chain on a real robosuite frame (NO model needed).
 
-ham agentview (256x256, robosuite ters verir) → img[::-1, ::-1] (180°) → 224x224 (lanczos) → center crop %90 → 224x224
-Kaynak: experiments/robot/libero/libero_utils.py:50-58 ve experiments/robot/openvla_utils.py:132-156.
-LIBERO kuruluysa (Ders 10) `--libero` ile aynı zinciri LIBERO Spatial görev 0'da çalıştırır; yoksa robosuite Lift.
+raw agentview (256x256, robosuite returns it upside down) → img[::-1, ::-1] (180°) → 224x224 (lanczos) → center crop 90% → 224x224
+Source: experiments/robot/libero/libero_utils.py:50-58 and experiments/robot/openvla_utils.py:132-156.
+If LIBERO is installed (Lecture 10), `--libero` runs the same chain on LIBERO Spatial task 0; otherwise robosuite Lift.
     python preprocess_demo.py --out 05-preprocess-pipeline.png
 """
 import argparse
@@ -39,7 +39,7 @@ def get_frame_libero(task_id=0):
     for _ in range(10):
         obs, _, _, _ = env.step(np.array([0, 0, 0, 0, 0, 0, -1.0]))
     env.close()
-    return obs["agentview_image"], f"LIBERO Spatial görev {task_id}: {t.language}"
+    return obs["agentview_image"], f"LIBERO Spatial task {task_id}: {t.language}"
 
 
 def center_crop(img: Image.Image, crop_scale=0.9):
@@ -64,18 +64,18 @@ def main():
     import matplotlib.pyplot as plt
     fig, axes = plt.subplots(1, 4, figsize=(14, 4))
     for ax, im, cap in zip(axes, [raw, flipped, np.array(r224), np.array(cropped)],
-                           ["1) ham obs['agentview_image'] 256x256\n(robosuite ters verir)",
-                            "2) img[::-1, ::-1] — 180° döndür\n(libero_utils.py:56)",
+                           ["1) raw obs['agentview_image'] 256x256\n(robosuite returns it upside down)",
+                            "2) img[::-1, ::-1] — rotate by 180°\n(libero_utils.py:56)",
                             "3) lanczos → 224x224\n(libero_utils.py:44)",
-                            "4) center crop %90 alan → 224x224\n(openvla_utils.py:147)  → modele giden"]):
+                            "4) center crop 90% area → 224x224\n(openvla_utils.py:147)  → goes to the model"]):
         ax.imshow(im)
         ax.set_title(cap, fontsize=9)
         ax.set_xticks([]); ax.set_yticks([])
-    fig.suptitle(f"OpenVLA görüntü ön işleme — {title}", fontsize=11)
+    fig.suptitle(f"OpenVLA image preprocessing — {title}", fontsize=11)
     fig.tight_layout(rect=[0, 0, 1, 0.9])
     fig.savefig(a.out, dpi=150)
     Image.fromarray(np.array(cropped)).save(a.out.replace(".png", "_model_input.png"))
-    print("yazıldı:", a.out)
+    print("written:", a.out)
 
 
 if __name__ == "__main__":

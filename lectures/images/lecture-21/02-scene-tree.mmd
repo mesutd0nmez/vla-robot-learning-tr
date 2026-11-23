@@ -1,14 +1,14 @@
 flowchart TB
-  ROOT["<b>ders21_masa.wbt</b> — sahne ağacı (scene tree)<br/>#VRML_SIM R2025a utf8 · EXTERNPROTO … (11 PROTO)"]:::yellow
-  subgraph ENV["dünya"]
+  ROOT["<b>ders21_masa.wbt</b> — scene tree<br/>#VRML_SIM R2025a utf8 · EXTERNPROTO … (11 PROTO)"]:::yellow
+  subgraph ENV["world"]
     direction LR
-    WI["WorldInfo<br/>basicTimeStep 16 ms<br/>ENU (z yukarı)"]:::blue
-    VP["Viewpoint<br/>position 0 1.75 1.55<br/>'agentview' benzeri sabit bakış"]:::blue
+    WI["WorldInfo<br/>basicTimeStep 16 ms<br/>ENU (z up)"]:::blue
+    VP["Viewpoint<br/>position 0 1.75 1.55<br/>fixed 'agentview'-like view"]:::blue
     BG["TexturedBackground<br/>+ …Light"]:::blue
     FL["Floor 6×6"]:::blue
     TB["Table<br/>size 1 × 1.8 × 0.74"]:::blue
   end
-  subgraph OBJ["nesneler (hepsi DEF adlı, Solid türevi PROTO)"]
+  subgraph OBJ["objects (all DEF-named, Solid-derived PROTOs)"]
     direction LR
     O1["DEF BOWL FruitBowl<br/>color 0.05 0.05 0.05<br/>(−0.22, 0, 0.74)"]:::green
     O2["DEF PLATE Plate<br/>(0.22, 0.02, 0.74)"]:::green
@@ -22,17 +22,17 @@ flowchart TB
     ROB["<b>DEF ROBOT UR10e</b> (Robot node)<br/>translation 0 −0.65 0.74 · rotation z −90°<br/>controller '&lt;extern&gt;' · supervisor TRUE"]:::yellow
     J["6 × HingeJoint<br/>RotationalMotor 'shoulder_pan_joint' … 'wrist_3_joint'<br/>PositionSensor '…_sensor'"]:::green
     TS["toolSlot [ … ]"]:::blue
-    CAM["DEF WRIST_CAM <b>Camera</b> 'wrist_camera'<br/>256×256, fov 1.2<br/>rotation z 90° (tool ekseni = +y)"]:::blue
+    CAM["DEF WRIST_CAM <b>Camera</b> 'wrist_camera'<br/>256×256, fov 1.2<br/>rotation z 90° (tool axis = +y)"]:::blue
     ROB --> J
     ROB --> TS --> CAM
   end
-  SUP["<b>ders21_kol.py</b> (Supervisor API)<br/>getDevice('shoulder_pan_joint').setPosition(q) · getDevice('wrist_camera').saveImage()<br/>getFromDef('BOWL').getPosition() → dünya koordinatı → robota göre sol/sağ/ön tablosu · exportImage()"]:::yellow
+  SUP["<b>ders21_kol.py</b> (Supervisor API)<br/>getDevice('shoulder_pan_joint').setPosition(q) · getDevice('wrist_camera').saveImage()<br/>getFromDef('BOWL').getPosition() → world coordinates → robot-relative left/right/front table · exportImage()"]:::yellow
   ROOT --> ENV
   ROOT --> OBJ
   ROOT --> ROBG
-  SUP -. "DEF adıyla okur" .-> OBJ
-  SUP -. "motor / kamera" .-> ROB
-  SUP -. "ana 3B görünüm" .-> VP
+  SUP -. "reads by DEF name" .-> OBJ
+  SUP -. "motor / camera" .-> ROB
+  SUP -. "main 3D view" .-> VP
   classDef yellow fill:#ffd166,stroke:#8a6d00,color:#000
   classDef blue fill:#cfe8ff,stroke:#2a5d9f,color:#000
   classDef green fill:#d4f5d4,stroke:#2e7d32,color:#000

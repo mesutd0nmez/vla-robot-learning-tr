@@ -1,87 +1,87 @@
-# Ders 14 — Klavye Günü 5: OpenVLA-7B Mac'te — Tek Görüntü + Komut → 7 Token → 7-DoF Action
+# Lecture 14 — Keyboard Day 5: OpenVLA-7B on the Mac — Single Image + Command → 7 Tokens → 7-DoF Action
 
-**Faz 2 / Gün 14** · **Süre:** ~60 dk (okuma 35 + kurulum/indirme 15 + çalıştırma 10; 15 GB indirme arka planda)
-**Ön koşul:** Ders 2 (OpenVLA mimarisi), Ders 10 (LIBERO env, 180° döndürme), Ders 13 (VLANeXt zinciri) · **Kod:** `code/day14/`
+**Phase 2 / Day 14** · **Time:** ~60 min (reading 35 + setup/download 15 + running 10; the 15 GB download runs in the background)
+**Prerequisite:** Lecture 2 (OpenVLA architecture), Lecture 10 (LIBERO env, 180° rotation), Lecture 13 (the VLANeXt chain) · **Code:** `code/day14/`
 
-> **Bugünün tek cümlesi:** OpenVLA'da action, bir "cevap" olarak üretilen **7 kelime**dir — LLaMA-2'nin 32.000 kelimelik dağarcığının son 256'sı (`31744..31999`) 255 kutuya karşılık gelir ve `0.5·(x+1)·(q99−q01)+q01` formülü bu kutuları LIBERO'nun birimine çevirir; Türkçe komut bu zincire yalnızca **prompt token'ları** olarak girer, o yüzden Ders 15'te EN/TR farkı doğrudan bu 7 token üzerinden ölçülebilir.
-
----
-
-## 1. Neden bu checkpoint, neden Mac?
-
-Ders 2'de OpenVLA'yı kâğıt üzerinde tanıdın; Ders 12–13'te VLANeXt'i Colab'da koşturdun ve zincirini okudun. Bugün tezin **ikinci modelini** elinle çalıştırıyorsun — ama LIBERO eval'ini değil, tek bir adımını: bir görüntü + bir komut → 7-DoF action. Neden bu kadar küçük bir hedef?
-
-- **Mac'te koşabilen tek 7B VLA budur.** OpenVLA saf transformer + autoregressive decode; flash-attn zorunlu değil (`attn_implementation` değiştirilebilir), bf16 ağırlıklar ~15 GB ve 32 GB birleşik belleğe sığar. VLANeXt'in eval'i CUDA kernel'leri istiyordu (Ders 12).
-- **Checkpoint:** `openvla/openvla-7b-finetuned-libero-spatial` — temel OpenVLA-7B'nin LIBERO-Spatial demo'larıyla LoRA (r=32, 50k adım, 8×A100) fine-tune edilmiş hâli. Temel `openvla-7b` (Bridge/OXE) LIBERO sahnesini hiç görmedi ve `norm_stats` içinde `libero_spatial` anahtarı yok; eval için fine-tune şart. Rapor edilen başarı: **Spatial %84.7 ± 0.9** (3 seed × 500 episode; Object 88.4, Goal 79.2, Long 53.7, ortalama 76.5).
-- **Eğitim verisi "değiştirilmiş" LIBERO:** no-op (sıfır) action'lar ve başarısız demo'lar atılmış, görüntüler 180° döndürülmüş (`regenerate_libero_dataset.py:6-9`). `dataset_statistics.json`: **432 trajectory, 52.970 transition** (500 demo'dan 68'i elenmiş). Bu, Ders 11'de açtığın ham HDF5 ile aynı veri değil — q01/q99 bu temizlenmiş veriden hesaplanmış.
-
-Tez bağlantısı: Tatar vd. (Ders 5) OpenVLA'yı tam bu şekilde — tek görüntü, EN/TR prompt, action vektörlerinin L2/cosine farkı — kullandı; farkları temel `openvla-7b`'yi 4-bit kuantize ve sentetik bir görüntüyle koşturmalarıydı (Ders 5'teki 3 zayıf yönden ikisi). Bugün kurduğun boru hattı — LIBERO fine-tune'u, bf16, gerçek LIBERO karesi — Ders 15'teki mini-reprodüksiyonun altyapısıdır.
+> **Today in one sentence:** In OpenVLA the action is **7 words** produced as an "answer" — the last 256 of LLaMA-2's 32,000-word vocabulary (`31744..31999`) correspond to 255 bins, and the formula `0.5·(x+1)·(q99−q01)+q01` converts these bins to LIBERO's units; the Turkish command enters this chain only as **prompt tokens**, so in Lecture 15 the EN/TR difference can be measured directly through these 7 tokens.
 
 ---
 
-## 2. Zincir: görüntü ve komut nasıl 291 token oluyor?
+## 1. Why this checkpoint, why the Mac?
 
-![OpenVLA zinciri](images/lecture-14/01-openvla-chain.png)
+In Lecture 2 you got to know OpenVLA on paper; in Lectures 12–13 you ran VLANeXt on Colab and read its chain. Today you run the **second model** of the thesis with your own hands — but not the LIBERO eval, only a single step of it: one image + one command → 7-DoF action. Why such a small target?
 
-### 2.1 Görüntü yolu (`libero_utils.py:50-58`, `openvla_utils.py:127-156`)
-1. `obs["agentview_image"]` 256×256, robosuite ters verir → `img[::-1, ::-1]` (Ders 10'daki tuzak).
-2. JPEG encode/decode + **lanczos3** ile 224×224 (`libero_utils.py:42-45`) — "eğitimdeki RLDS dataloader'la aynı dağılım" diye yorum düşülmüş.
-3. **Center crop:** alanın %90'ı (kenarların `sqrt(0.9) ≈ 0.949`'u) merkezden kesilir, geri 224'e büyütülür. LIBERO fine-tune'ları random-crop augmentasyonu ile eğitildiği için `run_libero_eval.py:94`'te `assert cfg.center_crop` var — unutursan hata değil, **sessizce kötü action** alırsın.
-4. `PrismaticImageProcessor`: `image_resize_strategy: "resize-naive"`, iki ayrı normalizasyon → `pixel_values [1, 6, 224, 224]` (ilk 3 kanal DINOv2, son 3 SigLIP).
+- **It is the only 7B VLA that can run on the Mac.** OpenVLA is a pure transformer + autoregressive decode; flash-attn is not mandatory (`attn_implementation` can be changed), the bf16 weights are ~15 GB and fit in 32 GB unified memory. VLANeXt's eval wanted CUDA kernels (Lecture 12).
+- **Checkpoint:** `openvla/openvla-7b-finetuned-libero-spatial` — the base OpenVLA-7B fine-tuned with LoRA (r=32, 50k steps, 8×A100) on the LIBERO-Spatial demos. The base `openvla-7b` (Bridge/OXE) has never seen the LIBERO scene and has no `libero_spatial` key in `norm_stats`; fine-tuning is required for eval. Reported success: **Spatial 84.7% ± 0.9** (3 seeds × 500 episodes; Object 88.4, Goal 79.2, Long 53.7, average 76.5).
+- **The training data is "modified" LIBERO:** no-op (zero) actions and failed demos were dropped, images were rotated 180° (`regenerate_libero_dataset.py:6-9`). `dataset_statistics.json`: **432 trajectories, 52,970 transitions** (68 of 500 demos eliminated). This is not the same data as the raw HDF5 you opened in Lecture 11 — q01/q99 were computed from this cleaned data.
 
-Bu dört adımı gerçek bir karede gördüğün görsel:
+Thesis connection: Tatar et al. (Lecture 5) used OpenVLA in exactly this way — a single image, EN/TR prompt, L2/cosine difference of the action vectors; their differences were running the base `openvla-7b` 4-bit quantized and with a synthetic image (two of the 3 weaknesses in Lecture 5). The pipeline you set up today — the LIBERO fine-tune, bf16, a real LIBERO frame — is the infrastructure of the mini-reproduction in Lecture 15.
 
-![Ön işleme](images/lecture-14/05-preprocess-pipeline.png)
+---
 
-5. İki ViT (`vit_large_patch14_reg4_dinov2` + `vit_so400m_patch14_siglip_224`) 16×16 = **256 patch** üretir; çıktılar kanal boyunca birleştirilir: 1024 + 1152 = **2176** (`modeling_prismatic.py:123`).
-6. Projector: `2176 → 8704 → 4096 → 4096`, iki GELU (`:138-144`). ~71 M parametre — Ders 2'de "2 katmanlı" demiştim; fused backbone'da **3 katman**.
+## 2. The chain: how do image and command become 291 tokens?
 
-### 2.2 Komut yolu (`openvla_utils.py:163`)
+![OpenVLA chain](images/lecture-14/01-openvla-chain.png)
+
+### 2.1 Image path (`libero_utils.py:50-58`, `openvla_utils.py:127-156`)
+1. `obs["agentview_image"]` is 256×256; robosuite gives it upside down → `img[::-1, ::-1]` (the trap from Lecture 10).
+2. JPEG encode/decode + **lanczos3** down to 224×224 (`libero_utils.py:42-45`) — the comment says "same distribution as the RLDS dataloader in training".
+3. **Center crop:** 90% of the area (`sqrt(0.9) ≈ 0.949` of the edges) is cut from the center and scaled back to 224. Since the LIBERO fine-tunes were trained with random-crop augmentation, `run_libero_eval.py:94` has `assert cfg.center_crop` — if you forget, you do not get an error, you get **silently bad actions**.
+4. `PrismaticImageProcessor`: `image_resize_strategy: "resize-naive"`, two separate normalizations → `pixel_values [1, 6, 224, 224]` (the first 3 channels DINOv2, the last 3 SigLIP).
+
+The image where you can see these four steps on a real frame:
+
+![Preprocessing](images/lecture-14/05-preprocess-pipeline.png)
+
+5. The two ViTs (`vit_large_patch14_reg4_dinov2` + `vit_so400m_patch14_siglip_224`) produce 16×16 = **256 patches**; the outputs are concatenated along the channel dimension: 1024 + 1152 = **2176** (`modeling_prismatic.py:123`).
+6. Projector: `2176 → 8704 → 4096 → 4096`, two GELUs (`:138-144`). ~71 M parameters — in Lecture 2 I said "2 layers"; for the fused backbone it is **3 layers**.
+
+### 2.2 Command path (`openvla_utils.py:163`)
 ```python
 prompt = f"In: What action should the robot take to {task_label.lower()}?\nOut:"
 ```
-LLaMA-2 tokenizer: `<s>` + 33 token (Spatial görev 0 için; görsel 03). Sonra `predict_action` bir şey daha yapar (`modeling_prismatic.py:512-515`): son token `29871` (`"▁"`, boş alt çizgi) değilse ekler. Neden? Eğitimde prompt `"Out: "` ile (boşluklu) bitiyordu; SentencePiece o boşluğu ayrı bir `▁` token'ı yapar. Eval'de boşluksuz yazıp token'ı elle ekleyince eğitimle **birebir aynı** dizi elde edilir. Bir token'lık fark; unutulursa model dağılım dışına çıkar.
+LLaMA-2 tokenizer: `<s>` + 33 tokens (for Spatial task 0; plot 03). Then `predict_action` does one more thing (`modeling_prismatic.py:512-515`): if the last token is not `29871` (`"▁"`, an empty underscore) it appends it. Why? In training the prompt ended with `"Out: "` (with a space); SentencePiece turns that space into a separate `▁` token. At eval you write it without the space and add the token by hand, obtaining a sequence **exactly the same** as in training. A one-token difference; if forgotten, the model goes out of distribution.
 
-### 2.3 Birleşme (`modeling_prismatic.py:384`)
+### 2.3 Merging (`modeling_prismatic.py:384`)
 ```python
 multimodal_embeddings = torch.cat([input_embeddings[:, :1, :], projected_patch_embeddings, input_embeddings[:, 1:, :]], dim=1)
 ```
-Görüntü **BOS'tan hemen sonra** araya girer: `[BOS] [256 patch] [33 metin] [▁]` = **291 token**. Komut, görüntüden *sonra* gelir — causal attention'da komut token'ları görüntüyü görür, görüntü token'ları komutu görmez. VLANeXt'te de sıra aynıydı (görüntü, sonra metin; Ders 13 §2), fark proprio'nun başa ve 16 query'nin sona eklenmesiydi.
+The image is inserted **right after BOS**: `[BOS] [256 patches] [33 text] [▁]` = **291 tokens**. The command comes *after* the image — under causal attention the command tokens see the image, the image tokens do not see the command. In VLANeXt the order was the same (image, then text; Lecture 13 §2); the difference was that proprio was prepended and 16 queries appended.
 
-![Dizi ve token sayıları](images/lecture-14/03-sequence-tokens.png)
+![Sequence and token counts](images/lecture-14/03-sequence-tokens.png)
 
-Alt panel bugünün tez notu: aynı komutun Türkçesi (*tabak ile ramekinin arasındaki siyah kaseyi al ve tabağın üstüne koy*) **20 → 32 token** (×1.6). *arasındaki* = `▁ar|as|ı|nd|aki` (5 parça), *üstüne* = `▁ü|st|ü|ne` (4), *tabağın* = `▁tab|a|ğ|ı|n` (5). Mekânsal bilgiyi taşıyan **ek** (`-nin arasındaki`, `-ın üstüne`) tek bir token değil, harf kırıntıları. Ders 2'deki "Kal+dır" gözlemi burada sayıya dönüştü; Ders 21'de 20 komutun tamamı için ölçeceksin.
-
----
-
-## 3. Üretim: 7 token, sırayla
-
-`predict_action` → `self.generate(input_ids, max_new_tokens=7, do_sample=False, pixel_values=…)` (`:518`). `get_action_dim` = `len(norm_stats["libero_spatial"]["action"]["q01"])` = 7. Yani:
-
-- **Greedy decode**, 7 adım; her adımda LLaMA-2 7B'nin tamamı bir kez çalışır (KV cache ile). VLANeXt'te VLM bir kez çalışıp policy 5 kez dönüyordu (Ders 13 §5); burada tersine, **LLM 7 kez** çalışır ve ayrı bir policy yoktur.
-- Her token bir öncekine bağlıdır: `dy` token'ı seçilirken `dx` token'ı bağlamdadır. Bu, OpenVLA'nın "boyutlar arası tutarlılık" mekanizmasıdır — ve aynı zamanda yavaşlığının nedeni.
-- `prepare_inputs_for_generation` batch > 1'i reddeder (`:460-463`): Mac'te zaten tek görüntü ile çalışacağız.
-- Dağarcık: `config.text_config.vocab_size = 32064` (64'e yuvarlama için 64 pad token); kod bunu geri alır: `self.vocab_size = 32064 − 64 = 32000` (`:504`). Action token'ları `32000 − d`, `d ∈ 1..256` → **`31744..31999`**. Bunlar LLaMA-2 dağarcığının en seyrek kullanılan son 256 token'ıdır — tokenizer'a sorarsan `31744 = "忠"`, `31999 = "给"` gibi CJK karakterleri çıkar; OpenVLA bunların embedding'lerini fine-tune'da action anlamıyla **üzerine yazdı** (`action_tokenizer.py:12-14`).
-
-Bir ayrıntı: `np.linspace(-1, 1, 256)` **256 kenar** üretir, dolayısıyla **255 merkez** (`:500-501`). Makale "256 bin" der; fiilen 255 aralık vardır, `d=256` token'ı son aralığa kırpılır (`action_tokenizer.py:40-50`'deki uzun açıklama bunu itiraf eder).
+The bottom panel is today's thesis note: the Turkish version of the same command (*tabak ile ramekinin arasındaki siyah kaseyi al ve tabağın üstüne koy*) goes **20 → 32 tokens** (×1.6). *arasındaki* ("which is between") = `▁ar|as|ı|nd|aki` (5 pieces), *üstüne* ("onto") = `▁ü|st|ü|ne` (4), *tabağın* ("of the plate") = `▁tab|a|ğ|ı|n` (5). The **suffixes** that carry the spatial information (`-nin arasındaki`, `-ın üstüne`) are not a single token but letter crumbs. The "Kal+dır" observation from Lecture 2 has turned into a number here; in Lecture 21 you will measure it for all 20 commands.
 
 ---
 
-## 4. Decode: 7 token nasıl metre oluyor? — `decode_action_tokens.py`
+## 3. Generation: 7 tokens, in order
 
-Üç satır (`modeling_prismatic.py:522-534`):
+`predict_action` → `self.generate(input_ids, max_new_tokens=7, do_sample=False, pixel_values=…)` (`:518`). `get_action_dim` = `len(norm_stats["libero_spatial"]["action"]["q01"])` = 7. So:
+
+- **Greedy decode**, 7 steps; at each step the whole of LLaMA-2 7B runs once (with KV cache). In VLANeXt the VLM ran once and the policy looped 5 times (Lecture 13 §5); here it is the opposite, the **LLM runs 7 times** and there is no separate policy.
+- Each token depends on the previous one: when the `dy` token is chosen, the `dx` token is in context. This is OpenVLA's "cross-dimension consistency" mechanism — and also the reason for its slowness.
+- `prepare_inputs_for_generation` rejects batch > 1 (`:460-463`): on the Mac we will work with a single image anyway.
+- Vocabulary: `config.text_config.vocab_size = 32064` (64 pad tokens for rounding to a multiple of 64); the code undoes this: `self.vocab_size = 32064 − 64 = 32000` (`:504`). The action tokens are `32000 − d`, `d ∈ 1..256` → **`31744..31999`**. These are the last 256 and least used tokens of the LLaMA-2 vocabulary — ask the tokenizer and you get CJK characters such as `31744 = "忠"`, `31999 = "给"`; OpenVLA **overwrote** their embeddings with action meaning during fine-tuning (`action_tokenizer.py:12-14`).
+
+A detail: `np.linspace(-1, 1, 256)` produces **256 edges**, hence **255 centers** (`:500-501`). The paper says "256 bins"; in practice there are 255 intervals, and the `d=256` token is clipped to the last interval (the long explanation at `action_tokenizer.py:40-50` admits this).
+
+---
+
+## 4. Decode: how do 7 tokens become meters? — `decode_action_tokens.py`
+
+Three lines (`modeling_prismatic.py:522-534`):
 
 ```python
 discretized = vocab_size - token_ids                       # 1..256
-discretized = np.clip(discretized - 1, 0, 254)             # bin indeksi
+discretized = np.clip(discretized - 1, 0, 254)             # bin index
 normalized  = bin_centers[discretized]                     # [-1, 1]
 actions = np.where(mask, 0.5 * (normalized + 1) * (q99 - q01) + q01, normalized)
 ```
 
-`mask = [T,T,T,T,T,T,F]`: ilk 6 boyut q01/q99 ile açılır, **gripper'a dokunulmaz**. Bunu modelsiz, `code/day14/decode_action_tokens.py` ile gerçekten çalıştırdım (gerçek `libero_spatial` istatistikleri gömülü):
+`mask = [T,T,T,T,T,T,F]`: the first 6 dimensions are expanded with q01/q99, the **gripper is not touched**. I really ran this without the model, with `code/day14/decode_action_tokens.py` (real `libero_spatial` statistics embedded):
 
 ```
-boyut     token  bin   [-1,1]      q01      q99   action
+dim       token  bin   [-1,1]      q01      q99   action
 dx        31890  109  -0.1412  -0.7455   0.9375  -0.0228
 dy        31812  187   0.4706  -0.6616   0.8759   0.4689
 dz        31999    0  -0.9961  -0.9375   0.9321  -0.9338
@@ -90,131 +90,131 @@ dpitch    31875  124  -0.0235  -0.2068   0.1768  -0.0195
 dyaw      31872  127   0.0000  -0.1843   0.1457  -0.0193
 gripper   31744  254   0.9961   0.0000   1.0000   0.9961
 
-LIBERO'ya giden gripper (normalize + binarize + invert): -1  (aç)
-Bir bin'in gerçek karşılığı (q99-q01)/255: [0.0066 0.006  0.0073 0.0008 0.0015 0.0013]
+Gripper that goes to LIBERO (normalize + binarize + invert): -1  (open)
+Real-valued size of one bin (q99-q01)/255: [0.0066 0.006  0.0073 0.0008 0.0015 0.0013]
 ```
 
 ![Token → action](images/lecture-14/02-token-to-action.png)
 
-Üç gözlem:
+Three observations:
 
-1. **Simetri yok.** `dx` için q01 = −0.745, q99 = +0.9375: Spatial demo'larında robot ileri gitmiş, geri pek gitmemiş. Sonuç: "nötr" token (`31872`, bin 127, `[-1,1]`'de 0.0) `dx` için **+0.096** üretir, `dyaw` için −0.019. OpenVLA'da "dur" diye bir token yoktur; sıfır hareket, veri setine göre değişen bir token'dır. Tatar vd.'nin L2 mesafelerini okurken (Ders 5) bu önemli: EN ve TR için "ikisi de hareketsiz" demek, ikisinin de aynı asimetrik noktayı bulması demektir.
-2. **Çözünürlük eşit değil.** Bir bin konumda ~0.006–0.007 (normalize delta; OSC_POSE'un ±0.05 m ölçeğinde ~0.3 mm), dönüşte ~0.001. Dönüş ekseni daha ince kutulanmış çünkü q01–q99 aralığı dar.
-3. **Gripper üç dönüşümden geçer** (`run_libero_eval.py:219-225`): model `[0,1]`'e yakın bir değer üretir (eğitimde gripper 0/1 idi; RLDS hizalaması **1 = aç, 0 = kapat**) → `normalize_gripper_action`: `2g−1`, sonra `sign` → `invert_gripper_action`: ×(−1). Sonuç LIBERO sözleşmesi: **+1 kapat, −1 aç** (Ders 10–11'deki soru üçüncü kez, bu sefer OpenVLA tarafından cevaplanıyor). Örnekte `31744` (bin 254 ≈ 1.0) → "aç".
+1. **No symmetry.** For `dx`, q01 = −0.745, q99 = +0.9375: in the Spatial demos the robot has gone forward, hardly ever backward. Result: the "neutral" token (`31872`, bin 127, 0.0 in `[-1,1]`) produces **+0.096** for `dx` and −0.019 for `dyaw`. OpenVLA has no "stop" token; zero motion is a token that varies with the dataset. This matters when reading Tatar et al.'s L2 distances (Lecture 5): saying "both are motionless" for EN and TR means both found the same asymmetric point.
+2. **Resolution is not uniform.** One bin is ~0.006–0.007 in position (normalized delta; ~0.3 mm at OSC_POSE's ±0.05 m scale), ~0.001 in rotation. The rotation axes are binned more finely because the q01–q99 range is narrow.
+3. **The gripper goes through three transformations** (`run_libero_eval.py:219-225`): the model produces a value close to `[0,1]` (in training the gripper was 0/1; the RLDS alignment is **1 = open, 0 = close**) → `normalize_gripper_action`: `2g−1`, then `sign` → `invert_gripper_action`: ×(−1). The result is the LIBERO convention: **+1 close, −1 open** (the question from Lectures 10–11 for the third time, this time answered by OpenVLA). In the example `31744` (bin 254 ≈ 1.0) → "open".
 
-VLANeXt'in `_denormalize_action`'ı ile yan yana (Ders 13 §6.1): orada `min/max`, burada `q01/q99`; orada gripper eşiği 0 ve ters çevirme yok, burada eşik 0.5 ve ters çevirme var. Aynı LIBERO, iki farklı sözleşme — Ders 18'de iki modeli aynı episode'larda koşturacağın zaman bu iki dönüşümü karıştırmak en olası hata.
+Side by side with VLANeXt's `_denormalize_action` (Lecture 13 §6.1): there `min/max`, here `q01/q99`; there the gripper threshold is 0 and there is no inversion, here the threshold is 0.5 and there is an inversion. Same LIBERO, two different conventions — when you run the two models on the same episodes in Lecture 18, mixing up these two transformations is the most likely error.
 
 ---
 
-## 5. Mac'te çalıştırmak: ne değişiyor, ne kadar sürer?
+## 5. Running on the Mac: what changes, how long does it take?
 
-![Bellek bütçesi](images/lecture-14/04-memory-budget.png)
+![Memory budget](images/lecture-14/04-memory-budget.png)
 
-**Parametreler:** LLaMA-2 7B 6.74 B + SigLIP ~0.43 B + DINOv2 ~0.30 B + projector ~0.07 B ≈ **7.5 B** (HF kartı "8B params"; parça sayıları yaklaşık). bf16'da ≈ **15.1 GB** ağırlık. 32 GB'lık M2'de sığar; Metal'in "önerilen çalışma seti" ~%68 (≈21.8 GB, tahmin) ve PyTorch MPS allocator'ının tavanı bunun 1.7 katı (`PYTORCH_MPS_HIGH_WATERMARK_RATIO`, varsayılan 1.7) — yani fiili sınır fiziksel RAM'dir.
+**Parameters:** LLaMA-2 7B 6.74 B + SigLIP ~0.43 B + DINOv2 ~0.30 B + projector ~0.07 B ≈ **7.5 B** (the HF card says "8B params"; the part counts are approximate). In bf16 ≈ **15.1 GB** of weights. It fits on a 32 GB M2; Metal's "recommended working set" is ~68% (≈21.8 GB, estimate) and the PyTorch MPS allocator's ceiling is 1.7 times that (`PYTORCH_MPS_HIGH_WATERMARK_RATIO`, default 1.7) — so the effective limit is physical RAM.
 
-**Upstream'den sapmalar (script'te uygulanmış):**
+**Deviations from upstream (applied in the script):**
 
-| Upstream (`openvla_utils.py:43-57`) | Mac | Neden |
+| Upstream (`openvla_utils.py:43-57`) | Mac | Why |
 |---|---|---|
-| `attn_implementation="flash_attention_2"` | `"sdpa"` (ya da `"eager"`) | flash-attn CUDA-only; Prismatic kodu `_supports_sdpa`'yı LLaMA'dan devralır (`:208-210`) |
-| `torch.bfloat16` + CUDA | `torch.bfloat16` + `mps` | bf16 MPS'te macOS 14+ ve torch ≥ 2.3 ile var; macOS 13'te `float16` dene (hipotez: LLaMA fp16'da taşma yapmaz) |
-| `from_pretrained(...).to(DEVICE)` | `device_map={"": "mps"}` | Önce CPU'ya yükleyip kopyalamak birleşik bellekte geçici iki kopya (~30 GB) demek — hipotez, ölç |
-| `transformers==4.40.1`, `tokenizers==0.19.1`, `timm==0.9.10` | **aynı pinler, ayrı env** | HF'deki `trust_remote_code` kodu bu sürümlere yazılmış; Ders 13'ün Qwen3-VL'i `transformers>=4.57` istiyor → `vla` env'ine kurma, `openvla` env'i aç |
-| `load_in_8bit / 4bit` (bitsandbytes) | yok | bitsandbytes Mac'te çalışmaz; bf16'ya ihtiyacın da yok, sığıyor |
+| `attn_implementation="flash_attention_2"` | `"sdpa"` (or `"eager"`) | flash-attn is CUDA-only; the Prismatic code inherits `_supports_sdpa` from LLaMA (`:208-210`) |
+| `torch.bfloat16` + CUDA | `torch.bfloat16` + `mps` | bf16 exists on MPS with macOS 14+ and torch ≥ 2.3; on macOS 13 try `float16` (hypothesis: LLaMA does not overflow in fp16) |
+| `from_pretrained(...).to(DEVICE)` | `device_map={"": "mps"}` | Loading onto the CPU first and then copying means two temporary copies (~30 GB) in unified memory — hypothesis, measure |
+| `transformers==4.40.1`, `tokenizers==0.19.1`, `timm==0.9.10` | **same pins, separate env** | The `trust_remote_code` code on HF is written for these versions; Lecture 13's Qwen3-VL wants `transformers>=4.57` → don't install into the `vla` env, create an `openvla` env |
+| `load_in_8bit / 4bit` (bitsandbytes) | none | bitsandbytes does not work on the Mac; you don't need it anyway, bf16 fits |
 
-**Süre (hipotez, ölçülecek):** M2 Pro 19-çekirdek GPU'nun bellek bant genişliği ~200 GB/s. Decode'da her token için 15 GB ağırlık okunur → token başına ≥ 75 ms, 7 token ≥ 0.5 s. Prefill 291 token × 2 × 7.5 B ≈ 4.4 TFLOP; ViT'ler ~0.4 TFLOP. Gerçekçi toplam **~1.5–3 s / action** (ilk çağrı derleme/ısınma ile çok daha uzun). 220 adımlık bir episode ≈ 5–10 dk → Mac'te LIBERO eval **pratik değil** (10 görev × 10 episode ≈ 10+ saat); Ders 15'in tasarımı bu yüzden "episode" değil "tek kare" üzerinedir. Ölçtüğün süreyi log'a yaz; Ders 15'te kaç çift komut deneyebileceğini bu sayı belirler.
+**Time (hypothesis, to be measured):** the memory bandwidth of an M2 Pro 19-core GPU is ~200 GB/s. In decode, 15 GB of weights are read for every token → ≥ 75 ms per token, ≥ 0.5 s for 7 tokens. Prefill 291 tokens × 2 × 7.5 B ≈ 4.4 TFLOP; ViTs ~0.4 TFLOP. A realistic total is **~1.5–3 s / action** (the first call is much longer because of compilation/warm-up). A 220-step episode ≈ 5–10 min → LIBERO eval on the Mac is **not practical** (10 tasks × 10 episodes ≈ 10+ hours); this is why Lecture 15's design is on a "single frame", not an "episode". Write the time you measured into the log; this number determines how many command pairs you can try in Lecture 15.
 
 ---
 
-## 6. Kurulum ve çalıştırma (Mac)
+## 6. Setup and running (Mac)
 
 ```bash
-# 0) Önce görüntü: vla env'inde (Ders 10), LIBERO Spatial görev 0'ın 180° döndürülmüş karesi
+# 0) Image first: in the vla env (Lecture 10), the 180°-rotated frame of LIBERO Spatial task 0
 conda activate vla && cd ~/vla-work && mkdir -p day14 && cd day14
 for f in render_libero_frame.py decode_action_tokens.py preprocess_demo.py openvla_mps_single_action.py; do
   curl -O https://raw.githubusercontent.com/mesutd0nmez/vla-robot-learning-tr/main/code/day14/$f; done
 python render_libero_frame.py --suite libero_spatial --task 0 --out frame_task0.png
-python preprocess_demo.py --libero --out preprocess.png      # 4 panel: döndür → 224 → crop
-python decode_action_tokens.py                               # modelsiz decode; Bölüm 4'teki tablo
+python preprocess_demo.py --libero --out preprocess.png      # 4 panels: rotate → 224 → crop
+python decode_action_tokens.py                               # decode without the model; the table in Section 4
 
-# 1) Ayrı env (15 GB indirme buradan başlar; arka planda bırak)
+# 1) Separate env (the 15 GB download starts here; leave it in the background)
 conda create -n openvla python=3.10 -y && conda activate openvla
 pip install torch torchvision "transformers==4.40.1" "tokenizers==0.19.1" "timm==0.9.10" \
             accelerate sentencepiece pillow "numpy<2"
-python -c "import torch; print(torch.__version__, torch.backends.mps.is_available())"   # True olmalı
+python -c "import torch; print(torch.__version__, torch.backends.mps.is_available())"   # should be True
 
-# 2) Tek action
+# 2) Single action
 python openvla_mps_single_action.py --image frame_task0.png \
   --instruction "pick up the black bowl between the plate and the ramekin and place it on the plate"
-python decode_action_tokens.py --from-json action_tokens.json   # aynı 7 sayıyı elle yeniden üret
+python decode_action_tokens.py --from-json action_tokens.json   # reproduce the same 7 numbers by hand
 ```
 
-Script'in çıktısında dört şeye bak: (1) `prompt token sayısı (BOS dahil): 34` ve `son token: 29901` (`":"`) — `29871` değil, demek ki `predict_action` ekleyecek; (2) `pixel_values: (1, 6, 224, 224)`; (3) 7 token'ın hepsi `31744..31999` aralığında; (4) `predict_action süresi`. `model_input_224.png`'yi aç: modele giden kare *bu*; kâse tabak-ramekin arasında, görüntü düz (robot üstte değil altta) olmalı.
+Look at four things in the script's output: (1) `prompt token count (including BOS): 34` and `last token: 29901` (`":"`) — not `29871`, so `predict_action` will add it; (2) `pixel_values: (1, 6, 224, 224)`; (3) all 7 tokens in the range `31744..31999`; (4) `predict_action time` (the line `[*] predict_action time: … s`). Open `model_input_224.png`: the frame going into the model is *this*; the bowl should be between the plate and the ramekin, and the image should be upright (the robot at the bottom, not the top).
 
-Sonra oyna (5 dk): aynı görüntüyle `--instruction "pick up the black bowl next to the plate and place it on the plate"` (görev 8'in komutu) — 7 token'dan kaçı değişti? Aynı görüntü, farklı mekânsal ifade; Ders 15'in çekirdeği bu karşılaştırmadır. Bir de `--instruction "tabak ile ramekinin arasındaki siyah kaseyi al ve tabağın üstüne koy"` — tek örnek bir şey kanıtlamaz, ama token sayısının 46'ya çıktığını ve action'ın nasıl kaydığını görmek için.
+Then play (5 min): with the same image, `--instruction "pick up the black bowl next to the plate and place it on the plate"` (the command of task 8) — how many of the 7 tokens changed? The same image, a different spatial expression; this comparison is the core of Lecture 15. And one more: `--instruction "tabak ile ramekinin arasındaki siyah kaseyi al ve tabağın üstüne koy"` — a single example proves nothing, but it lets you see the token count rise to 46 and how the action shifts.
 
 ---
 
-## 7. İki model yan yana
+## 7. The two models side by side
 
 ![OpenVLA vs VLANeXt](images/lecture-14/06-openvla-vs-vlanext.png)
 
-| | OpenVLA-7B (bugün) | VLANeXt-B (Ders 12–13) |
+| | OpenVLA-7B (today) | VLANeXt-B (Lectures 12–13) |
 |---|---|---|
-| Görüntü | 1 × 224² agentview | 2 × 256² (agentview + bilek) |
-| Proprio | yok | son 8 adım, dizinin başında |
-| Dil omurgası / tokenizer | LLaMA-2 7B / 32k BPE | Qwen3-VL-2B / 151k BPE |
-| Komut → policy | aynı dizide, causal attention | 29 katman çıktısına cross-attention (soft) |
-| Action üretimi | 7 ayrık token, autoregressive, LLM 7 kez | flow-matching, 5 Euler adımı, VLM 1 kez |
-| Çıktı | tek adım (chunk yok) | 8×7 chunk, 8 adım yürütülür |
-| Denormalizasyon | q01/q99, gripper ters çevrilir | min/max (legacy), gripper eşik 0 |
-| LIBERO-Spatial | 84.7 ± 0.9 | 99.0 (makale) |
-| Mac'te | çalışır (bf16, MPS, ~2 s/action, hipotez) | eval çalışmaz (CUDA kernel) |
+| Image | 1 × 224² agentview | 2 × 256² (agentview + wrist) |
+| Proprio | none | last 8 steps, at the start of the sequence |
+| Language backbone / tokenizer | LLaMA-2 7B / 32k BPE | Qwen3-VL-2B / 151k BPE |
+| Command → policy | in the same sequence, causal attention | cross-attention to 29 layer outputs (soft) |
+| Action generation | 7 discrete tokens, autoregressive, LLM 7 times | flow-matching, 5 Euler steps, VLM once |
+| Output | single step (no chunk) | 8×7 chunk, 8 steps executed |
+| Denormalization | q01/q99, gripper inverted | min/max (legacy), gripper threshold 0 |
+| LIBERO-Spatial | 84.7 ± 0.9 | 99.0 (paper) |
+| On the Mac | works (bf16, MPS, ~2 s/action, hypothesis) | eval does not work (CUDA kernel) |
 
-Tez açısından kritik satır tokenizer'dır, ama tablo gösteriyor ki iki model **beş başka eksende** de farklı. "Türkçe'de OpenVLA %x düştü, VLANeXt %y düştü" cümlesi tek başına tokenizer'ı suçlayamaz; Ders 13 §6.3'teki uyarı burada somutlaşıyor. Temiz karşılaştırma için ya aynı mimaride farklı omurga (VLANeXt'in `llama` dalı) ya da aynı modelde farklı dil koşulları (Ders 18 matrisi) gerekir — ikincisi senin elindeki araçlarla yapılabilir olan.
-
----
-
-## 8. Yazılımcı için köprüler
-
-- **Action token = enum'un `int` cast'i.** `31744..31999` aralığı bir `enum ActionBin : ushort` gibi; `vocab_size − id − 1` cast, `bin_centers[...]` lookup table. Model "enum üyesi" üretir, sen sayıya çevirirsin. Enum'un 256 üyesi var ama tablo 255 satır — klasik off-by-one, kodda yorumla belgelenmiş.
-- **`29871` ekleme** = HTTP istemcisinde `Content-Type` başlığını unutmak: istek "geçerli", sunucu yine cevap verir, ama farklı bir code path'e düşersin. `predict_action`'daki `if not torch.all(input_ids[:, -1] == 29871)` bir middleware'in eksik başlığı tamamlaması.
-- **q01/q99 asimetrisi** = `DateTime` ile `DateTimeOffset` farkı: sayı aynı görünür, referans noktası farklıdır. "0.0 normalize" bir sabit değil, `(q01+q99)/2`'ye bağlı bir konumdur; dataset değişince kayar.
-- **`device_map={"": "mps"}`** = stream'den doğrudan hedefe yazmak (`CopyToAsync`) vs önce `MemoryStream`'e alıp sonra kopyalamak: ikincisi iki kat bellek.
-- **Autoregressive 7 token** = 7 ardışık `await` — her biri öncekinin sonucunu bekler; paralelleştiremezsin. VLANeXt'in chunk'ı ise 56 sayıyı tek `Task`'ta döndürür. Süre farkının mimari nedeni bu.
-- **Ayrı conda env** = aynı makinede .NET Framework 4.8 ve .NET 8 projeleri: `transformers 4.40.1` ile `4.57`'yi aynı `site-packages`'a koyamazsın; her modelin kendi "target framework"ü var.
+The critical row for the thesis is the tokenizer, but the table shows that the two models also differ on **five other axes**. A sentence like "with Turkish, OpenVLA dropped x%, VLANeXt dropped y%" cannot blame the tokenizer alone; the warning in Lecture 13 §6.3 becomes concrete here. A clean comparison needs either a different backbone in the same architecture (VLANeXt's `llama` branch) or different language conditions in the same model (the Lecture 18 matrix) — the second is what you can do with the tools you have.
 
 ---
 
-## 9. Bugünün görevi (15 dk)
+## 8. Bridges for the software developer
 
-`openvla` env'ini kur, indirmeyi başlat (arka planda sürerken Bölüm 2–4'ü oku). İndirme bitince `frame_task0.png` ile üç çağrı yap: görev 0 komutu, görev 8 komutu (*next to the plate*), ve görev 0'ın Türkçesi. Her çağrı için `action_tokens.json`'ı sakla (`--out tokens_t0_en.json` vb.) ve `projects/02-openvla-mac-tek-kare/` diye yeni bir proje aç (`projects/_template`); README'ye şu tabloyu yaz: koşul × 7 token id × 7 action değeri × süre (s). Ayrıca `model_input_224.png`'yi ve ilk çağrının `predict_action süresi`ni ekle. Ders 15 bu üç satırı 5 komut çiftine genişletip L2/cosine hesaplayacak.
+- **Action token = the `int` cast of an enum.** The range `31744..31999` is like an `enum ActionBin : ushort`; `vocab_size − id − 1` is the cast, `bin_centers[...]` a lookup table. The model produces an "enum member", you convert it to a number. The enum has 256 members but the table has 255 rows — a classic off-by-one, documented in the code with a comment.
+- **The `29871` append** = forgetting the `Content-Type` header in an HTTP client: the request is "valid", the server still answers, but you land on a different code path. The `if not torch.all(input_ids[:, -1] == 29871)` in `predict_action` is a middleware completing the missing header.
+- **The q01/q99 asymmetry** = the difference between `DateTime` and `DateTimeOffset`: the number looks the same, the reference point differs. "0.0 normalized" is not a constant, it is a position that depends on `(q01+q99)/2`; it shifts when the dataset changes.
+- **`device_map={"": "mps"}`** = writing straight from the stream to the target (`CopyToAsync`) vs first taking it into a `MemoryStream` and then copying: the latter is twice the memory.
+- **Autoregressive 7 tokens** = 7 sequential `await`s — each waits for the result of the previous; you cannot parallelize. VLANeXt's chunk, on the other hand, returns 56 numbers in a single `Task`. This is the architectural reason for the time difference.
+- **A separate conda env** = .NET Framework 4.8 and .NET 8 projects on the same machine: you cannot put `transformers 4.40.1` and `4.57` into the same `site-packages`; each model has its own "target framework".
 
-## Takılırsan
-| Belirti | Çözüm |
+---
+
+## 9. Today's task (15 min)
+
+Set up the `openvla` env and start the download (read Sections 2–4 while it runs in the background). When the download finishes, make three calls with `frame_task0.png`: the task 0 command, the task 8 command (*next to the plate*), and the Turkish version of task 0. Save `action_tokens.json` for each call (`--out tokens_t0_en.json` etc.) and open a new project called `projects/02-openvla-mac-tek-kare/` (`projects/_template`); write this table into the README: condition × 7 token ids × 7 action values × time (s). Also add `model_input_224.png` and the `predict_action time` of the first call. Lecture 15 will extend these three rows to 5 command pairs and compute L2/cosine.
+
+## If you get stuck
+| Symptom | Fix |
 |---|---|
-| `ImportError: flash_attn` | `--attn sdpa` (varsayılan); script'i değiştirmediysen zaten sdpa |
-| `TypeError: BFloat16 is not supported on MPS` / macOS 13 | `--dtype float16`; macOS 14+ ve `torch>=2.3` ile bf16 çalışmalı |
-| `KeyError` / `AttributeError` HF remote kodunda (`PrismaticForConditionalGeneration`) | `transformers` sürümü: `pip install "transformers==4.40.1" "tokenizers==0.19.1" "timm==0.9.10"` — **`vla` env'ine değil `openvla` env'ine** |
-| `NotImplementedError: The operator ... is not currently implemented for the MPS device` | `PYTORCH_ENABLE_MPS_FALLBACK=1 python openvla_mps_single_action.py ...` (o op CPU'ya düşer) |
-| Bellek 30 GB'a vurup swap'a giriyor | `device_map={"": "mps"}` zaten script'te; yine oluyorsa tarayıcı/IDE kapat; `--dtype float16` fark etmez (aynı boyut) |
-| `predict_action` 60 s+ sürüyor | İlk çağrı ısınmadır; ikinci çağrıyı ölç. Hâlâ >10 s ise `torch.backends.mps.is_available()`'ı ve modelin `mps`'te olduğunu (`next(vla.parameters()).device`) kontrol et |
-| `unnorm_key 'libero_spatial' not found` | Yanlış checkpoint (temel `openvla-7b` indirilmiş); `CKPT`'yi kontrol et |
-| `render_libero_frame.py`: `MUJOCO_GL` hatası | Mac'te `glfw` varsayılanı yeterli; `export MUJOCO_GL=glfw` |
-| İndirme çok yavaş / kesiliyor | `pip install -U huggingface_hub hf_transfer` ve `HF_HUB_ENABLE_HF_TRANSFER=1`; kaldığı yerden devam eder |
+| `ImportError: flash_attn` | `--attn sdpa` (default); if you did not change the script, it is already sdpa |
+| `TypeError: BFloat16 is not supported on MPS` / macOS 13 | `--dtype float16`; bf16 should work with macOS 14+ and `torch>=2.3` |
+| `KeyError` / `AttributeError` in the HF remote code (`PrismaticForConditionalGeneration`) | `transformers` version: `pip install "transformers==4.40.1" "tokenizers==0.19.1" "timm==0.9.10"` — **in the `openvla` env, not the `vla` env** |
+| `NotImplementedError: The operator ... is not currently implemented for the MPS device` | `PYTORCH_ENABLE_MPS_FALLBACK=1 python openvla_mps_single_action.py ...` (that op falls back to the CPU) |
+| Memory hits 30 GB and starts swapping | `device_map={"": "mps"}` is already in the script; if it still happens, close the browser/IDE; `--dtype float16` makes no difference (same size) |
+| `predict_action` takes 60 s+ | The first call is warm-up; measure the second call. If it is still >10 s, check `torch.backends.mps.is_available()` and that the model is on `mps` (`next(vla.parameters()).device`) |
+| `unnorm_key 'libero_spatial' not found` | Wrong checkpoint (the base `openvla-7b` was downloaded); check `CKPT` |
+| `render_libero_frame.py`: `MUJOCO_GL` error | On the Mac the `glfw` default is enough; `export MUJOCO_GL=glfw` |
+| Download very slow / interrupted | `pip install -U huggingface_hub hf_transfer` and `HF_HUB_ENABLE_HF_TRANSFER=1`; it resumes where it left off |
 
 ---
 
-## Sonraki ders (Ders 15)
-Tatar vd.'nin deneyinin mini-reprodüksiyonu, bugünkü boru hattıyla: LIBERO Spatial'dan 5 kare, her biri için EN komut ve Türkçe karşılığı (Ders 7–10'daki ek-yoğun çeviriler), OpenVLA'dan 7-DoF action; çiftler arası L2 ve cosine, artı iki kontrol — aynı EN komutun **parafrazı** (tokenizer dışı bir fark) ve **boş komut** (Ders 4'ün tabanı). Sonuçlar `datasets/` altında ilk Türkçe komut kartı ve `results/runs.csv`'nin ilk satırları olacak. Makalenin yöntemini yalnızca tekrarlamayacak, Ders 5'te saydığın 3 zayıf yönünden ikisini (tek kare, kontrol yok) kapatmayı deneyeceğiz.
+## Next lecture (Lecture 15)
+A mini-reproduction of Tatar et al.'s experiment, with today's pipeline: 5 frames from LIBERO Spatial, for each the EN command and its Turkish counterpart (the suffix-dense translations from Lectures 7–10), a 7-DoF action from OpenVLA; L2 and cosine between pairs, plus two controls — a **paraphrase** of the same EN command (a difference outside the tokenizer) and the **empty command** (the floor from Lecture 4). The results will be the first Turkish command card under `datasets/` and the first rows of `results/runs.csv`. We will not just repeat the paper's method, but try to close two of the 3 weaknesses you counted in Lecture 5 (single frame, no controls).
 
 ---
 
-## Kaynaklar
-- OpenVLA kodu: [github.com/openvla/openvla](https://github.com/openvla/openvla) (commit `c8f03f4`, 23 Mar 2025) — `prismatic/extern/hf/modeling_prismatic.py` (`predict_action` :506-536, projector :128-160, birleşme :384, `vocab_size` :504, `_supports_sdpa` :208), `prismatic/vla/action_tokenizer.py`, `experiments/robot/openvla_utils.py` (`get_vla` :31-71, `get_vla_action` :127-170, `crop_and_resize` :81), `experiments/robot/libero/run_libero_eval.py` (`center_crop` :66/:94, `unnorm_key` :101-112, gripper :219-225), `experiments/robot/libero/libero_utils.py` (`get_libero_image` :50-58), `experiments/robot/robot_utils.py` (`normalize_gripper_action`, `invert_gripper_action`), `experiments/robot/libero/regenerate_libero_dataset.py` (veri değişiklikleri), `pyproject.toml` (sürüm pinleri). README "LIBERO Simulation Benchmark Evaluations" bölümü (başarı tablosu).
-- Checkpoint: [huggingface.co/openvla/openvla-7b-finetuned-libero-spatial](https://huggingface.co/openvla/openvla-7b-finetuned-libero-spatial) — `dataset_statistics.json` (q01/q99/mask, 432 trajectory, 52.970 transition), `config.json` (`dinosiglip-vit-so-224px`, `llama2-7b-pure`, `resize-naive`, `n_action_bins: 256`, `pad_to_multiple_of: 64`, `vocab_size: 32064`), LoRA r=32, 50k adım, MIT.
-- Kim, M. J. vd. (2024). *OpenVLA: An Open-Source Vision-Language-Action Model.* [arXiv:2406.09246](https://arxiv.org/abs/2406.09246) — §3 action tokenizasyonu, Appendix E LIBERO.
-- Tokenizer sayımı: [llama-tokenizer-js](https://github.com/belladoreai/llama-tokenizer-js) (LLaMA-2 BPE'nin JS uyarlaması; Mac'te HF tokenizer ile doğrula).
-- PyTorch MPS: [MPS environment variables](https://docs.pytorch.org/docs/stable/mps_environment_variables.html) (`PYTORCH_MPS_HIGH_WATERMARK_RATIO` varsayılan 1.7, `PYTORCH_ENABLE_MPS_FALLBACK`); bf16 MPS desteği macOS 14 ile ([pytorch#119641](https://github.com/pytorch/pytorch/pull/119641)).
-- Tatar vd. (2026) — Ders 5; Ders 13'teki VLANeXt referansları (karşılaştırma tablosu için).
-- Kod: `code/day14/` — `decode_action_tokens.py` (çıktısı Bölüm 4'te **gerçek**), `preprocess_demo.py` (görsel 05 gerçek robosuite render'ı), `plot_day14.py` (02–04), `render_libero_frame.py` ve `openvla_mps_single_action.py` (bu ortamda çalıştırılamadı: HF/Apple GPU yok; `py_compile` geçti). Görseller: 01 ve 06 Mermaid (`.mmd` yanında), 02 gerçek q01/q99, 03 gerçek token sayıları, 04 tahmin (başlıkta belirtildi), 05 gerçek render.
+## References
+- OpenVLA code: [github.com/openvla/openvla](https://github.com/openvla/openvla) (commit `c8f03f4`, 23 Mar 2025) — `prismatic/extern/hf/modeling_prismatic.py` (`predict_action` :506-536, projector :128-160, merging :384, `vocab_size` :504, `_supports_sdpa` :208), `prismatic/vla/action_tokenizer.py`, `experiments/robot/openvla_utils.py` (`get_vla` :31-71, `get_vla_action` :127-170, `crop_and_resize` :81), `experiments/robot/libero/run_libero_eval.py` (`center_crop` :66/:94, `unnorm_key` :101-112, gripper :219-225), `experiments/robot/libero/libero_utils.py` (`get_libero_image` :50-58), `experiments/robot/robot_utils.py` (`normalize_gripper_action`, `invert_gripper_action`), `experiments/robot/libero/regenerate_libero_dataset.py` (data changes), `pyproject.toml` (version pins). README "LIBERO Simulation Benchmark Evaluations" section (success table).
+- Checkpoint: [huggingface.co/openvla/openvla-7b-finetuned-libero-spatial](https://huggingface.co/openvla/openvla-7b-finetuned-libero-spatial) — `dataset_statistics.json` (q01/q99/mask, 432 trajectories, 52,970 transitions), `config.json` (`dinosiglip-vit-so-224px`, `llama2-7b-pure`, `resize-naive`, `n_action_bins: 256`, `pad_to_multiple_of: 64`, `vocab_size: 32064`), LoRA r=32, 50k steps, MIT.
+- Kim, M. J. et al. (2024). *OpenVLA: An Open-Source Vision-Language-Action Model.* [arXiv:2406.09246](https://arxiv.org/abs/2406.09246) — §3 action tokenization, Appendix E LIBERO.
+- Tokenizer counts: [llama-tokenizer-js](https://github.com/belladoreai/llama-tokenizer-js) (a JS port of the LLaMA-2 BPE; verify with the HF tokenizer on the Mac).
+- PyTorch MPS: [MPS environment variables](https://docs.pytorch.org/docs/stable/mps_environment_variables.html) (`PYTORCH_MPS_HIGH_WATERMARK_RATIO` default 1.7, `PYTORCH_ENABLE_MPS_FALLBACK`); bf16 MPS support with macOS 14 ([pytorch#119641](https://github.com/pytorch/pytorch/pull/119641)).
+- Tatar et al. (2026) — Lecture 5; the VLANeXt references in Lecture 13 (for the comparison table).
+- Code: `code/day14/` — `decode_action_tokens.py` (its output in Section 4 is **real**), `preprocess_demo.py` (image 05 is a real robosuite render), `plot_day14.py` (02–04), `render_libero_frame.py` and `openvla_mps_single_action.py` (could not be run in this environment: no HF/Apple GPU; `py_compile` passed). Images: 01 and 06 Mermaid (next to the `.mmd`), 02 real q01/q99, 03 real token counts, 04 estimate (stated in the title), 05 real render.

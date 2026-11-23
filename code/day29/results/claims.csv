@@ -1,13 +1,13 @@
 tagged,tags,text
-1,arXiv:2606.11906;arXiv:2606.15714,"Çok dilli ölçümler sert düşüşler raporluyor: Korece komutla LIBERO-Spatial başarısı 97,6'dan 49,2'ye iniyor [arXiv:2606.11906]; OpenVLA-OFT'de yabancı dil kaybı"
-1,Ders 27,**Benchmark:** LIBERO-Spatial ve LIBERO-Goal; görev başına 50 başlangıç durumu [Ders 27].
-1,Ders 20,"**Veri:** 20 EN–TR eşli komut, dört blok (A eğitilmiş Spatial 6, B yeni tarif 6, C Goal 6, D 2) ve dört Türkçe yüzey [Ders 20]."
-1,Ders 26,"**Ölçüt:** eşli McNemar ve TOST eşdeğerlik; ""fark var"" için p < 0,05 ve en az 15 puan, eşikler koşudan önce yazılır (ön kayıt) [Ders 26]."
-1,Ders 27,Görev başına 50 durumla görünen en küçük fark 23 puan olduğundan ana iddia blok düzeyinde kurulur: 6 görev × 20 durum ile 13 puan [Ders 27].
-1,Ders 22,"Türkçe için ilk kapalı-döngü, boş-komut tabanlı VLA ölçümü; iki tokenizer'ın (Türkçe harf bedeli 4,9 ve 0,9 token) davranış karşılığı [Ders 22]."
-1,hesap: Ders 27;Ders 27,"Hesap birimi Kaggle T4 saati; yalın matris ≈ 108 saat, tam çekirdek ≈ 258 saat [hesap: Ders 27]; haftalık kota ≈ 30 saat (kullanıcı raporu) [Ders 27]."
-1,öneri,İş paketleri (hafta 1 = 30 Kasım 2026) [öneri]: İP1 pilot + kalibrasyon (hafta 1–2); İP2 RQ-a (hafta 2–5); İP3 RQ-b (hafta 5–7); İP4 RQ-c (hafta 7–8); İP5 anali
-1,öneri,Ara sınav: hafta 5'te RQ-a tablosu; son sınav: hafta 16'da tez taslağı [öneri].
-1,Ders 27,| Model çağrısı tahminden yavaş (kötümser 497 saat) [Ders 27] | yalın matris; yalnız Spatial + Goal blok A/C |
-1,Ders 27,"| 4-bit S-OV yayımlanan 84,7'yi tutturmaz [Ders 27] | ""OpenVLA (4-bit)"" etiketi; Mac'te bf16 eşli alt küme |"
-1,Ders 19;Ders 19,| Spatial'da boş komut tavana yakın (komutsuz 9/10) [Ders 19] | ağırlık Goal'a (komutsuz 1/10) [Ders 19] |
+1,arXiv:2606.11906;arXiv:2606.15714,"Multilingual measurements report sharp drops: with a Korean command, LIBERO-Spatial success falls from 97.6 to 49.2 [arXiv:2606.11906]; in OpenVLA-OFT the loss "
+1,Lecture 27,**Benchmark:** LIBERO-Spatial and LIBERO-Goal; 50 initial states per task [Lecture 27].
+1,Lecture 20,"**Data:** 20 paired EN–TR commands, four blocks (A trained Spatial 6, B new recipe 6, C Goal 6, D 2) and four Turkish surfaces [Lecture 20]."
+1,Lecture 26,"**Measure:** paired McNemar and TOST equivalence; for ""there is a difference"", p < 0.05 and at least 15 points, with thresholds written before the run (preregis"
+1,Lecture 27,"Since the smallest visible difference with 50 states per task is 23 points, the main claim is built at the block level: 6 tasks × 20 states give 13 points [Lect"
+1,Lecture 22,"The first closed-loop, empty-command-based VLA measurement for Turkish; the behavioral counterpart of two tokenizers (Turkish letter cost 4.9 and 0.9 tokens) [L"
+1,calc: Lecture 27;Lecture 27,"The unit of account is Kaggle T4 hours; lean matrix ≈ 108 hours, full core ≈ 258 hours [calc: Lecture 27]; weekly quota ≈ 30 hours (user report) [Lecture 27]."
+1,proposal,Work packages (week 1 = 30 November 2026) [proposal]: WP1 pilot + calibration (weeks 1–2); WP2 RQ-a (weeks 2–5); WP3 RQ-b (weeks 5–7); WP4 RQ-c (weeks 7–8); WP5
+1,proposal,Midterm: RQ-a table in week 5; final: thesis draft in week 16 [proposal].
+1,Lecture 27,| Model calls slower than estimated (pessimistic 497 hours) [Lecture 27] | lean matrix; only Spatial + Goal blocks A/C |
+1,Lecture 27,"| 4-bit S-OV does not reach the published 84.7 [Lecture 27] | label it ""OpenVLA (4-bit)""; paired bf16 subset on the Mac |"
+1,Lecture 19;Lecture 19,| Empty command near the ceiling in Spatial (no-command 9/10) [Lecture 19] | shift weight to Goal (no-command 1/10) [Lecture 19] |

@@ -1,11 +1,11 @@
 flowchart TB
-  Q0["Karşılaştırma adayı"]:::in --> Q1{"İki koşul arasında<br/>yalnız BİR faktör mü değişiyor?"}
-  Q1 -- "evet" --> Q2{"Yeni episode<br/>gerekiyor mu?"}
-  Q1 -- "hayır: omurga + action başı + veri<br/>(S-OV vs S-VN)" --> DESC["betimsel karşılaştırma<br/>'sistem farkı' diye yazılır<br/>parçalamak: StarVLA düzeni, bütçe dışı"]:::prob
-  Q1 -- "kısmen: tr_a - tr_bare<br/>harfleri de götürüyor" --> FIX["tasarımı düzelt<br/>2x2: tr_bare_ascii ekle"]:::key
+  Q0["Comparison candidate"]:::in --> Q1{"Does only ONE factor<br/>change between the two conditions?"}
+  Q1 -- "yes" --> Q2{"Are new episodes<br/>needed?"}
+  Q1 -- "no: backbone + action head + data<br/>(S-OV vs S-VN)" --> DESC["descriptive comparison<br/>written as 'system difference'<br/>decomposing: StarVLA setup, outside the budget"]:::prob
+  Q1 -- "partly: tr_a - tr_bare<br/>also removes the letters" --> FIX["fix the design<br/>2x2: add tr_bare_ascii"]:::key
   FIX --> Q2
-  Q2 -- "hayır" --> RE["yeniden okuma<br/>MT / parser kâhini = clean hücresi<br/>K3 = niceleme ablation'ı"]:::out
-  Q2 -- "evet" --> CELL["yeni matris hücresi<br/>AB1 çekirdek, AB2 ve AB3 genişletme<br/>budget.py ile fiyatlanır"]:::out
+  Q2 -- "no" --> RE["re-reading<br/>MT / parser oracle = clean cell<br/>K3 = quantization ablation"]:::out
+  Q2 -- "yes" --> CELL["new matrix cell<br/>AB1 core, AB2 and AB3 extension<br/>priced with budget.py"]:::out
   classDef key fill:#ffd166,stroke:#c79a00,color:#000
   classDef in fill:#cfe8ff,stroke:#3b6ea8,color:#000
   classDef out fill:#d4f5d4,stroke:#2e8b57,color:#000

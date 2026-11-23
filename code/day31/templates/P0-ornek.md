@@ -1,20 +1,20 @@
-# Proje tasarımı — P0 (adı: Goal görev 8'de `wrong` hedefi kaydırıyor mu — ÖRNEK, Claude doldurdu)
+# Project design — P0 (name: does `wrong` shift the target on Goal task 8 — EXAMPLE, filled in by Claude)
 
-**Soru:** LIBERO Goal görev 8 sahnesinde (`put the bowl on the plate`), S-VN aynı init state'lerde `wrong` komutla (`put the bowl on the stove`) `clean`'e göre hedefi değiştiriyor mu, yoksa `empty` gibi davranıp komutu yok mu sayıyor?
+**Question:** In the LIBERO Goal task 8 scene (`put the bowl on the plate`), on the same init states does S-VN with the `wrong` command (`put the bowl on the stove`) change the target relative to `clean`, or does it behave like `empty` and ignore the command?
 
-**Null hipotez:** H0-1: P(başarı | wrong) = P(başarı | clean) (fark yok; δ = 15 puan). H0-2: P(başarı | wrong) = P(başarı | empty) (δ = 10 puan).
+**Null hypothesis:** H0-1: P(success | wrong) = P(success | clean) (no difference; δ = 15 points). H0-2: P(success | wrong) = P(success | empty) (δ = 10 points).
 
-**Değişkenler:** Bağımsız: komut koşulu {clean, empty, wrong}. Bağımlı: episode başarı (görev 8 predicate'i) ve gidilen hedef (tabak / ocak / yok, video etiketi). Ortak: komutsuz tavan (Ders 19: Goal 1/10). Sabit: init state 0..49, checkpoint, `num_steps_wait` 10.
+**Variables:** Independent: command condition {clean, empty, wrong}. Dependent: episode success (the task 8 predicate) and the target reached (plate / stove / none, video label). Shared: the no-command ceiling (Lecture 19: Goal 1/10). Fixed: init states 0..49, checkpoint, `num_steps_wait` 10.
 
-**Hücreler:**
-- S-VN, libero_goal, C (görev 8), clean;empty;wrong, n_init 50, tekrar 1
+**Cells:**
+- S-VN, libero_goal, C (task 8), clean;empty;wrong, n_init 50, repeats 1
 
-**Bütçe:** 3,2 T4 sa (orta senaryo, budget.py: Goal clean 57 s + empty 88 s + wrong 88 s, × 50 init) · havuz n = 50 · MDE = 23 puan
+**Budget:** 3.2 T4 h (mid scenario, budget.py: Goal clean 57 s + empty 88 s + wrong 88 s, × 50 init) · pooled n = 50 · MDE = 23 points
 
-**Başarı ölçütü:** "wrong hedefi kaydırıyor": McNemar p < 0,05 ve |Δ(wrong − clean)| ≥ 23 ve ocak etiketli episode ≥ 10/50. "Komutu yok sayıyor": TOST δ = 10 içinde wrong ≈ empty.
+**Success criterion:** "wrong shifts the target": McNemar p < 0.05 and |Δ(wrong − clean)| ≥ 23 and at least 10/50 episodes labelled stove. "Ignores the command": wrong ≈ empty within TOST δ = 10.
 
-**Riskler:**
-- Goal tavanı düşük (1/10) → `empty` ≈ 0; wrong − empty ayrımı yalnız gidilen hedef etiketiyle görülür (video etiketleme 50 × 3).
-- Tek görev → genelleme yok; sonuç "görev 8'de" diye yazılır.
+**Risks:**
+- The Goal ceiling is low (1/10) → `empty` ≈ 0; the wrong − empty distinction is visible only through the target label (video labelling 50 × 3).
+- A single task → no generalization; the result is written as "on task 8".
 
-**Evet / hayır çıkarsa:** Evet: "S-VN Goal'da komutu okuyor ve yanlış hedefe gidiyor" → Türkçe `tr` koşulunun okunup okunmadığını ayırmak için `wrong` geçerli bir pozitif kontrol olur. Hayır: wrong ≈ empty → Goal'da da dil zayıf okunuyor; RQ-a'nın Goal C bloğu ölçümü bu sistemle anlamsızlaşır.
+**If yes / if no:** Yes: "S-VN reads the command on Goal and goes to the wrong target" → `wrong` becomes a valid positive control for telling whether the Turkish `tr` condition is read. No: wrong ≈ empty → language is weakly read on Goal too; the Goal C block measurement of RQ-a becomes meaningless with this system.

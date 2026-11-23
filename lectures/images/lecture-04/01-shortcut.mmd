@@ -1,15 +1,15 @@
 flowchart LR
-    subgraph T["Tasarlanan yol (VLA)"]
+    subgraph T["Intended path (VLA)"]
         direction LR
-        I1["görüntü"] --> M1["model"]
-        L1["komut:<br/>'put the bowl on the plate'"] --> M1
+        I1["image"] --> M1["model"]
+        L1["command:<br/>'put the bowl on the plate'"] --> M1
         M1 --> A1["action"]
     end
-    subgraph S["Öğrenilen kısayol (shortcut)"]
+    subgraph S["Learned shortcut"]
         direction LR
-        I2["görüntü:<br/>kâse + tabak"] --> M2["model"]
-        L2["komut (okunmuyor)"] -.-> M2
-        M2 --> A2["action: kâseyi tabağa koy<br/>— çünkü eğitimde bu sahne<br/>hep bu görevdi"]
+        I2["image:<br/>bowl + plate"] --> M2["model"]
+        L2["command (not read)"] -.-> M2
+        M2 --> A2["action: put the bowl on the plate<br/>- because in training this scene<br/>was always this task"]
     end
     style L2 fill:#eee,stroke-dasharray: 5 5,color:#999
     style M1 fill:#ffd166,color:#000

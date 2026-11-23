@@ -1,8 +1,8 @@
 flowchart LR
-    O["🎥 OBSERVATION<br/>kamera görüntüsü<br/>eklem açıları<br/>gripper durumu<br/>dil komutu"] --> P["🧠 POLICY<br/>π(a | o)<br/><i>öğrenilen model</i>"]
-    P --> A["🦾 ACTION<br/>Δx, Δy, Δz<br/>Δroll, Δpitch, Δyaw<br/>gripper aç/kapat"]
-    A --> W["🌍 DÜNYA<br/>fizik, nesneler, robot"]
-    W -->|"yeni gözlem"| O
+    O["🎥 OBSERVATION<br/>camera image<br/>joint angles<br/>gripper state<br/>language command"] --> P["🧠 POLICY<br/>π(a | o)<br/><i>learned model</i>"]
+    P --> A["🦾 ACTION<br/>Δx, Δy, Δz<br/>Δroll, Δpitch, Δyaw<br/>gripper open/close"]
+    A --> W["🌍 WORLD<br/>physics, objects, robot"]
+    W -->|"new observation"| O
     style P fill:#ffd166,stroke:#333,stroke-width:2px,color:#000
     style O fill:#cfe8ff,stroke:#333,color:#000
     style A fill:#d4f5d4,stroke:#333,color:#000

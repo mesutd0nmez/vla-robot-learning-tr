@@ -1,5 +1,5 @@
 cell,rq,tier,where,status,episodes,episodes_run,h_iyimser,h_orta,h_kötümser
-B6,b,ext,T4,hazır,1200,1200,21.9,37.4,73.1
-AB1,b,core,T4,hazır,1200,1200,26.8,45.8,89.8
-AB2,b,ext,T4,hazır,1200,1200,20.5,34.9,68.2
-AB3,c,ext,T4,engelli (tr_cs yüzeyi yok),1200,1200,20.2,34.4,67.3
+B6,b,ext,T4,ready,1200,1200,21.9,37.4,73.1
+AB1,b,core,T4,ready,1200,1200,26.8,45.8,89.8
+AB2,b,ext,T4,ready,1200,1200,20.5,34.9,68.2
+AB3,c,ext,T4,blocked (no tr_cs surface),1200,1200,20.2,34.4,67.3

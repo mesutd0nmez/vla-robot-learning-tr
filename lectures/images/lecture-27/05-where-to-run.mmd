@@ -1,12 +1,12 @@
 flowchart TB
-  S["S-OV: OpenVLA-7B<br/>bf16 16,8 GB, int4 7,0 GB<br/>OpenVLA Tablo 2"]:::in --> Q{"T4 15 GB<br/>bf16 sığar mı?"}
-  Q -- "hayır" --> Q4["T4'te 4-bit NF4<br/>S-OV-4bit = ayrı sistem"]:::prob
-  Q4 --> K1["K1 kalibrasyon<br/>clean, 10 görev × 10 init<br/>yayımlanan 84,7 ile karşılaştır"]:::key
-  S --> MAC["Mac M2 32 GB<br/>bf16 MPS, kota yok, yavaş"]:::in
-  MAC --> K3["K3 niceleme köprüsü<br/>aynı 25 init: bf16 Mac vs 4-bit T4<br/>eşli fark = niceleme etkisi"]:::key
-  V["S-VN: VLANeXt-B<br/>2B omurga, chunk 8"]:::in --> KG["Kaggle T4 x2<br/>iki süreç, haftalık kota"]:::out
+  S["S-OV: OpenVLA-7B<br/>bf16 16.8 GB, int4 7.0 GB<br/>OpenVLA Table 2"]:::in --> Q{"T4 15 GB<br/>does bf16 fit?"}
+  Q -- "no" --> Q4["4-bit NF4 on the T4<br/>S-OV-4bit = a separate system"]:::prob
+  Q4 --> K1["K1 calibration<br/>clean, 10 tasks × 10 init<br/>compare with the published 84.7"]:::key
+  S --> MAC["Mac M2 32 GB<br/>bf16 MPS, no quota, slow"]:::in
+  MAC --> K3["K3 quantization bridge<br/>same 25 init: bf16 Mac vs 4-bit T4<br/>paired difference = quantization effect"]:::key
+  V["S-VN: VLANeXt-B<br/>2B backbone, chunk 8"]:::in --> KG["Kaggle T4 x2<br/>two processes, weekly quota"]:::out
   Q4 --> KG
-  K1 --> A["A3 / A4 / B2 / B4<br/>tüm koşullar aynı 4-bit ile<br/>eşli fark geçerli kalır"]:::out
+  K1 --> A["A3 / A4 / B2 / B4<br/>all conditions with the same 4-bit<br/>paired difference stays valid"]:::out
   K3 --> A
   classDef key fill:#ffd166,stroke:#c79a00,color:#000
   classDef in fill:#cfe8ff,stroke:#3b6ea8,color:#000

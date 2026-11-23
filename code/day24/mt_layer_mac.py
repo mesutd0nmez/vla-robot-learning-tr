@@ -1,15 +1,15 @@
-"""Ders 24 — Çözüm adayı 1 (çeviri katmanı, MT) Mac'te: datasets/04'ün 80 Türkçe komutunu açık bir MT modeliyle
-İngilizce'ye çevir, `en` sütunuyla karşılaştır, komut başına gecikmeyi ölç.
+"""Lecture 24 — solution candidate 1 (translation layer, MT) on the Mac: translate the 80 Turkish commands of datasets/04 into
+English with an open MT model, compare with the `en` column, measure the latency per command.
 
-Bu oturumda ÇALIŞTIRILAMADI (Hugging Face erişimi yok) — Mac'te `vla` env'inde koş:
+NOT RUN in this session (no Hugging Face access) — run it on the Mac in the `vla` env:
     pip install "transformers>=4.40" sentencepiece sacrebleu
-    python mt_layer_mac.py --model Helsinki-NLP/opus-mt-tr-en            # ~300 MB, hızlı
-    python mt_layer_mac.py --model facebook/nllb-200-distilled-600M      # ~2,4 GB, 200 dil
-Çıktı: mt_roundtrip_<model>.csv (tr, en_pred, en_gold, exact, chrf, ms) + özet satırı.
+    python mt_layer_mac.py --model Helsinki-NLP/opus-mt-tr-en            # ~300 MB, fast
+    python mt_layer_mac.py --model facebook/nllb-200-distilled-600M      # ~2.4 GB, 200 languages
+Output: mt_roundtrip_<model>.csv (tr, en_pred, en_gold, exact, chrf, ms) + a summary line.
 
-Ölçtüğümüz üç şey: (1) birebir eşleşme (LIBERO şablonuna düşüyor mu?), (2) chrF (anlam yakınlığı için kaba ölçü),
-(3) gecikme — kapalı döngüde her episode'da BİR kez çevrilir, adım başına değil; yani 200 ms bile sorun değil.
-Asıl soru 'yanlış ama geçerli' çeviriler: `wrong` koşulunu (Ders 18) çeviri katmanının kendisi üretebilir.
+The three things we measure: (1) exact match (does it land on the LIBERO template?), (2) chrF (a rough measure of semantic closeness),
+(3) latency — in closed loop it is translated ONCE per episode, not per step; so even 200 ms is not a problem.
+The real question is 'wrong but valid' translations: the translation layer itself can produce the `wrong` condition (Lecture 18).
 """
 import argparse, csv, time
 from pathlib import Path
@@ -41,7 +41,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", default="Helsinki-NLP/opus-mt-tr-en")
     ap.add_argument("--csv", default=str(DEFAULT_CSV))
-    ap.add_argument("--device", default=None, help="mps / cpu (varsayılan: mps varsa mps)")
+    ap.add_argument("--device", default=None, help="mps / cpu (default: mps if available)")
     a = ap.parse_args()
     import torch
     device = a.device or ("mps" if torch.backends.mps.is_available() else "cpu")
@@ -68,8 +68,8 @@ def main():
             exact[r["variant"]] = exact.get(r["variant"], 0) + ex; n[r["variant"]] = n.get(r["variant"], 0) + 1; lat.append(ms)
     print(f"model={a.model} device={device}")
     for v in ("tr_a", "tr_ascii", "tr_bare", "tr_b"):
-        print(f"  {v:<9} birebir {exact.get(v,0)}/{n.get(v,0)}")
-    lat.sort(); print(f"  gecikme medyan {lat[len(lat)//2]:.0f} ms (ilk çağrı {lat[0]:.0f}…{lat[-1]:.0f} ms aralığı) → {out_path.name}")
+        print(f"  {v:<9} exact {exact.get(v,0)}/{n.get(v,0)}")
+    lat.sort(); print(f"  latency median {lat[len(lat)//2]:.0f} ms (range {lat[0]:.0f}…{lat[-1]:.0f} ms) -> {out_path.name}")
 
 
 if __name__ == "__main__":

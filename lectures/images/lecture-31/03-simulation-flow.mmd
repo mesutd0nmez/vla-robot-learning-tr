@@ -3,12 +3,12 @@ sequenceDiagram
   participant M as Mesut
   participant L as design_lint.py
   participant B as budget.py
-  C->>M: üç kısa öneri P1 P2 P3 (bir paragraf, hücre adı yok)
-  M->>M: birini seç, şablonu 25 dk doldur
-  M->>B: hücreleri fiyatla (n_init, sistem, koşul)
-  B-->>M: T4 saati ve MDE
+  C->>M: three short proposals P1 P2 P3 (one paragraph, no cell names)
+  M->>M: pick one, fill the template in 25 min
+  M->>B: price the cells (n_init, system, condition)
+  B-->>M: T4 hours and MDE
   M->>L: python design_lint.py P1.md
-  L-->>M: TAM ya da EKSİK alan listesi
-  M->>C: doldurulmuş şablon
-  C-->>M: rubrik puanı ve dönülecek ders numaraları
-  M->>M: eksik alanı düzelt, tekrar lint
+  L-->>M: COMPLETE or list of missing fields
+  M->>C: filled template
+  C-->>M: rubric score and lecture numbers to go back to
+  M->>M: fix the missing field, lint again

@@ -1,161 +1,161 @@
-# Ders 31 — Final: "Bir Proje Yapalım" Simülasyonu — Claude Önerir, Sen Tasarlarsın; Rubrik, Aşama 0 Bilançosu ve Devreden İşler
+# Lecture 31 — Final: "Let's Do a Project" Simulation — Claude Proposes, You Design; Rubric, Stage 0 Ledger and Carried-Over Work
 
-**Faz 4 / Gün 31** · **Süre:** ~60 dk (okuma 30 + simülasyon 30) · Son ders
-**Ön koşul:** Ders 26 (altı alan, `rq_power.py`), Ders 27 (`experiment-matrix.csv`, `budget.py`), Ders 28 (`thesis/ablation-plan.md`), Ders 29 (`thesis/proposal-v0.1.md`), Ders 30 (`slides/advisor-meeting-01.md`) · **Kod:** `code/day31/` (`phase0_inventory.py` repo taraması, `design_lint.py` şablon denetçisi, `plot_day31.py`; üçü de bu oturumda koştu) · **Çıktı:** doldurduğun bir proje tasarımı (`code/day31/templates/P1–P3.md`'den biri)
+**Phase 4 / Day 31** · **Time:** ~60 min (reading 30 + simulation 30) · Last lecture
+**Prerequisites:** Lecture 26 (six fields, `rq_power.py`), Lecture 27 (`experiment-matrix.csv`, `budget.py`), Lecture 28 (`thesis/ablation-plan.md`), Lecture 29 (`thesis/proposal-v0.1.md`), Lecture 30 (`slides/advisor-meeting-01.md`) · **Code:** `code/day31/` (`phase0_inventory.py` repo scan, `design_lint.py` template checker, `plot_day31.py`; all three ran in this session) · **Output:** a project design you fill in (one of `code/day31/templates/P1–P3.md`)
 
-> **Bugünün tek cümlesi:** Aşama 0'ın amacı "bir proje yapalım" dendiğinde araştırma sorusu ve deney planı üretebilmekti. Bugün bu sınanıyor. Claude üç kısa proje önerisi yapıyor, sen birini sekiz alanlı şablona dökersin (soru, null, değişkenler, hücreler, bütçe, sayısal ölçüt, riskler, evet/hayır). `design_lint.py` yapıyı ve n ile MDE'nin tutarlılığını denetliyor, rubrik de eksik alanın hangi derse dönülerek kapanacağını söylüyor. Bilanço kısmında repo taraması (`inventory.csv`) şunu gösteriyor: anlatılanla senin elinle kanıtlanan arasında bir boşluk var ve Aşama 0'dan devreden asıl iş, kapalı döngüde koşulmuş ilk tablodur (S1).
+> **Today in one sentence:** The aim of Stage 0 was to be able to produce a research question and an experiment plan when someone says "let's do a project". Today that is tested. Claude makes three short project proposals, you pour one of them into an eight-field template (question, null, variables, cells, budget, numeric criterion, risks, if yes/no). `design_lint.py` checks the structure and the consistency of n and MDE, and the rubric says which lecture to go back to in order to close a missing field. In the ledger part the repo scan (`inventory.csv`) shows this: there is a gap between what has been told and what has been proven by your own hand, and the real work carried over from Stage 0 is the first table run in closed loop (S1).
 
 ---
 
-## 1. Simülasyonun kuralları
+## 1. The rules of the simulation
 
-Plan tablosundaki son satır şöyleydi: "Claude proje önerir, sen tasarlarsın." Bu bir sınav değil, bir provadır. Danışman ya da bir ekip arkadaşı bir gün "şunu bir deneyelim mi?" diyecek. Senden beklenen, o cümleyi yarım saat içinde koşulabilir, fiyatı belli ve sonucu önceden yorumlanmış bir plana çevirmen. Ders 26 bunu RQ düzeyinde altı alanla yaptı. Ders 27 hücre ve bütçe ekledi. Bugünkü şablon ikisini birleştiriyor ve sekiz alan içeriyor:
+The last line in the plan table was: "Claude proposes a project, you design." This is not an exam, it is a rehearsal. One day an advisor or a teammate will say "shall we try this?". What is expected of you is to turn that sentence within half an hour into a plan that is runnable, with a known price and a result interpreted in advance. Lecture 26 did this at the RQ level with six fields. Lecture 27 added cells and budget. Today's template merges the two and contains eight fields:
 
-![Simülasyon akışı](images/lecture-31/03-simulation-flow.png)
+![Simulation flow](images/lecture-31/03-simulation-flow.png)
 
-| alan | ne yazılır | nereden öğrendin |
+| field | what is written | where you learned it |
 |---|---|---|
-| **Soru** | tek cümle; sistem, sahne, koşul ve "neye göre" içinde geçer | Ders 26 §1 |
-| **Null hipotez** | H0 + eşdeğerlik sınırı δ (sayı) | Ders 26 §2 |
-| **Değişkenler** | bağımsız / bağımlı / ortak / sabit | Ders 26 §3 |
-| **Hücreler** | `experiment-matrix.csv` biçiminde: sistem, suite, blok, koşullar, n_init, tekrar | Ders 27 §1 |
-| **Bütçe** | T4 saati (`budget.py`), havuz n, MDE | Ders 27 §4–5 |
-| **Başarı ölçütü** | sayısal: p < 0,05 ve \|Δ\| ≥ …; ya da κ ≥ …; ya da TOST δ | Ders 19, 26 |
-| **Riskler** | en az iki madde ve her biri için B planı | Ders 27 §6, Ders 28 |
-| **Evet / hayır çıkarsa** | iki dal, iki cümle | Ders 26 §1 |
+| **Question** | one sentence; the system, scene, condition and "relative to what" appear in it | Lecture 26 §1 |
+| **Null hypothesis** | H0 + equivalence bound δ (a number) | Lecture 26 §2 |
+| **Variables** | independent / dependent / covariate / fixed | Lecture 26 §3 |
+| **Cells** | in the `experiment-matrix.csv` format: system, suite, block, conditions, n_init, repeats | Lecture 27 §1 |
+| **Budget** | T4 hours (`budget.py`), pool n, MDE | Lecture 27 §4–5 |
+| **Success criterion** | numeric: p < 0.05 and \|Δ\| ≥ …; or κ ≥ …; or TOST δ | Lectures 19, 26 |
+| **Risks** | at least two items and a plan B for each | Lecture 27 §6, Lecture 28 |
+| **If yes / if no** | two branches, two sentences | Lecture 26 §1 |
 
-Süre 30 dakika: 5 dakikada bir öneri seçilir, 20 dakikada şablon doldurulur, 5 dakikada lint çalıştırılıp düzeltilir. Şablonlar `code/day31/templates/` altında. Standardı görmen için `P0-ornek.md`'yi Claude doldurdu: "Goal görev 8'de `wrong` hedefi kaydırıyor mu", S-VN, 50 init, 3,2 T4 saati, MDE 23. Lint sonucu TAM. P1–P3 boş ve onlar senin.
-
----
-
-## 2. Claude'un üç önerisi
-
-Öneriler, bir toplantıda duyacağın kadar kısa tutuldu. Hücre adı, n ya da eşik verilmiyor; bunları senin çıkarman gerekiyor.
-
-**P1 — "Türkçe komut S-VN'de ne kadar kaybettiriyor?"** LIBERO Spatial'ın eğitilmiş altı görevinde (blok A) aynı sahneler dört komutla koşulur: İngilizce, boş, yanlış hedef, Türkçe. Yalnız S-VN kullanılır, çünkü T4'te ucuz (chunk 8). Bir ön çalışmadan ilk kapalı döngü tablosu çıkar ve RQ-a'nın S-VN yarısı cevaplanır. *Seni zorlayacak yer:* Spatial'da komutsuz tavan 9/10 (Ders 19). `empty` zaten yüksekse `tr` düşüşü neye göre okunacak? Bütçe görev başına kaç init ister, iddia birimi görev mi blok mu?
-
-**P2 — "Harf bedeli: Türkçe karakterleri silmek kimi kurtarır?"** Aynı Türkçe komut iki yüzeyle verilir: `tr_a` (ç, ğ, ı, ö, ş, ü ile) ve `tr_ascii` (onlarsız). İki sistemde de koşulur. Ders 22'ye göre Türkçe harflerin token bedeli LLaMA-2'de 4,9, Qwen3'te 0,9. Tokenizasyon açıklaması doğruysa ASCII'leştirmek S-OV'u kurtarır, S-VN'yi kurtarmaz. *Seni zorlayacak yer:* "zıt yön" iddiası iki ayrı eşli fark ve bir etkileşim demek. Hangi testi yazarsın? S-OV'un 4-bit olması (Ders 27 §3) yorumu nasıl kısıtlar?
-
-**P3 — "Türkçeyi İngilizceye indirmek açığı kapatır mı?"** Türkçe komut modele gitmeden önce kural tabanlı parser'dan (Ders 24) ya da MT'den geçirilir. Açığın ne kadarı kapanıyor (κ), ne kadarı ara katmanın hatasından geliyor? *Seni zorlayacak yer:* Parser set içinde 79/80 birebir çevirdiği için hücrelerin çoğu `clean` episode'unun kendisi (Ders 27, string önbelleği). O zaman deney neyi ölçüyor? Held-out cümleler (5/12) nereye girer? κ'nın paydası küçükse (clean − tr ≈ 0) ne olur?
-
-Üçü de tez eksenine oturuyor: P1 iddianın "ölçülebilir düşüş" yarısı, P2 "nerede kırılıyor" sorusunun en ucuz testi, P3 katkı cümlesinin "zayıf okuma" sürümü. Hangisini seçeceğin, Ders 30'daki danışman toplantısında S7/S10 kararlarının nasıl çıktığına bağlı olabilir. Toplantı henüz olmadıysa P1'i seç, çünkü öbür ikisi onun tablosunu kullanır.
+The time is 30 minutes: in 5 minutes one proposal is chosen, in 20 minutes the template is filled in, in 5 minutes lint is run and corrected. The templates are under `code/day31/templates/`. For you to see the standard, Claude filled in `P0-ornek.md`: "does `wrong` shift the target on Goal task 8", S-VN, 50 init, 3.2 T4 hours, MDE 23. The lint result is COMPLETE. P1–P3 are empty and they are yours.
 
 ---
 
-## 3. Rubrik: "yeterli" neye benziyor?
+## 2. Claude's three proposals
 
-`design_lint.py` rubriğin otomatik yarısı. Her alanın var olup olmadığına, doldurulup doldurulmadığına ve beklenen yapıyı taşıyıp taşımadığına bakıyor: H0 ve δ = sayı, Bağımsız/Bağımlı ayrımı, hücrede S-VN/S-OV + `libero_*` + `n_init`, ölçütte sayısal eşik, en az iki risk maddesi, iki dal. Bir de bütçe tutarlılığını kontrol ediyor: yazdığın havuz n için MDE'yi `code/day27/budget.py`'nin güç fonksiyonuyla (McNemar exact, r = 0,05) hesaplıyor ve ±2 puan dışındaysa uyarıyor. Selftest bu oturumda üç durumu doğruladı: örnek TAM, boş şablon 8/8 eksik, örnekte "MDE = 10" yazınca "n = 50 için MDE 23" uyarısı geldi.
+The proposals were kept as short as what you would hear in a meeting. No cell name, n or threshold is given; you have to derive them.
 
-Rubriğin insan yarısı lint'in göremediği şeyler. Doldurduğun şablonu Claude'a verdiğinde bunlara göre puanlanır:
+**P1 — "How much does the Turkish command cost S-VN?"** On the six trained tasks of LIBERO Spatial (block A) the same scenes are run with four commands: English, empty, wrong target, Turkish. Only S-VN is used, because it is cheap on the T4 (chunk 8). From a pilot comes the first closed-loop table and the S-VN half of RQ-a is answered. *Where it will challenge you:* on Spatial the command-free ceiling is 9/10 (Lecture 19). If `empty` is already high, what will the `tr` drop be read against? How many init does the budget want per task, is the claim unit the task or the block?
 
-| alan | yeterli | sık görülen eksik | dön |
+**P2 — "Letter cost: who does deleting the Turkish characters save?"** The same Turkish command is given in two surfaces: `tr_a` (with ç, ğ, ı, ö, ş, ü) and `tr_ascii` (without them). It is run on both systems. According to Lecture 22 the token cost of Turkish letters is 4.9 in LLaMA-2 and 0.9 in Qwen3. If the tokenization explanation is right, ASCII-fying saves S-OV and does not save S-VN. *Where it will challenge you:* the "opposite direction" claim means two separate paired differences and an interaction. Which test do you write? How does S-OV being 4-bit (Lecture 27 §3) constrain the interpretation?
+
+**P3 — "Does reducing Turkish to English close the gap?"** Before the Turkish command goes to the model it is passed through the rule-based parser (Lecture 24) or MT. How much of the gap closes (κ), how much comes from the error of the intermediate layer? *Where it will challenge you:* because the parser translated 79/80 in-set exactly, most of the cells are the `clean` episode itself (Lecture 27, string cache). Then what is the experiment measuring? Where do the held-out sentences (5/12) go? What happens if the denominator of κ is small (clean − tr ≈ 0)?
+
+All three sit on the thesis axis: P1 is the "measurable drop" half of the claim, P2 the cheapest test of the "where does it break" question, P3 the "weak reading" version of the contribution sentence. Which you choose may depend on how the S7/S10 decisions came out in the advisor meeting of Lecture 30. If the meeting has not happened yet, choose P1, because the other two use its table.
+
+---
+
+## 3. Rubric: what does "good enough" look like?
+
+`design_lint.py` is the automatic half of the rubric. It looks at whether each field exists, is filled in, and carries the expected structure: H0 and δ = number, the Independent/Dependent split, in the cell S-VN/S-OV + `libero_*` + `n_init`, a numeric threshold in the criterion, at least two risk items, two branches. It also checks budget consistency: for the pool n you wrote it computes the MDE with `code/day27/budget.py`'s power function (McNemar exact, r = 0.05) and warns if it is outside ±2 points. The selftest verified three cases in this session: the example is COMPLETE, the empty template is 8/8 incomplete, and writing "MDE = 10" in the example produced the warning "for n = 50 the MDE is 23 points (r = 0.05), you wrote 10".
+
+The human half of the rubric is what lint cannot see. When you give Claude the template you filled in, it is scored on these:
+
+| field | good enough | commonly missing | go back to |
 |---|---|---|---|
-| Soru | sistem, sahne, koşul ve karşılaştırma tabanı tek cümlede | "Türkçe çalışıyor mu?" (taban yok) | Ders 26 §1 |
-| Null | iki yönlü: "fark var" için H0, "fark yok" için δ; δ sonuçtan bağımsız gerekçeli | yalnız H0; δ yok ya da "küçük" | Ders 26 §2 |
-| Değişkenler | ortak değişken adıyla (token sayısı, komutsuz tavan); sabitler listeli | init state ve checkpoint sabit diye yazılmamış | Ders 26 §3, Ders 19 |
-| Hücreler | her hücre koşulabilir; `empty` tabanı her blokta var | `empty` unutulmuş; tavan kontrolü yok | Ders 18, 27 |
-| Bütçe | saat + n + MDE tutarlı; MDE ölçütteki eşikten küçük ya da eşit | MDE 23 iken eşik 15 (görülemeyecek farkı aramak) | Ders 27 §5 |
-| Ölçüt | önceden yazılı sayı; "belirsiz" dalı tanımlı | eşik sonuçtan sonra seçilecek gibi | Ders 26 §2 |
-| Riskler | teknik (render, 4-bit, bddl_cf) + istatistiksel (tavan, n) + yorum (sistem farkı) | yalnız teknik risk | Ders 27 §2–3, 28 |
-| Evet / hayır | iki dal da tezde bir cümleye dönüşüyor; hiçbiri "boşa gitti" değil | "hayır çıkarsa tekrar deneriz" | Ders 26 §1 |
+| Question | system, scene, condition and comparison baseline in one sentence | "Does Turkish work?" (no baseline) | Lecture 26 §1 |
+| Null | two-sided: H0 for "there is a difference", δ for "there is none"; δ justified independently of the result | only H0; no δ or "small" | Lecture 26 §2 |
+| Variables | with the covariate named (token count, command-free ceiling); fixed ones listed | init state and checkpoint not written as fixed | Lecture 26 §3, Lecture 19 |
+| Cells | every cell runnable; the `empty` baseline in every block | `empty` forgotten; no ceiling check | Lectures 18, 27 |
+| Budget | hours + n + MDE consistent; MDE less than or equal to the threshold in the criterion | MDE 23 while the threshold is 15 (looking for a difference that cannot be seen) | Lecture 27 §5 |
+| Criterion | a number written in advance; the "unclear" branch defined | the threshold seems to be chosen after the result | Lecture 26 §2 |
+| Risks | technical (render, 4-bit, bddl_cf) + statistical (ceiling, n) + interpretive (system difference) | only technical risk | Lecture 27 §2–3, 28 |
+| If yes / no | both branches turn into a sentence in the thesis; neither is "wasted" | "if no, we will try again" | Lecture 26 §1 |
 
-En kritik satır bütçe ile ölçütün birbirine bağlanması. P1'de görev başına 20 init seçip görev düzeyinde 15 puanlık fark iddia edersen lint geçer (MDE doğru hesaplanmıştır), ama rubrik düşer: n = 20 ile MDE 46, 15 puanı göremezsin. İddiayı bloğa taşıman ya da bütçeyi artırman gerekir. Ders 27'nin asıl dersi buydu.
+The most critical row is the linking of the budget and the criterion. If in P1 you choose 20 init per task and claim a 15-point difference at the task level, lint passes (the MDE was computed right), but the rubric drops: at n = 20 the MDE is 46, you cannot see 15 points. You must move the claim to the block or raise the budget. That was the real lesson of Lecture 27.
 
 ---
 
-## 4. Aşama 0 bilançosu: repo ne diyor?
+## 4. Stage 0 ledger: what does the repo say?
 
-`phase0_inventory.py` repoyu tarıyor ve bütün sayıları dosyalardan çıkarıyor. "Çalıştırıldı" bilgisi `plan/daily-log.md`'deki **Kod:** satırlarından, devreden işlerin durumu ise dosyaların varlığından ve `___` boşluklarının doldurulup doldurulmadığından okunuyor. Ders 1–31'in tamamı eklendikten sonraki tarama (script her çalıştırmada günceller; sayılar `code/day31/results/inventory.csv`'de):
+`phase0_inventory.py` scans the repo and extracts all the numbers from files. The "ran" information is read from the **Code:** lines in `plan/daily-log.md`, and the status of carried-over work from the existence of files and whether the `___` blanks have been filled. The scan after all of Lectures 1–31 were added (the script updates it on every run; the numbers are in `code/day31/results/inventory.csv`):
 
-![Envanter](images/lecture-31/01-inventory.png)
+![Inventory](images/lecture-31/01-inventory.png)
 
-| metrik | değer (Ders 1–31) |
+| metric | value (Lectures 1–31) |
 |---|---|
-| ders / toplam kelime | 31 / 73.779 |
-| görsel (PNG) / Mermaid kaynağı | 152 / 64 |
-| kod dosyası (.py/.ipynb/.mjs) / `code/dayNN` klasörü | 87 / 23 |
-| log'da script başına "çalıştırıldı/doğrulandı" (alt sınır) / yalnız `py_compile` | 39 / 6 |
-| derslerde geçen farklı arXiv kimliği | 49 |
-| "hipotez" geçişi | 107 |
-| veri kartı (`datasets/`) / tez dosyası (`thesis/`) | 5 / 5 |
-| senin proje klasörün (`projects/`) | 2 (project-1 MuJoCo sahnesi, project-2 LIBERO episode'ları) |
+| lectures / total words | 31 / 94,778 |
+| figures (PNG) / Mermaid sources | 152 / 64 |
+| code files (.py/.ipynb/.mjs) / `code/dayNN` folders | 87 / 23 |
+| per-script "ran/verified" in the log (lower bound) / `py_compile` only | 39 / 6 |
+| distinct arXiv IDs appearing in the lectures | 49 |
+| "hypothesis" mentions | 108 |
+| dataset cards (`datasets/`) / thesis files (`thesis/`) | 5 / 5 |
+| your project folders (`projects/`) | 2 (project-1 MuJoCo scene, project-2 LIBERO episodes) |
 
-Grafiğin üst yarısında dersler Faz 2'den sonra uzuyor (Faz 1'de ~1.200 kelime, Faz 3'te ~3.000–4.000), çünkü kod, ölçüm ve kaynak yoğunluğu artıyor. Alt yarıda yeşil çubuklar (ders oturumunda gerçekten koşan script) Faz 3'te belirginleşiyor. Faz 2'deki kurulum günlerinde script'lerin çoğu `py_compile` ile ya da senin koşman için yazıldı. "Alt sınır" deme sebebim şu: bazı log satırları "hepsi çalıştırıldı" diye toplu yazılmış ve script tek tek sayılmıyor.
+In the upper half of the chart the lectures get longer after Phase 2 (~1,600 words in Phase 1, ~4,000–5,000 in Phase 3), because code, measurement and source density increases. In the lower half the green bars (scripts that really ran in the lecture session) become pronounced in Phase 3. On the setup days of Phase 2 most scripts were `py_compile`d or written for you to run. The reason I say "lower bound" is this: some log lines were written in bulk as "all ran" and the scripts are not counted one by one.
 
-"107 hipotez" kusur değil, disiplindi: emin olunmayan her şey işaretlendi. Ama bunun anlamı, tezin bugün dayandığı sayıların büyük kısmının makale tabloları ve ders oturumlarındaki kuru koşular olduğu, senin kapalı döngü koşuların değil. Bu, bir sonraki bölümün konusu.
-
----
-
-## 5. Yetkinlik haritası: anlatılan ile kanıtlanan
-
-31 ders dört fazda ilerledi. Görsel 02 zinciri gösteriyor: Faz 1 kavramları, Faz 2 araçları, Faz 3 deneyin dilini (koşullar, okuma protokolü, Türkçe set, tokenizasyon), Faz 4 projeyi (RQ → matris → ablation → öneri → danışman → simülasyon) kurdu.
-
-![Faz haritası](images/lecture-31/02-phase-map.png)
-
-Görsel 04 aynı yolu sekiz yetkinliğe izdüşürüyor. Sarı alan **ders kapsamı**: o yetkinliği işleyen ders sayısı, normalize edilmiş (`self_assessment.csv`'deki eşleme; gerçek). Yeşil alan **senin elinden kanıt**: proje klasörü ya da senin doldurduğun bir blok var mı (`dolu:` = dosyada `___` kalmamış; gerçek tarama). Mavi kesikli çizgi senin öz-değerlendirmen (0–4). `mesut_0_4` sütunu boş olduğu için henüz çizilmedi.
-
-![Yetkinlik radarı](images/lecture-31/04-competence-radar.png)
-
-Taramaya göre yeşil yalnızca üç eksende 1: kavramlar (`literature/rapor.md`), ortam (`projects/project-2`), literatür (`literature/makaleler.md`). Kod okuma, kapalı döngü deney, Türkçe dil analizi, istatistik (Ders 26 tahmin bloğu boş) ve proje tasarımı (Ders 27 iddia birimi boş) eksenlerinde 0. Bu bir not değil, bir yapılacaklar listesi. Sarı ile yeşil arasındaki boşluk tam olarak Aşama 0'ın devrettiği iş. Öz-değerlendirmeni doldurduğunda üçüncü çizgi, kendine ne kadar güvendiğinle repodaki kanıt arasındaki farkı da gösterecek.
+"108 hypotheses" is not a flaw but discipline: everything not certain was marked. But it means that most of the numbers the thesis rests on today are paper tables and dry runs in lecture sessions, not your closed-loop runs. This is the subject of the next section.
 
 ---
 
-## 6. Devreden işler (handoff)
+## 5. Competence map: told versus proven
 
-`phase0_inventory.py` bu listeyi `results/handoff.md` olarak yazıyor. Her satırın repoda bir kanıt tanımı var, yani "yaptım" demek yetmiyor, dosyanın görünmesi gerekiyor. Tarama anındaki hâli:
+The 31 lectures progressed in four phases. Figure 02 shows the chain: Phase 1 built the concepts, Phase 2 the tools, Phase 3 the language of the experiment (conditions, reading protocol, Turkish set, tokenization), Phase 4 the project (RQ → matrix → ablation → proposal → advisor → simulation).
 
-| iş | kanıt | durum | neden önemli |
+![Phase map](images/lecture-31/02-phase-map.png)
+
+Figure 04 projects the same path onto eight competences. The yellow area is **lecture coverage**: the number of lectures covering that competence, normalized (the mapping in `self_assessment.csv`; real). The green area is **evidence from your own hand**: is there a project folder or a block you filled in (`filled:` = no `___` left in the file; real scan). The blue dashed line is your self-assessment (0–4). Since the `mesut_0_4` column is empty it has not been drawn yet.
+
+![Competence radar](images/lecture-31/04-competence-radar.png)
+
+According to the scan green is 1 on only three axes: concepts (`literature/rapor.md`), environment (`projects/project-2`), literature (`literature/makaleler.md`). On the axes of code reading, closed-loop experiment, Turkish language analysis, statistics (the Lecture 26 predictions block is empty) and project design (the Lecture 27 claim unit is empty) it is 0. This is not a grade, it is a to-do list. The gap between yellow and green is exactly the work Stage 0 carries over. When you fill in your self-assessment the third line will also show the difference between how much you trust yourself and the evidence in the repo.
+
+---
+
+## 6. Carried-over work (handoff)
+
+`phase0_inventory.py` writes this list as `results/handoff.md`. Each row has a definition of evidence in the repo, so saying "I did it" is not enough, the file must be visible. Its state at scan time:
+
+| work | evidence | status | why it matters |
 |---|---|---|---|
-| **S1** — Ders 18 dört koşul koşusu (T4) | `projects/05-spatial0-4kosul/` | yok | birincil RQ'yu seçen tablo (Ders 26 §6); P1'in pilotu |
-| Ders 12 / 14 / 15 / 16 koşuları | `projects/01–04-*` | yok | T4 ve Mac boru hatlarının senin elinde çalıştığının kanıtı |
-| `results/runs.csv` | dosya | yok | her koşunun tek satırlık kaydı (CLAUDE.md kuralı) |
-| S1–S10 Durum sütunu | `plan/faz3-open-questions.md` | 10/10 "bekliyor/sorulmadı" | danışman soruları (S7, S9, S10) burada kapanır |
-| Ders 26 ön kayıt tahminleri | `thesis/rq-candidates.md` | `___` duruyor | koşudan **önce** commit'lenmezse ön kayıt değeri kalmaz |
-| Ders 27 iddia birimi + kota | `thesis/experiment-matrix.md` | `___` duruyor | bütçe 303 ile 126 saat arasında (matris v0.2) bu karara bağlı |
-| K1/K2 kalibrasyon (gerçek t_call) | `budget.py --calls-*` çıktısı | yok | bütçenin %90'ı tahmin edilen çağrı süresi |
-| Ders 28–30 çıktıları | `thesis/ablation-plan.md`, `thesis/proposal-v0.1.md`, `slides/advisor-meeting-01.md` | ✔ var | danışman toplantısının malzemesi |
+| **S1** — the Lecture 18 four-condition run (T4) | `projects/05-spatial0-4kosul/` | ✘ missing | the table that chooses the primary RQ (Lecture 26 §6); the pilot of P1 |
+| Lecture 12 / 14 / 15 / 16 runs | `projects/01–04-*` | ✘ missing | proof that the T4 and Mac pipelines work in your hands |
+| `results/runs.csv` | file | ✘ missing | the one-line record of every run (CLAUDE.md rule) |
+| S1–S10 Status column | `plan/faz3-open-questions.md` | 10/10 "waiting/not asked" | the advisor questions (S7, S9, S10) close here |
+| Lecture 26 pre-registration predictions | `thesis/rq-candidates.md` | `___` remains | if not committed **before** the run the pre-registration value is lost |
+| Lecture 27 claim unit + quota | `thesis/experiment-matrix.md` | `___` remains | the budget is between 303 and 126 hours (matrix v0.2), depending on this decision |
+| K1/K2 calibration (real t_call) | `budget.py --calls-*` output | ✘ missing | 90% of the budget is the estimated call time |
+| Lecture 28–30 outputs | `thesis/ablation-plan.md`, `thesis/proposal-v0.1.md`, `slides/advisor-meeting-01.md` | ✔ present | the material for the advisor meeting |
 
-Sıralama önerim kısa: **(1)** Ders 26 tahmin bloğunu doldur ve commit'le. Bu 10 dakikalık bir iş ve geri alınamaz değerde. **(2)** S1'i koş, aynı Kaggle oturumunda K2 de çıkar. **(3)** Ders 30 paketiyle danışmana git. **(4)** Dönüşte iddia birimini ve S7/S9/S10'u dosyalara işle. Ondan sonrası senin planın.
+My suggested order is short: **(1)** Fill in the Lecture 26 predictions block and commit it. This is a 10-minute job and of irreversible value. **(2)** Run S1, K2 also comes out in the same Kaggle session. **(3)** Go to the advisor with the Lecture 30 package. **(4)** On return enter the claim unit and S7/S9/S10 into the files. After that it is your plan.
 
-Tez bağlantısı son kez: Türkçe mekânsal komutların VLA'larda grounding'i sorusu bugün dört dosyada duruyor. Sorular `rq-candidates.md`'de, nasıl ve kaça yapılacağı `experiment-matrix.md`'de, neyle karşılaştırılacağı `ablation-plan.md`'de, bir sayfalık hâli `proposal-v0.1.md`'de. Eksik olan tek şey, bu dosyaların hepsinin beklediği ilk gerçek tablo.
-
----
-
-## 7. Yazılımcı için köprüler
-
-- **Simülasyon = mimari kata (architecture kata).** Takımca yapılan "şu gereksinim gelse nasıl tasarlardık" egzersizi gibi: kod yok, ama sınırlar, maliyet ve risk yazılı. Gerçek iş geldiğinde ilk kez düşünmüyorsun.
-- **Şablon = ADR (Architecture Decision Record).** Bağlam (soru), karar (hücreler), alternatifler (null ve evet/hayır dalları), sonuçlar (riskler). ADR'de olduğu gibi asıl değer, "neden böyle yaptık" sorusunun altı ay sonra cevaplanabilmesinde.
-- **`design_lint.py` = PR şablonu kontrolü + bir birim testi.** Yapısal kontroller "Description boş mu" seviyesinde. MDE kontrolü ise gerçek bir assertion: yazdığın sayı başka bir modülün (`budget.py`) çıktısıyla tutarlı mı? Konfigürasyonda `timeout: 5` yazıp kodda 30 kullanmak gibi bir tutarsızlığı CI'da yakalar.
-- **Envanter = SBOM / teknik borç raporu.** Ne var, ne çalıştı, ne yalnız derlendi. "107 hipotez" backlog'daki `TODO: doğrula` etiketlerinin sayısı. Sıfıra indirmek hedef değil, ama her birinin bir sahibi olmalı.
-- **Handoff = sprint sonu devir notu.** "Done" tanımı dosya düzeyinde: `projects/05-*` yoksa S1 yapılmamıştır, Slack'te "koştum" demek sayılmaz. Bir ticket'ı ancak PR merge'üyle kapatman gibi.
-- **Radar = beceri matrisi (skills matrix).** Ekip lead'lerinin kullandığı "bildiği / tek başına yapabildiği / öğretebildiği" tablosu. Sarı "bildiği", yeşil "yaptığı". Aradaki fark eğitim bütçesiyle değil, pratik koşuyla kapanır.
+Link to the thesis one last time: the question of grounding of Turkish spatial commands in VLAs stands today in four files. The questions are in `rq-candidates.md`, how and for how much it will be done in `experiment-matrix.md`, what it will be compared with in `ablation-plan.md`, its one-page form in `proposal-v0.1.md`. The only thing missing is the first real table that all these files are waiting for.
 
 ---
 
-## 8. Bugünün görevi (15 dk + simülasyon)
+## 7. Bridges for the software developer
 
-Simülasyonu yap: P1, P2 ya da P3'ten birini seç ve `code/day31/templates/P_.md`'yi doldur. Bütçe satırı için `cd code/day27 && python budget.py` kullan (hücreyi `experiment-matrix.csv`'ye geçici bir satır olarak ekleyip saati okuyabilirsin). Sonra `cd code/day31 && python design_lint.py templates/P1.md` TAM verene kadar düzelt. Ardından iki şey: `self_assessment.csv`'nin `mesut_0_4` sütununu 0–4 arası doldurup `python plot_day31.py` ile radarı yeniden çiz, ve `python phase0_inventory.py --png ../../lectures/images/lecture-31` ile bilançoyu güncelle. Doldurduğun şablonu Claude'a verip rubrik puanını iste. Commit: `Ders 31: proje simülasyonu (P_) + öz-değerlendirme`.
+- **Simulation = architecture kata.** Like the team exercise "how would we design it if this requirement came": no code, but boundaries, cost and risk written down. When the real work comes you are not thinking for the first time.
+- **Template = ADR (Architecture Decision Record).** Context (question), decision (cells), alternatives (null and the yes/no branches), consequences (risks). As in an ADR, the real value is that the question "why did we do it this way" can be answered six months later.
+- **`design_lint.py` = a PR template check + a unit test.** The structural checks are at the "is the Description empty" level. The MDE check is a real assertion: is the number you wrote consistent with the output of another module (`budget.py`)? It catches in CI an inconsistency like writing `timeout: 5` in the configuration and using 30 in the code.
+- **Inventory = SBOM / technical debt report.** What exists, what ran, what was only compiled. "108 hypotheses" is the number of `TODO: verify` labels in the backlog. Bringing it to zero is not the goal, but each should have an owner.
+- **Handoff = end-of-sprint handover note.** The "done" definition is at the file level: if `projects/05-*` does not exist, S1 has not been done, saying "I ran it" on Slack does not count. Like closing a ticket only with a PR merge.
+- **Radar = skills matrix.** The "knows / can do alone / can teach" table team leads use. Yellow is "knows", green is "did". The gap between them is closed not with a training budget but with hands-on runs.
 
-## Takılırsan
+---
 
-| Belirti | Çözüm |
+## 8. Today's task (15 min + simulation)
+
+Do the simulation: choose one of P1, P2 or P3 and fill in `code/day31/templates/P_.md`. For the budget line use `cd code/day27 && python budget.py` (you can add the cell to `experiment-matrix.csv` as a temporary row and read the hours). Then fix until `cd code/day31 && python design_lint.py templates/P1.md` gives COMPLETE. Then two things: fill in the `mesut_0_4` column of `self_assessment.csv` between 0–4 and redraw the radar with `python plot_day31.py`, and update the ledger with `python phase0_inventory.py --png ../../lectures/images/lecture-31`. Give the template you filled in to Claude and ask for the rubric score. Commit: `Lecture 31: project simulation (P_) + self-assessment`.
+
+## If you get stuck
+
+| Symptom | Fix |
 |---|---|
-| `design_lint.py`: `ModuleNotFoundError: budget` | Script'i `code/day31/` içinden çalıştır; `code/day27/budget.py`'yi göreli yoldan içe aktarıyor |
-| Lint: `n = 120 için MDE 13 puan, sen 15 yazmışsın` | Uyarı ±2 puan dışını yakalar; MDE'yi `budget.py`'nin tersine tablosundan ya da `python -c "import sys; sys.path.insert(0,'../day27'); from budget import mde; print(mde(120))"` ile al |
-| Lint: `Hücreler: … n_init sayısı eksik` | Hücre satırında `n_init 20` biçimi aranıyor (sözcük + boşluk + sayı) |
-| Lint: `Başarı ölçütü: sayısal eşik yok` | `p < 0,05`, `\|Δ\| ≥ 15`, `κ ≥ 0,5`, `δ = 10` ya da `… puan` geçmeli |
-| `phase0_inventory.py` tüm handoff satırlarını "yok" diyor | Kanıt yolları birebir: `projects/05-…` (iki haneli numara + tire), `results/runs.csv` repo kökünde |
-| Radar'da mavi çizgi yok | `mesut_0_4` sütununda boş hücre kalmamalı (8 satırın hepsi) |
+| `design_lint.py`: `ModuleNotFoundError: budget` | Run the script from inside `code/day31/`; it imports `code/day27/budget.py` via a relative path |
+| Lint: `for n = 120 the MDE is 13 points (r = 0.05), you wrote 15` | The warning catches anything outside ±2 points; take the MDE from `budget.py`'s inverse table or from `python -c "import sys; sys.path.insert(0,'../day27'); from budget import mde; print(mde(120))"` |
+| Lint: `Cells: system (S-VN/S-OV), suite (libero_*) or the n_init number is missing` | In the cell row the form `n_init 20` is searched for (word + space + number) |
+| Lint: `Success criterion: no numeric threshold (p < 0.05, |Δ| ≥ …, κ ≥ …, δ = …)` | `p < 0.05`, `\|Δ\| ≥ 15`, `κ ≥ 0.5`, `δ = 10` or `… points` must appear |
+| `phase0_inventory.py` says "✘ missing" for every handoff row | The evidence paths are exact: `projects/05-…` (two-digit number + hyphen), `results/runs.csv` at the repo root |
+| No blue line in the radar | There must be no empty cell in the `mesut_0_4` column (all 8 rows) |
 
 ---
 
-## Sonraki ders (yok — Aşama 0 sonu)
-**Sonraki ders yok, Aşama 0 burada bitiyor.** 31 dersin sonunda elinde şunlar var: bir kavram haritası ve okuma listesi (`literature/`), Mac ve T4 için kurulum ve eval boru hatları (`code/day09–18`), beş veri kartı (`datasets/01–05`), üç aday araştırma sorusu ve ön kayıt taslağı (`thesis/rq-candidates.md`), fiyatlandırılmış bir deney matrisi (`thesis/experiment-matrix.*`), baseline/ablation planı, bir sayfalık tez önerisi taslağı, bir danışman toplantısı paketi ve bugünkü simülasyon şablonu. Devreden işler §6'daki tabloda ve `code/day31/results/handoff.md`'de. Bundan sonrası, yani hangi deneyin ne zaman koşulacağı, danışmanla hangi yönün seçileceği ve repo düzeninin nasıl devam edeceği, senin kendi planına kalıyor. Bu repo o plan için bir başlangıç noktası, yeni bir ders takvimi değil.
+## Next lecture (none — end of Stage 0)
+**There is no next lecture, Stage 0 ends here.** At the end of 31 lectures you have: a concept map and a reading list (`literature/`), setup and eval pipelines for the Mac and the T4 (`code/day09–18`), five dataset cards (`datasets/01–05`), three candidate research questions and a pre-registration draft (`thesis/rq-candidates.md`), a priced experiment matrix (`thesis/experiment-matrix.*`), a baseline/ablation plan, a one-page thesis proposal draft, an advisor meeting package and today's simulation template. The carried-over work is in the table in §6 and in `code/day31/results/handoff.md`. What comes after this, that is which experiment will be run when, which direction will be chosen with the advisor and how the repo layout will continue, is left to your own plan. This repo is a starting point for that plan, not a new lecture calendar.
 
 ---
 
-## Kaynaklar
-- Girdiler: `thesis/rq-candidates.md` (Ders 26), `thesis/experiment-matrix.csv` + `code/day27/budget.py` (Ders 27; MDE ve saat hesapları buradan), `thesis/ablation-plan.md` (Ders 28), `thesis/proposal-v0.1.md` (Ders 29), `slides/advisor-meeting-01.md` (Ders 30), `plan/faz3-open-questions.md` (S1–S10), `plan/daily-log.md` (**Kod:** satırları), `datasets/04/data/pairs.csv` (blok A), Ders 22 (harf bedeli 4,9 / 0,9), Ders 24 (parser 79/80, held-out 5/12), Ders 19 (komutsuz tavan 9/10, 1/10).
-- Ön kayıt ve şablon disiplini: Bertinetto vd. (2021), [PMLR 148](https://proceedings.mlr.press/v148/bertinetto21a.html); eşdeğerlik: Lakens (2017), [PMC5502906](https://pmc.ncbi.nlm.nih.gov/articles/PMC5502906). ADR kavramı: Nygard (2011), [*Documenting Architecture Decisions*](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions).
-- Kod: `code/day31/` — `phase0_inventory.py` (bu oturumda koştu; `results/inventory.csv`, `lectures.csv`, `handoff.md`), `design_lint.py` (koştu; selftest OK, `results/lint_demo.txt`), `plot_day31.py` (koştu), `templates/` (boş şablon, P0 örneği, P1–P3), `self_assessment.csv`.
-- Görseller: 01 **gerçek tarama** (`phase0_inventory.py`; Ders 1–31 eklendikten sonra yeniden çalıştırıldı); 02 ve 03 Mermaid (`.mmd` yanında); 04 ders kapsamı ve kanıt eksenleri gerçek tarama, öz-değerlendirme çizgisi senin dolduracağın sütun (boş bırakıldı, temsili değer konmadı).
+## References
+- Inputs: `thesis/rq-candidates.md` (Lecture 26), `thesis/experiment-matrix.csv` + `code/day27/budget.py` (Lecture 27; the MDE and hour calculations come from here), `thesis/ablation-plan.md` (Lecture 28), `thesis/proposal-v0.1.md` (Lecture 29), `slides/advisor-meeting-01.md` (Lecture 30), `plan/faz3-open-questions.md` (S1–S10), `plan/daily-log.md` (**Code:** lines), `datasets/04/data/pairs.csv` (block A), Lecture 22 (letter cost 4.9 / 0.9), Lecture 24 (parser 79/80, held-out 5/12), Lecture 19 (command-free ceiling 9/10, 1/10).
+- Pre-registration and template discipline: Bertinetto et al. (2021), [PMLR 148](https://proceedings.mlr.press/v148/bertinetto21a.html); equivalence: Lakens (2017), [PMC5502906](https://pmc.ncbi.nlm.nih.gov/articles/PMC5502906). The ADR concept: Nygard (2011), [*Documenting Architecture Decisions*](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions).
+- Code: `code/day31/` — `phase0_inventory.py` (ran in this session; `results/inventory.csv`, `lectures.csv`, `handoff.md`), `design_lint.py` (ran; selftest OK, `results/lint_demo.txt`), `plot_day31.py` (ran), `templates/` (empty template, P0 example, P1–P3), `self_assessment.csv`.
+- Figures: 01 **real scan** (`phase0_inventory.py`; re-run after Lectures 1–31 were added); 02 and 03 are Mermaid (`.mmd` alongside); 04 lecture coverage and evidence axes are a real scan, the self-assessment line is a column you will fill in (left empty, no representative value was put in).

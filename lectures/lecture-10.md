@@ -1,56 +1,56 @@
-# Ders 10 — Klavye Günü 2: LIBERO Kurulumu ve İlk Episode
+# Lecture 10 — Keyboard Day 2: Installing LIBERO and the First Episode
 
-**Faz 2 / Gün 10** · **Süre:** ~60 dk (okuma 15 + kurulum 25 + çalıştırma 20)
-**Ön koşul:** Ders 9 (`vla` ortamı çalışıyor) · **Kod:** `code/day10/`
+**Phase 2 / Day 10** · **Time:** ~60 min (reading 15 + installation 25 + running 20)
+**Prerequisite:** Lecture 9 (the `vla` environment works) · **Code:** `code/day10/`
 
-> **Bugünün tek cümlesi:** Bugün Ders 1'deki döngüyü ilk kez kendi elinle çalıştırıyorsun — `reset()` ile dünyayı kur, `step(action)` ile robotu oynat, `obs` ile gözlemi al, `check_success()` ile sınav sonucunu oku. Policy henüz yok; action'ı sen yazıyorsun.
+> **Today in one sentence:** Today you run the loop from Lecture 1 with your own hands for the first time — build the world with `reset()`, move the robot with `step(action)`, get the observation with `obs`, and read the exam result with `check_success()`. There is no policy yet; you write the action yourself.
 
 ---
 
-## 1. Ne kuruyoruz?
+## 1. What are we installing?
 
-Ders 3'teki yığının orta iki katmanı: **robosuite** (Panda kolu, OSC_POSE kontrolcüsü, kameralar) ve **LIBERO** (görev tanımları, başlangıç durumları, success predicate'leri). İkisinin de sürümü kritik; yanlış kombinasyon import'ta patlar.
+The middle two layers of the stack from Lecture 3: **robosuite** (Panda arm, OSC_POSE controller, cameras) and **LIBERO** (task definitions, initial states, success predicates). The versions of both are critical; a wrong combination blows up at import.
 
-| Paket | Sürüm | Neden bu sürüm |
+| Package | Version | Why this version |
 |---|---|---|
-| `mujoco` | **2.3.7** | robosuite 1.4.x MuJoCo 2.3 API'sini kullanır; 3.x ile `AssertionError` (joint type enum) verir — bunu bu dersi hazırlarken bire bir yaşadım |
-| `robosuite` | **1.4.1** | OpenVLA ve VLANeXt'in LIBERO eval'inde kullandığı sürüm |
-| `numpy` | **<2** | `np.float_` kaldırıldı (Ders 9) |
-| `libero` | GitHub'dan, editable | PyPI'da yok |
+| `mujoco` | **2.3.7** | robosuite 1.4.x uses the MuJoCo 2.3 API; with 3.x it raises an `AssertionError` (joint type enum) — I hit this exact error while preparing this lecture |
+| `robosuite` | **1.4.1** | the version used in the LIBERO evals of OpenVLA and VLANeXt |
+| `numpy` | **<2** | `np.float_` was removed (Lecture 9) |
+| `libero` | from GitHub, editable | not on PyPI |
 
-Dün kurduğumuz `mujoco` 3.x idi; bugün 2.3.7'ye **düşüreceğiz**. Dünkü `first_scene.py` 2.3.7 ile de çalışır.
+The `mujoco` we installed yesterday was 3.x; today we will **downgrade** to 2.3.7. Yesterday's `first_scene.py` also works with 2.3.7.
 
 ---
 
-## 2. Kurulum (Mac)
+## 2. Installation (Mac)
 
 ```bash
 conda activate vla
 cd ~/vla-work
 
-# 1) sürüm pinleri
+# 1) version pins
 pip install "mujoco==2.3.7" "robosuite==1.4.1" bddl easydict cloudpickle gym pyyaml
 
 # 2) LIBERO
 git clone https://github.com/Lifelong-Robot-Learning/LIBERO.git
 cd LIBERO
-pip install -e .          # requirements.txt'i YÜKLEME (torch cu113 ister); sadece paketi kur
+pip install -e .          # do NOT install requirements.txt (it wants torch cu113); install only the package
 cd ..
 
-# 3) ilk import: LIBERO ~/.libero/config.yaml oluşturmak için soru sorar
+# 3) first import: LIBERO asks a question in order to create ~/.libero/config.yaml
 python -c "import libero.libero"
 ```
-Son komut şöyle bir şey soracak: *"Do you want to specify a custom path for the dataset folder? (Y/N)"* → **N** yaz, Enter. Varsayılan yollar `~/.libero/config.yaml`'a yazılır (bddl_files, init_states, datasets, assets). Bu dosya LIBERO'nun "nerede ne var" haritası; bozulursa `rm ~/.libero/config.yaml` ve komutu tekrarla.
+The last command will ask something like: *"Do you want to specify a custom path for the dataset folder? (Y/N)"* → type **N**, Enter. The default paths are written to `~/.libero/config.yaml` (bddl_files, init_states, datasets, assets). This file is LIBERO's "what is where" map; if it gets corrupted, run `rm ~/.libero/config.yaml` and repeat the command.
 
-### Doğrulama
+### Verification
 ```bash
 curl -O https://raw.githubusercontent.com/mesutd0nmez/vla-robot-learning-tr/main/code/day10/list_tasks.py
 python list_tasks.py
 ```
-40 görevin İngilizce komutlarını görmelisin. İlk bloğu buraya alıyorum çünkü tezinin ham maddesi bu:
+You should see the English commands of the 40 tasks. I am including the first block here because it is the raw material of your thesis:
 
 ```
-== libero_spatial (10 görev)
+== libero_spatial (10 tasks)
  0. pick up the black bowl between the plate and the ramekin and place it on the plate
  1. pick up the black bowl next to the ramekin and place it on the plate
  2. pick up the black bowl from table center and place it on the plate
@@ -62,13 +62,13 @@ python list_tasks.py
  8. pick up the black bowl next to the plate and place it on the plate
  9. pick up the black bowl on the wooden cabinet and place it on the plate
 ```
-(Sıra senin makinende farklı olabilir; isimler aynı.) Dikkat: 10 komutun **hepsi** "siyah kâseyi al, tabağa koy"; tek fark kâsenin *nerede* olduğunu söyleyen mekânsal ifade — *between … and …*, *next to*, *on*, *in the top drawer of*, *from table center*. Sahnede birden fazla siyah kâse var; doğru olanı seçmek için komutu okumak **zorunlu**. Spatial suite'in Türkçe deneyi için neden ideal olduğunu artık görüyorsun: Türkçe'de bu ifadeler *tabak ile ramekin-**in arasındaki***, *ramekin-**in yanındaki***, *kurabiye kutusu-**nun üstündeki***, *dolab-**ın üst çekmecesindeki*** olacak — tamamı ek.
+(The order may differ on your machine; the names are the same.) Note: **all** 10 commands are "pick up the black bowl, put it on the plate"; the only difference is the spatial expression saying *where* the bowl is — *between … and …*, *next to*, *on*, *in the top drawer of*, *from table center*. There are several black bowls in the scene; reading the command is **mandatory** to pick the right one. You can now see why the Spatial suite is ideal for the Turkish experiment: in Turkish these expressions will be *tabak ile ramekin-**in arasındaki*** ("the one between the plate and the ramekin"), *ramekin-**in yanındaki*** ("the one next to the ramekin"), *kurabiye kutusu-**nun üstündeki*** ("the one on top of the cookie box"), *dolab-**ın üst çekmecesindeki*** ("the one in the top drawer of the cabinet") — all of it suffixes.
 
-Goal suite ise aynı sahne, 10 farklı görev: *open the middle drawer of the cabinet, put the bowl on the stove, put the wine bottle on the rack, turn on the stove…* (Ders 3–4'teki dil-zorunlu suite).
+The Goal suite, on the other hand, is the same scene with 10 different tasks: *open the middle drawer of the cabinet, put the bowl on the stove, put the wine bottle on the rack, turn on the stove…* (the language-mandatory suite from Lectures 3–4).
 
 ---
 
-## 3. İlk episode
+## 3. The first episode
 
 ```bash
 curl -O https://raw.githubusercontent.com/mesutd0nmez/vla-robot-learning-tr/main/code/day10/libero_first_episode.py
@@ -76,68 +76,68 @@ python libero_first_episode.py --suite libero_spatial --task 0
 open libero_first_episode.png
 ```
 
-Script'in yaptığı, sıra diyagramı olarak:
+What the script does, as a sequence diagram:
 
 ![reset/step](images/lecture-10/01-reset-step.png)
 
-### Satır satır
+### Line by line
 ```python
-suite = benchmark.get_benchmark_dict()["libero_spatial"]()   # suite nesnesi
-task  = suite.get_task(0)                                      # görev: .name, .language, .bddl_file
+suite = benchmark.get_benchmark_dict()["libero_spatial"]()   # suite object
+task  = suite.get_task(0)                                      # task: .name, .language, .bddl_file
 env   = OffScreenRenderEnv(bddl_file_name=bddl, camera_heights=256, camera_widths=256)
 env.reset()
-obs   = env.set_init_state(suite.get_task_init_states(0)[0])  # 50 sabit başlangıçtan ilki
-obs, reward, done, info = env.step(np.zeros(7))                # bir kontrol adımı
-env.check_success()                                            # BDDL predicate: kâse tabakta mı?
+obs   = env.set_init_state(suite.get_task_init_states(0)[0])  # the first of 50 fixed initial states
+obs, reward, done, info = env.step(np.zeros(7))                # one control step
+env.check_success()                                            # BDDL predicate: is the bowl on the plate?
 ```
 
-- `OffScreenRenderEnv`: ekran açmaz, kameraları belleğe render eder. Mac'te robosuite bunu GLFW ile yapar; ana thread'de çalıştırman yeterli (script normal şekilde çalışır).
-- `set_init_state`: benchmark protokolünün kalbi. Her görev için 50 kayıtlı başlangıç durumu var; eval'de her biri bir episode. Bugün sadece 0'ıncısı.
-- `step` 20 Hz kontrol döngüsü; içeride ~25 `mj_step`.
+- `OffScreenRenderEnv`: does not open a window, renders the cameras into memory. On the Mac robosuite does this with GLFW; running it in the main thread is enough (the script runs normally).
+- `set_init_state`: the heart of the benchmark protocol. Each task has 50 recorded initial states; in eval each one is one episode. Today only the 0th.
+- `step` is a 20 Hz control loop; internally ~25 `mj_step`s.
 
-### Gözlem ve action sözleşmesi
+### Observation and action contract
 
-![obs ve action](images/lecture-10/03-obs-action.png)
+![obs and action](images/lecture-10/03-obs-action.png)
 
-İki tuzak:
-1. **Görüntüler ters gelir.** LIBERO/robosuite kamera görüntüsü dikey olarak ters (OpenGL kökenli). OpenVLA'nın eval kodu `img[::-1, ::-1]` ile 180° döndürür; eğitim verisi öyle işlendiği için eval'de de aynısı şart. Script'te aynı döndürme var.
-2. **Action metre değil.** `[-1, 1]` aralığında normalize delta; OSC_POSE kontrolcüsü bunu kendi limitlerine ölçekler (varsayılan ±0.05 m / ±0.5 rad per adım). Gripper: **−1 açık, +1 kapalı** (robosuite sözleşmesi; bazı veri setlerinde ters olabilir, Gün 11'de kontrol edeceğiz).
+Two traps:
+1. **Images come out upside down.** LIBERO/robosuite camera images are vertically flipped (an OpenGL legacy). OpenVLA's eval code rotates them 180° with `img[::-1, ::-1]`; since the training data was processed that way, the same is required at eval. The script has the same rotation.
+2. **The action is not in meters.** It is a delta normalized to `[-1, 1]`; the OSC_POSE controller scales it to its own limits (default ±0.05 m / ±0.5 rad per step). Gripper: **−1 open, +1 closed** (robosuite convention; it may be reversed in some datasets, we will check on Day 11).
 
-Bugün ürettiğin görüntü (robot aşağı iner, gripper kapanır — görevi *yapmaz*, sadece hareket eder) şuna benzeyecek; alttaki robosuite'in kendi "Lift" ortamından, aynı kamera adlarıyla, bu dersi hazırlarken üretildi:
+The image you produce today (the robot descends, the gripper closes — it does *not* do the task, it only moves) will look like the one below; it is from robosuite's own "Lift" environment, with the same camera names, produced while preparing this lecture:
 
-![robosuite Lift, agentview + bilek](images/lecture-10/02-robosuite-lift.png)
+![robosuite Lift, agentview + wrist](images/lecture-10/02-robosuite-lift.png)
 
-Üst sıra `agentview`, alt sıra `robot0_eye_in_hand`; soldan sağa t=0, 30, 60. Senin çıktında LIBERO'nun mutfak sahnesi (kâse, tabak, ramekin) olacak.
-
----
-
-## 4. Oyna (10 dk)
-1. `--task 4` (çekmecedeki kâse) ile çalıştır; agentview'da çekmeceyi bul.
-2. Script'te `a[0] = 0.3` ekle (x ekseninde ilerle): robot kameraya göre hangi yöne gidiyor? Bu, Ders 6'daki "sağ kime göre?" sorusunun ampirik cevabı — not al.
-3. `--suite libero_goal --task 0` ile aynı sahnede farklı görevi aç; görüntü Spatial ile ne kadar benzer?
+The top row is `agentview`, the bottom row `robot0_eye_in_hand`; left to right t=0, 30, 60. Your output will show LIBERO's kitchen scene (bowl, plate, ramekin).
 
 ---
 
-## 5. Takılırsan
-| Belirti | Çözüm |
+## 4. Play (10 min)
+1. Run with `--task 4` (the bowl in the drawer); find the drawer in agentview.
+2. Add `a[0] = 0.3` in the script (move along the x axis): which direction does the robot go relative to the camera? This is the empirical answer to the "right relative to whom?" question from Lecture 6 — take a note.
+3. Open a different task in the same scene with `--suite libero_goal --task 0`; how similar is the image to Spatial?
+
+---
+
+## 5. If you get stuck
+| Symptom | Fix |
 |---|---|
-| `AssertionError ... mjJNT_HINGE` | mujoco 3.x kalmış: `pip install "mujoco==2.3.7"` |
+| `AssertionError ... mjJNT_HINGE` | mujoco 3.x is still installed: `pip install "mujoco==2.3.7"` |
 | `AttributeError: np.float_` | numpy 2: `pip install "numpy<2"` |
 | `Key ... not found in config file` | `rm ~/.libero/config.yaml && python -c "import libero.libero"` |
 | `ModuleNotFoundError: bddl` | `pip install bddl` |
-| GLFW / "failed to initialize" | Script'i normal Terminal'den çalıştır (SSH/tmux değil); olmadı → `MUJOCO_GL=glfw` dene; hâlâ olmadı → yedek yol: Colab (Gün 12'nin notebook'u LIBERO'yu da kurar) |
-| import çok yavaş / ilk run dakikalar sürüyor | Normal: robosuite asset'leri ilk kez derleniyor |
+| GLFW / "failed to initialize" | Run the script from a normal Terminal (not SSH/tmux); if that fails → try `MUJOCO_GL=glfw`; if that still fails → fallback path: Colab (the Day 12 notebook installs LIBERO too) |
+| import is very slow / the first run takes minutes | Normal: robosuite assets are compiled for the first time |
 
-Hata mesajının tamamını chat'e yapıştır.
+Paste the whole error message into the chat.
 
-## Sonraki ders (Ders 11)
-LIBERO'nun insan demolarını indirip HDF5 dosyasını açacağız: episode yapısı, `obs/agentview_rgb`, `actions[T,7]`, ve Ders 1'deki action grafiğini gerçek veriden çizeceğiz.
+## Next lecture (Lecture 11)
+We will download LIBERO's human demos and open the HDF5 file: episode structure, `obs/agentview_rgb`, `actions[T,7]`, and we will draw the action plot from Lecture 1 from real data.
 
 ---
 
-## Kaynaklar
-- LIBERO repo README ve `libero/libero/envs/env_wrapper.py` (OffScreenRenderEnv): [github.com/Lifelong-Robot-Learning/LIBERO](https://github.com/Lifelong-Robot-Learning/LIBERO)
-- OpenVLA `experiments/robot/libero/libero_utils.py` (180° döndürme, eval döngüsü): [github.com/openvla/openvla](https://github.com/openvla/openvla)
-- robosuite 1.4 dokümantasyonu — controllers (OSC_POSE), observables: [robosuite.ai/docs](https://robosuite.ai/docs/)
+## References
+- LIBERO repo README and `libero/libero/envs/env_wrapper.py` (OffScreenRenderEnv): [github.com/Lifelong-Robot-Learning/LIBERO](https://github.com/Lifelong-Robot-Learning/LIBERO)
+- OpenVLA `experiments/robot/libero/libero_utils.py` (180° rotation, eval loop): [github.com/openvla/openvla](https://github.com/openvla/openvla)
+- robosuite 1.4 documentation — controllers (OSC_POSE), observables: [robosuite.ai/docs](https://robosuite.ai/docs/)
 - Liu et al. (2023). LIBERO. [arXiv:2306.03310](https://arxiv.org/abs/2306.03310)
-- Kod: `code/day10/list_tasks.py`, `code/day10/libero_first_episode.py`; görsel `02-robosuite-lift.png` robosuite 1.4.1 + mujoco 2.3.7 ile bu ders için üretildi.
+- Code: `code/day10/list_tasks.py`, `code/day10/libero_first_episode.py`; the image `02-robosuite-lift.png` was produced for this lecture with robosuite 1.4.1 + mujoco 2.3.7.

@@ -1,30 +1,30 @@
-# Ders 9 — Klavye Günü 1: Mac'te Python Ortamı ve İlk MuJoCo Sahnesi
+# Lecture 9 — Keyboard Day 1: Python Environment on the Mac and the First MuJoCo Scene
 
-**Faz 2 / Gün 9** · **Süre:** ~50 dk (okuma 15 + uygulama 35)
-**Ön koşul:** Ders 3 (MuJoCo'nun yığındaki yeri) · **Donanım:** MacBook Pro M2, macOS · **Kod:** `code/day09/`
+**Phase 2 / Day 9** · **Time:** ~50 min (reading 15 + hands-on 35)
+**Prerequisite:** Lecture 3 (where MuJoCo sits in the stack) · **Hardware:** MacBook Pro M2, macOS · **Code:** `code/day09/`
 
-> **Bugünün tek cümlesi:** Bugün hiçbir şey öğrenmiyoruz, sadece *çalıştırıyoruz*: izole bir Python ortamı kuracak, MuJoCo'yu yükleyecek ve bir topun masaya düştüğünü kendi makinende render edeceksin — Faz 2'nin geri kalanı bu ortamın üstüne kurulur.
-
----
-
-## 1. Neden conda, neden ayrı ortam?
-
-Robot learning kütüphaneleri birbirine sıkı bağımlı sürümler ister (numpy, robosuite, mujoco, torch). Sistem Python'una kurarsan bir projenin sürümü diğerini bozar. **Conda ortamı** = projeye özel, silinebilir bir Python kurulumu. .NET'teki çözüm bazlı NuGet restore'un kaba karşılığı; ama ortamlar makine genelinde değil, adla seçilir.
-
-![Kurulum akışı](images/lecture-09/01-install-flow.png)
-
-Hedef ortam: `vla`, Python **3.10**. Neden 3.10? LIBERO'nun resmi README'si 3.8 der ama OpenVLA ve VLANeXt LIBERO'yu 3.10'da kurup kullanıyor; 3.10 hem modern torch hem robosuite 1.4 ile uyumlu, Apple Silicon'da sorunsuz.
+> **Today in one sentence:** Today we learn nothing new, we just *run things*: you will set up an isolated Python environment, install MuJoCo and render a ball falling onto a table on your own machine — the rest of Phase 2 is built on top of this environment.
 
 ---
 
-## 2. Adım adım kurulum
+## 1. Why conda, why a separate environment?
 
-Terminal'i aç (Spotlight → "Terminal"). Her bloğu sırayla yapıştır; `#` ile başlayan satırlar açıklama.
+Robot learning libraries demand tightly coupled versions of each other (numpy, robosuite, mujoco, torch). If you install into the system Python, one project's versions break another's. A **conda environment** = a project-specific, disposable Python installation. It is a rough equivalent of a per-solution NuGet restore in .NET, except that environments are selected by name rather than being tied to a folder.
 
-### 2.1 Homebrew var mı? (Mac paket yöneticisi — git ve ffmpeg için)
+![Install flow](images/lecture-09/01-install-flow.png)
+
+Target environment: `vla`, Python **3.10**. Why 3.10? LIBERO's official README says 3.8, but OpenVLA and VLANeXt install and use LIBERO on 3.10; 3.10 is compatible with both modern torch and robosuite 1.4, and works without problems on Apple Silicon.
+
+---
+
+## 2. Step-by-step installation
+
+Open Terminal (Spotlight → "Terminal"). Paste each block in order; lines starting with `#` are comments.
+
+### 2.1 Is Homebrew installed? (the Mac package manager — needed for git and ffmpeg)
 ```bash
 brew --version
-# "command not found" dersen:
+# if it says "command not found":
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 brew install git ffmpeg
 ```
@@ -35,48 +35,48 @@ cd ~/Downloads
 curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh
 bash Miniconda3-latest-MacOSX-arm64.sh -b -p ~/miniconda3
 ~/miniconda3/bin/conda init zsh
-# Terminal'i KAPAT ve yeniden aç. Prompt'un başında (base) görmelisin.
+# CLOSE the Terminal and reopen it. You should see (base) at the start of the prompt.
 conda --version
 ```
-"arm64" indirdiğinden emin ol; x86_64 sürümü Rosetta altında çalışır ama MuJoCo/torch yavaşlar ve MPS kapanır.
+Make sure you downloaded "arm64"; the x86_64 build runs under Rosetta, but MuJoCo/torch become slow and MPS is disabled.
 
-### 2.3 Ortamı oluştur
+### 2.3 Create the environment
 ```bash
 conda create -n vla python=3.10 -y
 conda activate vla
-python -c "import platform; print(platform.machine())"   # arm64 yazmalı
+python -c "import platform; print(platform.machine())"   # should print arm64
 ```
-Bundan sonra **her yeni terminalde** `conda activate vla` yazmayı unutma; prompt `(vla)` ile başlamalı.
+From now on, don't forget to run `conda activate vla` **in every new terminal**; the prompt should start with `(vla)`.
 
-### 2.4 Temel paketler
+### 2.4 Basic packages
 ```bash
 pip install --upgrade pip
 pip install "numpy<2" mujoco imageio matplotlib h5py
-pip install torch torchvision          # Apple Silicon için resmi wheel; MPS desteği dahil
+pip install torch torchvision          # official wheel for Apple Silicon; includes MPS support
 ```
-`numpy<2` önemli: robosuite 1.4 ve LIBERO numpy 2 ile `np.float_` hatası verir (VLANeXt'in COMMON_ISSUES.md'sinde de aynı hata var).
+`numpy<2` is important: robosuite 1.4 and LIBERO fail with an `np.float_` error under numpy 2 (the same error appears in VLANeXt's COMMON_ISSUES.md).
 
-### 2.5 Kontrol
+### 2.5 Check
 ```bash
 cd ~ && mkdir -p vla-work && cd vla-work
 curl -O https://raw.githubusercontent.com/mesutd0nmez/vla-robot-learning-tr/main/code/day09/check_env.py
 python check_env.py
 ```
-Beklenen çıktı:
+Expected output:
 ```
-python : 3.10.x | mimari: arm64 (arm64 bekleniyor)
+python : 3.10.x | arch: arm64 (arm64 expected)
 numpy  : 1.26.x
 mujoco : 3.x.x
 torch  : 2.x.x | MPS: True
 OK
 ```
-`MPS: False` ise torch x86 kurulmuş demektir → 2.2'ye dön, arm64 Miniconda olduğundan emin ol.
+If you see `MPS: False`, torch was installed for x86 → go back to 2.2 and make sure you have the arm64 Miniconda.
 
 ---
 
-## 3. İlk sahne: XML → fizik → görüntü
+## 3. First scene: XML → physics → image
 
-MuJoCo bir sahneyi **MJCF** adlı XML ile tanımlar. `code/day09/first_scene.py` dosyasındaki sahne: zemin, masa (kutu), tabak (silindir), serbest düşen top (küre, `freejoint`), ve `agentview` adlı bir kamera (LIBERO'daki kameranın adıyla aynı — bilinçli).
+MuJoCo describes a scene with an XML format called **MJCF**. The scene in `code/day09/first_scene.py` contains: a floor, a table (box), a plate (cylinder), a freely falling ball (sphere, `freejoint`), and a camera named `agentview` (same name as the camera in LIBERO — deliberately).
 
 ```bash
 curl -O https://raw.githubusercontent.com/mesutd0nmez/vla-robot-learning-tr/main/code/day09/first_scene.py
@@ -84,56 +84,56 @@ python first_scene.py
 open first_scene.png
 ```
 
-Göreceğin şey (burada üretilen gerçek çıktı):
+What you should see (the real output produced here):
 
-![İlk sahne](images/lecture-09/02-first-scene.png)
+![First scene](images/lecture-09/02-first-scene.png)
 
-Dört kare: t=0 top havada (sadece gölgesi görünüyor), t=60 düşüyor, t=120 masaya değdi, t=399 durdu. Konsolda `top z: 0.46 → masaya indi` yazmalı (masa üstü 0.42 + top yarıçapı 0.04).
+Four frames: t=0 the ball is in the air (only its shadow is visible), t=60 falling, t=120 touched the table, t=399 at rest. The console should print `ball z: 0.46 → landed on the table` (table top 0.42 + ball radius 0.04).
 
-### Script'te ne oluyor — satır satır
-| Satır | Ne yapıyor | LIBERO'daki karşılığı |
+### What happens in the script — line by line
+| Line | What it does | Counterpart in LIBERO |
 |---|---|---|
-| `MjModel.from_xml_string` | sahne tanımını yükler (geometri, kütle, kamera) | LIBERO BDDL'den MJCF üretir |
-| `MjData(model)` | anlık durum: konum (`qpos`), hız (`qvel`) | `env.reset()` bunu başlangıç durumuna getirir |
-| `mj_step` | fiziği 0.002 s ilerletir | `env.step(action)` içinde ~10 kez çağrılır (kontrol 20 Hz) |
-| `Renderer` + `update_scene` + `render` | kameradan RGB üretir | `obs["agentview_image"]` |
-| `data.qpos[2]` | topun z koordinatı | success predicate'i bu tür değerlerden hesaplanır |
+| `MjModel.from_xml_string` | loads the scene definition (geometry, mass, camera) | LIBERO generates MJCF from BDDL |
+| `MjData(model)` | instantaneous state: position (`qpos`), velocity (`qvel`) | `env.reset()` sets this to the initial state |
+| `mj_step` | advances the physics by 0.002 s | called ~10 times inside `env.step(action)` (control at 20 Hz) |
+| `Renderer` + `update_scene` + `render` | produces RGB from the camera | `obs["agentview_image"]` |
+| `data.qpos[2]` | the ball's z coordinate | success predicates are computed from values like this |
 
-Ders 1'deki döngünün en alt katmanı bu: policy yok, action yok, sadece dünya ve kamera. Yarın araya robosuite (robot kolu + kontrolcü) ve LIBERO (görev) girecek.
+This is the lowest layer of the loop from Lecture 1: no policy, no action, just the world and a camera. Tomorrow robosuite (robot arm + controller) and LIBERO (the task) will be inserted in between.
 
-### Mac'e özgü notlar
-- `python first_scene.py` ekran açmaz; **offscreen** render kullanır. macOS'ta bu varsayılan olarak çalışır; `MUJOCO_GL` ayarlamana gerek yok (Linux/Colab'da `MUJOCO_GL=egl` gerekir — Gün 12).
-- Etkileşimli pencere istersen: `python -m mujoco.viewer` yerine macOS'ta **`mjpython -m mujoco.viewer`** gerekir (pip ile gelir). Bugün gerekmiyor.
-- Script sonunda EGL/GL uyarıları görürsen (kapanırken) önemsiz; PNG üretilmişse başarılı.
-
----
-
-## 4. Oyna (10 dk)
-XML'de bir değer değiştir, tekrar çalıştır, farkı gör:
-1. Topun başlangıç `pos`'unu tabağın üstüne taşı (`0.1 0 0.7`) — tabağa düşsün.
-2. `size="0.04"` → `0.08`: büyük top masadan yuvarlanır mı?
-3. Kamerayı `pos="0 0 2" xyaxes="1 0 0 0 1 0"` yap: tam tepeden görünüm (RoomSpace'in top-down'ı).
+### Mac-specific notes
+- `python first_scene.py` does not open a window; it uses **offscreen** rendering. On macOS this works by default; you do not need to set `MUJOCO_GL` (on Linux/Colab `MUJOCO_GL=egl` is required — Day 12).
+- If you want an interactive window: instead of `python -m mujoco.viewer`, macOS needs **`mjpython -m mujoco.viewer`** (it ships with pip). Not needed today.
+- If you see EGL/GL warnings at the end of the script (on exit), ignore them; if the PNG was produced, it succeeded.
 
 ---
 
-## 5. Takılırsan
-| Belirti | Çözüm |
+## 4. Play (10 min)
+Change a value in the XML, run again, and see the difference:
+1. Move the ball's initial `pos` above the plate (`0.1 0 0.7`) — let it fall onto the plate.
+2. `size="0.04"` → `0.08`: does the bigger ball roll off the table?
+3. Set the camera to `pos="0 0 2" xyaxes="1 0 0 0 1 0"`: a view straight from above (the top-down view of RoomSpace).
+
+---
+
+## 5. If you get stuck
+| Symptom | Fix |
 |---|---|
-| `conda: command not found` | Terminal'i yeniden aç; olmadıysa `source ~/miniconda3/bin/activate` |
-| `MPS: False` | `python -c "import platform;print(platform.machine())"` x86_64 diyorsa Miniconda arm64 değil; sil (`rm -rf ~/miniconda3`) ve 2.2'yi tekrarla |
+| `conda: command not found` | Reopen the Terminal; if that does not help, `source ~/miniconda3/bin/activate` |
+| `MPS: False` | If `python -c "import platform;print(platform.machine())"` says x86_64, Miniconda is not arm64; delete it (`rm -rf ~/miniconda3`) and repeat 2.2 |
 | `ImportError: ... mujoco` | `pip install --force-reinstall mujoco` |
-| PNG bomboş/siyah | `MUJOCO_GL=glfw python first_scene.py` dene; hâlâ sorunsa hata mesajını chat'e yapıştır |
+| PNG blank/black | Try `MUJOCO_GL=glfw python first_scene.py`; if it is still a problem, paste the error message into the chat |
 
-Hata mesajının **tamamını** (ilk satırdan son satıra) chat'e yapıştır; "çalışmadı" yeterli değil.
+Paste the **whole** error message (from the first line to the last) into the chat; "it didn't work" is not enough.
 
-## Sonraki ders (Ders 10)
-robosuite + LIBERO kurulumu; bir LIBERO görevini açıp `reset()` / `step()` ile robotu hareket ettirme, agentview ve bilek kamerası görüntülerini kaydetme. Mac'te takılırsa Docker/Colab yedek yolu hazır.
+## Next lecture (Lecture 10)
+Installing robosuite + LIBERO; opening a LIBERO task and moving the robot with `reset()` / `step()`, saving agentview and wrist camera images. If you get stuck on the Mac, the Docker/Colab fallback path is ready.
 
 ---
 
-## Kaynaklar
-- MuJoCo dokümantasyonu: [mujoco.readthedocs.io](https://mujoco.readthedocs.io) — Python bindings, MJCF referansı
+## References
+- MuJoCo documentation: [mujoco.readthedocs.io](https://mujoco.readthedocs.io) — Python bindings, MJCF reference
 - Miniconda: [docs.anaconda.com/miniconda](https://docs.anaconda.com/miniconda/)
 - PyTorch on Apple Silicon (MPS): [pytorch.org/docs/stable/notes/mps.html](https://pytorch.org/docs/stable/notes/mps.html)
-- VLANeXt `COMMON_ISSUES.md` (numpy 2 hatası): [github.com/DravenALG/VLANeXt](https://github.com/DravenALG/VLANeXt)
-- Kod: `code/day09/check_env.py`, `code/day09/first_scene.py` (bu repoda); görsel `images/lecture-09/02-first-scene.png` aynı script'le üretildi.
+- VLANeXt `COMMON_ISSUES.md` (numpy 2 error): [github.com/DravenALG/VLANeXt](https://github.com/DravenALG/VLANeXt)
+- Code: `code/day09/check_env.py`, `code/day09/first_scene.py` (in this repo); the image `images/lecture-09/02-first-scene.png` was produced by the same script.

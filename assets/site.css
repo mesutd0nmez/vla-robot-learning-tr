@@ -1,7 +1,7 @@
 /* ============================================================
-   VLA Tez Günlüğü — site teması (Docsify üstüne, vue.css'siz)
-   Tipografi: Source Serif 4 (gövde) · IBM Plex Sans (arayüz) · IBM Plex Mono (kod)
-   Renkler diyagramlarla aynı dili konuşur: sarı = anahtar fikir / model, mavi = gözlem/bağlantı
+   VLA Thesis Journal — site theme (on top of Docsify, without vue.css)
+   Typography: Source Serif 4 (body) · IBM Plex Sans (UI) · IBM Plex Mono (code)
+   Colours speak the same language as the diagrams: yellow = key idea / model, blue = observation/link
    ============================================================ */
 
 :root {
@@ -49,8 +49,9 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 :focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
 
-/* ---------- Yapı ---------- */
+/* ---------- Layout ---------- */
 main { display: block; position: relative; }
+.m-bar, .nav-backdrop { display: none; }
 .sidebar {
   position: fixed; top: 0; left: 0; bottom: 0; width: var(--sidebar-w);
   background: var(--paper-2); border-right: 1px solid var(--line);
@@ -59,15 +60,15 @@ main { display: block; position: relative; }
   transition: transform .2s ease;
 }
 .content { margin-left: var(--sidebar-w); min-height: 100vh; position: relative; }
-/* akışkan: içerik kenar çubuğu ile sağ sütun arasını tamamen doldurur */
+/* fluid: content fills the whole space between the sidebar and the right column */
 .markdown-section { max-width: none; margin: 0; padding: 56px 48px 96px 56px; }
 @media (min-width: 1240px) { .content { padding-right: calc(var(--toc-w) + 48px); } }
 @media (min-width: 1700px) { body { font-size: 18px; } .markdown-section { padding: 56px 64px 96px 72px; } }
 
-body.close .sidebar { transform: translateX(-100%); }
-body.close .content { margin-left: 0; }
+body.nav-collapsed .sidebar { transform: translateX(-100%); }
+body.nav-collapsed .content { margin-left: 0; }
 
-/* kenar çubuğu aç/kapat düğmesi */
+/* sidebar open/close button */
 .sidebar-toggle {
   position: fixed; bottom: 20px; left: 20px; z-index: 30;
   width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--line);
@@ -77,7 +78,7 @@ body.close .content { margin-left: 0; }
 .sidebar-toggle .sidebar-toggle-button { display: flex; flex-direction: column; gap: 4px; }
 .sidebar-toggle span { display: block; width: 16px; height: 2px; background: var(--ink-2); border-radius: 2px; }
 
-/* ---------- Kenar çubuğu ---------- */
+/* ---------- Sidebar ---------- */
 .sidebar > h1 { margin: 0 20px 16px; font: 600 15px/1.2 var(--sans); letter-spacing: -.01em; }
 .sidebar > h1 a { color: var(--ink); display: flex; align-items: center; gap: 10px; }
 .sidebar > h1 a::before {
@@ -114,7 +115,7 @@ body.close .content { margin-left: 0; }
 .sidebar-nav .folder > p, .sidebar-nav .folder > a { cursor: pointer; }
 .sidebar-nav .app-sub-sidebar { display: none; }
 
-/* ---------- Açılır-kapanır menü grupları (index.html → enhanceNav) ---------- */
+/* ---------- Collapsible menu groups (index.html → enhanceNav) ---------- */
 .sidebar-nav .nav-tools { display: flex; justify-content: flex-end; padding: 0 8px 4px; }
 .sidebar-nav .nav-tools button {
   border: 0; background: none; cursor: pointer; padding: 6px 6px; border-radius: 6px;
@@ -135,21 +136,21 @@ body.close .content { margin-left: 0; }
 .sidebar-nav .nav-group[aria-expanded="true"]::before { transform: rotate(45deg); }
 .sidebar-nav .nav-group-label { flex: 1 1 auto; min-width: 0; }
 .sidebar-nav .nav-group-count { flex: 0 0 auto; font: 500 11px var(--mono); color: var(--muted); }
-/* kapalı grubun içinde bulunulan sayfa varsa belli olsun */
+/* mark a collapsed group that contains the current page */
 .sidebar-nav .nav-group.has-active[aria-expanded="false"] .nav-group-label { color: var(--blue); }
 .sidebar-nav ul[hidden] { display: none; }
-/* alt grup (ör. Dersler → Faz 1) */
+/* sub-group (e.g. Lectures → Phase 1) */
 .sidebar-nav li li > .nav-group { min-height: 32px; padding-left: 14px; font-weight: 500; font-size: 13px; color: var(--ink-2); }
 .sidebar-nav li li > ul { margin: 2px 0 6px 18px; border-left: 1px solid var(--line); }
 .sidebar-nav li li li a { padding-left: 8px; }
 @media (pointer: coarse) { .sidebar-nav .nav-group, .sidebar-nav li li > .nav-group { min-height: 44px; } }
 @media (prefers-reduced-motion: reduce) { .sidebar-nav .nav-group::before { transition: none; } }
 
-/* başlık içi anchor'lar */
+/* anchors inside headings */
 .markdown-section h1 a, .markdown-section h2 a, .markdown-section h3 a { color: inherit; }
 .markdown-section h1 a:hover, .markdown-section h2 a:hover, .markdown-section h3 a:hover { text-decoration: none; }
 
-/* ---------- Ders başlığı ---------- */
+/* ---------- Lecture title ---------- */
 .lec-head { display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: start; margin: 0 0 20px; }
 .lec-num {
   font: 600 72px/0.9 var(--sans); letter-spacing: -.04em; color: var(--ink);
@@ -172,7 +173,7 @@ body.close .content { margin-left: 0; }
 .markdown-section img { max-width: 100%; height: auto; display: block; margin: 20px 0; border-radius: 6px; border: 1px solid var(--line); background: #fff; }
 .markdown-section em { font-style: italic; }
 
-/* "Bugünün tek cümlesi" — anahtar fikir */
+/* "Today in one sentence" — key idea */
 .markdown-section blockquote {
   margin: 24px 0 28px; padding: 18px 22px; border-left: 6px solid var(--yellow);
   background: var(--yellow-soft); border-radius: 0 10px 10px 0; font-size: 18px; line-height: 1.6;
@@ -187,7 +188,7 @@ body.close .content { margin-left: 0; }
 .markdown-section tr:last-child td { border-bottom: 0; }
 .markdown-section table code { font-size: 12.5px; }
 
-/* kod */
+/* code */
 .markdown-section code { font: 400 .86em var(--mono); background: var(--paper-2); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; color: var(--ink); }
 .markdown-section pre { position: relative; margin: 16px 0 22px; border-radius: 10px; background: var(--code-bg); overflow: auto; }
 .markdown-section pre > code { display: block; padding: 18px 20px; background: transparent; border: 0; color: var(--code-ink); font-size: 13.5px; line-height: 1.6; white-space: pre; }
@@ -224,7 +225,7 @@ body.close .content { margin-left: 0; }
 .pagination-item-title { font-size: 15px; font-weight: 500; }
 .pagination-item--next { text-align: right; margin-left: auto; }
 
-/* sağ sütun: sayfa içi başlıklar */
+/* right column: on-page headings */
 .page-toc { display: none; }
 @media (min-width: 1240px) {
   .page-toc {
@@ -243,24 +244,11 @@ body.close .content { margin-left: 0; }
 .markdown-section h1:not(.lec-head h1) { font-size: 34px; }
 .markdown-section > p:first-of-type { }
 
-/* mobil */
-@media (max-width: 860px) {
-  body { font-size: 16px; }
-  .sidebar { transform: translateX(-100%); }
-  body.close .sidebar { transform: none; box-shadow: 0 0 40px rgba(0,0,0,.25); }
-  .content, body.close .content { margin-left: 0; }
-  .markdown-section { padding: 40px 18px 80px; }
-  .lec-num { font-size: 52px; }
-  .markdown-section h1 { font-size: 26px; }
-  .docsify-pagination-container { flex-direction: column; }
-  .pagination-item { max-width: 100%; }
-  .pagination-item--next { text-align: left; }
-}
 
-/* yükleniyor / 404 */
-#app:empty::before { content: "Yükleniyor"; font-family: var(--sans); color: var(--muted); display: block; padding: 40px; }
+/* loading / 404 */
+#app:empty::before { content: "Loading"; font-family: var(--sans); color: var(--muted); display: block; padding: 40px; }
 
-/* --- düzeltmeler --- */
+/* --- fixes --- */
 .lec-head + p { font-family: var(--sans); font-size: 14px; color: var(--muted); line-height: 1.7; margin-bottom: 8px; }
 .lec-head + p strong { color: var(--ink-2); font-weight: 500; }
 .sidebar { padding-bottom: 80px; }
@@ -282,5 +270,82 @@ body.close .content { margin-left: 0; }
 .home-grid a.is-next b { color: var(--yellow-ink); }
 .sidebar-toggle { top: 14px; bottom: auto; left: calc(var(--sidebar-w) + 14px); width: 34px; height: 34px; opacity: .7; }
 .sidebar-toggle:hover { opacity: 1; }
-body.close .sidebar-toggle { left: 14px; }
-@media (max-width: 860px) { .sidebar-toggle { left: 14px; opacity: 1; } body.close .sidebar-toggle { left: calc(var(--sidebar-w) + 14px); } }
+body.nav-collapsed .sidebar-toggle { left: 14px; }
+
+/* ---------- Overflow safety (all widths) ---------- */
+.markdown-section { overflow-wrap: break-word; }
+.markdown-section :not(pre) > code { overflow-wrap: anywhere; word-break: break-word; }
+.markdown-section .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 18px 0 24px; max-width: 100%; }
+.markdown-section .table-wrap > table { margin: 0; }
+.markdown-section pre { -webkit-overflow-scrolling: touch; }
+.markdown-section .table-wrap code { overflow-wrap: normal; word-break: normal; }
+.markdown-section img, .markdown-section svg, .markdown-section video, .markdown-section iframe { max-width: 100%; height: auto; }
+
+/* ---------- Mobile / narrow screen (≤ 860px) ----------
+   Menu: body.nav-open (index.html → navOpen). Fixed top bar; backdrop while open. */
+@media (max-width: 860px) {
+  html, body { overflow-x: hidden; }
+  body { font-size: 17px; line-height: 1.65; }
+  body.nav-open { overflow: hidden; }
+
+  .m-bar {
+    display: flex; align-items: center; position: fixed; top: 0; left: 0; right: 0; height: 56px; z-index: 12;
+    padding: 0 16px 0 64px; background: var(--paper); border-bottom: 1px solid var(--line);
+    font-family: var(--sans);
+  }
+  .m-title { font: 600 15px/1.2 var(--sans); color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .m-title:hover { text-decoration: none; }
+
+  .sidebar {
+    width: min(var(--sidebar-w), 84vw); transform: translateX(-100%); z-index: 20;
+    overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+    padding-top: 16px; visibility: hidden; transition: transform .22s ease, visibility 0s linear .22s;
+  }
+  body.nav-open .sidebar { transform: none; visibility: visible; box-shadow: 0 0 40px rgba(0,0,0,.25); transition: transform .22s ease; }
+  .nav-backdrop { display: block; position: fixed; inset: 0; z-index: 19; background: rgba(10,14,20,.45); opacity: 0; pointer-events: none; transition: opacity .2s ease; }
+  body.nav-open .nav-backdrop { opacity: 1; pointer-events: auto; }
+  .content { margin-left: 0; padding-top: 56px; }
+  .search input { font-size: 16px; padding: 10px 12px; } /* keep iOS from zooming on focus */
+  .sidebar-nav li li a { padding-top: 9px; padding-bottom: 9px; }
+
+  .sidebar-toggle, body.nav-collapsed .sidebar-toggle { top: 8px; left: 12px; width: 40px; height: 40px; opacity: 1; box-shadow: none; z-index: 30; }
+  body.nav-open .sidebar-toggle { left: calc(min(var(--sidebar-w), 84vw) + 10px); box-shadow: 0 2px 10px rgba(0,0,0,.2); }
+  .sidebar-toggle span { transition: transform .2s ease, opacity .2s ease; }
+  body.nav-open .sidebar-toggle span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+  body.nav-open .sidebar-toggle span:nth-child(2) { opacity: 0; }
+  body.nav-open .sidebar-toggle span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+  .markdown-section { padding: 24px 16px 72px; }
+  .markdown-section h1, .markdown-section h1:not(.lec-head h1) { font-size: 25px; line-height: 1.25; }
+  .markdown-section h2 { font-size: 20px; margin-top: 40px; }
+  .markdown-section h3 { font-size: 17px; margin-top: 26px; }
+  .markdown-section h1, .markdown-section h2, .markdown-section h3 { scroll-margin-top: 64px; overflow-wrap: break-word; hyphens: auto; }
+  .markdown-section blockquote { font-size: 17px; padding: 14px 16px; margin: 20px 0 24px; }
+  .markdown-section ul, .markdown-section ol { padding-left: 1.25em; }
+  .markdown-section table { font-size: 13.5px; }
+  .markdown-section th, .markdown-section td { padding: 7px 8px; min-width: 8.5em; }
+  .markdown-section th:first-child, .markdown-section td:first-child { min-width: 6em; }
+  .markdown-section pre { margin-left: -16px; margin-right: -16px; border-radius: 0; }
+  .markdown-section pre > code { padding: 16px; font-size: 13px; }
+  .markdown-section pre::after { right: 64px; }
+
+  /* lecture title: number + "Lecture N" on one row, full-width title below */
+  .lec-head { grid-template-columns: auto 1fr; column-gap: 14px; row-gap: 14px; align-items: end; margin-bottom: 16px; }
+  .lec-head > div:last-child { display: contents; }
+  .lec-num { font-size: 44px; padding: 0; }
+  .lec-num::after { bottom: -6px; height: 5px; }
+  .lec-kicker { align-self: end; margin: 0 0 2px; }
+  .lec-head h1 { grid-column: 1 / -1; margin-top: 4px; }
+
+  .home-hero h1 { font-size: 30px; }
+  .home-hero p { font-size: 17px; }
+  .home-grid { grid-template-columns: 1fr; }
+
+  .docsify-pagination-container { flex-direction: column; }
+  .pagination-item { max-width: 100%; }
+  .pagination-item--next { text-align: left; margin-left: 0; }
+}
+@media (max-width: 380px) {
+  body { font-size: 16.5px; }
+  .markdown-section h1, .markdown-section h1:not(.lec-head h1) { font-size: 23px; }
+}

@@ -1,24 +1,24 @@
-"""Ders 17 — LIBERO-Plus'ın 7 bozulmasını KODDAN okuyarak bir "perturbation tablosu" çıkarır.
+"""Lecture 17 — Produces a "perturbation table" of LIBERO-Plus's 7 perturbations by READING THE CODE.
 
-Model / GPU / asset GEREKMEZ: yalnızca LIBERO-plus klonundaki metin dosyalarını okur
+NO model / GPU / assets needed: it only reads text files in the LIBERO-plus clone
 (task_classification.json, bddl_files/, envs/robots/mounted_panda.py, envs/problems/*.py).
 
-Kullanım:
-  python perturbation_table.py <LIBERO-plus kökü> [--suite libero_spatial] [--json out.json] [--md out.md]
+Usage:
+  python perturbation_table.py <LIBERO-plus root> [--suite libero_spatial] [--json out.json] [--md out.md]
 
-Çıktı: her bozulma için (a) taşıyıcı (görev adı / BDDL dosyası / problem sınıfı), (b) gerçek parametre
-aralığı (görev adlarından ve dosyalardan sayılır), (c) kaç görev, (d) kodda nerede uygulanıyor.
+Output: for each perturbation (a) the carrier (task name / BDDL file / problem class), (b) the real parameter
+range (counted from the task names and files), (c) how many tasks, (d) where it is applied in the code.
 """
 import argparse, collections, json, pathlib, re, sys
 
 CATS = ["Camera Viewpoints", "Robot Initial States", "Language Instructions", "Light Conditions",
         "Background Textures", "Sensor Noise", "Objects Layout"]
 NOISE_FAMILY = {1: "motion_blur (ImageMagick/wand)", 2: "gaussian_blur (skimage)", 3: "zoom_blur (scipy zoom)",
-                4: "fog (plasma_fractal)", 5: "glass_blur (skimage + piksel karıştırma)"}
+                4: "fog (plasma_fractal)", 5: "glass_blur (skimage + pixel shuffling)"}
 
 
 def parse_tail(name):
-    """'..._view_H_V_S_ER_EV_initstate_I[_noise_N]' → dict ya da None (BDDL-taşımalı görevlerde yok)."""
+    """'..._view_H_V_S_ER_EV_initstate_I[_noise_N]' → dict or None (not present in BDDL-carried tasks)."""
     if "_view_" not in name:
         return None
     view, rest = name.split("_view_")[1].split("_initstate_")
@@ -30,7 +30,7 @@ def parse_tail(name):
 
 
 def signed(deg):
-    """0..359 derece → -180..180 (kamera açıları 285..359 aslında negatif)."""
+    """0..359 degrees → -180..180 (camera angles 285..359 are actually negative)."""
     return deg - 360 if deg > 180 else deg
 
 
@@ -54,56 +54,56 @@ def main():
     ers = [signed(c["er"]) for c in cams]; evs = [signed(c["ev"]) for c in cams]
     nz = lambda xs: [x for x in xs if x != 0]
     rows["Camera Viewpoints"] = dict(
-        carrier="görev adı (`_view_H_V_S_ER_EV`)", n=len(cams),
+        carrier="task name (`_view_H_V_S_ER_EV`)", n=len(cams),
         where="env_wrapper.py:207-218 (parse) → problems/*.py `_setup_camera` (rotate_around_z / rotate_around_y / scale_distance_from_pivot, pivot (0,0,0.8))",
-        params=f"yatay {min(nz(hs))}..{max(nz(hs))}° ({len(nz(hs))} görev); dikey {sorted(set(vs))}° ; "
-               f"mesafe ×{min(nz([s for s in ss if s != 1.0]) or [1]):.2f}..×{max(ss):.2f} ({sum(s != 1.0 for s in ss)} görev); "
-               f"uç yaw {min(nz(ers) or [0])}..{max(nz(ers) or [0])}°, uç pitch {min(nz(evs) or [0])}..{max(nz(evs) or [0])}° ({sum(1 for c in cams if c['er'] or c['ev'])} görev)",
-        bddl="hayır (temel BDDL)", assets="hayır")
+        params=f"horizontal {min(nz(hs))}..{max(nz(hs))}° ({len(nz(hs))} tasks); vertical {sorted(set(vs))}° ; "
+               f"distance ×{min(nz([s for s in ss if s != 1.0]) or [1]):.2f}..×{max(ss):.2f} ({sum(s != 1.0 for s in ss)} tasks); "
+               f"endpoint yaw {min(nz(ers) or [0])}..{max(nz(ers) or [0])}°, endpoint pitch {min(nz(evs) or [0])}..{max(nz(evs) or [0])}° ({sum(1 for c in cams if c['er'] or c['ev'])} tasks)",
+        bddl="no (base BDDL)", assets="no")
     # --- Robot init
     inits = [parse_tail(n)["init"] for n in by_cat["Robot Initial States"]]
     panda = (lib / "envs" / "robots" / "mounted_panda.py").read_text(encoding="utf-8")
     n_cls = len(re.findall(r"^class MountedPanda\d+\(", panda, flags=re.M))
     rows["Robot Initial States"] = dict(
-        carrier="görev adı (`_initstate_I`) → robot sınıfı adı `MountedPanda{I}`", n=len(inits),
-        where="env_wrapper.py:219-220 (`robots=[robots[0]+str(init_state)]`) → envs/robots/mounted_panda.py (her sınıf yalnızca `init_qpos` döndürür)",
-        params=f"I = {min(inits)}..{max(inits)} ({len(set(inits))} farklı); dosyada {n_cls} sınıf tanımlı; 7 eklem açısı (rad)",
-        bddl="hayır", assets="hayır")
+        carrier="task name (`_initstate_I`) → robot class name `MountedPanda{I}`", n=len(inits),
+        where="env_wrapper.py:219-220 (`robots=[robots[0]+str(init_state)]`) → envs/robots/mounted_panda.py (each class only returns `init_qpos`)",
+        params=f"I = {min(inits)}..{max(inits)} ({len(set(inits))} distinct); {n_cls} classes defined in the file; 7 joint angles (rad)",
+        bddl="no", assets="no")
     # --- Language
     langs = by_cat["Language Instructions"]
     lang_files = sorted(bddl_dir.glob("*_language_*.bddl"))
     rows["Language Instructions"] = dict(
-        carrier="BDDL dosyası (`_language_K.bddl`, yalnızca `:language` satırı farklı) + görev adı kuyruğu sabit `_view_0_0_100_0_0_initstate_0`", n=len(langs),
+        carrier="BDDL file (`_language_K.bddl`, only the `:language` line differs) + fixed task-name tail `_view_0_0_100_0_0_initstate_0`", n=len(langs),
         where="benchmark/__init__.py:46-72 `grab_language_from_filename` → bddl_utils.get_problem_info → bddl.parsing.scan_tokens (`.lower()`)",
-        params=f"klasörde {len(lang_files)} dil dosyası, benchmark'ta {len(langs)} görev; sahne/kamera/robot/hedef değişmez",
-        bddl="evet (yalnızca :language)", assets="hayır")
+        params=f"{len(lang_files)} language files in the folder, {len(langs)} tasks in the benchmark; scene/camera/robot/goal do not change",
+        bddl="yes (only :language)", assets="no")
     # --- Light
     lights = by_cat["Light Conditions"]
     light_ids = sorted(int(re.search(r"_light_(\d+)", n).group(1)) for n in lights)
     prob = (lib / "envs" / "problems" / "libero_tabletop_manipulation.py").read_text(encoding="utf-8")
     n_light_cls = len(set(re.findall(r"scenes/lights/(tabletop_light_sync_modified_\d+)\.xml", prob)))
     rows["Light Conditions"] = dict(
-        carrier="BDDL dosyası (`_light_K.bddl`, yalnızca `(problem ...)` adı farklı) → kayıtlı problem alt sınıfı → `scene_xml`", n=len(lights),
+        carrier="BDDL file (`_light_K.bddl`, only the `(problem ...)` name differs) → registered problem subclass → `scene_xml`", n=len(lights),
         where="problems/libero_tabletop_manipulation.py `Libero_Tabletop_Manipulation_tabletop_light_sync_modified_K` (scene_xml=scenes/lights/..._K.xml)",
-        params=f"K = {min(light_ids)}..{max(light_ids)} (Spatial'da {len(set(light_ids))} farklı); tabletop için {n_light_cls} ışık sahnesi kayıtlı; XML'de diffuse/direction/specular/castshadow",
-        bddl="evet (yalnızca problem adı)", assets="EVET (assets/scenes/lights/*.xml)")
+        params=f"K = {min(light_ids)}..{max(light_ids)} ({len(set(light_ids))} distinct in Spatial); {n_light_cls} light scenes registered for tabletop; diffuse/direction/specular/castshadow in the XML",
+        bddl="yes (only the problem name)", assets="YES (assets/scenes/lights/*.xml)")
     # --- Background
     bgs = by_cat["Background Textures"]
     n_table = sum("_table_" in n and "_tb_" not in n for n in bgs); n_tb = sum("_tb_" in n for n in bgs)
     tex = set(re.findall(r"scenes/(tabletop_table_[A-Za-z0-9_]+)\.xml", prob))
     rows["Background Textures"] = dict(
-        carrier="BDDL dosyası (`_table_K` = masa dokusu, `_tb_K` = masa + duvar) → problem alt sınıfı → `scene_xml`", n=len(bgs),
-        where="problems/libero_tabletop_manipulation.py `..._tabletop_table_<Doku>[_Wall_<duvar>]` sınıfları",
-        params=f"`_table_` {n_table} görev, `_tb_` {n_tb} görev; tabletop için {len(tex)} farklı doku sahnesi kayıtlı (ör. {sorted(tex)[0]})",
-        bddl="evet (yalnızca problem adı)", assets="EVET (assets/scenes/*.xml + textures/)")
+        carrier="BDDL file (`_table_K` = table texture, `_tb_K` = table + wall) → problem subclass → `scene_xml`", n=len(bgs),
+        where="problems/libero_tabletop_manipulation.py `..._tabletop_table_<Texture>[_Wall_<wall>]` classes",
+        params=f"`_table_` {n_table} tasks, `_tb_` {n_tb} tasks; {len(tex)} distinct texture scenes registered for tabletop (e.g. {sorted(tex)[0]})",
+        bddl="yes (only the problem name)", assets="YES (assets/scenes/*.xml + textures/)")
     # --- Noise
     noises = [parse_tail(n)["noise"] for n in by_cat["Sensor Noise"]]
     fam = collections.Counter((c - 1) // 10 + 1 for c in noises)
     rows["Sensor Noise"] = dict(
-        carrier="görev adı (`_noise_N`, N = 1..50)", n=len(noises),
-        where="env_wrapper.py:285-348 `ControlEnv.step/reset`: YALNIZCA `agentview_image` değiştirilir (bilek kamerası dokunulmaz)",
-        params="; ".join(f"{NOISE_FAMILY[k]} N={10*(k-1)+1}..{10*k}: {fam.get(k,0)} görev" for k in range(1, 6)),
-        bddl="hayır", assets="hayır (ama `wand` + libmagickwand gerekir)")
+        carrier="task name (`_noise_N`, N = 1..50)", n=len(noises),
+        where="env_wrapper.py:285-348 `ControlEnv.step/reset`: ONLY `agentview_image` is modified (the wrist camera is untouched)",
+        params="; ".join(f"{NOISE_FAMILY[k]} N={10*(k-1)+1}..{10*k}: {fam.get(k,0)} tasks" for k in range(1, 6)),
+        bddl="no", assets="no (but `wand` + libmagickwand are required)")
     # --- Layout
     lays = by_cat["Objects Layout"]
     n_add = sum("_add_" in n for n in lays); n_lvl = sum("_level" in n for n in lays)
@@ -114,14 +114,14 @@ def main():
             m = re.search(r"\(On (\S+) main_table_add_object_region", line)
             if m: add_objs[re.sub(r"_\d+$", "", m.group(1))] += 1
     rows["Objects Layout"] = dict(
-        carrier="BDDL dosyası: `_add_K` (yeni nesne + `add_object_region_K`) ve `_levelL_sampleM` (bölge aralıkları kaydırılmış)", n=len(lays),
-        where="bddl_base_domain.py (BDDL `:regions` → placement initializer); yeni nesneler assets/new_objects, turbosquid_objects…",
-        params=f"`_add_` {n_add} görev ({len(add_objs)} farklı eklenen nesne türü, Spatial); `_level` {n_lvl} görev, seviye dağılımı {dict(sorted(lvl.items()))}",
-        bddl="evet (:regions, :objects, :init)", assets="EVET (yeni nesne mesh'leri)")
+        carrier="BDDL file: `_add_K` (new object + `add_object_region_K`) and `_levelL_sampleM` (region ranges shifted)", n=len(lays),
+        where="bddl_base_domain.py (BDDL `:regions` → placement initializer); new objects in assets/new_objects, turbosquid_objects…",
+        params=f"`_add_` {n_add} tasks ({len(add_objs)} distinct added object types, Spatial); `_level` {n_lvl} tasks, level distribution {dict(sorted(lvl.items()))}",
+        bddl="yes (:regions, :objects, :init)", assets="YES (new object meshes)")
 
-    # --- çıktı
-    print(f"# LIBERO-Plus perturbation tablosu — suite: {a.suite} ({len(tasks)} görev)\n")
-    hdr = "| Bozulma | Görev | Taşıyıcı | Gerçek parametre aralığı | Kodda nerede | BDDL değişir? | Asset gerekir? |"
+    # --- output
+    print(f"# LIBERO-Plus perturbation table — suite: {a.suite} ({len(tasks)} tasks)\n")
+    hdr = "| Perturbation | Tasks | Carrier | Real parameter range | Where in the code | BDDL changes? | Assets needed? |"
     md = [hdr, "|---|---|---|---|---|---|---|"]
     for c in CATS:
         r = rows[c]

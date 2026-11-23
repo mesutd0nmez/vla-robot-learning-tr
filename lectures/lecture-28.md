@@ -1,175 +1,175 @@
-# Ders 28 — Baseline + Ablation: Neye Göre Okuyoruz, Hangi Fark Hangi Faktörün — Yüzey 2×2'si, Kâhin Sürümleri, Niceleme, Sistem Farkı
+# Lecture 28 — Baseline + Ablation: What We Read Against, Which Difference Belongs to Which Factor — the Surface 2×2, Oracle Versions, Quantization, System Difference
 
-**Faz 4 / Gün 28** · **Süre:** ~55 dk (okuma 40 + görev 15)
-**Ön koşul:** Ders 19 (komutsuz tavan, 1/k), Ders 20 (`datasets/04` yüzeyleri), Ders 22 (iki tokenizer, harf bedeli), Ders 24 (MT, parser, code-switching), Ders 26 (RQ'lar), Ders 27 (matris, `budget.py`) · **Kod:** `code/day28/` (`ablation_check.py` gerçek yüzey analizi + gerçek tokenizer sayımı, `price_ablations.py` bütçe, `plot_day28.py` — üçü de bu oturumda koştu) · **Çıktı:** `thesis/ablation-plan.md` v0.1, `thesis/experiment-matrix.csv` v0.2 (+3 hücre)
+**Phase 4 / Day 28** · **Time:** ~55 min (reading 40 + task 15)
+**Prerequisites:** Lecture 19 (command-free ceiling, 1/k), Lecture 20 (`datasets/04` surfaces), Lecture 22 (two tokenizers, letter cost), Lecture 24 (MT, parser, code-switching), Lecture 26 (RQs), Lecture 27 (matrix, `budget.py`) · **Code:** `code/day28/` (`ablation_check.py` real surface analysis + real tokenizer counts, `price_ablations.py` budget, `plot_day28.py` — all three ran in this session) · **Output:** `thesis/ablation-plan.md` v0.1, `thesis/experiment-matrix.csv` v0.2 (+3 cells)
 
-> **Bugünün tek cümlesi:** Bir fark ancak iki koşul arasında tek bir faktör değişiyorsa o faktöre yazılabilir; bugünkü gerçek kontrol bunun RQ-b'nin yüzey ekseninde yarı yarıya tuttuğunu gösteriyor: `tr_a → tr_ascii` 20 çiftin 20'sinde yalnızca harfleri değiştiriyor, ama `tr_a → tr_bare` ekleri soyarken 97 Türkçe harfin 66'sını da siliyor — bu yüzden yüzey ekseni dört hücreli bir 2×2'ye (harf × ek) dönüşüyor, eksik hücre `tr_bare_ascii` üretildi (LLaMA-2'de harf +2,7, ek +5,4, etkileşim +4,3 token; Qwen3'te +0,4 / +4,2 / +0,9), MT ve parser'ın "kâhin" sürümleri yeni episode istemeden `clean` hücresine düşüyor, niceleme ablation'ı aslında iki faktörlü ve S-OV ile S-VN farkı hiçbir zaman ablation değil, **betimsel karşılaştırma**.
+> **Today in one sentence:** A difference can be attributed to a factor only if a single factor changes between the two conditions; today's real check shows this holds only half the time on RQ-b's surface axis: `tr_a → tr_ascii` changes only the letters in 20 of 20 pairs, but `tr_a → tr_bare` strips the suffixes and also deletes 66 of the 97 Turkish letters — so the surface axis turns into a four-cell 2×2 (letters × suffixes), the missing cell `tr_bare_ascii` was generated (in LLaMA-2 letters +2.7, suffixes +5.4, interaction +4.3 tokens; in Qwen3 +0.4 / +4.2 / +0.9), the "oracle" versions of MT and the parser fall onto the `clean` cell without needing new episodes, the quantization ablation is actually two-factor, and the S-OV vs S-VN difference is never an ablation, it is a **descriptive comparison**.
 
 ---
 
-## 1. Baseline ve ablation: iki ayrı soru
+## 1. Baseline and ablation: two separate questions
 
-Ders 27 *ne koşulacağını* yazdı. Bugün iki soru daha:
+Lecture 27 wrote *what will be run*. Today two more questions:
 
-- **Baseline:** Bir sayıyı neye göre okuyorum? `tr_a` Spatial'da %70 çıkarsa bu iyi mi kötü mü? `clean` %85 ise kötü; `empty` de %70 ise Türkçe hiçbir şey katmamış; komutsuz tavan %90 ise (Ders 19: Spatial'da 10 görevin 9'u sahneden çözülebilir) bu sayı dil hakkında neredeyse hiçbir şey söylemiyor.
-- **Ablation:** İki koşul arasındaki farkı hangi faktöre yazabilirim? `tr_a` ile `tr_ascii` arasında 15 puan fark varsa bunu "Türkçe harfler" diye yazabilmem için iki komut arasında *yalnızca* harflerin değişmiş olması gerekir.
+- **Baseline:** What do I read a number against? If `tr_a` comes out at 70% on Spatial, is that good or bad? If `clean` is 85% it is bad; if `empty` is also 70% then Turkish has added nothing; if the command-free ceiling is 90% (Lecture 19: on Spatial 9 of 10 tasks can be solved from the scene) this number says almost nothing about language.
+- **Ablation:** Which factor can I attribute the difference between two conditions to? If there is a 15-point difference between `tr_a` and `tr_ascii`, for me to write it as "Turkish letters" *only* the letters must have changed between the two commands.
 
-"Ablation" terimi sinirbilimden geliyor: beynin bir bölgesini çıkarıp hangi işlevin kaybolduğuna bakmak. Meyes vd. (2019) aynı fikri yapay sinir ağlarına taşıyıp birimleri tek tek çıkararak ağın davranışının nasıl değiştiğini incelediler. Lipton & Steinhardt (2018) makine öğrenmesi yayınlarındaki "sorunlu eğilimler" arasında tam bunun yokluğunu sayıyor: bir makale birkaç değişikliği birden yapıp kazancı tek bir fikre bağlıyorsa, kazancın nereden geldiği belirsiz kalır. Bizim tezde "değişiklik" model mimarisi değil komutun kendisi; ama mantık aynı.
+The term "ablation" comes from neuroscience: remove a region of the brain and see which function is lost. Meyes et al. (2019) carried the same idea to artificial neural networks and examined how the network's behavior changes by removing units one at a time. Lipton & Steinhardt (2018) list exactly its absence among the "troubling trends" in machine learning publications: if a paper makes several changes at once and ties the gain to a single idea, where the gain comes from stays unclear. In our thesis the "change" is not the model architecture but the command itself; but the logic is the same.
 
-![Baseline merdiveni](images/lecture-28/01-baseline-ladder.png)
+![Baseline ladder](images/lecture-28/01-baseline-ladder.png)
 
-Baseline'lar zaten matriste var; yeni hücre istemiyorlar (`thesis/ablation-plan.md` tablo 1):
+The baselines are already in the matrix; they need no new cells (`thesis/ablation-plan.md` table 1):
 
-| baseline | ne söyler | nereden |
+| baseline | what it says | from where |
 |---|---|---|
-| **Komutsuz tavan / 1/k** | dil olmadan erişilebilecek en yüksek başarı: Spatial 9/10, Goal 1/10 | Ders 19, analitik (episode yok) |
-| **`empty`** | dilsiz politikanın *gerçek* başarısı; H0-a2'nin referansı | A1–A4, B5 |
-| **`wrong`** | model dili izliyor mu (faithful), hedefi sahneden mi seçiyor (biased) | A1–A4 |
-| **`clean`** | üst referans; Δ(tr − clean) | A1–A4 |
-| **EN-B** | eğitimde olmayan İngilizce tarif; dış referans LangGap'in Spatial Description hücresi (π0.5 %11, 5 görev) | B3, B4 |
-| **yayımlanan sayılar** | sistem kalibrasyonu (S-OV Spatial 84,7 ± 0,9) | K1, K2 |
+| **Command-free ceiling / 1/k** | the highest success reachable without language: Spatial 9/10, Goal 1/10 | Lecture 19, analytic (no episodes) |
+| **`empty`** | the *real* success of the language-free policy; the reference of H0-a2 | A1–A4, B5 |
+| **`wrong`** | does the model follow the language (faithful), does it choose the target from the scene (biased) | A1–A4 |
+| **`clean`** | upper reference; Δ(tr − clean) | A1–A4 |
+| **EN-B** | English recipe not in training; external reference LangGap's Spatial Description cell (π0.5 11%, 5 tasks) | B3, B4 |
+| **published numbers** | system calibration (S-OV Spatial 84.7 ± 0.9) | K1, K2 |
 
-Bir baseline'ı bilerek dışarıda bırakıyorum: "rastgele action" ya da "sıfır action". LIBERO'da ikisi de ~%0 verir ve hiçbir hipotezi ayırmaz; tavanı ve tabanı `clean` ile `empty` zaten çiziyor. Tez bağlantısı: Türkçe mekânsal grounding iddiası ancak `empty`'nin üstünde ve komutsuz tavanın altında bir aralıkta anlamlı; bu aralık Spatial'da dar (görev 0'da neredeyse yok), Goal'da geniş. Ders 19'un "ağırlık Goal'a" önerisinin baseline dilindeki karşılığı bu.
+One baseline I leave out on purpose: "random action" or "zero action". On LIBERO both give ~0% and separate no hypothesis; the ceiling and the floor are already drawn by `clean` and `empty`. Link to the thesis: the claim of Turkish spatial grounding is meaningful only in the interval above `empty` and below the command-free ceiling; this interval is narrow on Spatial (almost non-existent on task 0), wide on Goal. This is the baseline-language counterpart of Lecture 19's "weight to Goal" suggestion.
 
 ---
 
-## 2. Yüzey ablation'ı: üç basamaklı merdiven sandık, 2×2 çıktı
+## 2. Surface ablation: we thought a three-step ladder, a 2×2 came out
 
-Ders 26 RQ-b'nin yüzey eksenini dört Türkçe biçimle tanımladı (`datasets/04`): `tr_a` (üretilmiş, Türkçe harfli, ekli), `tr_b` (elle yazılmış), `tr_ascii` (harfler ASCII'ye katlanmış), `tr_bare` (ekler soyulmuş). Ders 27'nin "Sonraki ders" paragrafı bunu bir merdiven olarak yazdı: `tr_a → tr_ascii → tr_bare`, her basamak bir faktör (harf, ek, ikisi). `ablation_check.py` bu iddiayı 20 çiftin her birinde gerçek veriyle sınadı:
+Lecture 26 defined RQ-b's surface axis with four Turkish forms (`datasets/04`): `tr_a` (generated, with Turkish letters, with suffixes), `tr_b` (hand-written), `tr_ascii` (letters folded to ASCII), `tr_bare` (suffixes stripped). Lecture 27's "Next lecture" paragraph wrote this as a ladder: `tr_a → tr_ascii → tr_bare`, each step one factor (letters, suffixes, both). `ablation_check.py` tested this claim on real data in each of the 20 pairs:
 
-| kontrol | sonuç |
+| check | result |
 |---|---|
-| `tr_a_seg`'deki tireler kaldırılınca `tr_a` | 20/20 |
-| harf adımı: `fold(tr_a) == tr_ascii` (sözcük, ek, sıra aynı; yalnız ç/ğ/ı/ö/ş/ü değişiyor) | **20/20** |
-| ek adımı: `tr_bare`'in her sözcüğü `tr_a_seg`'in kökü (gerekirse ünsüz yumuşaması geri alınarak: *tabağ-ın → tabak*) | **20/20** |
-| sözcük sayısı `tr_a` = `tr_bare` | 20/20 |
-| ek sayısı | `tr_a`'da 111 (çift başına 5,5), `tr_bare`'de 0 |
-| Türkçe harf sayısı | `tr_a` 97, `tr_ascii` 0, **`tr_bare` 31** |
+| `tr_a` after removing the hyphens in `tr_a_seg` | 20/20 |
+| letter step: `fold(tr_a) == tr_ascii` (same words, suffixes, order; only ç/ğ/ı/ö/ş/ü change) | **20/20** |
+| suffix step: every word of `tr_bare` is the stem of `tr_a_seg` (undoing consonant softening if needed: *tabağ-ın → tabak*) | **20/20** |
+| word count `tr_a` = `tr_bare` | 20/20 |
+| suffix count | 111 in `tr_a` (5.5 per pair), 0 in `tr_bare` |
+| Turkish letter count | `tr_a` 97, `tr_ascii` 0, **`tr_bare` 31** |
 
-Son satır sorunun kendisi. Ek adımı ekleri soyuyor ama Türkçe harflerin **66'sını (%68) da götürüyor**: eklerdeki *ı/ü* (*ara-sı-nda-ki*, *üst-ü-ne*) ve yumuşamış kök sonları (*tabağ-* → *tabak*). Yani `tr_a − tr_bare` farkı "eklerin bedeli" değil, "ekler + Türkçe harflerin üçte ikisi"nin bedeli.
+The last row is the problem itself. The suffix step strips the suffixes but **also takes away 66 (68%) of the Turkish letters**: the *ı/ü* in the suffixes (*ara-sı-nda-ki*, *üst-ü-ne*) and the softened stem endings (*tabağ-* → *tabak*). So the `tr_a − tr_bare` difference is not "the cost of suffixes", but the cost of "suffixes + two thirds of the Turkish letters".
 
-![Ek adımı saf değil](images/lecture-28/03-suffix-step-confound.png)
+![The suffix step is not pure](images/lecture-28/03-suffix-step-confound.png)
 
-Ve "üçüncü basamak" (`tr_ascii → tr_bare`) aslında hiç tek adım değil: harfleri *geri getiriyor* (0 → 31) ve ekleri siliyor — iki faktör ters yönde. Merdiven yanlış çizilmiş. Doğrusu iki faktörlü bir tasarım:
+And the "third step" (`tr_ascii → tr_bare`) is not a single step at all: it *brings the letters back* (0 → 31) and deletes the suffixes — two factors in opposite directions. The ladder was drawn wrong. The right thing is a two-factor design:
 
-| | ekli | eksiz |
+| | with suffixes | without suffixes |
 |---|---|---|
-| **Türkçe harf** | `tr_a` | `tr_bare` |
-| **ASCII** | `tr_ascii` | **`tr_bare_ascii`** (eksik hücre) |
+| **Turkish letters** | `tr_a` | `tr_bare` |
+| **ASCII** | `tr_ascii` | **`tr_bare_ascii`** (missing cell) |
 
-Eksik hücreyi script üretiyor (`tr_bare`'i ASCII'ye katlayarak; `results/ablation_surface.csv` sütunu). Artık her etki *öbür faktör sabitken* okunabilir: harf etkisi = (`tr_a − tr_ascii`) ve (`tr_bare − tr_bare_ascii`)'nin ortalaması; ek etkisi = (`tr_a − tr_bare`) ve (`tr_ascii − tr_bare_ascii`)'nin ortalaması; etkileşim = harf etkisinin ekli ve eksiz sözcükteki farkı. Ek etkisinin temiz ölçümü ASCII satırında: `tr_ascii − tr_bare_ascii`, çünkü orada iki tarafta da Türkçe harf yok.
+The script produces the missing cell (by folding `tr_bare` to ASCII; the `results/ablation_surface.csv` column). Now every effect can be read *with the other factor held fixed*: letter effect = the average of (`tr_a − tr_ascii`) and (`tr_bare − tr_bare_ascii`); suffix effect = the average of (`tr_a − tr_bare`) and (`tr_ascii − tr_bare_ascii`); interaction = the difference of the letter effect in suffixed and suffix-less words. The clean measurement of the suffix effect is in the ASCII row: `tr_ascii − tr_bare_ascii`, because there neither side has Turkish letters.
 
 ---
 
-## 3. Token tarafında 2×2: harf bedeli LLaMA-2'de eklerle büyüyor
+## 3. The 2×2 on the token side: the letter cost grows with suffixes in LLaMA-2
 
-Episode koşmadan önce 2×2'nin **girdi** tarafını ölçebiliriz: her yüzey kaç token? Ders 22'nin tokenizer'larını yeniden indirdim (Meta `tokenizer.model`, sha256 `9e556afd…` aynı; npm `@lenml/tokenizer-qwen3` `tokenizer.json`). Mevcut dört yüzeyin sayımı `datasets/05` `tokens.csv` ile **160/160 birebir** çıktı (4 yüzey × 20 çift × 2 tokenizer); yeni `tr_bare_ascii` aynı tokenizer'larla sayıldı:
+Before running episodes we can measure the **input** side of the 2×2: how many tokens is each surface? I downloaded Lecture 22's tokenizers again (Meta `tokenizer.model`, sha256 `9e556afd…` identical; npm `@lenml/tokenizer-qwen3` `tokenizer.json`). The counts of the four existing surfaces came out **160/160 identical** to `datasets/05` `tokens.csv` (4 surfaces × 20 pairs × 2 tokenizers); the new `tr_bare_ascii` was counted with the same tokenizers:
 
-![Yüzey 2×2 token](images/lecture-28/02-surface-2x2-tokens.png)
+![Surface 2×2 tokens](images/lecture-28/02-surface-2x2-tokens.png)
 
-| tokenizer | en | `tr_a` | `tr_ascii` | `tr_bare` | `tr_bare_ascii` | harf etkisi | ek etkisi | etkileşim |
+| tokenizer | en | `tr_a` | `tr_ascii` | `tr_bare` | `tr_bare_ascii` | letter effect | suffix effect | interaction |
 |---|---|---|---|---|---|---|---|---|
-| LLaMA-2 (S-OV) | 13,6 | 22,4 | 17,6 | 14,9 | 14,3 | **+2,7** | **+5,4** | **+4,3** |
-| Qwen3 (S-VN) | 12,3 | 16,9 | 16,0 | 12,2 | 12,2 | +0,4 | +4,2 | +0,9 |
+| LLaMA-2 (S-OV) | 13.6 | 22.4 | 17.6 | 14.9 | 14.3 | **+2.7** | **+5.4** | **+4.3** |
+| Qwen3 (S-VN) | 12.3 | 16.9 | 16.0 | 12.2 | 12.2 | +0.4 | +4.2 | +0.9 |
 
-Üç okuma:
+Three readings:
 
-1. **LLaMA-2'de harf bedeli ekli sözcükte büyük, eksiz sözcükte neredeyse yok** (ekli: 22,4 − 17,6 = 4,8; eksiz: 14,9 − 14,3 = 0,6). Sebep, 32.000 parçalık SentencePiece dağarcığında *-ını*, *-üne* gibi Türkçe harfli ek dizilerinin bulunmaması: harf ekin içindeyse sözcük bayt kırıntılarına bölünüyor (Ders 22). Ders 22'nin "Türkçe harf bedeli 4,9 token" sayısı aslında ekli sözcükte ölçülmüş bir etkileşimdi.
-2. **Qwen3'te harf neredeyse bedava (+0,4), ek bedeli LLaMA-2'ye yakın (+4,2).** 151 bin parçalık byte-level BPE Türkçe harfleri tek parça tutuyor; ama ekler yine ayrı parça. Yani iki sistem arasında *harf* farkı var, *ek* farkı yok — RQ-b'nin "tr_ascii iki sistemde zıt yön" hipotezi (Ders 26) bu tabloyla daha keskin: zıtlık harf etkisinde beklenir, ek etkisinde beklenmez.
-3. **`tr_bare_ascii` uzunluk olarak İngilizce'ye eşit** (Qwen3 12,2 vs 12,3; LLaMA-2 14,3 vs 13,6). Yani 2×2'nin bu köşesinde *token uzunluğu* ortak değişkeni neredeyse ortadan kalkıyor: `tr_bare_ascii` hâlâ başarısızsa sebep uzunluk değil, sözcüklerin kendisi (Türkçe kökler).
+1. **In LLaMA-2 the letter cost is large in a suffixed word and almost zero in a suffix-less one** (suffixed: 22.4 − 17.6 = 4.8; suffix-less: 14.9 − 14.3 = 0.6). The reason is that the 32,000-piece SentencePiece vocabulary has no Turkish-lettered suffix strings like *-ını*, *-üne*: if the letter is inside the suffix the word is split into byte fragments (Lecture 22). Lecture 22's "Turkish-letter cost 4.9 tokens" figure was actually an interaction measured on suffixed words.
+2. **In Qwen3 the letter is almost free (+0.4), the suffix cost is close to LLaMA-2's (+4.2).** The 151-thousand-piece byte-level BPE keeps Turkish letters as a single piece; but the suffixes are still separate pieces. So between the two systems there is a *letter* difference and no *suffix* difference — RQ-b's "tr_ascii in opposite directions in the two systems" hypothesis (Lecture 26) is sharper with this table: the opposition is expected in the letter effect, not in the suffix effect.
+3. **`tr_bare_ascii` equals English in length** (Qwen3 12.2 vs 12.3; LLaMA-2 14.3 vs 13.6). So at this corner of the 2×2 the *token length* covariate almost disappears: if `tr_bare_ascii` still fails, the reason is not length but the words themselves (Turkish stems).
 
-Bunların hepsi **girdi** ölçümü; success rate'e nasıl yansıdığı hipotez ve AB1 hücresinin işi. Önceden yazılan okuma kuralı (`ablation-plan.md`): harf ablation'ı S-OV'de ≥ 15 puan ve S-VN'de TOST δ = 15 içinde çıkarsa "harf bedeli tokenizasyonla uyumlu" — Tatar vd.'nin hipotezi (Ders 5) ilk kez kapalı döngüde sınanmış olur.
+All of these are **input** measurements; how they reflect on success rate is a hypothesis and the job of cell AB1. The reading rule written in advance (`ablation-plan.md`): if the letter ablation comes out ≥ 15 points in S-OV and within TOST δ = 15 in S-VN, "the letter cost is consistent with tokenization" — Tatar et al.'s hypothesis (Lecture 5) would be tested in closed loop for the first time.
 
-Etkileşim için bir uyarı: Gelman'ın (2018) hesabıyla etkileşimin standart hatası ana etkinin iki katıdır; etkileşim ana etkinin yarısı büyüklüğündeyse aynı güç için **16 kat** örneklem gerekir. Ders 27'nin yalın matrisinde blok başına n = 120 ana etkide 13 puanı yakalıyor; etkileşimde yakalamaz. Bu yüzden etkileşim tezde yalnızca "yön" kipinde yazılır.
-
----
-
-## 4. Kâhin sürümleri: yeni episode istemeyen ablation'lar
-
-RQ-c'nin iki müdahalesi (MT çeviri katmanı, kural tabanlı parser) için doğal ablation **kâhin** (oracle) sürümüdür: bileşen kusursuz çalışsaydı ne olurdu? MT'nin kâhini insan çevirisi, parser'ın kâhini doğru İngilizce şablon. Açığın ne kadarı bileşenin hatasından, ne kadarı modelden geliyor sorusu buradan cevaplanır.
-
-Bizim düzende ilginç bir şey oluyor: A ve C bloklarında `tr_a` zaten LIBERO'nun İngilizce komutundan üretildi (`datasets/04`). Yani `tr_a`'nın kusursuz İngilizce çevirisi **`clean` komutunun kendisi**. Kâhin hücresi yeni episode istemiyor: A1–A4'teki `clean` episode'ları kâhinin sonucu. B bloğunda kâhin EN-B (B3/B4). İkisi de zaten matriste. Ders 27'nin string önbelleğiyle birleşince ayrıştırma kesinleşiyor. S-OV greedy olduğu için (`do_sample=False`), MT çıktısı `clean`'le birebir aynı olan her episode `clean` episode'unun kendisi; farklı olanlar çeviri hatası taşıyan episode'lar. Dolayısıyla
-
-`κ_MT = [SR(tr_mt) − SR(tr_a)] / [SR(clean) − SR(tr_a)]`, kâhinin κ'sı tanım gereği 1, ve **1 − κ_MT doğrudan "açığın çeviri hatasından gelen payı"**. Ek koşu gerekmiyor.
-
-Parser'da aynı hesap bir tuzak içeriyor. Ders 24'te parser `datasets/04`'e bakılarak yazıldı ve setin 80 cümlesinin 79'unu birebir çevirdi. A/C'de κ_parser ≈ 1 çıkacak, ama bu bir **totoloji**: parser'ın test verisi eğitim verisi. Asıl kanıt held-out set (12 yeni cümle, 5/12 doğru). Tezde parser'ın A/C sonucu "üst sınır" diye yazılır, kanıt diye değil. Bu bir ablation'ın yeniden okuma olsa bile *geçerli* olmayabileceğine örnek.
+A warning for the interaction: by Gelman's (2018) calculation the standard error of an interaction is twice that of a main effect; if the interaction is half the size of the main effect, **16 times** the sample is needed for the same power. In Lecture 27's lean matrix n = 120 per block catches 13 points in a main effect; it does not in an interaction. That is why the interaction is written in the thesis only in "direction" mode.
 
 ---
 
-## 5. Code-switching ve niceleme: biri temiz ablation, öbürü iki faktörlü
+## 4. Oracle versions: ablations that need no new episodes
 
-**Code-switching (`tr_cs`, AB3).** Chen vd. (Haz 2026) cümlenin iskeletini hedef dilde bırakıp anahtar sözcükleri İngilizce yazınca LIBERO'daki düşüşün belirgin biçimde küçüldüğünü gösterdi. OpenVLA-OFT'de tam çeviri zh/fr/ru/ar −28,6 / −28,6 / −27,8 / −29,8 puan; anahtar sözcükler İngilizce kalınca −25,3 / −14,3 / −17,4 / −17,0. π0.5'te −39,6…−41,4 → −13,8…−21,9 (Tablo 1 vs Tablo 3; Ders 24). Bizde bunun karşılığı `tr_cs`: *"plate ile ramekin arasındaki black bowl'u al…"*. `tr_cs − tr_a` tek bir faktörü değiştirir (nesne adlarının dili), ilişki eki ve iskelet Türkçe kalır. Mekânsal grounding sorusunu en doğrudan ayıran ablation bu: düşüş nesne adından geliyorsa ilişki ekleri okunuyor demektir. Ama `tr_cs` yüzeyi henüz yazılmadı (Ders 24 log'u v0.3 önerisi); Türkçe ek uyumu (*bowl'u*, *plate'in*) kural tabanlı üretilemeyecek kadar oynak, insan yazmalı. Hücre AB3 genişletmede, **engelli**.
+For RQ-c's two interventions (MT translation layer, rule-based parser) the natural ablation is the **oracle** version: what would happen if the component worked perfectly? The oracle of MT is human translation, the oracle of the parser is the correct English template. The question of how much of the gap comes from the component's error and how much from the model is answered here.
 
-**Niceleme (K3).** Ders 27'de K3'ü "niceleme ablation'ı" diye kurduk: aynı 25 init state'te S-OV bf16 (Mac MPS) ile S-OV 4-bit NF4 (T4 CUDA). Bugünkü kuralla yeniden bakınca iki faktör değişiyor: sayısal hassasiyet **ve** cihaz/çekirdek (MPS'in bf16 matmul'ları ile CUDA'nın 4-bit dequantize + fp16 çekirdekleri). T4'te bf16 S-OV sığmadığı (16,8 GB) ve Mac'te `bitsandbytes` olmadığı için ikisini ayıramıyoruz. K3 yine de değerli; adı değişiyor: "S-OV-4bit-T4 ile S-OV-bf16-MPS farkı". Tezde "niceleme X puan düşürdü" değil, "4-bit T4 kurulumu bf16 Mac kurulumundan X puan farklı" yazılır. Ama asıl soru yine cevaplanıyor: Türkçe açığı (`clean − tr_a`) iki kurulumda aynı mı? Bu bir fark-farkı (difference-in-differences) ve cihaz farkı her iki koşula eşit etki ediyorsa iptal olur (**hipotez**).
+Something interesting happens in our design: on blocks A and C `tr_a` was already generated from LIBERO's English command (`datasets/04`). So the perfect English translation of `tr_a` is **the `clean` command itself**. The oracle cell needs no new episodes: the `clean` episodes in A1–A4 are the oracle's result. On block B the oracle is EN-B (B3/B4). Both are already in the matrix. Combined with Lecture 27's string cache the decomposition becomes exact. Since S-OV is greedy (`do_sample=False`), every episode whose MT output is identical to `clean` is the `clean` episode itself; the different ones are the episodes carrying translation errors. Therefore
 
-![Ablation mı betimsel mi](images/lecture-28/05-ablation-or-descriptive.png)
+`κ_MT = [SR(tr_mt) − SR(tr_a)] / [SR(clean) − SR(tr_a)]`, the oracle's κ is 1 by definition, and **1 − κ_MT is directly "the share of the gap that comes from translation error"**. No extra runs are needed.
 
----
-
-## 6. Sistem farkı: neden hiçbir zaman ablation değil
-
-S-OV ile S-VN arasında üç şey birlikte değişiyor: omurga (LLaMA-2-7B + DINOv2/SigLIP ↔ Qwen3-VL-2B), action başı (256-bin token, chunk 1 ↔ flow-matching, chunk 8) ve eğitim verisi/tarifi. Chen vd. bunu ayırmak için StarVLA çerçevesinde aynı action başlarını farklı omurgalara takıp karşılaştırdı. Sonuç uyarıcı: aynı Qwen3-VL omurgasında OFT başı Arapça'da −47, GR00T başı −36 puan düşüyor (Ders 25–26). Yani "omurga Türkçe'yi daha iyi okuyor" cümlesini, baş sabit tutulmadan kuramazsın.
-
-Bu düzeni bizim bütçemizde kurmak, en az bir yeni VLA'yı LIBERO'da sıfırdan eğitmek demek. Ders 24'ün tek bir QLoRA tahmini bile 65–98 T4 saatiydi. Kapsam dışı. Kararı önceden yazıyorum: **S-OV − S-VN karşılaştırması betimsel**. Tezde "S-VN sistemi Türkçe'de daha az düşüyor" yazılabilir, "Qwen3-VL Türkçe'yi daha iyi anlıyor" yazılamaz. İki sistem arasında yapılabilecek tek *ablation benzeri* okuma 2×2'nin kendisi. Harf etkisinin S-OV'de görünüp S-VN'de görünmemesi, ek etkisinin ikisinde de görünmesi, tokenizer farkıyla *uyumlu* bir örüntü. Uyumluluk kanıt değil, ama nedensel cümleye en yakın yer.
+For the parser the same calculation hides a trap. In Lecture 24 the parser was written by looking at `datasets/04` and translated 79 of the set's 80 sentences exactly. On A/C κ_parser ≈ 1 will come out, but this is a **tautology**: the parser's test data is its training data. The real evidence is the held-out set (12 new sentences, 5/12 correct). In the thesis the parser's A/C result is written as an "upper bound", not as evidence. This is an example that a re-reading as an ablation may not be *valid* even when it is possible.
 
 ---
 
-## 7. Fiyat: matris v0.2
+## 5. Code-switching and quantization: one is a clean ablation, the other two-factor
 
-Yeni episode isteyen ablation'lar matrise üç hücre ekledi; `price_ablations.py` Ders 27'nin `budget.py`'sini içe aktarıp aynı modelle fiyatladı (Ders 27'nin `results/` klasörüne dokunmuyor; v0.1 kopyası `code/day28/results/experiment-matrix_v0.1.csv`):
+**Code-switching (`tr_cs`, AB3).** Chen et al. (Jun 2026) showed that when the skeleton of the sentence is left in the target language and the keywords are written in English, the drop on LIBERO shrinks markedly. On OpenVLA-OFT full translation zh/fr/ru/ar −28.6 / −28.6 / −27.8 / −29.8 points; with keywords left in English −25.3 / −14.3 / −17.4 / −17.0. On π0.5 −39.6…−41.4 → −13.8…−21.9 (Table 1 vs Table 3; Lecture 24). Its counterpart for us is `tr_cs`: *"plate ile ramekin arasındaki black bowl'u al…"*. `tr_cs − tr_a` changes a single factor (the language of the object names), the relation suffix and the skeleton stay Turkish. This is the ablation that most directly separates the spatial grounding question: if the drop comes from the object name, it means the relation suffixes are read. But the `tr_cs` surface has not been written yet (the Lecture 24 log's v0.3 proposal); Turkish suffix harmony (*bowl'u*, *plate'in*) is too variable to generate by rules, a human must write it. The cell is in the AB3 extension, **blocked**.
 
-| hücre | ne | kat | T4 saati (orta; iyimser–kötümser) |
+**Quantization (K3).** In Lecture 27 we set K3 up as a "quantization ablation": the same 25 init states with S-OV bf16 (Mac MPS) vs S-OV 4-bit NF4 (T4 CUDA). Looking again with today's rule, two factors change: numeric precision **and** device/kernel (MPS's bf16 matmuls vs CUDA's 4-bit dequantize + fp16 kernels). Because bf16 S-OV does not fit on the T4 (16.8 GB) and there is no `bitsandbytes` on the Mac, we cannot separate the two. K3 is still valuable; its name changes: "the difference between S-OV-4bit-T4 and S-OV-bf16-MPS". In the thesis one does not write "quantization lowered X points", but "the 4-bit T4 setup differs from the bf16 Mac setup by X points". But the real question is still answered: is the Turkish gap (`clean − tr_a`) the same in the two setups? This is a difference-in-differences, and if the device difference acts equally on both conditions it cancels (**hypothesis**).
+
+![Ablation or descriptive](images/lecture-28/05-ablation-or-descriptive.png)
+
+---
+
+## 6. System difference: why it is never an ablation
+
+Between S-OV and S-VN three things change together: the backbone (LLaMA-2-7B + DINOv2/SigLIP ↔ Qwen3-VL-2B), the action head (256-bin tokens, chunk 1 ↔ flow-matching, chunk 8) and the training data/recipe. To separate this, Chen et al. attached the same action heads to different backbones in the StarVLA framework and compared. The result is a warning: on the same Qwen3-VL backbone the OFT head drops −47 in Arabic, the GR00T head −36 points (Lectures 25–26). So you cannot form the sentence "the backbone reads Turkish better" without holding the head fixed.
+
+Setting up this design on our budget would mean training at least one new VLA from scratch on LIBERO. Even Lecture 24's single QLoRA estimate was 65–98 T4 hours. Out of scope. I write the decision in advance: **the S-OV − S-VN comparison is descriptive**. In the thesis "the S-VN system drops less in Turkish" may be written, "Qwen3-VL understands Turkish better" may not. The only *ablation-like* reading that can be done between the two systems is the 2×2 itself. That the letter effect shows up in S-OV and not in S-VN, and the suffix effect shows up in both, is a pattern *consistent* with the tokenizer difference. Consistency is not evidence, but it is the closest place to a causal sentence.
+
+---
+
+## 7. Price: matrix v0.2
+
+The ablations that need new episodes added three cells to the matrix; `price_ablations.py` imported Lecture 27's `budget.py` and priced them with the same model (it does not touch Lecture 27's `results/` folder; the v0.1 copy is `code/day28/results/experiment-matrix_v0.1.csv`):
+
+| cell | what | tier | T4 hours (middle; optimistic–pessimistic) |
 |---|---|---|---|
-| **AB1** | `tr_bare`, `tr_bare_ascii` × Goal C × iki sistem (2×2'nin eksik iki hücresi; `tr_a`, `tr_ascii` A2/A4/B1/B2'den) | çekirdek | 46 (27–90) |
-| AB2 | aynısı Spatial A'da | genişletme | 35 (21–68) |
-| AB3 | `tr_cs` × A+C × iki sistem | genişletme, engelli | 34 (20–67) |
-| B6 (değişti) | yalnız `tr_b` (`tr_bare` AB1/AB2'ye taşındı) | genişletme | 37 (önce 78) |
+| **AB1** | `tr_bare`, `tr_bare_ascii` × Goal C × two systems (the two missing cells of the 2×2; `tr_a`, `tr_ascii` from A2/A4/B1/B2) | core | 46 (27–90) |
+| AB2 | the same on Spatial A | extension | 35 (21–68) |
+| AB3 | `tr_cs` × A+C × two systems | extension, blocked | 34 (20–67) |
+| B6 (changed) | only `tr_b` (`tr_bare` moved to AB1/AB2) | extension | 37 (was 78) |
 
-![Bütçe v0.1 → v0.2](images/lecture-28/04-budget-v01-v02.png)
+![Budget v0.1 → v0.2](images/lecture-28/04-budget-v01-v02.png)
 
-Toplam pilot + çekirdek: v0.1 258 → **v0.2 303 sa** (orta; 178–594), ≈ 10,1 Kaggle haftası. Yalın matriste (görev başına 20 init) 108 → **126 sa**, ≈ 4,2 hafta (T4×2 ile ~2,1). Genişletme 225 → 254. AB1'i çekirdeğe almamın gerekçesi: o olmadan RQ-b'nin "harf mi ek mi" sorusu yalnızca girdi tarafında (token sayısı) cevaplanır, davranış tarafında cevaplanmaz. Goal C'yi seçmemin gerekçesi: Goal'da komutsuz tavan 1/10, yani dil etkisi görünür (Spatial'da `empty` zaten yüksek olabilir).
-
----
-
-## 8. Yazılımcı için köprüler
-
-- **Ablation = tek değişkenli A/B testi.** Bir PR'da hem cache ekleyip hem sorguyu yeniden yazarsan p99 iyileşmesini hangisine yazacağını bilemezsin; feature flag'leri tek tek açarsın. `tr_a → tr_bare` iki flag'i birden çeviriyordu (ekler + harflerin %68'i); 2×2, iki flag'in dört kombinasyonu.
-- **2×2 = parametrik test, `[Theory]` + `[InlineData]`.** `(harf: TR, ek: var)`, `(ASCII, var)`, `(TR, yok)`, `(ASCII, yok)`: dört satırlık test matrisi. Eksik satır (`tr_bare_ascii`) yazılmamış bir test case'i; kapsama raporunda kırmızı.
-- **Kâhin = mock'lanmış bağımlılık.** MT servisini "her zaman doğru çeviriyi döndüren" bir stub ile değiştirip uçtan uca testi koşarsın; kalan hata downstream'in (modelin). Bizde stub'ın çıktısı zaten bilinen (`clean`), o yüzden test bile koşmadan sonuç cache'te.
-- **Parser totolojisi = eğitim verisiyle test etmek.** Unit testleri implementasyona bakarak yazıp "%100 geçti" demek gibi. Held-out set gerçek entegrasyon testi.
-- **K3 = "Debug-on-Mac vs Release-on-Linux".** İki şey birden değişiyor (build konfigürasyonu ve platform). Farkı birine yazamazsın, ama "iki ortamda aynı regresyon var mı" sorusu (fark-farkı) yine cevaplanır.
-- **Sistem farkı = iki farklı tech stack.** Go servisi ile .NET servisini karşılaştırmak dil karşılaştırması değildir: runtime, kütüphane ve ekip birlikte değişiyor. "Hangisi daha hızlı" betimseldir; "neden" için aynı servisi iki dilde yazman gerekir (StarVLA).
+Total pilot + core: v0.1 258 → **v0.2 303 h** (middle; 178–594), ≈ 10.1 Kaggle weeks. In the lean matrix (20 init per task) 108 → **126 h**, ≈ 4.2 weeks (with T4×2 ~2.1). Extension 225 → 254. My justification for taking AB1 into the core: without it RQ-b's "letter or suffix" question is answered only on the input side (token count), not on the behavior side. My justification for choosing Goal C: on Goal the command-free ceiling is 1/10, so the language effect is visible (on Spatial `empty` may already be high).
 
 ---
 
-## 9. Bugünün görevi (15 dk)
+## 8. Bridges for the software developer
 
-`code/day28/results/ablation_surface.csv`'yi aç, `tr_bare_ascii` sütunundaki 20 cümleyi oku. Her biri için tek kelimeyle yaz: **anlaşılır** / **belirsiz** / **anlamsız** (ör. *kase tabak ust koy* bir Türkçe konuşucuya hâlâ "kâseyi tabağın üstüne koy" der mi?). Bu, 2×2'nin en uç köşesinin *insan için* hâlâ aynı talimat olup olmadığının kontrolü. Belirsiz çıkan cümle varsa (*sol siyah kase al…* hangi kâse?), o çiftte ek ablation'ı anlamı da değiştiriyor demektir; `thesis/ablation-plan.md`'ye "ABL-ek'ten çıkarılacak çiftler" diye not et. Sonra `cd code/day28 && python ablation_check.py` (tokenizer'sız mod; sayılar `datasets/05`'ten) çıktısını özetle karşılaştır. Commit: `Ders 28: tr_bare_ascii insan kontrolü`.
+- **Ablation = a single-variable A/B test.** If in one PR you both add a cache and rewrite the query, you cannot know which to credit for the p99 improvement; you turn the feature flags on one at a time. `tr_a → tr_bare` flipped two flags at once (suffixes + 68% of the letters); the 2×2 is the four combinations of two flags.
+- **2×2 = a parametric test, `[Theory]` + `[InlineData]`.** `(letters: TR, suffix: present)`, `(ASCII, present)`, `(TR, absent)`, `(ASCII, absent)`: a four-row test matrix. The missing row (`tr_bare_ascii`) is an unwritten test case; red in the coverage report.
+- **Oracle = a mocked dependency.** You replace the MT service with a stub that "always returns the correct translation" and run the end-to-end test; the remaining error is the downstream's (the model's). In our case the stub's output is already known (`clean`), so the result is in the cache without even running the test.
+- **Parser tautology = testing with the training data.** Like writing unit tests by looking at the implementation and saying "100% passed". The held-out set is the real integration test.
+- **K3 = "Debug-on-Mac vs Release-on-Linux".** Two things change at once (build configuration and platform). You cannot attribute the difference to either, but the question "is the same regression present in both environments" (difference-in-differences) is still answered.
+- **System difference = two different tech stacks.** Comparing a Go service with a .NET service is not a language comparison: runtime, libraries and team change together. "Which is faster" is descriptive; for "why" you would have to write the same service in both languages (StarVLA).
 
-## Takılırsan
+---
 
-| Belirti | Çözüm |
+## 9. Today's task (15 min)
+
+Open `code/day28/results/ablation_surface.csv`, read the 20 sentences in the `tr_bare_ascii` column. For each write one word: **understandable** / **ambiguous** / **nonsensical** (e.g. would a Turkish speaker still read *kase tabak ust koy* as "kâseyi tabağın üstüne koy"?). This is a check of whether the outermost corner of the 2×2 is still the same instruction *for a human*. If any sentence comes out ambiguous (*sol siyah kase al…* which bowl?), it means that in that pair the suffix ablation also changes the meaning; note it in `thesis/ablation-plan.md` as "pairs to drop from the suffix ablation". Then compare the output of `cd code/day28 && python ablation_check.py` (tokenizer-less mode; the numbers come from `datasets/05`) with the summary. Commit: `Lecture 28: tr_bare_ascii human check`.
+
+## If you get stuck
+
+| Symptom | Fix |
 |---|---|
-| `ablation_check.py` tokenizer'sız modda `tr_bare_ascii` sütunları boş | Normal: yeni yüzey `datasets/05`'te yok. Sayım için `--llama tokenizer.model --qwen package/models/tokenizer.json` ver (indirme komutları `code/day25/README.md`) |
+| `ablation_check.py` in tokenizer-less mode, `tr_bare_ascii` columns empty | Normal: the new surface is not in `datasets/05`. For counting give `--llama tokenizer.model --qwen package/models/tokenizer.json` (download commands in `code/day25/README.md`) |
 | `ModuleNotFoundError: sentencepiece` / `tokenizers` | `pip install sentencepiece tokenizers` |
-| `datasets/05 çapraz kontrol: uyuşmayan > 0` | Farklı bir tokenizer dosyası: Meta `tokenizer.model` sha256 `9e556afd…` olmalı; Qwen için npm `@lenml/tokenizer-qwen3` |
-| `price_ablations.py`: `ModuleNotFoundError: budget` | Script'i `code/day28/` içinden çalıştır; `../day27/budget.py` yolu göreli |
-| "ek adımı yalnız ek soyuyor" 20/20 değil | `datasets/04`'te `tr_bare` ya da `tr_a_seg` elle değişmiş olabilir; çıktıdaki çift kimliğine bak (ünsüz yumuşaması: *tabağ-* → *tabak*, ama *sağ-da-ki* → *sağ*) |
-| `plot_day28.py`: `budget_v01_v02.csv` yok | Önce `price_ablations.py` |
+| `datasets/05 tokens.csv cross-check: mismatches > 0` | A different tokenizer file: the Meta `tokenizer.model` sha256 must be `9e556afd…`; for Qwen npm `@lenml/tokenizer-qwen3` |
+| `price_ablations.py`: `ModuleNotFoundError: budget` | Run the script from inside `code/day28/`; the `../day27/budget.py` path is relative |
+| "suffix step strips only suffixes" is not 20/20 | `tr_bare` or `tr_a_seg` in `datasets/04` may have been changed by hand; look at the pair id in the output (consonant softening: *tabağ-* → *tabak*, but *sağ-da-ki* → *sağ*) |
+| `plot_day28.py`: `budget_v01_v02.csv` missing | Run `price_ablations.py` first |
 
 ---
 
-## Sonraki ders (Ders 29)
-**Bir sayfalık tez önerisi taslağı (Türkçe).** Dört ders boyunca biriken parçalar tek sayfaya iniyor: Ders 25'in tez cümleleri (iddia / kanıt zinciri / koşul), Ders 26'nın üç RQ'su, Ders 27'nin matrisi ve bütçesi, bugünkü baseline + ablation planı. Çıktı `thesis/proposal-v0.1.md`: başlık, problem ve motivasyon ("dil dünyanın sıkıştırılmış hâlidir, dünyanın kendisi değil"), amaç ve RQ'lar, yöntem (iki sistem, LIBERO Spatial/Goal, dört koşul + yüzey 2×2, eşli McNemar/TOST), beklenen katkı (Türkçe × kapalı döngü × karşı-olgusal hücre boş), takvim (bütçe saatlerinden Gantt) ve risk tablosu. Bir sayfa kısıtı, neyin tezin çekirdeği neyin genişletme olduğunu zorla seçtirecek.
+## Next lecture (Lecture 29)
+**A one-page thesis proposal draft (in English, with the Turkish title).** The pieces accumulated over four lectures come down to a single page: Lecture 25's thesis sentences (claim / chain of evidence / condition), Lecture 26's three RQs, Lecture 27's matrix and budget, today's baseline + ablation plan. Output `thesis/proposal-v0.1.md`: title, problem and motivation ("language is the compressed form of the world, not the world itself"), aim and RQs, method (two systems, LIBERO Spatial/Goal, four conditions + surface 2×2, paired McNemar/TOST), expected contribution (the Turkish × closed-loop × counterfactual cell is empty), schedule (a Gantt from the budget hours) and a risk table. The one-page constraint will force choosing what is the core of the thesis and what is extension.
 
 ---
 
-## Kaynaklar
-- Çıktılar: `thesis/ablation-plan.md` v0.1, `thesis/experiment-matrix.csv` v0.2 (AB1–AB3, B6 değişti). Girdiler: `datasets/04-tr-spatial-commands/data/pairs.csv` (20 çift × `tr_a`, `tr_a_seg`, `tr_ascii`, `tr_bare`), `datasets/05-tokenization-tr-commands/data/tokens.csv` (Ders 22), Ders 19 (komutsuz tavan), Ders 24 (parser 79/80, held-out 5/12; code-switching sayıları), Ders 27 (`budget.py`, K3).
-- **[1]** Meyes, Lu, de Puiseau, Meisen (2019). *Ablation Studies in Artificial Neural Networks.* [arXiv:1901.08644](https://arxiv.org/abs/1901.08644): sinirbilimden ödünç alınan ablation fikrinin yapay sinir ağlarına uygulanması.
-- **[2]** Lipton, Steinhardt (2018). *Troubling Trends in Machine Learning Scholarship.* [arXiv:1807.03341](https://arxiv.org/abs/1807.03341): kazancın kaynağını ayırmayan (ablation'sız) çalışmaların eleştirisi.
-- **[3]** Gelman (2018). *You need 16 times the sample size to estimate an interaction than to estimate a main effect.* [statmodeling.stat.columbia.edu](https://statmodeling.stat.columbia.edu/2018/03/15/need16/) · [2023 açıklaması](https://statmodeling.stat.columbia.edu/2023/11/09/you-need-16-times-the-sample-size-to-estimate-an-interaction-than-to-estimate-a-main-effect-explained/): etkileşimin SE'si ana etkinin 2 katı.
-- **[4]** Chen vd. (2026). *Beyond English: Uncovering the Multilingual Gap in Vision-Language-Action Models.* [arXiv:2606.15714](https://arxiv.org/abs/2606.15714): Tablo 1 (tam çeviri), Tablo 3 (code-switching), StarVLA düzeni (aynı baş, farklı omurga; OFT ar −47, GR00T −36). Hou, Zhao (2026). *LangGap.* [arXiv:2603.00592](https://arxiv.org/abs/2603.00592): Spatial Description %11 (EN-B dış referansı).
-- **[5]** Tokenizer'lar: Meta LLaMA-2 `tokenizer.model` ([karpathy/llama2.c](https://github.com/karpathy/llama2.c) kopyası, sha256 `9e556afd44213b6bd1be2b850ebbbd98f5481437a8021afaf58ee7fb1818d347`); Qwen3 `tokenizer.json` (npm [`@lenml/tokenizer-qwen3`](https://www.npmjs.com/package/@lenml/tokenizer-qwen3)). OpenVLA [arXiv:2406.09246](https://arxiv.org/abs/2406.09246) (Spatial 84,7 ± 0,9; `do_sample=False`).
-- Kod: `code/day28/`. `ablation_check.py` bu oturumda gerçek tokenizer'larla koştu (`results/ablation_surface.csv`, `results/summary.md`; datasets/05 ile 160/160 birebir). `price_ablations.py` koştu (`results/budget_v01_v02.csv`, `results/ablation_cells.csv`). `plot_day28.py` koştu.
-- Görseller: 01 ve 05 Mermaid (`.mmd` yanında). 02 ve 03 **gerçek** (yüzey analizi + tokenizer sayımı). 04 Ders 27'nin bütçe modeli (**model tahmini**: t_call senaryo). Model bu oturumda çalıştırılmadı; success rate'e dair her şey hipotez.
+## References
+- Outputs: `thesis/ablation-plan.md` v0.1, `thesis/experiment-matrix.csv` v0.2 (AB1–AB3, B6 changed). Inputs: `datasets/04-tr-spatial-commands/data/pairs.csv` (20 pairs × `tr_a`, `tr_a_seg`, `tr_ascii`, `tr_bare`), `datasets/05-tokenization-tr-commands/data/tokens.csv` (Lecture 22), Lecture 19 (command-free ceiling), Lecture 24 (parser 79/80, held-out 5/12; code-switching numbers), Lecture 27 (`budget.py`, K3).
+- **[1]** Meyes, Lu, de Puiseau, Meisen (2019). *Ablation Studies in Artificial Neural Networks.* [arXiv:1901.08644](https://arxiv.org/abs/1901.08644): applying the ablation idea borrowed from neuroscience to artificial neural networks.
+- **[2]** Lipton, Steinhardt (2018). *Troubling Trends in Machine Learning Scholarship.* [arXiv:1807.03341](https://arxiv.org/abs/1807.03341): a critique of work that does not separate the source of the gain (no ablations).
+- **[3]** Gelman (2018). *You need 16 times the sample size to estimate an interaction than to estimate a main effect.* [statmodeling.stat.columbia.edu](https://statmodeling.stat.columbia.edu/2018/03/15/need16/) · [2023 explanation](https://statmodeling.stat.columbia.edu/2023/11/09/you-need-16-times-the-sample-size-to-estimate-an-interaction-than-to-estimate-a-main-effect-explained/): the SE of an interaction is 2× that of a main effect.
+- **[4]** Chen et al. (2026). *Beyond English: Uncovering the Multilingual Gap in Vision-Language-Action Models.* [arXiv:2606.15714](https://arxiv.org/abs/2606.15714): Table 1 (full translation), Table 3 (code-switching), the StarVLA setup (same head, different backbone; OFT ar −47, GR00T −36). Hou, Zhao (2026). *LangGap.* [arXiv:2603.00592](https://arxiv.org/abs/2603.00592): Spatial Description 11% (external reference for EN-B).
+- **[5]** Tokenizers: Meta LLaMA-2 `tokenizer.model` ([karpathy/llama2.c](https://github.com/karpathy/llama2.c) copy, sha256 `9e556afd44213b6bd1be2b850ebbbd98f5481437a8021afaf58ee7fb1818d347`); Qwen3 `tokenizer.json` (npm [`@lenml/tokenizer-qwen3`](https://www.npmjs.com/package/@lenml/tokenizer-qwen3)). OpenVLA [arXiv:2406.09246](https://arxiv.org/abs/2406.09246) (Spatial 84.7 ± 0.9; `do_sample=False`).
+- Code: `code/day28/`. `ablation_check.py` ran in this session with the real tokenizers (`results/ablation_surface.csv`, `results/summary.md`; 160/160 identical with datasets/05). `price_ablations.py` ran (`results/budget_v01_v02.csv`, `results/ablation_cells.csv`). `plot_day28.py` ran.
+- Figures: 01 and 05 are Mermaid (`.mmd` alongside). 02 and 03 are **real** (surface analysis + tokenizer counts). 04 is Lecture 27's budget model (**model estimate**: t_call is a scenario). The model was not run in this session; everything about success rate is hypothesis.

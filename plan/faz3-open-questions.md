@@ -1,47 +1,47 @@
-# Faz 3 açık soruları (Ders 25)
+# Phase 3 open questions (Lecture 25)
 
-Faz 3'ün (Ders 17–24) sentezinden çıkan, Faz 4'e (Ders 26 RQ formülasyonu) giren liste. `Durum` sütunu Mesut'un; bir soru kapanınca satır silinmez, tarih + bir satır sonuç yazılır. Ders 26–27 buradan okur.
+The list that came out of the Phase 3 synthesis (Lectures 17–24) and feeds Phase 4 (Lecture 26, RQ formulation). The `Status` column is Mesut's; when a question closes, the row is not deleted — write the date + a one-line result. Lectures 26–27 read from here.
 
-**Öncelik:** S1 kritik yolda — Ders 24'ün karar ağacı (hangi çözüm tez olur) Ders 18'in örüntüsüne bağlı. S1 açıkken RQ'lar *yazılır*, *sıralanmaz*.
+**Priority:** S1 is on the critical path — the decision tree of Lecture 24 (which solution becomes the thesis) depends on the pattern in Lecture 18. While S1 is open, RQs are *written*, not *ranked*.
 
-## Mesut'un koşusu bekliyor (script hazır)
+## Waiting for Mesut's run (script ready)
 
-| # | Soru | Araç / girdi | Kabul ölçütü | Beslediği RQ | Durum |
+| # | Question | Tool / input | Acceptance criterion | Feeds RQ | Status |
 |---|---|---|---|---|---|
-| S1 | Ders 18 tablosu: `clean / empty / wrong / tr` × 10 init state (VLANeXt-B, Spatial görev 0) — hangi örüntü? | `code/day18/colab_4cond_t4.ipynb` → `analyze_4cond.py` → `code/day19/read_patterns.py episodes.csv --features …` | `projects/05-spatial0-4kosul/` README başında örüntü harfi (A/B/C/D); `results/runs.csv` satırları (`seed`, `date` dahil) | RQ-a | bekliyor |
-| S2 | MT round-trip: Opus-MT tr-en ile `datasets/04` 80 Türkçe satır → birebir eşleşme, "yanlış ama geçerli" sayısı, medyan gecikme | `code/day24/mt_layer_mac.py --model Helsinki-NLP/opus-mt-tr-en` | üç sayı + `wrong_en` örnekleri (Ders 24 notu) | RQ-c | bekliyor |
-| S3 | Qwen3-VL tokenizer kimliği: HF `Qwen/Qwen3-VL-2B-Instruct` tokenizer'ı ile npm `@lenml/tokenizer-qwen3` `tokenizer.json` bayt-aynı mı; OpenVLA HF tokenizer'ı SentencePiece ile birebir mi? | `code/day22/tokenize_set.py` iki kez (`--llama tokenizer.model` / `--llama openvla/openvla-7b`; `--qwen Qwen/Qwen3-VL-2B-Instruct`) → `tokens.csv` ilk 7 sütun `diff` | `diff` boş → iki hipotez kapanır; değilse `datasets/05` kart v0.2 | RQ-a | bekliyor |
-| S4 | Anadil okuması: görev 1 render'ında "soldaki / sağdaki" ve görev 8'de "öndeki" hangi kâse; `tr_a` / `tr_b` doğallık 1–5 + düzeltme | `datasets/04-tr-spatial-commands/data/human_check.csv` | 20 satır dolu; `hangi_kase_mesut` ↔ `ref_*` sütunları karşılaştırması bir cümle | RQ-b | bekliyor |
-| S5 | Webots R2025a launcher M2'de çalışıyor mu; `ders21_masa.wbt` ilk gerçek render | `code/day21/check_webots_env.py`, `ders21_kol.py --out out` | `view_01_bowl.jpg`, `joints.csv` `max_err_rad` → `projects/06-webots-ilk-sahne/` | S8 | bekliyor |
-| S6 | Parser held-out: kendi Türkçenle +5 cümle; hata türü (parse yok / yanlış ama geçerli) | `code/day24/heldout_tr.csv` + `tr_parse.py` | kaçı geçti + hata türleri bir satır | RQ-c | bekliyor |
+| S1 | Lecture 18 table: `clean / empty / wrong / tr` × 10 init states (VLANeXt-B, Spatial task 0) — which pattern? | `code/day18/colab_4cond_t4.ipynb` → `analyze_4cond.py` → `code/day19/read_patterns.py episodes.csv --features …` | Pattern letter (A/B/C/D) at the top of the `projects/05-spatial0-4kosul/` README; `results/runs.csv` rows (including `seed`, `date`) | RQ-a | waiting |
+| S2 | MT round-trip: with Opus-MT tr-en, the 80 Turkish rows of `datasets/04` → exact match, count of "wrong but valid", median latency | `code/day24/mt_layer_mac.py --model Helsinki-NLP/opus-mt-tr-en` | Three numbers + `wrong_en` examples (Lecture 24 note) | RQ-c | waiting |
+| S3 | Qwen3-VL tokenizer identity: is the HF `Qwen/Qwen3-VL-2B-Instruct` tokenizer byte-identical to the npm `@lenml/tokenizer-qwen3` `tokenizer.json`; does the OpenVLA HF tokenizer match SentencePiece exactly? | `code/day22/tokenize_set.py` twice (`--llama tokenizer.model` / `--llama openvla/openvla-7b`; `--qwen Qwen/Qwen3-VL-2B-Instruct`) → `diff` of the first 7 columns of `tokens.csv` | `diff` empty → both hypotheses close; otherwise `datasets/05` card v0.2 | RQ-a | waiting |
+| S4 | Native-speaker reading: which bowl is "soldaki / sağdaki" ("the one on the left / right") in the task 1 render and "öndeki" ("the one in front") in task 8; `tr_a` / `tr_b` naturalness 1–5 + corrections | `datasets/04-tr-spatial-commands/data/human_check.csv` | 20 rows filled; one-sentence comparison of the `hangi_kase_mesut` ↔ `ref_*` columns | RQ-b | waiting |
+| S5 | Does the Webots R2025a launcher work on the M2; first real render of `ders21_masa.wbt` | `code/day21/check_webots_env.py`, `ders21_kol.py --out out` | `view_01_bowl.jpg`, `joints.csv` `max_err_rad` → `projects/06-webots-ilk-sahne/` | S8 | waiting |
+| S6 | Parser held-out: +5 sentences in your own Turkish; error type (no parse / wrong but valid) | `code/day24/heldout_tr.csv` + `tr_parse.py` | How many passed + error types in one line | RQ-c | waiting |
 
-## Danışmana (karar)
+## For the advisor (decision)
 
-| # | Soru | Dayanak | Seçenekler | Beslediği RQ | Durum |
+| # | Question | Basis | Options | Feeds RQ | Status |
 |---|---|---|---|---|---|
-| S7 | Ana suite: Spatial (CDC ilişkileri; komutsuz tavan 9/10 → shortcut riski) mi, Goal (topoloji; tavan 1/10; token tarafı en temiz Türkçe) mi — yoksa ikisi de mi? | Ders 19 §2–3, Ders 23 §5 | Spatial 50'lik / Goal 50'lik / ikisi 10'luk pilot sonra karar | RQ-b | sorulmadı |
-| S8 | Webots ikinci ortam olarak gerekli mi (oda ölçeği, robota göre yön, RoomSpace tarzı set); ROS 2 / gerçek robot planı var mı? | Ders 21 §6 karar notu + 3 soru | LIBERO'da kal / Webots küçük set / ikisi | RQ-b (dolaylı) | sorulmadı |
-| S9 | Türkçe LoRA / co-training bütçesi: Kaggle 30 sa/hafta ile 2–3 hafta (tahmin 65–98 T4 saati, 4-bit) kabul edilebilir mi, yoksa tez eval-only mi kalsın? | Ders 24 §5, `code/day24/qlora_budget.py` | eval-only / 4-bit co-training / üniversite GPU'su | RQ-c | sorulmadı |
-| S10 | Katkı ölçütü: zayıf okuma (Türkçe komutla doğru iş; MT/parser yeter) mi, güçlü okuma (B bloğu + karşı-olgusal BDDL'de `empty` üstü; omurga/LoRA gerekir) mi? | Ders 24 §1, §7 | zayıf yeter / güçlü şart / zayıf taban + güçlü hedef | RQ-c | sorulmadı |
+| S7 | Main suite: Spatial (CDC relations; no-command ceiling 9/10 → shortcut risk) or Goal (topology; ceiling 1/10; cleanest Turkish on the token side) — or both? | Lecture 19 §2–3, Lecture 23 §5 | Spatial 50 / Goal 50 / both as 10-episode pilots, then decide | RQ-b | not asked |
+| S8 | Is Webots needed as a second environment (room scale, robot-relative direction, RoomSpace-style set); is there a ROS 2 / real-robot plan? | Lecture 21 §6 decision note + 3 questions | Stay in LIBERO / small Webots set / both | RQ-b (indirect) | not asked |
+| S9 | Turkish LoRA / co-training budget: is 2–3 weeks on Kaggle at 30 h/week (estimate 65–98 T4 hours, 4-bit) acceptable, or should the thesis stay eval-only? | Lecture 24 §5, `code/day24/qlora_budget.py` | eval-only / 4-bit co-training / university GPU | RQ-c | not asked |
+| S10 | Contribution criterion: weak reading (correct behavior from a Turkish command; MT/parser suffices) or strong reading (above `empty` on the B block + counterfactual BDDL; needs backbone/LoRA)? | Lecture 24 §1, §7 | weak is enough / strong required / weak floor + strong target | RQ-c | not asked |
 
-## Ders 26'ya giden RQ tohumları (ad düzeyinde; soru biçimi Ders 26'da)
+## RQ seeds going into Lecture 26 (name level; question form in Lecture 26)
 
-| Tohum | Ad | Girdileri | Bağlı sorular |
+| Seed | Name | Inputs | Linked questions |
 |---|---|---|---|
-| RQ-a | **Fark var mı?** Aynı sahnede `tr − clean` ve `tr − empty`; iki sistem (OpenVLA-Spatial LoRA, VLANeXt-B); Wilson + PI | Ders 18–19, 22 | S1, S3 |
-| RQ-b | **Nerede kırılıyor?** İlişki ailesi (CDC / topoloji / mesafe) × yüzey (`tr_a/tr_b/tr_ascii/tr_bare`) × çerçeve; suite seçimi | Ders 19–20, 23 | S4, S7, (S8) |
-| RQ-c | **Nasıl kapanır?** Parser/MT tabanı vs EN+TR co-training; ölçüt B bloğu | Ders 24 | S2, S6, S9, S10 |
+| RQ-a | **Is there a difference?** `tr − clean` and `tr − empty` in the same scene; two systems (OpenVLA-Spatial LoRA, VLANeXt-B); Wilson + PI | Lectures 18–19, 22 | S1, S3 |
+| RQ-b | **Where does it break?** Relation family (CDC / topology / distance) × surface (`tr_a/tr_b/tr_ascii/tr_bare`) × frame; suite choice | Lectures 19–20, 23 | S4, S7, (S8) |
+| RQ-c | **How does it close?** Parser/MT floor vs EN+TR co-training; criterion B block | Lecture 24 | S2, S6, S9, S10 |
 
-## Hipotez olarak kalanlar (Faz 4'te "ön çalışma" ile kapatılacak)
-- Eğitim görüntülerinin de `[::-1, ::-1]` ile döndürülmüş olduğu (Ders 20 §3).
-- VLANeXt'in koşudan koşuya değişkenliği (flow-matching `torch.randn`, seed; Ders 23 §4) — S1'in ≥3 tekrarı bunu ölçer.
-- QLoRA'nın T4'te ≈ 7,7 GB tutması ve süre (Ders 24 §5).
-- Türkçe'nin Qwen3-VL'de Çince tarafında mı Arapça tarafında mı olduğu (Chen Tablo 1 örüntüsü; Ders 24 §4) — S1'in `tr` satırı ilk kanıt.
-- VLANeXt şablonunda `<|vision_end|>` sonrası boşluk (Ders 22 §4; `code/day13/show_prompt.py`).
+## What remains hypothesis (to be closed in Phase 4 with a "pilot study")
+- That the training images were also rotated with `[::-1, ::-1]` (Lecture 20 §3).
+- VLANeXt's run-to-run variability (flow-matching `torch.randn`, seed; Lecture 23 §4) — ≥3 repetitions of S1 would measure it.
+- That QLoRA takes ≈ 7.7 GB on the T4, and the duration (Lecture 24 §5).
+- Whether Turkish falls on the Chinese or the Arabic side in Qwen3-VL (Chen Table 1 pattern; Lecture 24 §4) — the `tr` row of S1 is the first evidence.
+- The space after `<|vision_end|>` in the VLANeXt template (Lecture 22 §4; `code/day13/show_prompt.py`).
 
-## Ders 25 görevi (Mesut doldurur)
+## Lecture 25 task (Mesut fills in)
 ```
-phase3_smoke.py: __ OK / __ HATA / __ ATLANDI   (tarih: ______)
+phase3_smoke.py: __ OK / __ FAIL / __ SKIPPED   (date: ______)
 tokens.csv == datasets/05?: ______
-Öncelik 1 işaretlenen sorular: S__, S__, S__
+Questions marked Priority 1: S__, S__, S__
 ```

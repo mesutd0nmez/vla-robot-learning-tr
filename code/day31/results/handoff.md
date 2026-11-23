@@ -1,15 +1,15 @@
-| iş | kanıt (repoda) | durum |
+| item | evidence (in the repo) | status |
 |---|---|---|
-| S1 — Ders 18 dört-koşul koşusu (T4) | projects/05-spatial0-4kosul/ var | ✘ yok |
-| Ders 12 ilk T4 eval (VLANeXt) | projects/01-vlanext-t4-ilk-eval/ var | ✘ yok |
-| Ders 14 OpenVLA Mac tek kare | projects/02-openvla-mac-tek-kare/ var | ✘ yok |
-| Ders 15 Tatar mini-reprodüksiyonu | projects/03-tatar-mini/ var | ✘ yok |
-| Ders 16 LIBERO-Plus kurulumu | projects/04-libero-plus-kurulum/ var | ✘ yok |
-| results/runs.csv (deney koşusu kaydı) | results/runs.csv var | ✘ yok |
-| Ders 25 S1–S10 Durum sütunu | faz3-open-questions.md: 10 / 10 soru hâlâ 'bekliyor' ya da 'sorulmadı' | ✘ yok |
-| Ders 26 ön kayıt tahminleri | rq-candidates.md tahmin bloğunda '___' kalmamış | ✘ yok |
-| Ders 27 iddia birimi + kota | experiment-matrix.md'de '___' kalmamış | ✘ yok |
-| K1/K2 kalibrasyon (gerçek t_call) | code/day27/results/budget_stdout.txt'de 'ölçüm' senaryosu | ✘ yok |
-| Ders 28 ablation planı | thesis/ablation-plan.md var | ✔ var |
-| Ders 29 tez önerisi taslağı | thesis/proposal-v0.1.md var | ✔ var |
-| Ders 30 danışman toplantısı paketi | slides/advisor-meeting-01.md var | ✔ var |
+| S1 — Lecture 18 four-condition run (T4) | projects/05-spatial0-4kosul/ exists | ✘ missing |
+| Lecture 12 first T4 eval (VLANeXt) | projects/01-vlanext-t4-ilk-eval/ exists | ✘ missing |
+| Lecture 14 OpenVLA Mac single frame | projects/02-openvla-mac-tek-kare/ exists | ✘ missing |
+| Lecture 15 Tatar mini-reproduction | projects/03-tatar-mini/ exists | ✘ missing |
+| Lecture 16 LIBERO-Plus setup | projects/04-libero-plus-kurulum/ exists | ✘ missing |
+| results/runs.csv (experiment-run log) | results/runs.csv exists | ✘ missing |
+| Lecture 25 S1–S10 Status column | faz3-open-questions.md: 10 / 10 questions still 'waiting' or 'not asked' | ✘ missing |
+| Lecture 26 preregistered predictions | no '___' left in the predictions block of rq-candidates.md | ✘ missing |
+| Lecture 27 claim unit + quota | no '___' left in experiment-matrix.md | ✘ missing |
+| K1/K2 calibration (real t_call) | the 'measured' scenario in code/day27/results/budget_stdout.txt | ✘ missing |
+| Lecture 28 ablation plan | thesis/ablation-plan.md exists | ✔ present |
+| Lecture 29 thesis proposal draft | thesis/proposal-v0.1.md exists | ✔ present |
+| Lecture 30 advisor meeting package | slides/advisor-meeting-01.md exists | ✔ present |

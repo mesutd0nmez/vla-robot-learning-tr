@@ -1,23 +1,23 @@
-"""Ders 15 — Mini Tatar deneyinin komut setini üretir: datasets/01-libero-spatial-tr-mini/data/commands.csv
+"""Lecture 15 — Generates the command set of the mini Tatar experiment: datasets/01-libero-spatial-tr-mini/data/commands.csv
 
-5 LIBERO-Spatial karesi (görev 0–4) × 6 koşul = 30 satır.
-Koşullar (Ders 4 matrisi + Ders 7'nin iki yüzey formu):
-  en          LIBERO'nun kendi komutu (task.language; referans)
-  para        aynı anlam, farklı kelimeler, aynı dil  -> tokenizer-dışı gürültü kontrolü
-  tr          Türkçe çeviri, LIBERO stili (-daki sıfat-fiil yapısı, "kase", "al ... koy")
-  tr2         ikinci Türkçe yüzey formu ("duran", "kâse", "kaldır ... yerleştir") -> TR-içi parafraz kontrolü
-  distractor  AYNI sahnedeki ÖTEKİ siyah kâseyi tarif eden komut (BDDL :init'ten okunmuş) -> mekânsal grounding testi
-  empty       boş komut -> Ders 4'ün dil-bağımsız tabanı
+5 LIBERO-Spatial frames (tasks 0–4) × 6 conditions = 30 rows.
+Conditions (the Lecture 4 matrix + the two surface forms of Lecture 7):
+  en          LIBERO's own command (task.language; reference)
+  para        same meaning, different words, same language  -> non-tokenizer noise control
+  tr          Turkish translation, LIBERO style (-daki participle construction, "kase", "al ... koy")
+  tr2         second Turkish surface form ("duran", "kâse", "kaldır ... yerleştir") -> within-Turkish paraphrase control
+  distractor  command describing the OTHER black bowl in the SAME scene (read from the BDDL :init) -> spatial grounding test
+  empty       empty command -> the language-independent floor from Lecture 4
 
-"distractor" eşlemesi LIBERO BDDL dosyalarındaki (:init ...) bloğundan: her Spatial sahnesinde iki akita_black_bowl var;
-bowl_1 hedef, bowl_2 çeldirici. bowl_2'nin bölgesini tarif eden Spatial komutu seçildi.
+The "distractor" mapping comes from the (:init ...) block of the LIBERO BDDL files: every Spatial scene has two akita_black_bowl;
+bowl_1 is the target, bowl_2 the distractor. The Spatial command describing bowl_2's region was chosen.
     python make_commands.py --out ../../datasets/01-libero-spatial-tr-mini/data/commands.csv
 """
 import argparse
 import csv
 import os
 
-# LIBERO-Spatial komutları (task.language), Ders 10 sırası
+# LIBERO-Spatial commands (task.language), in the order of Lecture 10
 EN = {
     0: "pick up the black bowl between the plate and the ramekin and place it on the plate",
     1: "pick up the black bowl next to the ramekin and place it on the plate",
@@ -31,7 +31,7 @@ EN = {
     9: "pick up the black bowl on the wooden cabinet and place it on the plate",
 }
 
-# BDDL :init -> akita_black_bowl_2'nin bölgesi -> o bölgeyi tarif eden görev
+# BDDL :init -> region of akita_black_bowl_2 -> the task that describes that region
 # 0: bowl_2 next_to_ramekin -> 1 | 1: bowl_2 next_to_box -> 6 | 2: bowl_2 next_to_plate -> 8
 # 3: bowl_2 wooden_cabinet_1_top_side -> 9 | 4: bowl_2 wooden_cabinet_1_top_side -> 9
 DISTRACTOR = {0: 1, 1: 6, 2: 8, 3: 9, 4: 9}
@@ -60,7 +60,7 @@ TR2 = {
     4: "ahşap dolabın üst çekmecesinde duran siyah kâseyi kaldır ve tabağa yerleştir",
 }
 
-# ilişki türü (Ders 6 kalkülüsleri) ve TR'de ilişkiyi taşıyan ekler
+# relation type (the Lecture 6 calculi) and the suffixes that carry the relation in TR
 RELATION = {0: "arasında (2 referans)", 1: "yanında (mesafe)", 2: "ortasında (bölge)", 3: "üstünde (EC)", 4: "içinde (NTPP)"}
 SUFFIX_TR = {0: "-in;ara-sı-nda-ki;-ın;üst-ü-ne", 1: "-in;yan-ı-nda-ki;-ın;üst-ü-ne", 2: "-nın;orta-sı-nda-ki;-ın;üst-ü-ne",
              3: "-nun;üst-ü-nde-ki;-ın;üst-ü-ne", 4: "-ın;çekmece-si-nde-ki;-ın;üst-ü-ne"}
@@ -99,7 +99,7 @@ def main():
         w.writeheader()
         for r in rows():
             w.writerow(r)
-    print(f"yazıldı: {args.out} ({len(rows())} satır)")
+    print(f"written: {args.out} ({len(rows())} rows)")
 
 
 if __name__ == "__main__":

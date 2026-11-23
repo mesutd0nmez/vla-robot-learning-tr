@@ -1,27 +1,27 @@
 flowchart LR
-  subgraph F1["Faz 1 Kavramlar - Ders 1-8"]
+  subgraph F1["Phase 1 Concepts - Lectures 1-8"]
     direction TB
-    L1["1 döngü + kaynaklar"] --> L2["2 OpenVLA içi"] --> L3["3 LIBERO / MuJoCo"] --> L4["4 grounding, shortcut"]
-    L5["5 Tatar vd."] --> L6["6 mekânsal ilişkiler"] --> L7["7 RoomSpace"] --> L8["8 sentez"]
+    L1["1 loop + sources"] --> L2["2 OpenVLA internals"] --> L3["3 LIBERO / MuJoCo"] --> L4["4 grounding, shortcut"]
+    L5["5 Tatar et al."] --> L6["6 spatial relations"] --> L7["7 RoomSpace"] --> L8["8 synthesis"]
   end
-  subgraph F2["Faz 2 Ortam - Ders 9-16"]
+  subgraph F2["Phase 2 Environment and first runs - Lectures 9-16"]
     direction TB
-    L9["9-11 Mac: MuJoCo, LIBERO, HDF5"] --> L12["12 T4: VLANeXt"] --> L13["13 kod okuma"]
+    L9["9-11 Mac: MuJoCo, LIBERO, HDF5"] --> L12["12 T4: VLANeXt"] --> L13["13 code reading"]
     L14["14 OpenVLA Mac"] --> L15["15 Tatar mini"] --> L16["16 LIBERO-Plus"]
   end
-  subgraph F3["Faz 3 Deney tasarımı - Ders 17-25"]
+  subgraph F3["Phase 3 Experiment design and robustness - Lectures 17-25"]
     direction TB
-    L17["17 yedi bozulma"] --> L18["18 dört koşul"] --> L19["19 okuma protokolü"]
-    L20["20 TR komut seti"] --> L22["22 tokenizasyon"] --> L24["24 çözümler"]
-    L21["21 Webots"] --> L23["23 Cohn hattı"] --> L25["25 sentez S1-S10"]
+    L17["17 seven perturbations"] --> L18["18 four conditions"] --> L19["19 reading protocol"]
+    L20["20 TR command set"] --> L22["22 tokenization"] --> L24["24 solutions"]
+    L21["21 Webots"] --> L23["23 Cohn line"] --> L25["25 synthesis S1-S10"]
   end
-  subgraph F4["Faz 4 Proje - Ders 26-31"]
+  subgraph F4["Phase 4 Reasoning about the project - Lectures 26-31"]
     direction TB
-    L26["26 üç RQ"] --> L27["27 deney matrisi"] --> L28["28 baseline + ablation"]
-    L29["29 tez önerisi"] --> L30["30 danışman paketi"] --> L31["31 proje simülasyonu"]
+    L26["26 three RQs"] --> L27["27 experiment matrix"] --> L28["28 baseline + ablation"]
+    L29["29 thesis proposal"] --> L30["30 advisor package"] --> L31["31 project simulation"]
   end
   F1 --> F2 --> F3 --> F4
-  L31 --> OUT["Aşama 0 sonu: RQ + matris + öneri + açık işler listesi"]
+  L31 --> OUT["End of Stage 0: RQ + matrix + proposal + open-work list"]
   classDef k fill:#cfe8ff,stroke:#3b6ea8,color:#000
   classDef o fill:#d4f5d4,stroke:#2e8b57,color:#000
   classDef d fill:#ffd166,stroke:#c79a00,color:#000

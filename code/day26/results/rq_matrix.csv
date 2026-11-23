@@ -1,4 +1,4 @@
 rq,title,Soru,Null hipotez,Değişkenler,Ölçüt ve eşik,Suite / blok / örneklem,Sistemler,Evet / hayır çıkarsa tez ne der,H0_sayisi
-RQ-a,Fark var mı?,38,71,57,67,77,30,89,2
-RQ-b,Nerede kırılıyor?,44,76,55,77,93,29,78,4
-RQ-c,Nasıl kapanır?,53,75,64,79,57,37,98,4
+RQ-a,Is there a difference?,48,91,65,77,88,38,119,2
+RQ-b,Where does it break?,56,115,63,88,118,40,121,4
+RQ-c,How does it close?,65,81,70,85,65,47,138,4

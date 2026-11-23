@@ -4,27 +4,27 @@ flowchart LR
   classDef out fill:#d4f5d4,stroke:#333,color:#000
   classDef bad fill:#ffd6d6,stroke:#333,color:#000
 
-  S["komut metni<br/>'soldaki siyah kaseyi al ve<br/>tabağın üstüne koy'"]:::in
+  S["command text<br/>'soldaki siyah kaseyi al ve<br/>tabağın üstüne koy'"]:::in
 
-  subgraph L["OpenVLA — LLaMA-2 tokenizer (SentencePiece BPE, 32.000 parça)"]
+  subgraph L["OpenVLA — LLaMA-2 tokenizer (SentencePiece BPE, 32,000 pieces)"]
     direction LR
-    L0["prompt şablonu<br/>'In: What action should the robot<br/>take to {komut.lower()}?\nOut:'"]:::in
-    L1["normalizer<br/>başa ▁ ekle (dummy prefix),<br/>boşluk → ▁"]:::key
-    L2["BPE birleştirme<br/>(58.980 merge; ön-bölme yok)<br/>bilinmeyen karakter → bayt<br/>&lt;0xCC&gt;&lt;0x87&gt;"]:::key
-    L3["id dizisi (BOS dahil ~37)<br/>▁sold | aki | ▁si | y | ah | ▁k | ase | yi …<br/>son 256 id = action bin'leri"]:::out
+    L0["prompt template<br/>'In: What action should the robot<br/>take to {command.lower()}?\nOut:'"]:::in
+    L1["normalizer<br/>prepend ▁ (dummy prefix),<br/>space → ▁"]:::key
+    L2["BPE merging<br/>(58,980 merges; no pre-splitting)<br/>unknown character → bytes<br/>&lt;0xCC&gt;&lt;0x87&gt;"]:::key
+    L3["id sequence (incl. BOS ~37)<br/>▁sold | aki | ▁si | y | ah | ▁k | ase | yi …<br/>last 256 ids = action bins"]:::out
   end
 
-  subgraph Q["VLANeXt — Qwen3 tokenizer (byte-level BPE, 151.643 + 26 özel)"]
+  subgraph Q["VLANeXt — Qwen3 tokenizer (byte-level BPE, 151,643 + 26 special)"]
     direction LR
-    Q0["chat şablonu<br/>&lt;|im_start|&gt;user … &lt;|vision_end|&gt;{komut}&lt;|im_end|&gt;<br/>(komut görüntünün hemen ardından, boşluksuz)"]:::in
-    Q1["normalizer NFC<br/>+ regex ön-bölme:<br/>' ?harfler' | rakam | noktalama"]:::key
-    Q2["bayt düzeyi BPE<br/>(151.387 merge; her UTF-8 baytı<br/>bir başlangıç sembolü)"]:::key
-    Q3["id dizisi (metin ~28 + 64 görüntü/kare)<br/>sold | aki | ▁si | yah | ▁k | ase | yi …<br/>action ayrı başta üretilir (flow-matching)"]:::out
+    Q0["chat template<br/>&lt;|im_start|&gt;user … &lt;|vision_end|&gt;{command}&lt;|im_end|&gt;<br/>(command right after the image, no space)"]:::in
+    Q1["normalizer NFC<br/>+ regex pre-splitting:<br/>' ?letters' | digit | punctuation"]:::key
+    Q2["byte-level BPE<br/>(151,387 merges; every UTF-8 byte<br/>is an initial symbol)"]:::key
+    Q3["id sequence (text ~28 + 64 image/frame)<br/>sold | aki | ▁si | yah | ▁k | ase | yi …<br/>action produced separately by the head (flow-matching)"]:::out
   end
 
   S --> L0 --> L1 --> L2 --> L3
   S --> Q0 --> Q1 --> Q2 --> Q3
-  L3 --> E1["embedding tablosu 32.000 × 4096<br/>(eğitim verisi %89,7 İngilizce)"]:::key
-  Q3 --> E2["embedding tablosu 151.936 × 2048<br/>(119 dil; Türkçe dahil)"]:::key
-  E1 --> M1["LLaMA-2 7B → 7 action token"]:::out
-  E2 --> M2["Qwen3-VL 29 katman → policy (Ders 13)"]:::out
+  L3 --> E1["embedding table 32,000 × 4096<br/>(training data 89.7% English)"]:::key
+  Q3 --> E2["embedding table 151,936 × 2048<br/>(119 languages; incl. Turkish)"]:::key
+  E1 --> M1["LLaMA-2 7B → 7 action tokens"]:::out
+  E2 --> M2["Qwen3-VL 29 layers → policy (Lecture 13)"]:::out

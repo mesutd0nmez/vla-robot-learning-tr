@@ -1,152 +1,152 @@
-# Ders 29 — Tez Önerisi: Bir Sayfada Problem, Amaç, RQ, Yöntem, Katkı, Takvim ve Risk
+# Lecture 29 — Thesis Proposal: Problem, Aim, RQs, Method, Contribution, Schedule and Risk on One Page
 
-**Faz 4 / Gün 29** · **Süre:** ~55 dk (okuma 40 + görev 15)
-**Ön koşul:** Ders 26 (RQ-a/b/c, altı alan), Ders 27 (deney matrisi, bütçe, tersine güç), Ders 28 (baseline + ablation planı) · **Kod:** `code/day29/` (`proposal_lint.py` taslak kontrolü, `plot_day29.py` Gantt + risk matrisi — ikisi de bu oturumda koştu) · **Çıktı:** `thesis/proposal-v0.1.md` (568 sözcük; tüm sayısal iddialar etiketli)
+**Phase 4 / Day 29** · **Time:** ~55 min (reading 40 + task 15)
+**Prerequisites:** Lecture 26 (RQ-a/b/c, six fields), Lecture 27 (experiment matrix, budget, inverse power), Lecture 28 (baseline + ablation plan) · **Code:** `code/day29/` (`proposal_lint.py` draft check, `plot_day29.py` Gantt + risk matrix — both ran in this session) · **Output:** `thesis/proposal-v0.1.md` (680 words; every numeric claim tagged)
 
-> **Bugünün tek cümlesi:** Dört haftalık iş (RQ'lar, matris, bütçe, ablation) bir sayfaya sığıyor, çünkü öneri tezin kendisi değil, danışmanın ve enstitünün tek bir soruya verdiği cevap: "*Bu öğrenci ne soracak, nasıl ölçecek, bitince elde ne olacak ve bu ücretsiz bir T4'le dört ayda mümkün mü?*" — `thesis/proposal-v0.1.md` bu soruyu yedi bölümde cevaplıyor (problem → boşluk → amaç → üç RQ → yöntem → üç katkı → takvim + risk). `proposal_lint.py` taslağı denetledi: 568/650 sözcük, 8/8 bölüm, sayı içeren 12 cümlenin 12'si `[Ders NN]`, `[arXiv:…]` ya da `[öneri]` etiketli.
-
----
-
-## 1. Öneri neden bir sayfa — ve kim okuyor?
-
-Tez önerisinin iki okuyucusu var. Biri **danışman**: konuyu senden iyi biliyor ama ayrıntılara bakacak vakti yok, tek okumada "bu iş tutarlı mı, yapılabilir mi" diye karar verecek. Öbürü **enstitü**: tez konusunu kaydedecek ve ileride tezin önerilen konuya uyup uymadığına bakacak. İkisi de 28 dersin kanıtını okumayacak; ayrıntı repoda dursun, öneri ondan *seçer*.
-
-Bu seçimin en sağlam kontrol listesi DARPA'nın **Heilmeier soruları**: ne yapmaya çalışıyorsun (jargonsuz)? Bugün nasıl yapılıyor, sınırı ne? Yeni olan ne, neden işe yarar? Kimin umurunda? Riskler neler? Ne kadara ve ne kadar sürede? Ara ve son sınav ne? Görsel 04 bu yedi sorunun taslaktaki karşılıklarını gösteriyor. Her soruya karşılık gelen bir bölüm var; cevabı olmayan soru, eksik bölüm demek.
-
-![Heilmeier eşlemesi](images/lecture-29/04-heilmeier-map.png)
-
-**ALKÜ formu hakkında dürüst durum:** ALKÜ Lisansüstü Eğitim Enstitüsü'nün öğrenci formları sayfasında bir tez konusu öneri formu var (doktora sürümü `FR-320`; yüksek lisans sürümü de aynı sayfada listeleniyor). Ancak bu oturumda formların içini okuyamadım; bölüm başlıklarını ve sayfa/sözcük sınırını doğrulayamadım. Aynı belirsizlik iki konu için de geçerli: tezli yüksek lisansta tez konusunun enstitüye ne zamana kadar bildirileceği, ve önerinin Türkçe/İngilizce özet isteyip istemediği. Bu ikisi **danışmana sorulacak** (Ders 30 listesi). Taslağın bölümleri, Türkiye'deki enstitü formlarının ve TÜBİTAK 2210-C tez öneri formunun (Tem 2026 sürümü yayında) ortak iskeletine göre yazıldı: konu ve önem, amaç, yöntem, iş-zaman planı, riskler, beklenen katkı. 2210-C formunun başlıklarını da bu oturumda doğrudan okumadım. ARDEB formlarının bilinen yapısı (özgün değer / yöntem / proje yönetimi: iş-zaman + risk / yaygın etki) **hipotez**: formu açınca başlıkları eşle. Taslağın bölümleri zaten bu dört başlığa birebir dağılıyor. Form farklı bir sıra isterse içerik değişmez, yalnızca yeniden sıralanır.
+> **Today in one sentence:** Four weeks of work (RQs, matrix, budget, ablation) fit on one page, because the proposal is not the thesis itself but the answer given to a single question by the advisor and the institute: "*What will this student ask, how will they measure it, what will be in hand when it is done, and is this possible in four months with a free T4?*" — `thesis/proposal-v0.1.md` answers this question in seven sections (problem → gap → aim → three RQs → method → three contributions → schedule + risk). `proposal_lint.py` audited the draft: 680/700 words, 8/8 sections, all 12 of the 12 sentences containing numbers tagged `[Lecture NN]`, `[arXiv:…]` or `[proposal]`.
 
 ---
 
-## 2. Argüman zinciri: her bölüm bir öncekinin sorusunu cevaplar
+## 1. Why is the proposal one page — and who reads it?
 
-İyi bir öneri bölüm listesi değil, bir zincirdir: problem bir boşluk doğurur, boşluk amacı doğurur, amaç soruları, sorular yöntemi, yöntem katkıları. Zincirin bir halkası koparsa okuyucu orada durur. Örneğin bir katkı hiçbir RQ'dan çıkmıyorsa, ya da bir RQ'nun yöntemde karşılığı yoksa okuyucu orada takılır.
+A thesis proposal has two readers. One is the **advisor**: knows the subject better than you but has no time for details, and will decide in a single reading "is this work coherent, is it doable". The other is the **institute**: it will register the thesis topic and later check whether the thesis matches the proposed topic. Neither will read the evidence of 28 lectures; let the detail stay in the repo, the proposal *selects* from it.
 
-![Argüman zinciri](images/lecture-29/01-argument-chain.png)
+The most solid checklist for this selection is DARPA's **Heilmeier questions**: what are you trying to do (without jargon)? How is it done today, what is the limit? What is new, why would it work? Who cares? What are the risks? How much and how long? What are the mid-term and final exams? Figure 04 shows the draft's counterparts of these seven questions. There is a section corresponding to every question; a question without an answer means a missing section.
 
-Taslaktaki halkalar ve her birinin dayanağı:
+![Heilmeier mapping](images/lecture-29/04-heilmeier-map.png)
 
-| halka | taslakta | dayanak |
+**An honest status on the ALKU form:** on the student forms page of the ALKU (Alanya Alaaddin Keykubat University) Graduate School there is a thesis topic proposal form (the doctoral version `FR-320`; the master's version is also listed on the same page). But in this session I could not read the insides of the forms; I could not verify the section headings or the page/word limit. The same uncertainty applies to two topics: until when a thesis topic must be reported to the institute in a thesis master's programme, and whether the proposal asks for a Turkish/English abstract. These two **will be asked of the advisor** (Lecture 30 list). The draft's sections were written according to the common skeleton of Turkish institute forms and the TÜBİTAK 2210-C thesis proposal form (July 2026 version published): topic and significance, aim, method, work-time plan, risks, expected contribution. I also did not directly read the headings of the 2210-C form in this session. The known structure of ARDEB forms (original value / method / project management: work-time + risk / broad impact) is a **hypothesis**: when you open the form, match the headings. The draft's sections already distribute exactly onto these four headings. If the form asks for a different order the content does not change, it is only reordered.
+
+---
+
+## 2. The argument chain: each section answers the previous one's question
+
+A good proposal is not a list of sections but a chain: the problem gives rise to a gap, the gap to the aim, the aim to the questions, the questions to the method, the method to the contributions. If one link of the chain breaks the reader stops there. For example if a contribution comes out of no RQ, or an RQ has no counterpart in the method, the reader gets stuck there.
+
+![Argument chain](images/lecture-29/01-argument-chain.png)
+
+The links in the draft and the basis of each:
+
+| link | in the draft | basis |
 |---|---|---|
-| **Problem** | VLA'lar neredeyse yalnız İngilizce; Korece komutla Spatial 97,6 → 49,2; yabancı dil kaybı ≈ komutsuz kayıp (−27,8…−29,8 vs −27,5) | Dong vd. 2606.11906; Chen vd. 2606.15714 (Ders 15, 24) |
-| **Boşluk** | Türkçe için tek çalışma açık döngüde, tek karede; boş-komut tabanı yok | Tatar vd. 2026 SIU (Ders 5); literatür haritası (Ders 26) |
-| **Amaç** | kapalı döngüde, boş-komut tabanına göre ölç; düşüşün yerini bul; ucuz düzeltmeyi sına | Ders 25'in üç tez cümlesi |
-| **RQ'lar** | fark var mı / nerede / nasıl kapanır | Ders 26 |
-| **Yöntem** | LIBERO Spatial + Goal, 20 eşli komut, 2 sistem, 4 koşul, McNemar + TOST, blok düzeyinde iddia | Ders 18, 20, 26, 27 |
-| **Katkılar** | komut seti / ilk kapalı-döngü Türkçe ölçüm / tekrarlanabilir protokol | Ders 20, 22, 27 |
+| **Problem** | VLAs are almost only English; with a Korean command Spatial 97.6 → 49.2; foreign-language loss ≈ command-free loss (−27.8…−29.8 vs −27.5) | Dong et al. 2606.11906; Chen et al. 2606.15714 (Lectures 15, 24) |
+| **Gap** | For Turkish the only study is open-loop, single frame; no empty-command baseline | Tatar et al. 2026 SIU (Lecture 5); literature map (Lecture 26) |
+| **Aim** | measure closed-loop, relative to the empty-command baseline; find where the drop is; test the cheap fix | Lecture 25's three thesis sentences |
+| **RQs** | is there a gap / where / how does it close | Lecture 26 |
+| **Method** | LIBERO Spatial + Goal, 20 paired commands, 2 systems, 4 conditions, McNemar + TOST, claim at the block level | Lectures 18, 20, 26, 27 |
+| **Contributions** | command set / first closed-loop Turkish measurement / reproducible protocol | Lectures 20, 22, 27 |
 
-Motivasyon cümlesi danışmanın slaytından: *"Language is a beautiful compression of the world, but it is not the world"* (Pat Grady; Ders 1). Öneride bu cümle süs değil, problemin kendisi: komut dünyanın sıkıştırılmış bir tarifi. Model o tarifi açıp sahneye bağlayamıyorsa, Türkçe bir komut onun için boş bir komuttan farksızdır. Boş-komut tabanı tam olarak bunu ölçer. Tez ekseni böylece tek cümleye iniyor: *Türkçe mekânsal tarif, aynı sahnede, iki açık VLA'da boş komuttan ne kadar ayrılıyor?*
-
----
-
-## 3. Sıkıştırma: altı alandan bir cümleye, beş sayfadan bir paragrafa
-
-`thesis/rq-candidates.md` her RQ için yedi alan ve ~400 sözcük taşıyor; öneride her RQ tek cümle. Ne atılır, ne kalır?
-
-- **Kalan:** sorunun kendisi ve onu sınanabilir yapan tek ayrıntı. RQ-a'da "boş-komut tabanına göre nerede" (bu olmadan Ders 19'un A/B/C/D ayrımı kaybolur). RQ-b'de "eğitimde olmayan tarif boş komutun üstüne çıkıyor mu" (güçlü okuma). RQ-c'de "kapanış oranı κ".
-- **Atılan:** null hipotezlerin numaraları (H0-a1/a2…), δ değerleri, `tr_ascii` gibi kod adları. Bunlar yöntem paragrafına tek sayı olarak iner ("p < 0,05 ve en az 15 puan") ya da hiç inmez. Ayrıntının yeri `rq-candidates.md`; öneri ona atıf yapar.
-- **Başlık** üç adaydan seçildi: (i) *"Türkçe Komutlarla VLA Değerlendirmesi"* çok geniş (mekânsal ve boş-komut yok); (ii) *"OpenVLA ve VLANeXt'in Türkçe Performansının Karşılaştırılması"* sistem karşılaştırmasını öne çıkarıyor, ki Chen vd.'nin uyarısıyla bu yalnızca betimsel olabilir; (iii) seçilen başlık: *"Türkçe Mekânsal Komutların VLA Modellerinde Temellendirilmesi: Boş-Komut Tabanlı Kapalı-Döngü Bir Değerlendirme"*. Başlık hem ne ölçüldüğünü (temellendirme), hem nasıl ölçüldüğünü (kapalı döngü, boş-komut tabanı) söylüyor ve model adı taşımıyor. Böylece S-VN koşmazsa başlık değişmek zorunda kalmaz.
-
-Teknik terimler önerinin Türkçe gövdesinde Türkçeleştirildi ("başlangıç durumu" = init state, "temellendirme" = grounding, "ayrıştırıcı" = parser). Enstitü metni Türkçe okunacak; ilk geçişte parantez içinde İngilizcesi verilmeli. v0.1'de bu yapılmadı, görevin bir parçası (§8).
+The motivation sentence is from the advisor's slide: *"Language is a beautiful compression of the world, but it is not the world"* (Pat Grady; Lecture 1). In the proposal this sentence is not decoration, it is the problem itself: the command is a compressed description of the world. If the model cannot unpack that description and attach it to the scene, a Turkish command is no different to it from an empty command. The empty-command baseline measures exactly this. The thesis axis thus comes down to a single sentence: *In the same scene, in two open VLAs, how far does a Turkish spatial description separate from the empty command?*
 
 ---
 
-## 4. Yöntem paragrafı: hangi sayılar girer?
+## 3. Compression: from six fields to one sentence, from five pages to one paragraph
 
-Öneri yöntemde yalnızca **kararı etkileyen** sayıları taşır. Taslaktaki yöntem paragrafında bunlar beş tane: görev başına 50 başlangıç durumu (LIBERO'nun kendi tavanı; Ders 27'de ölçüldü), 20 eşli komut ve dört blok (Ders 20), "p < 0,05 ve en az 15 puan" eşiği (Ders 26), görev düzeyinde görünen en küçük fark 23 puan ve blok düzeyinde 13 puan (Ders 27). Son ikisi önerinin en önemli metodolojik cümlesini taşıyor: **ana iddia blok düzeyinde kurulur.** Bu, Ders 27'de açık bırakılan karar. Taslak blok düzeyini önerdi, ama danışman "her görevde" derse yöntem paragrafı bir cümle değişir, takvim ise ~150 saat uzar (tam çekirdek 258, yalın 108).
+`thesis/rq-candidates.md` carries seven fields and ~400 words per RQ; in the proposal each RQ is one sentence. What is dropped, what stays?
 
-İki cümle de kasıtlı olarak orada:
+- **Stays:** the question itself and the single detail that makes it testable. In RQ-a "where relative to the empty-command baseline" (without this Lecture 19's A/B/C/D distinction is lost). In RQ-b "does a recipe not in training rise above the empty command" (the strong reading). In RQ-c "the closure ratio κ".
+- **Dropped:** the numbers of the null hypotheses (H0-a1/a2…), δ values, code names like `tr_ascii`. These come down to a single number in the method paragraph ("p < 0.05 and at least 15 points") or do not come down at all. The place for detail is `rq-candidates.md`; the proposal refers to it.
+- **The title** was chosen from three candidates: (i) *"Evaluating VLAs with Turkish Commands"* is too broad (no spatial, no empty command); (ii) *"Comparing the Turkish Performance of OpenVLA and VLANeXt"* puts the system comparison in front, which with Chen et al.'s warning can only be descriptive; (iii) the chosen title: *"Türkçe Mekânsal Komutların VLA Modellerinde Temellendirilmesi: Boş-Komut Tabanlı Kapalı-Döngü Bir Değerlendirme"* ("Grounding of Turkish Spatial Commands in VLA Models: A Closed-Loop Evaluation with an Empty-Command Baseline"). The title says both what is measured (grounding) and how it is measured (closed loop, empty-command baseline), and carries no model name. So if S-VN does not run the title does not have to change.
 
-- *"Karşılaştırma sistem düzeyinde, nedensel değil."* Bunu yazmazsan ilk soru "Qwen3-VL Türkçe'yi daha mı iyi anlıyor?" olur. Bu, bizim tasarımın cevaplayamayacağı bir soru: omurga, action başı ve eğitim verisi birlikte değişiyor (Chen vd.).
-- *"Eşikler koşudan önce yazılır (ön kayıt)."* Önerinin tarih damgası `rq-candidates.md`'nin commit hash'i. Bu cümle danışmana "sonucu görüp eşiği oynatmayacağım" sözü.
-
-S-OV'un T4'te 4-bit koşacağı da yöntemde bir kelimeyle var ("T4'te 4-bit"). Kalibrasyon ayrıntısı (K1: yayımlanan 84,7 ile; K3: Mac'te bf16 ile eşli) risk tablosunda. Baseline ve ablation'lar tek atıfla geçiyor: `thesis/ablation-plan.md` (Ders 28). Öneride ablation listesi yer kaplamamalı, ama okuyucu "kontrol grubu ne?" diye sorarsa cevabın bir dosya ötede olduğunu görmeli.
+The proposal body is written in English (the project language); the Turkish title is kept next to the English one. If the institute requires a Turkish text, a Turkish version can be produced later from this draft; the technical terms would then be Turkified ("başlangıç durumu" = init state, "temellendirme" = grounding, "ayrıştırıcı" = parser) and the English term given in parentheses on first occurrence. Jargon without a gloss on first occurrence is still checked in the task (§8).
 
 ---
 
-## 5. Takvim ve riskler: bütçeden haftaya, haftadan B planına
+## 4. The method paragraph: which numbers go in?
 
-Takvimin birimi gün değil **T4 saati**. Ders 27'nin bütçe modelinden iş paketlerine: İP1 pilot + kalibrasyon 8 saat, İP2 RQ-a 61 saat, İP3 RQ-b 31 saat, İP4 RQ-c 8 saat; yalın matriste toplam ≈ 108 saat. Tam çekirdekte İP2 152, İP3 78, İP4 19, toplam ≈ 258 saat (`plot_day29.py` bu sayıları `code/day27/results/budget*.csv`'den okuyor; orta senaryo). Kaggle'ın bildirilen ~30 saat/haftalık kotasıyla yalın matris ≈ 3,6 hafta GPU demek. Takvim buna analiz ve yazım için tampon ekliyor ve 16 haftaya yayılıyor.
+The proposal carries in the method only the numbers that **affect the decision**. In the draft's method paragraph there are five of them: 50 init states per task (LIBERO's own ceiling; measured in Lecture 27), 20 paired commands and four blocks (Lecture 20), the threshold "p < 0.05 and at least 15 points" (Lecture 26), the smallest difference visible at the task level 23 points and at the block level 13 points (Lecture 27). The last two carry the proposal's most important methodological sentence: **the main claim is built at the block level.** This is the decision left open in Lecture 27. The draft proposed the block level, but if the advisor says "in every task" the method paragraph changes by one sentence, while the schedule grows by ~150 hours (full core 258, lean 108).
+
+Two sentences are there deliberately:
+
+- *"The comparison is at the system level, not causal."* If you do not write this the first question will be "does Qwen3-VL understand Turkish better?" This is a question our design cannot answer: the backbone, action head and training data change together (Chen et al.).
+- *"Thresholds are written before the run (pre-registration)."* The proposal's timestamp is the commit hash of `rq-candidates.md`. This sentence is a promise to the advisor: "I will not see the result and move the threshold."
+
+That S-OV will run 4-bit on the T4 is in the method too in one word ("4-bit on the T4"). The calibration detail (K1: against the published 84.7; K3: paired with bf16 on the Mac) is in the risk table. Baselines and ablations pass with a single reference: `thesis/ablation-plan.md` (Lecture 28). The ablation list must not take up space in the proposal, but if the reader asks "what is the control group?" they should see that the answer is one file away.
+
+---
+
+## 5. Schedule and risks: from budget to week, from week to plan B
+
+The schedule's unit is not days but **T4 hours**. From Lecture 27's budget model to work packages: WP1 pilot + calibration 8 hours, WP2 RQ-a 61 hours, WP3 RQ-b 31 hours, WP4 RQ-c 8 hours; in the lean matrix a total of ≈ 108 hours. In the full core WP2 152, WP3 78, WP4 19, total ≈ 258 hours (`plot_day29.py` reads these numbers from `code/day27/results/budget*.csv`; middle scenario). With Kaggle's reported ~30 hours/week quota the lean matrix means ≈ 3.6 weeks of GPU. The schedule adds buffer for analysis and writing to this and spreads over 16 weeks.
 
 ![Gantt](images/lecture-29/02-gantt.png)
 
-Hafta 1'i 30 Kasım 2026 aldım; bu bir **öneri**, akademik takvimle (dönem sonu, sınavlar, enstitü teslim tarihleri) danışmanla hizalanacak. İki "sınav" Heilmeier'in son sorusunun cevabı. Ara sınav hafta 5'te: RQ-a tablosu, yani iki sistem × iki blok × dört koşul. Bu tablo yoksa takvim kaymış demektir ve B planına geçilir. Son sınav hafta 16'da: tez taslağı.
+I took week 1 as 30 November 2026; this is a **proposal**, to be aligned with the advisor against the academic calendar (end of term, exams, institute submission dates). The two "exams" are the answer to Heilmeier's last question. The mid-term exam is in week 5: the RQ-a table, that is two systems × two blocks × four conditions. If this table does not exist the schedule has slipped and we move to plan B. The final exam is in week 16: the thesis draft.
 
-![Risk matrisi](images/lecture-29/03-risk-matrix.png)
+![Risk matrix](images/lecture-29/03-risk-matrix.png)
 
-Risk matrisindeki puanlar bu dersin değerlendirmesi, ölçüm değil. Ama her risk bir derste görülmüş bir şeye dayanıyor ve her birinin B planı önceden yazılı:
+The scores in the risk matrix are this lecture's assessment, not a measurement. But every risk rests on something seen in a lecture and each one's plan B is written in advance:
 
-| risk | dayanak | B planı |
+| risk | basis | plan B |
 |---|---|---|
-| R1 model çağrısı tahminden yavaş | kötümser senaryo 497 saat (Ders 27) | yalın matris; yalnız A + C blokları; K1/K2 ölçümüyle `budget.py` yeniden |
-| R2 4-bit S-OV 84,7'yi tutmaz | niceleme Goal'da 14 puan kaydırabiliyor (VLAQuantBench, OFT; Ders 27) | etiket "OpenVLA (4-bit)"; Mac'te bf16 eşli alt küme (K3) |
-| R3 Spatial'da `empty` tavana yakın | komutsuz tavan 9/10 (Ders 19) | ağırlık Goal'a (komutsuz 1/10) |
-| R4 karşı-olgusal BDDL yüklenmez | `bddl_cf/` test edilmedi (Ders 27) | B bloğu betimsel, EN-B ve LangGap'in %11'i dış referans |
-| R5 LoRA onayı yok | S9 (Ders 24, 25) | RQ-c girdi düzeyinde (MT + ayrıştırıcı) |
-| R6 VLANeXt T4'te koşmaz | Ders 12 yamaları T4'te doğrulanmadı | tek sistem (S-OV) + Mac; başlık model adı taşımadığı için değişmez |
-| R7 MT çıktısı üretilemez | HF erişimi (Ders 24) | yalnız ayrıştırıcı; MT "kâhin" sürümü insan çevirisi (Ders 28) |
+| R1 model call slower than estimated | pessimistic scenario 497 hours (Lecture 27) | lean matrix; only A + C blocks; recompute `budget.py` with the K1/K2 measurement |
+| R2 4-bit S-OV does not hold 84.7 | quantization can shift Goal by 14 points (VLAQuantBench, OFT; Lecture 27) | label "OpenVLA (4-bit)"; paired bf16 subset on the Mac (K3) |
+| R3 `empty` near the ceiling on Spatial | command-free ceiling 9/10 (Lecture 19) | weight to Goal (command-free 1/10) |
+| R4 counterfactual BDDL does not load | `bddl_cf/` not tested (Lecture 27) | block B descriptive, EN-B and LangGap's 11% as the external reference |
+| R5 no LoRA approval | S9 (Lectures 24, 25) | RQ-c at the input level (MT + parser) |
+| R6 VLANeXt does not run on the T4 | Lecture 12 patches not verified on the T4 | single system (S-OV) + Mac; the title carries no model name so it does not change |
+| R7 MT output cannot be produced | HF access (Lecture 24) | parser only; the MT "oracle" version is human translation (Lecture 28) |
 
-R6'nın etkisi en yüksek (5): S-VN koşmazsa iki sistemli tasarım tek sisteme iner. Ama olasılığı düşük tutuldu, çünkü Ders 18'in notebook'u zaten T4 için yamalı. P1'in (Ders 18 pilotu) ilk hafta koşulmasının asıl nedeni bu riski erken kapatmak. Öneriye risk tablosunun yalnızca beş satırı girdi (sayfa sınırı); R6 ve R7 için B planı tek cümleyle yöntem dosyalarında.
+R6 has the highest impact (5): if S-VN does not run, the two-system design drops to one system. But its probability was kept low, because Lecture 18's notebook is already patched for the T4. The real reason to run P1 (the Lecture 18 pilot) in the first week is to close this risk early. Only five rows of the risk table entered the proposal (page limit); the plan B for R6 and R7 is in one sentence in the method files.
 
 ---
 
-## 6. Taslağı denetlemek: `proposal_lint.py`
+## 6. Auditing the draft: `proposal_lint.py`
 
-Ders 26'nın `rq_lint.py`'si RQ dosyasının yapısını denetliyordu; `proposal_lint.py` öneri için aynı işi yapıyor ve bir kural ekliyor: **sayı içeren her cümlenin bir kaynağı olmalı.** Kaynak etiketleri dört tür: `[Ders NN]` (repoda kanıtı olan), `[arXiv:…]` (dış makale), `[hesap…]` (bizim script'imizin çıktısı) ve `[öneri]` (henüz karar, ölçüm değil; takvim tarihleri gibi). Etiketi olmayan sayı, okuyucunun "bunu nereden biliyorsun?" sorusuna cevapsız kalır.
+Lecture 26's `rq_lint.py` audited the structure of the RQ file; `proposal_lint.py` does the same job for the proposal and adds one rule: **every sentence containing a number must have a source.** The source tags are of four kinds: `[Lecture NN]` (has evidence in the repo), `[arXiv:…]` (an external paper), `[calc…]` (output of our own script) and `[proposal]` (a decision not yet a measurement; like the schedule dates). A number without a tag leaves the reader's question "how do you know this?" unanswered.
 
-Bu oturumdaki gerçek çıktı (`results/lint.txt`):
+The real output in this session (`results/lint.txt`):
 
 ```
-gövde sözcük: 568 / 650
-sayısal iddia birimi: 12, etiketli: 12
-SONUÇ: TAM
+body words: 680 / 700
+numeric-claim units: 12, tagged: 12
+RESULT: COMPLETE
 ```
 
-Selftest'te bozuk bir taslakta 5 sorunu yakaladı: 4 eksik bölüm ve 1 etiketsiz iddia ("Başarı 97'den 49'a iniyor."). Etiketli satır (`n = 50 [Ders 27]`) sorun sayılmadı. Linter'ın sınırı açık: etiketin *doğru* olup olmadığına bakmaz. `[Ders 27]` yazıp Ders 27'de olmayan bir sayı koyabilirsin; o kontrol reviewer'ın, yani danışmanın işi. Model ve etiket adlarındaki rakamlar (RQ-a, S-OV, 4-bit, LLaMA-2, Qwen3-VL, T4) sayısal iddia sayılmıyor. `results/claims.csv` 12 iddia birimini ve etiketlerini listeliyor; danışmana öneriyle birlikte gönderilebilecek bir "kaynak dökümü".
+In the selftest it caught 5 problems in a broken draft: 4 missing sections and 1 untagged claim ("Success drops from 97 to 49."). The tagged line (`n = 50 [Lecture 27]`) was not counted as a problem. The linter's limit is clear: it does not check whether the tag is *right*. You can write `[Lecture 27]` and put in a number that is not in Lecture 27; that check is the reviewer's job, that is the advisor's. Digits in model and tag names (RQ-a, S-OV, 4-bit, LLaMA-2, Qwen3-VL, T4) are not counted as numeric claims. `results/claims.csv` lists the 12 claim units and their tags; a "source ledger" that can be sent to the advisor with the proposal.
 
-650 sözcük sınırı Türkçe A4'te, 11 punto ve tek aralıkla yaklaşık bir sayfa ediyor (başlık ve tablo dahil). Enstitü formu farklı bir sınır koyarsa `--max-words` ile değiştir.
-
----
-
-## 7. Yazılımcı için köprüler
-
-- **Öneri = RFC / design doc'un özet bölümü.** Uzun design doc'ta (Ders 26–28) her karar gerekçeli; üstteki bir sayfalık "Summary / Goals / Non-goals / Plan / Risks" bölümü ise yönetimin okuduğu tek kısım. Okuyucu karar verir, ayrıntıyı ancak sorarsa açar.
-- **Etiketler = traceability matrix.** Gereksinimden teste izlenebilirlik gibi: her sayı bir kaynağa (`[Ders NN]`), her kaynak bir commit'e bağlı. `proposal_lint.py` bu matrisin CI kontrolü; "orphan requirement" yerine "orphan number" yakalıyor.
-- **Takvim = sprint planı, birim = story point değil runner-saati.** Kapasite (Kaggle kotası) sabit; iş (T4 saati) tahmin. Sprint 5'in demo'su ara sınav: RQ-a tablosu yoksa scope kesilir (yalın matris). Burn-down'u `budget.py` çiziyor.
-- **Risk tablosu = runbook.** Her olayın tetikleyicisi (K1 sonucu 84,7'nin dışında) ve önceden yazılmış eylemi (etiketi değiştir, K3'ü koş) var. Olay anında karar vermiyorsun; olay öncesi verdiğin kararı uyguluyorsun.
-- **Başlıkta model adı yok = interface'e programlamak.** Başlık "VLA modelleri" diyor, "OpenVLA ve VLANeXt" değil. Implementasyon (sistem) değişirse sözleşme (tezin konusu) bozulmaz.
-- **Non-goals:** öneride söylenmeyen ama sorulacak şeyler: omurga karşılaştırması (sistem farkı yeterli değil), gerçek robot, yeni model eğitimi (LoRA koşullu). Design doc'ta "non-goals" ne kadar önemliyse burada da öyle; v0.2'de bir satırla eklemeyi düşün.
+The limit is 700 words for the English text (the first, Turkish version of the draft was checked against 650; English is wordier, and the English draft runs 680 words). That comes to about one page on A4, 11 pt and single spacing (including title and table). If the institute form sets a different limit, change it with `--max-words`.
 
 ---
 
-## 8. Bugünün görevi (15 dk)
+## 7. Bridges for the software developer
 
-`thesis/proposal-v0.1.md`'yi yüksek sesle bir kez oku ve sende takılan **üç yeri** işaretle. Takıldığın yer genelde ya jargon (ilk geçişte İngilizcesi parantezde yok) ya da kopuk bir halkadır (bir katkı hangi RQ'dan çıkıyor belli değil). Her biri için tek cümlelik düzeltmeyi doğrudan dosyada yap. Sonra iki karar satırını kendi sözünle yaz. Birincisi başlık: seçilen mi, yoksa senin önerin mi? İkincisi hafta 1'in gerçek tarihi (dönem takvimine göre). Ardından `cd code/day29 && python proposal_lint.py ../../thesis/proposal-v0.1.md` çalıştır: TAM kalmalı. Düzeltme sırasında etiketsiz bir sayı eklediysen linter yakalar. Dosyanın "Sürüm" satırını `v0.2 — <tarih>, Mesut düzeltmeleri` yap ve commit'le (`Ders 29: öneri v0.2`). ALKÜ formunu enstitü sayfasından indirebildiysen başlıklarını taslağın bölümleriyle eşleştiren tek bir satır da ekle.
+- **Proposal = the summary section of an RFC / design doc.** In the long design doc (Lectures 26–28) every decision has a rationale; the one-page "Summary / Goals / Non-goals / Plan / Risks" section on top is the only part management reads. The reader decides, and opens the detail only if they ask.
+- **Tags = traceability matrix.** Like traceability from requirement to test: every number is tied to a source (`[Lecture NN]`), every source to a commit. `proposal_lint.py` is the CI check of this matrix; instead of an "orphan requirement" it catches an "orphan number".
+- **The schedule = sprint plan, unit not story points but runner-hours.** Capacity (Kaggle quota) is fixed; the work (T4 hours) is an estimate. Sprint 5's demo is the mid-term exam: if the RQ-a table does not exist, scope is cut (lean matrix). `budget.py` draws the burn-down.
+- **Risk table = runbook.** Each incident has a trigger (K1 result outside 84.7) and a pre-written action (change the label, run K3). At incident time you are not deciding; you are applying the decision you made before the incident.
+- **No model name in the title = programming to the interface.** The title says "VLA models", not "OpenVLA and VLANeXt". If the implementation (system) changes, the contract (the thesis's topic) does not break.
+- **Non-goals:** things not said in the proposal but that will be asked: backbone comparison (system difference is not enough), a real robot, training a new model (LoRA is conditional). As important as "non-goals" are in a design doc, so here; consider adding it with one line in v0.2.
 
-## Takılırsan
+---
 
-| Belirti | Çözüm |
+## 8. Today's task (15 min)
+
+Read `thesis/proposal-v0.1.md` aloud once and mark **three places** where you stumble. Where you stumble is usually either jargon (the English is not in parentheses on first occurrence) or a broken link (it is unclear which RQ a contribution comes from). For each, make a one-sentence fix directly in the file. Then write two decision lines in your own words. The first is the title: the chosen one, or your own proposal? The second is the real date of week 1 (according to the term calendar). Then run `cd code/day29 && python proposal_lint.py ../../thesis/proposal-v0.1.md`: it should stay COMPLETE. If you added an untagged number while correcting, the linter catches it. Change the file's "Version" line to `v0.2 — <date>, Mesut corrections` and commit (`Lecture 29: proposal v0.2`). If you were able to download the ALKU form from the institute page, add one line matching its headings with the draft's sections.
+
+## If you get stuck
+
+| Symptom | Fix |
 |---|---|
-| `proposal_lint.py` → `etiketsiz sayısal iddia` | Cümleye kaynağını ekle: `[Ders NN]`, `[arXiv:XXXX.XXXXX]`, `[öneri]` ya da `[hesap: …]`. Rakam bir ad içindeyse (ör. yeni bir model adı) `NAMES` düzenli ifadesine ekle |
-| `gövde N sözcük > 650` | Önce Yöntem'deki parantezleri at (ayrıntı `rq-candidates.md`'de), sonra risk tablosunu 4 satıra indir; Kaynaklar sayılmaz |
-| `'Katkı' bölümü yok` | Başlık birebir `## 5. Beklenen katkılar` biçiminde olmalı (numara isteğe bağlı) |
-| `plot_day29.py`: `budget_lean.csv` bulunamadı | Önce `code/day27/budget.py`'yi çalıştır (`results/` üretir); script'i `code/day29/` içinden çalıştır |
-| Gantt'taki saatler Ders 27'den farklı | Ders 28 matrise ablation hücreleri eklediyse `budget.py` yeniden koşmuş olabilir; İP'ler yalnız A/B/C/K/P hücrelerini toplar — ablation İP'si eklemek için `hours()` içine hücre kümesini ekle |
-| Form Word (`.doc`) ve önerin Markdown | `pandoc thesis/proposal-v0.1.md -o oneri.docx`; tabloyu formun kutusuna elle taşı. Telifli/kurumsal form repoya girmez, yalnızca bağlantı |
+| `proposal_lint.py` → `untagged numeric claim` | Add its source to the sentence: `[Lecture NN]`, `[arXiv:XXXX.XXXXX]`, `[proposal]` or `[calc: …]`. If the digit is inside a name (e.g. a new model name) add it to the `NAMES` regular expression |
+| `body N words > 700 (one-page limit)` | First drop the parentheses in Method (the detail is in `rq-candidates.md`), then cut the risk table to 4 rows; References do not count |
+| `'Contribution' section is missing` | The heading must be exactly in the form `## 5. Expected contributions` (the number is optional) |
+| `plot_day29.py`: `budget_lean.csv` not found | First run `code/day27/budget.py` (produces `results/`); run the script from inside `code/day29/` |
+| The hours in the Gantt differ from Lecture 27 | If Lecture 28 added ablation cells to the matrix, `budget.py` may have been re-run; the WPs sum only the A/B/C/K/P cells — to add an ablation WP add the cell set to `hours()` |
+| The form is Word (`.doc`) and your proposal is Markdown | `pandoc thesis/proposal-v0.1.md -o oneri.docx`; move the table into the form's box by hand. A copyrighted/institutional form does not enter the repo, only the link |
 
 ---
 
-## Sonraki ders (Ders 30)
-**Danışman toplantısı için soru ve sunum listesi.** Öneri yazılınca açık kalan kararlar görünür hâle geldi. Bunlar danışmanın verebileceği kararlar: iddia birimi (görev / blok), suite ağırlığı (S7), LoRA izni ve bütçesi (S9), tezin zayıf okumayla mı biteceği (S10), 4-bit S-OV'un kabulü, tez konusunun enstitüye bildirim tarihi ve form gereklilikleri, başlık. Ders 30 bunları tek bir toplantı paketine çeviriyor: her soru için seçenekler, bizim önerimiz ve "cevap şu olursa ne değişir" satırı, öncelik sırası (etki × aciliyet), 20 dakikalık bir gündem ve 5–7 slaytlık kısa bir sunum taslağı (`slides/advisor-meeting-01.md`). Bu önerinin v0.1'i de o toplantının ekidir.
+## Next lecture (Lecture 30)
+**Question and presentation list for the advisor meeting.** Once the proposal was written, the decisions left open became visible. These are decisions the advisor can give: the claim unit (task / block), suite weight (S7), LoRA permission and budget (S9), whether the thesis ends with the weak reading (S10), acceptance of 4-bit S-OV, the date to report the thesis topic to the institute and form requirements, the title. Lecture 30 turns them into a single meeting package: for each question the options, our recommendation and a "if the answer is this, what changes" line, a priority order (impact × urgency), a 20-minute agenda and a short 5–7 slide presentation draft (`slides/advisor-meeting-01.md`). The v0.1 of this proposal is also an attachment to that meeting.
 
 ---
 
-## Kaynaklar
-- Çıktı: `thesis/proposal-v0.1.md` (v0.1; 568 sözcük, 7 bölüm + kaynaklar). Girdiler: `thesis/rq-candidates.md` (Ders 26), `thesis/experiment-matrix.csv` ve `code/day27/results/budget*.csv` (Ders 27), `thesis/ablation-plan.md` (Ders 28), `datasets/04-tr-spatial-commands/` (Ders 20), Ders 1 (Grady slaytı), 5 (Tatar vd.), 15 ve 24 (Dong, Chen), 19 (komutsuz tavan), 22 (harf bedeli 4,9 / 0,9).
-- **[1]** DARPA. *The Heilmeier Catechism.* [darpa.mil](https://www.darpa.mil/about/heilmeier-catechism) — öneri kontrol listesi (yedi soru; görsel 04). Ders kullanımı için ayrıca: [R. Murray, Caltech](https://murray.cds.caltech.edu/Heilmeier_Catechism).
-- **[2]** ALKÜ Lisansüstü Eğitim Enstitüsü — [öğrenci formları](https://enstitu.alanya.edu.tr/ogrenci/ogrenci-formlari/) (tez konusu öneri formu; doktora sürümü [FR-320](https://enstitu.alanya.edu.tr/media/ufoe23oc/fr-320-tez-konusu-oneri-formu-dr.doc)), [tez ve dönem projesi yazım kılavuzu](https://alanya.edu.tr/media/emzgwaqf/alku-lisansustu-egitim-enstitusu-tez-ve-donem-projesi-yazim-kilavuzu.pdf), [lisansüstü eğitim ve öğretim yönetmeliği](https://www.alanya.edu.tr/media/uhxlpqth/alku-lisansustu-yonetmeligi.pdf). Bu oturumda içerikleri okunamadı. Bağlantılar arama sonucundan; form başlıkları ve teslim tarihi danışmana sorulacak.
-- **[3]** TÜBİTAK BİDEB. *2210-C Tez Öneri Formu (içerik), Tem 2026.* [tubitak.gov.tr](https://tubitak.gov.tr/sites/default/files/2026-07/2210-C_Programi_Guncel_Tez_Oneri_Formu_icerik.docx). Başlıkları bu oturumda okunmadı; ARDEB iskeleti (özgün değer / yöntem / proje yönetimi / yaygın etki) hipotez.
-- **[4]** Hulley vd. *Designing Clinical Research* (FINER) ve Bertinetto vd. (2021) ön kayıt, [PMLR 148](https://proceedings.mlr.press/v148/bertinetto21a.html) (Ders 26). Problem paragrafındaki sayılar: Dong vd. [arXiv:2606.11906](https://arxiv.org/abs/2606.11906), Chen vd. [arXiv:2606.15714](https://arxiv.org/abs/2606.15714), Hou & Zhao [arXiv:2603.00592](https://arxiv.org/abs/2603.00592); sistemler: OpenVLA [arXiv:2406.09246](https://arxiv.org/abs/2406.09246), [DravenALG/VLANeXt](https://github.com/DravenALG/VLANeXt); benchmark: LIBERO [arXiv:2306.03310](https://arxiv.org/abs/2306.03310).
-- Kod: `code/day29/` — `proposal_lint.py` (bu oturumda koştu: TAM; selftest OK; `results/lint.txt`, `results/claims.csv`), `plot_day29.py` (koştu; `results/plot_stdout.txt`).
-- Görseller: 01 ve 04 Mermaid (`.mmd` yanında); 02 Gantt: hafta aralıkları öneri, T4 saatleri Ders 27 bütçe modelinin orta senaryosu (başlıkta yazılı); 03 risk matrisi: olasılık/etki puanları bu dersin değerlendirmesi (başlıkta yazılı). Model bu oturumda çalıştırılmadı.
+## References
+- Output: `thesis/proposal-v0.1.md` (v0.1; 680 words, 7 sections + references). Inputs: `thesis/rq-candidates.md` (Lecture 26), `thesis/experiment-matrix.csv` and `code/day27/results/budget*.csv` (Lecture 27), `thesis/ablation-plan.md` (Lecture 28), `datasets/04-tr-spatial-commands/` (Lecture 20), Lecture 1 (Grady slide), 5 (Tatar et al.), 15 and 24 (Dong, Chen), 19 (command-free ceiling), 22 (letter cost 4.9 / 0.9).
+- **[1]** DARPA. *The Heilmeier Catechism.* [darpa.mil](https://www.darpa.mil/about/heilmeier-catechism) — the proposal checklist (seven questions; figure 04). For use in the lecture also: [R. Murray, Caltech](https://murray.cds.caltech.edu/Heilmeier_Catechism).
+- **[2]** ALKU Graduate School — [student forms](https://enstitu.alanya.edu.tr/ogrenci/ogrenci-formlari/) (thesis topic proposal form; doctoral version [FR-320](https://enstitu.alanya.edu.tr/media/ufoe23oc/fr-320-tez-konusu-oneri-formu-dr.doc)), [thesis and term project writing guide](https://alanya.edu.tr/media/emzgwaqf/alku-lisansustu-egitim-enstitusu-tez-ve-donem-projesi-yazim-kilavuzu.pdf), [graduate education and training regulation](https://www.alanya.edu.tr/media/uhxlpqth/alku-lisansustu-yonetmeligi.pdf). Their contents could not be read in this session. The links come from a search result; the form headings and the submission date will be asked of the advisor.
+- **[3]** TÜBİTAK BİDEB. *2210-C Thesis Proposal Form (content), July 2026.* [tubitak.gov.tr](https://tubitak.gov.tr/sites/default/files/2026-07/2210-C_Programi_Guncel_Tez_Oneri_Formu_icerik.docx). Its headings were not read in this session; the ARDEB skeleton (original value / method / project management / broad impact) is a hypothesis.
+- **[4]** Hulley et al. *Designing Clinical Research* (FINER) and Bertinetto et al. (2021) pre-registration, [PMLR 148](https://proceedings.mlr.press/v148/bertinetto21a.html) (Lecture 26). The numbers in the problem paragraph: Dong et al. [arXiv:2606.11906](https://arxiv.org/abs/2606.11906), Chen et al. [arXiv:2606.15714](https://arxiv.org/abs/2606.15714), Hou & Zhao [arXiv:2603.00592](https://arxiv.org/abs/2603.00592); systems: OpenVLA [arXiv:2406.09246](https://arxiv.org/abs/2406.09246), [DravenALG/VLANeXt](https://github.com/DravenALG/VLANeXt); benchmark: LIBERO [arXiv:2306.03310](https://arxiv.org/abs/2306.03310).
+- Code: `code/day29/` — `proposal_lint.py` (ran in this session: COMPLETE; selftest OK; `results/lint.txt`, `results/claims.csv`), `plot_day29.py` (ran; `results/plot_stdout.txt`).
+- Figures: 01 and 04 are Mermaid (`.mmd` alongside); 02 Gantt: the week ranges are a proposal, the T4 hours are the middle scenario of Lecture 27's budget model (stated in the title); 03 risk matrix: the probability/impact scores are this lecture's assessment (stated in the title). The model was not run in this session.

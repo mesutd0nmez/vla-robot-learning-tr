@@ -1,51 +1,51 @@
-<!-- Tez önerisi taslağı v0.1 — Ders 29. Bir sayfa: gövde ≤ 650 sözcük (Kaynaklar hariç). Her sayısal iddia bir etiket taşır: [Ders NN], [arXiv:…], [öneri] ya da [hesap]. Kontrol: python code/day29/proposal_lint.py thesis/proposal-v0.1.md -->
+<!-- Thesis proposal draft v0.1 — Lecture 29. One page: body ≤ 700 words (References excluded). Every numeric claim carries a tag: [Lecture NN], [arXiv:…], [proposal] or [calc]. Check: python code/day29/proposal_lint.py thesis/proposal-v0.1.md -->
 
-# Tez Önerisi (taslak v0.1)
+# Thesis Proposal (draft v0.1)
 
-**Başlık (TR):** Türkçe Mekânsal Komutların Görüntü-Dil-Eylem (VLA) Modellerinde Temellendirilmesi: Boş-Komut Tabanlı Kapalı-Döngü Bir Değerlendirme
+**Title (TR):** Türkçe Mekânsal Komutların Görüntü-Dil-Eylem (VLA) Modellerinde Temellendirilmesi: Boş-Komut Tabanlı Kapalı-Döngü Bir Değerlendirme
 **Title (EN):** Grounding Turkish Spatial Instructions in Vision-Language-Action Models: A Closed-Loop Evaluation Against an Empty-Instruction Baseline
-**Öğrenci / Danışman:** Mesut Bahtiyar Dönmez / (danışman) · ALKÜ Lisansüstü Eğitim Enstitüsü, Bilgisayar Mühendisliği (tezli YL)
+**Student / Advisor:** Mesut Bahtiyar Dönmez / (advisor) · ALKU Graduate School, Computer Engineering (MSc with thesis)
 
-## 1. Problem ve önem
+## 1. Problem and significance
 
-"Language is a beautiful compression of the world, but it is not the world" (P. Grady; danışmanın slaytı) [Ders 1]. VLA modelleri komutu dünyaya — kamera görüntüsüne ve robot eylemine — bağlamak için eğitilir, ama neredeyse yalnızca İngilizce veriyle. Çok dilli ölçümler sert düşüşler raporluyor: Korece komutla LIBERO-Spatial başarısı 97,6'dan 49,2'ye iniyor [arXiv:2606.11906]; OpenVLA-OFT'de yabancı dil kaybı (−27,8…−29,8) komutu hiç vermemekle (−27,5) aynı büyüklükte [arXiv:2606.15714]. Türkçe için tek çalışma açık döngüde, tek karede ölçüyor [Ders 5]. Bir modelin Türkçe "kâsenin solundaki" ifadesini gerçekten okuduğunu, boş komuttan ayrılmadan söyleyemeyiz.
+"Language is a beautiful compression of the world, but it is not the world" (P. Grady; the advisor's slide) [Lecture 1]. VLA models are trained to connect the command to the world — the camera image and the robot's action — but almost only with English data. Multilingual measurements report sharp drops: with a Korean command, LIBERO-Spatial success falls from 97.6 to 49.2 [arXiv:2606.11906]; in OpenVLA-OFT the loss for a foreign language (−27.8…−29.8) is the same size as giving no command at all (−27.5) [arXiv:2606.15714]. For Turkish, the only study measures open-loop, on a single frame [Lecture 5]. We cannot say that a model really reads the Turkish "kâsenin solundaki" ("the one to the left of the bowl") without separating it from the empty command.
 
-## 2. Amaç
+## 2. Aim
 
-Türkçe mekânsal komutların iki açık VLA sisteminde kapalı döngüde ne kadar temellendirildiğini, boş-komut tabanına göre ölçmek; düşüşün nerede yoğunlaştığını bulmak ve girdi düzeyinde ucuz bir düzeltmenin açığı ne kadar kapattığını göstermek.
+To measure, against the empty-command baseline, how well Turkish spatial commands are grounded in closed loop in two open VLA systems; to find where the drop is concentrated; and to show how much of the gap a cheap input-level fix closes.
 
-## 3. Araştırma soruları
+## 3. Research questions
 
-- **RQ-a (fark var mı):** Aynı başlangıç sahnesinde Türkçe komut ile İngilizce komut arasında başarı farkı var mı; fark boş-komut tabanına göre nerede? [Ders 26]
-- **RQ-b (nerede):** Düşüş ilişki ailesine, yüzeye (Türkçe harf, ek) ve referans çerçevesine bağlı mı; eğitimde olmayan Türkçe tarif boş komutun üstüne çıkıyor mu? [Ders 26]
-- **RQ-c (nasıl kapanır):** Makine çevirisi ve kural tabanlı ayrıştırıcı açığın ne kadarını kapatıyor (kapanış oranı κ)? [Ders 26]
+- **RQ-a (is there a difference):** In the same initial scene, is there a success difference between the Turkish command and the English command; where is the difference relative to the empty-command baseline? [Lecture 26]
+- **RQ-b (where):** Does the drop depend on the relation family, the surface (Turkish letters, suffixes) and the reference frame; does an unseen Turkish recipe rise above the empty command? [Lecture 26]
+- **RQ-c (how it closes):** How much of the gap do machine translation and a rule-based parser close (closure rate κ)? [Lecture 26]
 
-## 4. Yöntem
+## 4. Method
 
-**Benchmark:** LIBERO-Spatial ve LIBERO-Goal; görev başına 50 başlangıç durumu [Ders 27]. **Veri:** 20 EN–TR eşli komut, dört blok (A eğitilmiş Spatial 6, B yeni tarif 6, C Goal 6, D 2) ve dört Türkçe yüzey [Ders 20]. **Sistemler:** S-OV = OpenVLA-7B LIBERO checkpoint'i (LLaMA-2 tokenizer; T4'te 4-bit) ve S-VN = VLANeXt (Qwen3-VL omurga) [Ders 27]; karşılaştırma sistem düzeyinde, nedensel değil [arXiv:2606.15714]. **Koşullar:** `clean`, `empty`, `wrong`, `tr` — aynı başlangıç durumunda eşli [Ders 18]. **Ölçüt:** eşli McNemar ve TOST eşdeğerlik; "fark var" için p < 0,05 ve en az 15 puan, eşikler koşudan önce yazılır (ön kayıt) [Ders 26]. Görev başına 50 durumla görünen en küçük fark 23 puan olduğundan ana iddia blok düzeyinde kurulur: 6 görev × 20 durum ile 13 puan [Ders 27]. Baseline ve ablation planı `thesis/ablation-plan.md`'de [Ders 28].
+**Benchmark:** LIBERO-Spatial and LIBERO-Goal; 50 initial states per task [Lecture 27]. **Data:** 20 paired EN–TR commands, four blocks (A trained Spatial 6, B new recipe 6, C Goal 6, D 2) and four Turkish surfaces [Lecture 20]. **Systems:** S-OV = the OpenVLA-7B LIBERO checkpoint (LLaMA-2 tokenizer; 4-bit on the T4) and S-VN = VLANeXt (Qwen3-VL backbone) [Lecture 27]; the comparison is at system level, not causal [arXiv:2606.15714]. **Conditions:** `clean`, `empty`, `wrong`, `tr` — paired on the same initial state [Lecture 18]. **Measure:** paired McNemar and TOST equivalence; for "there is a difference", p < 0.05 and at least 15 points, with thresholds written before the run (preregistration) [Lecture 26]. Since the smallest visible difference with 50 states per task is 23 points, the main claim is built at the block level: 6 tasks × 20 states give 13 points [Lecture 27]. The baseline and ablation plan is in `thesis/ablation-plan.md` [Lecture 28].
 
-## 5. Beklenen katkılar
+## 5. Expected contributions
 
-1. Türkçe mekânsal komut seti: eşli, blok ve yüzey etiketli, açık lisanslı [Ders 20].
-2. Türkçe için ilk kapalı-döngü, boş-komut tabanlı VLA ölçümü; iki tokenizer'ın (Türkçe harf bedeli 4,9 ve 0,9 token) davranış karşılığı [Ders 22].
-3. Ön kayıtlı, düşük bütçeli (ücretsiz T4) tekrarlanabilir değerlendirme protokolü ve kodu [Ders 27].
+1. A Turkish spatial command set: paired, labeled by block and surface, openly licensed [Lecture 20].
+2. The first closed-loop, empty-command-based VLA measurement for Turkish; the behavioral counterpart of two tokenizers (Turkish letter cost 4.9 and 0.9 tokens) [Lecture 22].
+3. A preregistered, low-budget (free T4) reproducible evaluation protocol and its code [Lecture 27].
 
-## 6. Takvim
+## 6. Schedule
 
-Hesap birimi Kaggle T4 saati; yalın matris ≈ 108 saat, tam çekirdek ≈ 258 saat [hesap: Ders 27]; haftalık kota ≈ 30 saat (kullanıcı raporu) [Ders 27]. İş paketleri (hafta 1 = 30 Kasım 2026) [öneri]: İP1 pilot + kalibrasyon (hafta 1–2); İP2 RQ-a (hafta 2–5); İP3 RQ-b (hafta 5–7); İP4 RQ-c (hafta 7–8); İP5 analiz (hafta 8–10); İP6 yazım (hafta 9–16). Ara sınav: hafta 5'te RQ-a tablosu; son sınav: hafta 16'da tez taslağı [öneri].
+The unit of account is Kaggle T4 hours; lean matrix ≈ 108 hours, full core ≈ 258 hours [calc: Lecture 27]; weekly quota ≈ 30 hours (user report) [Lecture 27]. Work packages (week 1 = 30 November 2026) [proposal]: WP1 pilot + calibration (weeks 1–2); WP2 RQ-a (weeks 2–5); WP3 RQ-b (weeks 5–7); WP4 RQ-c (weeks 7–8); WP5 analysis (weeks 8–10); WP6 writing (weeks 9–16). Midterm: RQ-a table in week 5; final: thesis draft in week 16 [proposal].
 
-## 7. Riskler ve B planları
+## 7. Risks and plan Bs
 
-| Risk | B planı |
+| Risk | Plan B |
 |---|---|
-| Model çağrısı tahminden yavaş (kötümser 497 saat) [Ders 27] | yalın matris; yalnız Spatial + Goal blok A/C |
-| 4-bit S-OV yayımlanan 84,7'yi tutturmaz [Ders 27] | "OpenVLA (4-bit)" etiketi; Mac'te bf16 eşli alt küme |
-| Spatial'da boş komut tavana yakın (komutsuz 9/10) [Ders 19] | ağırlık Goal'a (komutsuz 1/10) [Ders 19] |
-| Karşı-olgusal BDDL yüklenmez | B bloğu betimsel, EN-B dış referansla [arXiv:2603.00592] |
-| LoRA eğitimi onaylanmaz | RQ-c girdi düzeyinde (MT + ayrıştırıcı) kalır |
+| Model calls slower than estimated (pessimistic 497 hours) [Lecture 27] | lean matrix; only Spatial + Goal blocks A/C |
+| 4-bit S-OV does not reach the published 84.7 [Lecture 27] | label it "OpenVLA (4-bit)"; paired bf16 subset on the Mac |
+| Empty command near the ceiling in Spatial (no-command 9/10) [Lecture 19] | shift weight to Goal (no-command 1/10) [Lecture 19] |
+| Counterfactual BDDL does not load | block B stays descriptive, with EN-B as an external reference [arXiv:2603.00592] |
+| LoRA training is not approved | RQ-c stays at input level (MT + parser) |
 
-## Kaynaklar (kısa)
+## References (short)
 
-Kim vd. 2024, OpenVLA, arXiv:2406.09246 · Liu vd. 2023, LIBERO, arXiv:2306.03310 · Dong vd. 2026, arXiv:2606.11906 (ACL 2026) · Chen vd. 2026, arXiv:2606.15714 · Hou & Zhao 2026, LangGap, arXiv:2603.00592 · Tatar vd. 2026, SIU (IEEE) · VLANeXt: github.com/DravenALG/VLANeXt · Ayrıntı: `lectures/lecture-05…28`, `thesis/rq-candidates.md`, `thesis/experiment-matrix.csv`.
+Kim et al. 2024, OpenVLA, arXiv:2406.09246 · Liu et al. 2023, LIBERO, arXiv:2306.03310 · Dong et al. 2026, arXiv:2606.11906 (ACL 2026) · Chen et al. 2026, arXiv:2606.15714 · Hou & Zhao 2026, LangGap, arXiv:2603.00592 · Tatar et al. 2026, SIU (IEEE) · VLANeXt: github.com/DravenALG/VLANeXt · Details: `lectures/lecture-05…28`, `thesis/rq-candidates.md`, `thesis/experiment-matrix.csv`.
 
-Sürüm: v0.1 — Ders 29 (otomatik taslak; danışmanla gözden geçirilecek). Değişiklikler buraya tarihle eklenir.
+Version: v0.1 — Lecture 29 (automatic draft; to be reviewed with the advisor). Changes are added here with a date.

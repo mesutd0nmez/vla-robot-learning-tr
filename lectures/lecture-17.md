@@ -1,197 +1,197 @@
-# Ders 17 — LIBERO-Plus'ın Yedi Bozulması Kodda: Üç Taşıyıcı, Kamera Matematiği, 500 Panda, R1/R2 ve Türkçe Varyant
+# Lecture 17 — LIBERO-Plus in Code: Three Carriers, Camera Math, 500 Pandas, R1/R2 and the Turkish Variant
 
-**Faz 3 / Gün 17** · **Süre:** ~60 dk (okuma 40 + Mac'te script'ler 15 + görev)
-**Ön koşul:** Ders 3 (LIBERO-Plus'ın 7 bozulması), Ders 13 (`task.language` nereden gelir), Ders 16 (görev adı şeması, `_language_` dalı, `scan_tokens` tuzakları) · **Kod:** `code/day17/` · **Veri:** `datasets/02-libero-plus-spatial0-rewrites/`
+**Phase 3 / Day 17** · **Time:** ~60 min (reading 40 + scripts on the Mac 15 + task)
+**Prerequisites:** Lecture 3 (LIBERO-Plus's 7 perturbations), Lecture 13 (where `task.language` comes from), Lecture 16 (task-name scheme, the `_language_` branch, `scan_tokens` traps) · **Code:** `code/day17/` · **Data:** `datasets/02-libero-plus-spatial0-rewrites/`
 
-> **Bugünün tek cümlesi:** LIBERO-Plus'ta "bozulma" tek bir mekanizma değildir — üçü (kamera, robot pozu, sensör gürültüsü) **görev adındaki parametrelerle** çalışma zamanında, üçü (dil, ek nesne, yerleşim kayması) **yeni bir BDDL dosyasıyla**, ikisi (ışık, doku) **BDDL'deki problem adının seçtiği bir sahne XML'iyle** uygulanır; hedef ve başarı ölçütü hiçbirinde değişmez, ve Türkçe komut bu üç taşıyıcının en ucuzuyla (yalnızca `:language` satırı değişen bir BDDL) benchmark'a **sekizinci bir bozulma** olarak eklenebilir — bugün onu ekleyen boru hattını kuruyorsun.
+> **Today in one sentence:** In LIBERO-Plus a "perturbation" is not a single mechanism — three of them (camera, robot pose, sensor noise) are applied at runtime through **parameters in the task name**, three (language, extra objects, layout shift) through **a new BDDL file**, and two (light, texture) through **a scene XML selected by the problem name in the BDDL**; the goal and the success criterion never change in any of them, and a Turkish command can be added to the benchmark as an **eighth perturbation** through the cheapest of these three carriers (a BDDL where only the `:language` line changes) — today you build the pipeline that adds it.
 
 ---
 
-## 1. Üç taşıyıcı: bozulma nerede kodlanmış?
+## 1. Three carriers: where is the perturbation encoded?
 
-Ders 16'da görev adının `<temel>_<bozulma>_<parametreler>` biçiminde olduğunu görmüştün. Bugün soruyu tersine çeviriyoruz: eval `get_task(i)` dediğinde bu ad **hangi kod yolundan** geçip sahneyi değiştiriyor? Cevap üç farklı taşıyıcı:
+In Lecture 16 you saw that the task name has the form `<base>_<perturbation>_<parameters>`. Today we turn the question around: when the eval calls `get_task(i)`, **through which code path** does this name change the scene? The answer is three different carriers:
 
-![Bozulmanın üç taşıyıcısı](images/lecture-17/01-perturbation-carriers.png)
+![Three carriers of a perturbation](images/lecture-17/01-perturbation-carriers.png)
 
-1. **Görev adı** (BDDL dosyası temel görevinkiyle aynı, asset gerekmez): `env_wrapper.py:207-218` adı `_view_` ve `_initstate_`'ten bölüp kamera parametrelerini, robot sınıfı adını ve `_noise_N`'yi çıkarır. Dil dışı her görevin adında bu kuyruk vardır; "temiz" değerler `0_0_100_0_0_initstate_0`.
-2. **Yeni BDDL dosyası** (ad `_view_` öncesinden `.bddl` yapılır): `_language_K` yalnızca `:language` satırında, `_add_K` nesne/bölge/init satırlarında, `_levelL_sampleM` bölge aralıklarında farklıdır. `diff` ile doğruladım; görsel 05 bu farkları ölçüyor.
-3. **Problem sınıfı → sahne XML'i** (asset şart): `_light_K` ve `_table_K`/`_tb_K` dosyaları temel BDDL'den **yalnızca ilk satırda**, `(problem Libero_Tabletop_Manipulation_tabletop_light_sync_modified_10)` gibi problem adında ayrılır. Bu ad `TASK_MAPPING`'de kayıtlı bir alt sınıfı seçer; alt sınıfın tek işi `scene_xml`'i (`scenes/lights/..._10.xml` ya da `scenes/tabletop_table_Bricks02_COL_VAR1_6K.xml`) değiştirmektir. `libero_tabletop_manipulation.py`'nin 31 bin satırının nedeni bu: 1.024 ışık sahnesi, 35 masa dokusu ve 225 masa+duvar kombinasyonu (10 duvar stili) için üretilmiş alt sınıflar.
+1. **Task name** (the BDDL file is the same as the base task's, no assets needed): `env_wrapper.py:207-218` splits the name at `_view_` and `_initstate_` and extracts the camera parameters, the robot class name and `_noise_N`. Every non-language task has this tail in its name; the "clean" values are `0_0_100_0_0_initstate_0`.
+2. **New BDDL file** (the name up to `_view_` becomes `.bddl`): `_language_K` differs only in the `:language` line, `_add_K` in the object/region/init lines, `_levelL_sampleM` in the region ranges. I verified this with `diff`; figure 05 measures these differences.
+3. **Problem class → scene XML** (assets required): the `_light_K` and `_table_K`/`_tb_K` files differ from the base BDDL **only in the first line**, in the problem name, e.g. `(problem Libero_Tabletop_Manipulation_tabletop_light_sync_modified_10)`. This name selects a subclass registered in `TASK_MAPPING`; the subclass's only job is to change `scene_xml` (`scenes/lights/..._10.xml` or `scenes/tabletop_table_Bricks02_COL_VAR1_6K.xml`). That is why `libero_tabletop_manipulation.py` is 31 thousand lines long: it holds subclasses generated for 1,024 light scenes, 35 table textures and 225 table+wall combinations (10 wall styles).
 
-`perturbation_table.py`'nin Spatial için ürettiği tablo (gerçek sayılar; tam hâli `datasets/02/.../perturbation_table_spatial.md`):
+The table that `perturbation_table.py` produces for Spatial (real numbers; the full version is in `datasets/02/.../perturbation_table_spatial.md`):
 
-| Bozulma | Görev | Taşıyıcı | Gerçek parametre aralığı | BDDL? | Asset? |
+| Perturbation | Tasks | Carrier | Actual parameter range | BDDL? | Assets? |
 |---|---|---|---|---|---|
-| Camera Viewpoints | 376 | ad `_view_H_V_S_ER_EV` | yatay ±75° (238 görev; 130'unda dikey 15°), mesafe ×1.15–2.00 (76), uç yaw/pitch ±10° (62) | hayır | hayır |
-| Robot Initial States | 350 | ad `_initstate_I` → `MountedPanda{I}` | I = 1..500, 7 eklem açısı; ‖Δ‖ ∈ {0.1, 0.2, 0.3, 0.4, 0.5} rad | hayır | hayır |
-| Sensor Noise | 351 | ad `_noise_N` | N = 1..50 = 5 aile × 10 şiddet; yalnızca `agentview_image` | hayır | hayır (`wand`) |
-| Language Instructions | 390 | BDDL `:language` | görev başına 50 dosya, 46 benchmark'ta; kuyruk sabit `0_0_100_0_0_initstate_0` | evet | hayır |
-| Objects Layout | 385 | BDDL `_add_K` (208) / `_levelL_sampleM` (177) | 3 çeldirici nesne/dosya, 13 tür; bölge kayması ≤ L cm (L = 1..5) | evet | **evet** (yeni mesh'ler) |
-| Light Conditions | 292 | BDDL problem adı → `scenes/lights/*.xml` | K = 1..50; diffuse / yön / specular / gölge (makale Ek A.3) | adı | **evet** |
-| Background Textures | 258 | BDDL problem adı → `scenes/*.xml` | `_table_` 140 + `_tb_` 118; 35 doku, 10 duvar stili | adı | **evet** |
+| Camera Viewpoints | 376 | name `_view_H_V_S_ER_EV` | horizontal ±75° (238 tasks; 130 of them with vertical 15°), distance ×1.15–2.00 (76), end yaw/pitch ±10° (62) | no | no |
+| Robot Initial States | 350 | name `_initstate_I` → `MountedPanda{I}` | I = 1..500, 7 joint angles; ‖Δ‖ ∈ {0.1, 0.2, 0.3, 0.4, 0.5} rad | no | no |
+| Sensor Noise | 351 | name `_noise_N` | N = 1..50 = 5 families × 10 severities; `agentview_image` only | no | no (`wand`) |
+| Language Instructions | 390 | BDDL `:language` | 50 files per task, 46 in the benchmark; tail fixed at `0_0_100_0_0_initstate_0` | yes | no |
+| Objects Layout | 385 | BDDL `_add_K` (208) / `_levelL_sampleM` (177) | 3 distractor objects/file, 13 types; region shift ≤ L cm (L = 1..5) | yes | **yes** (new meshes) |
+| Light Conditions | 292 | BDDL problem name → `scenes/lights/*.xml` | K = 1..50; diffuse / direction / specular / shadow (paper Appendix A.3) | name | **yes** |
+| Background Textures | 258 | BDDL problem name → `scenes/*.xml` | `_table_` 140 + `_tb_` 118; 35 textures, 10 wall styles | name | **yes** |
 
-Üç pratik sonuç: (a) **kamera, robot ve gürültü bozulmalarını asset indirmeden** çalıştırabilirsin — bu üçü için LIBERO-Plus'ın kodu + orijinal LIBERO asset'leri yeter (görsel 04 tam olarak bunu yapıyor); (b) **Language bozulması en ucuz taşıyıcıdadır**: bir metin dosyasında bir satır; (c) hedef `(:goal (And (On akita_black_bowl_1 plate_1)))` ve `obj_of_interest` yedi bozulmanın hiçbirinde değişmez — başarı ölçütü sabit, yalnızca girdi oynar. Bu, Ders 4'teki ablation mantığının benchmark ölçeğinde kurumsallaşmış hâli.
-
----
-
-## 2. Kamera: beş sayıdan MuJoCo pozuna
-
-`_view_30_15_100_0_0` beş sayı taşır: yatay dönüş H, dikey dönüş V, mesafe ölçeği S/100, uç yaw ER, uç pitch EV. `_setup_camera` (problems/*.py:305-351) bunları **sabit bir sırayla** varsayılan agentview'a uygular: önce V (pivot `(0, 0, 0.8)`'den geçen y eksenine paralel eksen etrafında), sonra H (z ekseni etrafında, pivot x=y=0), sonra S (pivot'tan uzaklığı çarpar), en son ER/EV (konum sabit, yalnızca quaternion döner). Fonksiyonları dosyadan çekip 376 Spatial kamera görevine uyguladım:
-
-![Kamera pozları](images/lecture-17/02-camera-poses.png)
-
-Okuma:
-
-- **Varsayılan agentview** `(0.659, 0, 1.610)`'da, masanın robotun **karşı** tarafında ve pivot'a 1.044 m uzakta; bakış ekseni masa düzlemini `x = −0.345`'te, yani robotun önündeki bölgede kesiyor. LIBERO karelerinde robotun üstte görünmesinin nedeni bu (Ders 10'daki 180° döndürme hikâyesinin öteki yarısı).
-- **Rotation görevleri** (238) yatayda −75°..+75° arasında bir yay çiziyor; 130'unda ayrıca 15° dikey dönüş var (iç yay — kamera alçalıp pivot'a yaklaşıyor çünkü dönüş ekseni pivot'tan geçiyor). ±75°'de kamera neredeyse masanın yan kenarında: sahne "önden" değil "yandan" görünür, yani *between the plate and the ramekin* ifadesinin görüntüdeki sol-sağ düzeni değişir. Dikkat: makalenin Ek A.4'ü "15°–75° koni" der; kodda yatay açı 11°'den başlıyor ve dikey yalnızca {0, 15} — küçük bir makale-kod farkı.
-- **Zoom görevleri** (76) pivot'tan ×1.15–×2.0 uzaklaşır (yan görünüşte düz çizgi); nesneler 128×128 karede 2 kat küçülür. 
-- **Endpoint görevleri** (62) konumu hiç değiştirmez; ±2–10° yaw/pitch bakış noktasını masa üstünde 10–30 cm kaydırır (panel c'deki yeşil ızgara). İnsan gözüne en masum bozulma budur, ama görsel 09'da göreceğin gibi Camera kategorisi OpenVLA-OFT'yi Spatial'da 97.6 → 88.3'e düşürüyor; hangi alt türün ne kadar kırdığı makalede ayrıştırılmamış — `camera_poses.csv`'deki `kind` sütunuyla sen ayrıştırabilirsin (görev).
-
-Görsel 04'ün üst iki satırı aynı matematiği gerçek bir render'da gösteriyor (robosuite `Stack` sahnesi; LIBERO sahnesi değil):
-
-![Kamera ve robot bozulmaları render](images/lecture-17/04-camera-robot-renders.png)
+Three practical consequences: (a) you can run the **camera, robot and noise perturbations without downloading assets** — for these three, LIBERO-Plus's code + the original LIBERO assets are enough (figure 04 does exactly this); (b) **the Language perturbation sits on the cheapest carrier**: one line in a text file; (c) the goal `(:goal (And (On akita_black_bowl_1 plate_1)))` and `obj_of_interest` do not change in any of the seven perturbations — the success criterion is fixed and only the input moves. This is the ablation logic of Lecture 4, institutionalized at benchmark scale.
 
 ---
 
-## 3. Robot başlangıç pozu: 500 sınıf, 5 büyüklük
+## 2. Camera: from five numbers to a MuJoCo pose
 
-`_initstate_I` için kod şaşırtıcı derecede basit: `robots = ["Panda" + str(I)]` (`env_wrapper.py:219-220`); problem sınıfı başına `Mounted` ekler; `mounted_panda.py`'de `MountedPanda1`…`MountedPanda500` adlı 500 sınıf vardır ve her biri **yalnızca** `init_qpos` property'sini ezer — 7 eklem açısı. Dosyayı `ast` ile okuyup tabandan farkları aldım:
+`_view_30_15_100_0_0` carries five numbers: horizontal rotation H, vertical rotation V, distance scale S/100, end yaw ER, end pitch EV. `_setup_camera` (problems/*.py:305-351) applies them to the default agentview **in a fixed order**: first V (around an axis parallel to the y axis through the pivot `(0, 0, 0.8)`), then H (around the z axis, pivot x=y=0), then S (multiplies the distance from the pivot), and finally ER/EV (the position is fixed, only the quaternion rotates). I pulled the functions out of the file and applied them to the 376 Spatial camera tasks:
 
-![Robot başlangıç pozları](images/lecture-17/03-robot-init-spread.png)
+![Camera poses](images/lecture-17/02-camera-poses.png)
 
-Üç bulgu:
+Reading it:
 
-1. **‖Δ‖ tam olarak {0.1, 0.2, 0.3, 0.4, 0.5} rad, her birinden 100 sınıf.** Yani üretim kuralı: 7 boyutta rastgele bir yön, 5 sabit büyüklükle ölçeklenmiş (makale Ek A.5'teki "0.1 to 0.5" ifadesinin kesin hâli). Eklem başına sapma ±27°'ye kadar çıkıyor; eklemler arasında sistematik bir fark yok (panel a).
-2. **Zorluk büyüklükle birlikte artıyor** (panel b): Spatial'da L1 görevlerin medyan ‖Δ‖'si 0.2, L2–L5'in 0.35–0.4. Ders 16'da "zorluk görevin değil modellerin özelliğidir" demiştik; burada o etiketin fiziksel bir karşılığı var — robot ne kadar alışılmadık bir pozdan başlarsa dört referans modelden o kadar azı toparlıyor.
-3. **Bu bozulma görüntüye iki yoldan girer:** kamerada kol farklı yerde görünür (görsel 04 alt satır — 0.5 rad'da gripper masanın öbür ucuna bakıyor) **ve** proprio vektörü (Ders 13'teki 8 proprio token) eğitimde hiç görülmemiş değerler taşır. Görsel 09'da Robot kategorisinin Spatial'da OpenVLA-OFT'yi 40'a düşürüp VLANeXt'i 79'da tutması bu ikili girişle ilgili olabilir (hipotez: VLANeXt'in proprio'yu ayrı token olarak alması vs OFT'nin birleştirmesi; Ders 13–14).
+- **The default agentview** sits at `(0.659, 0, 1.610)`, on the side of the table **opposite** the robot, 1.044 m from the pivot; its viewing axis hits the table plane at `x = −0.345`, i.e. in the region in front of the robot. This is why the robot appears at the top in LIBERO frames (the other half of the 180° rotation story from Lecture 10).
+- **Rotation tasks** (238) trace an arc between −75° and +75° horizontally; 130 of them also have a 15° vertical rotation (the inner arc — the camera drops and approaches the pivot because the rotation axis passes through the pivot). At ±75° the camera is almost at the side edge of the table: the scene looks "from the side" instead of "from the front", so the left-right order of the phrase *between the plate and the ramekin* in the image changes. Note: the paper's Appendix A.4 says a "15°–75° cone"; in the code the horizontal angle starts at 11° and the vertical is only {0, 15} — a small paper-code discrepancy.
+- **Zoom tasks** (76) move ×1.15–×2.0 away from the pivot (a straight line in the side view); objects shrink by a factor of 2 in the 128×128 frame.
+- **Endpoint tasks** (62) do not change the position at all; ±2–10° of yaw/pitch shifts the point of gaze by 10–30 cm on the table (the green grid in panel c). This is the most innocent-looking perturbation to the human eye, but as you will see in figure 09, the Camera category drops OpenVLA-OFT on Spatial from 97.6 to 88.3; the paper does not break down which sub-type does how much damage — you can break it down yourself with the `kind` column in `camera_poses.csv` (task).
 
-Tez için not: Robot ve Camera bozulmaları **dilden bağımsız** olarak modeli kırıyor. Türkçe deneyinde bunları sabit tutmak (`0_0_100_0_0_initstate_0`) şart; aksi hâlde "Türkçe mi kırdı, poz mu" ayrışmaz. LIBERO-Plus'ın Language görevlerinin kuyruğunun sabit olması bu yüzden tasarım hediyesi.
+The top two rows of figure 04 show the same math in a real render (a robosuite `Stack` scene; not a LIBERO scene):
 
----
-
-## 4. Sahne tarafı: yerleşim, ışık, doku, gürültü
-
-**Objects Layout** iki alt türdür ve ikisi de BDDL'dedir. `_add_K` dosyaları temel BDDL'e bir `add_object_region_K` (aralığı ±0.5 µm, yani sabit nokta) ve üç yeni nesne ekler; Spatial'ın 300 `_add_` dosyasında 900 nesne, 13 tür (şampuan kutusu, kola kutusu, antihistaminik şişesi, barbekü sosu…; makale 416 nesnelik bir havuzdan söz eder, Spatial'da 13'ü kullanılmış). `_levelL_sampleM` dosyaları ise **tüm** bölgelerin aralıklarını kaydırır:
-
-![Nesne yerleşimi](images/lecture-17/05-layout-shift.png)
-
-Seviye L, kaymanın üst sınırı: level 1'de ≤ 1 cm, level 5'te ≤ 5 cm (panel a; hedef kâse ile öteki nesneler eşit kayıyor — hedefe özel bir şey yok). 5 cm'lik kaymanın Spatial'da anlamı büyük: *between the plate and the ramekin* bölgesi ile *next to the ramekin* bölgesi arasındaki mesafe ~18 cm'dir (BDDL bölge merkezleri `(-0.05, 0.20)` vs `(-0.18, 0.32)`); iki kâse 5'er cm ters yöne kayarsa "arasında" ile "yanında" görsel olarak yaklaşır. JSON'da Objects Layout, Spatial'ın zorluk etiketi en yüksek kategorisidir (385 görevin 294'ü L3–L4) — ama görsel 09'da VLANeXt Spatial Layout'ta 96.6; etiketlerin dört eski modele göre üretildiğini unutma.
-
-İki ayrıntı daha: `_add_` ve `_level` dosyalarında `:language` satırı **küçük harfe çevrilmiş** ve bölgelere `(:yaw_rotation (0 0))` eklenmiş — bu dosyalar bir yazıcıyla (BDDL'i okuyup yeniden yazan script) üretilmiş; `_language_` dosyaları ise elle/metin değişikliğiyle (büyük harf duruyor). Adlarında `_language_` olmadığı için bu görevlerde komut yine **dosya adından** gelir (Ders 13 kuralı), yani küçük harf farkının modele etkisi yoktur.
-
-**Light ve Background** için kodda okunacak tek şey alt sınıfın seçtiği XML adıdır; XML'ler asset paketinde. Makale (Ek A.2–A.3): ışıkta diffuse rengi, paralel ışığın yönü, specular şiddeti ve gölge açık/kapalı; dokuda 950 dokuluk bir koleksiyondan masa yüzeyi ve duvar. Spatial'da 50 ışık, 35 masa dokusu ve 10 duvar stili (gray, dark, light, yellow, white, stucco, cream, ceramic, capriccio, canvas) kullanılmış. Görsel 09'a bakınca iki modelde de Light/Background en az zarar veren bozulmalar — DINOv2/SigLIP ve Qwen3-VL görsel omurgaları doku değişimine zaten dayanıklı (hipotez: ImageNet-ölçekli ön eğitimin mirası).
-
-**Sensor Noise** tek yerde uygulanır: `ControlEnv.step` ve `reset` (`env_wrapper.py:285-348`), `obs["agentview_image"]` üzerine, `N ≤ 10` motion blur, `≤ 20` gaussian, `≤ 30` zoom, `≤ 40` fog, `≤ 50` glass blur (her ailede 10 şiddet; makalenin Tablo 5'i bunları L1–L5 diye özetler). **Bilek kamerası ve proprio dokunulmaz.** Bu, modelin iki görüntü girdisinden yalnızca birinin bozulduğu anlamına gelir — OpenVLA-OFT_w (bilek kamerasız sürüm) Noise'da 75.8 → 49.9'a düşüyor (LIBERO-Plus liderlik tablosu); bilek kamerası bozulmaya karşı bir sigorta.
-
-![Sensör gürültüsü](images/lecture-17/07-sensor-noise.png)
-
-Şiddet 10'da motion blur ve gaussian blur sahneyi tanınmaz kılıyor; fog ise kontrastı düşürüyor ama kenarları koruyor. Spatial'da görev dağılımı: motion 76, gaussian 82, zoom 56, fog 52, glass 85. `wand` + ImageMagick yalnızca motion blur için gerekir — Ders 16'daki `libmagickwand-dev` kurulumunun tek nedeni bu 76 görev.
+![Camera and robot perturbations, rendered](images/lecture-17/04-camera-robot-renders.png)
 
 ---
 
-## 5. Language içeriden: 50 yeniden yazımın anatomisi
+## 3. Robot initial pose: 500 classes, 5 magnitudes
 
-Ders 16'da görev 0'ın 46 varyantını R1/R2/R3'e ayırmayı bugüne bırakmıştık. Makale (Ek A.6) üç türü tanımlar: **R1 Distraction** (daha uzun, sohbet havalı, göreve ilgisiz ipuçları), **R2 Common Sense** (nesne adının sağduyu betimlemesiyle değişmesi), **R3 Reasoning Chain** (çok adımlı görevlerde akıl yürütme karmaşıklığı). JSON'da tür alanı yok; `classify_rewrites.py` bu tanımlara göre regex kuralları uygular (hipotez; sınır durumlar `datasets/02`'de senin ikinci okumanı bekliyor):
+For `_initstate_I` the code is surprisingly simple: `robots = ["Panda" + str(I)]` (`env_wrapper.py:219-220`); each problem class prepends `Mounted`; `mounted_panda.py` has 500 classes named `MountedPanda1`…`MountedPanda500`, and each of them overrides **only** the `init_qpos` property — 7 joint angles. I read the file with `ast` and took the differences from the base:
 
-![Yeniden yazımların türü](images/lecture-17/06-rewrites.png)
+![Robot initial poses](images/lecture-17/03-robot-init-spread.png)
 
-Bulgular (görev 0, 50 dosya; benchmark'ta 46 — eksik 16, 17, 29, 35 türce karışık, bir örüntü yok):
+Three findings:
 
-- **R1 26, R2 tam 16, R2 hafif 6, düz parafraz 2; R3 yok** (Spatial tek adımlı, beklenen). R1 ortalama 20.8 kelime (orijinal 17), R2-tam 29.4 kelime — *"grasp the darkhued rounded container situated between the flat dish used for serving food and the small glazed ceramic dish…"* 32 kelime.
-- **R1 hiçbir dayanağı silmiyor:** 26 R1'in 26'sında *between*, *bowl* ve *plate* duruyor; eklenen şey çevre cümle (*before our guests arrive*, *remember how we organized the table*). R2-tam ise *bowl*'u da *plate*'i de 16/16'da siliyor; *between* yine 15/16'da duruyor (bir *separating*, bir *amid*). Yani LIBERO-Plus'ın Language bozulması mekânsal ilişki kelimesine neredeyse hiç dokunmuyor — **ilişki değil, nesne adı** bozuluyor. Tezin sorduğu "ilişki ifadesi anlaşılıyor mu" sorusunu bu benchmark doğrudan test etmiyor; Türkçe varyant bu boşluğu doldurur (Bölüm 6).
-- **Ders 16'daki üç görev:** 988 → R1 (*would you mind helping me…*), 994 → R2 hafif (*dark bowl … dish and the ramekin*), 995 → R1. Üçü de L1. `rewritten` koşulunda ölçtüğün şey ağırlıkla "sohbet gürültüsüne dayanıklılık".
-- **43/50 metinde büyük harf var** — `scan_tokens.lower()` hepsini küçültür; İngilizce'de zararsız (Ders 16'daki Türkçe tuzaklarının tersine).
-- İki küçük sahne hatası: 20 *between a plate and a ramekin*, 44 *between another plate and a ramekin* — sahnede tek tabak var. LLM yeniden yazımı sahneyi görmeden üretilmiş; modelin bunu umursayıp umursamadığı ayrı bir soru.
+1. **‖Δ‖ is exactly {0.1, 0.2, 0.3, 0.4, 0.5} rad, 100 classes of each.** So the generation rule is: a random direction in 7 dimensions, scaled by 5 fixed magnitudes (the precise form of the "0.1 to 0.5" phrase in the paper's Appendix A.5). The deviation per joint goes up to ±27°; there is no systematic difference between joints (panel a).
+2. **Difficulty grows with magnitude** (panel b): on Spatial the median ‖Δ‖ of L1 tasks is 0.2, and 0.35–0.4 for L2–L5. In Lecture 16 we said "difficulty is a property of the models, not of the task"; here that label has a physical counterpart — the more unusual the pose the robot starts from, the fewer of the four reference models recover.
+3. **This perturbation enters the input in two ways:** in the camera the arm appears in a different place (figure 04 bottom row — at 0.5 rad the gripper is looking at the far end of the table) **and** the proprio vector (the 8 proprio tokens of Lecture 13) carries values never seen in training. The fact that in figure 09 the Robot category drops OpenVLA-OFT to 40 on Spatial while VLANeXt holds at 79 may be related to this dual input (hypothesis: VLANeXt takes proprio as a separate token vs OFT's concatenation; Lectures 13–14).
 
-Peki hangi bozulma neyi kırıyor? VLANeXt makalesinin Tablo III'ü (LIBERO'da eğitilip LIBERO-plus'ta doğrudan test) bunu suite × kategori düzeyinde veriyor:
-
-![Bozulma başına success rate](images/lecture-17/09-vlanext-per-perturbation.png)
-
-Spatial'da her iki model için Language, Robot ve Camera'dan sonra üçüncü en zararlı bozulma (OFT 80.5, VLANeXt 86.9; temiz 97.6 / 99.0). Goal'da ise Language iki modelde de **en kötü** (53.2 / 51.5) — Ders 16'daki yorumun teyidi: sahneden görev çıkarılamayan tek suite'te komut okunmak zorunda, ve okununca yeniden yazım kırıyor. Spatial'daki ~12 puanlık düşüşün R1'den mi R2'den mi geldiği makalede yok; `datasets/02`'deki tür etiketiyle `parse_plus_log.py` çıktısını birleştirince sen hesaplayabilirsin.
-
-Bir tutarsızlık notu (hipotez): makalenin Tablo 7'si Spatial için Language 354 / Layout 312 yazar; JSON'da 390 / 385. Yedi sütunun **toplamları** JSON'la birebir tutuyor (Language 1.537, Layout 1.525), ama satırlar tutmuyor — büyük olasılıkla tabloda suite satırları karışmış (JSON'daki Spatial Language 390 = tablodaki Object Language 390). Tezinde sayı verirken JSON'u esas al, tabloya atıf yaparken bu notu düş.
+A note for the thesis: the Robot and Camera perturbations break the model **independently of language**. In the Turkish experiment it is essential to keep them fixed (`0_0_100_0_0_initstate_0`); otherwise "did Turkish break it, or the pose" cannot be separated. That the tail of LIBERO-Plus's Language tasks is fixed is therefore a design gift.
 
 ---
 
-## 6. Türkçe varyant: sekizinci bozulma olarak `_language_trK`
+## 4. The scene side: layout, light, texture, noise
 
-Şimdi üç taşıyıcıdan en ucuzunu kendi amacımıza bükelim. Hedef: LIBERO-Plus'ın kendi protokolüyle birebir uyumlu — aynı sahne, aynı init state, aynı `:goal`, aynı kod yolu (`grab_language_from_filename` else-dalı) — Türkçe bir Language görevi.
+**Objects Layout** has two sub-types and both live in the BDDL. `_add_K` files add an `add_object_region_K` (range ±0.5 µm, i.e. a fixed point) and three new objects to the base BDDL; in Spatial's 300 `_add_` files that is 900 objects of 13 types (shampoo bottle, cola can, antihistamine bottle, barbecue sauce…; the paper mentions a pool of 416 objects, Spatial uses 13 of them). `_levelL_sampleM` files, on the other hand, shift the ranges of **all** regions:
 
-![Türkçe varyant boru hattı](images/lecture-17/08-tr-variant-pipeline.png)
+![Object layout](images/lecture-17/05-layout-shift.png)
 
-`make_tr_variant.py` dört şey yapar: (1) Ders 16'nın kurallarını denetler (küçük harf, `;` yok, parantez yok, U+0307 yok, NFC); (2) temel BDDL'i kopyalayıp **yalnızca** `:language` satırını değiştirir ve `<temel>_language_trK.bddl` yazar; (3) dosyayı gerçek `bddl.parsing.scan_tokens` ile geri okuyup modele gidecek metnin yazdığınla aynı olduğunu doğrular; (4) task map satırını ve `task_classification.json` girdisini üretir. `datasets/01`'deki 10 Türkçe komutla (görev 0–4 × tr/tr2) gerçek çıktı:
+Level L is the upper bound of the shift: at level 1 ≤ 1 cm, at level 5 ≤ 5 cm (panel a; the target bowl and the other objects shift equally — there is nothing target-specific). A 5 cm shift matters a lot in Spatial: the distance between the *between the plate and the ramekin* region and the *next to the ramekin* region is ~18 cm (BDDL region centers `(-0.05, 0.20)` vs `(-0.18, 0.32)`); if the two bowls shift 5 cm each in opposite directions, "between" and "next to" get visually closer. In the JSON, Objects Layout is Spatial's category with the highest difficulty label (294 of 385 tasks are L3–L4) — but in figure 09 VLANeXt scores 96.6 on Spatial Layout; remember that the labels were produced according to four older models.
+
+Two more details: in the `_add_` and `_level` files the `:language` line has been **lowercased** and `(:yaw_rotation (0 0))` has been added to the regions — these files were produced with a writer (a script that reads the BDDL and rewrites it); the `_language_` files, on the other hand, were made by hand/text edits (uppercase remains). Since their names do not contain `_language_`, the command in these tasks still comes **from the file name** (the Lecture 13 rule), so the lowercase difference has no effect on the model.
+
+For **Light and Background**, the only thing to read in the code is the XML name chosen by the subclass; the XMLs are in the asset package. The paper (Appendix A.2–A.3): for light, the diffuse color, the direction of the parallel light, the specular intensity and shadow on/off; for texture, the table surface and wall from a collection of 950 textures. Spatial uses 50 lights, 35 table textures and 10 wall styles (gray, dark, light, yellow, white, stucco, cream, ceramic, capriccio, canvas). Looking at figure 09, Light/Background are the least damaging perturbations for both models — the DINOv2/SigLIP and Qwen3-VL visual backbones are already robust to texture change (hypothesis: a legacy of ImageNet-scale pre-training).
+
+**Sensor Noise** is applied in a single place: `ControlEnv.step` and `reset` (`env_wrapper.py:285-348`), on `obs["agentview_image"]`: `N ≤ 10` motion blur, `≤ 20` gaussian, `≤ 30` zoom, `≤ 40` fog, `≤ 50` glass blur (10 severities in each family; the paper's Table 5 summarizes them as L1–L5). **The wrist camera and proprio are untouched.** This means only one of the model's two image inputs is corrupted — OpenVLA-OFT_w (the version without the wrist camera) drops from 75.8 to 49.9 on Noise (LIBERO-Plus leaderboard); the wrist camera is a safety net against corruption.
+
+![Sensor noise](images/lecture-17/07-sensor-noise.png)
+
+At severity 10, motion blur and gaussian blur make the scene unrecognizable; fog lowers the contrast but preserves the edges. Task distribution on Spatial: motion 76, gaussian 82, zoom 56, fog 52, glass 85. `wand` + ImageMagick are needed only for motion blur — the sole reason for the `libmagickwand-dev` installation in Lecture 16 is these 76 tasks.
+
+---
+
+## 5. Language from the inside: anatomy of the 50 rewrites
+
+In Lecture 16 we left splitting task 0's 46 variants into R1/R2/R3 to today. The paper (Appendix A.6) defines three types: **R1 Distraction** (longer, chatty, task-irrelevant cues), **R2 Common Sense** (the object name replaced by a commonsense description), **R3 Reasoning Chain** (reasoning complexity in multi-step tasks). The JSON has no type field; `classify_rewrites.py` applies regex rules according to these definitions (a hypothesis; borderline cases await your second reading in `datasets/02`):
+
+![Type of the rewrites](images/lecture-17/06-rewrites.png)
+
+Findings (task 0, 50 files; 46 in the benchmark — the missing 16, 17, 29, 35 are of mixed types, no pattern):
+
+- **R1 distraction 26, R2 commonsense (full) exactly 16, R2 commonsense (light) 6, R0 plain paraphrase 2; no R3** (Spatial is single-step, as expected). R1 averages 20.8 words (original 17), R2 (full) 29.4 words — *"grasp the darkhued rounded container situated between the flat dish used for serving food and the small glazed ceramic dish…"* is 32 words.
+- **R1 removes no anchor:** in 26 of 26 R1s, *between*, *bowl* and *plate* remain; what is added is a surrounding sentence (*before our guests arrive*, *remember how we organized the table*). R2 (full), on the other hand, deletes both *bowl* and *plate* in 16/16; *between* still remains in 15/16 (one *separating*, one *amid*). So LIBERO-Plus's Language perturbation almost never touches the spatial-relation word — **the object name is perturbed, not the relation**. This benchmark does not directly test the thesis's question "is the relation expression understood"; the Turkish variant fills this gap (Section 6).
+- **The three tasks from Lecture 16:** 988 → R1 (*would you mind helping me…*), 994 → R2 commonsense (light) (*dark bowl … dish and the ramekin*), 995 → R1. All three are L1. What you measure in the `rewritten` condition is mostly "robustness to chat noise".
+- **43/50 texts contain uppercase** — `scan_tokens.lower()` lowercases all of it; harmless in English (the opposite of the Turkish traps in Lecture 16).
+- Two small scene errors: 20 *between a plate and a ramekin*, 44 *between another plate and a ramekin* — there is a single plate in the scene. The LLM rewrite was produced without seeing the scene; whether the model cares about this is a separate question.
+
+So which perturbation breaks what? Table III of the VLANeXt paper (trained on LIBERO and tested directly on LIBERO-plus) gives this at the suite × category level:
+
+![Success rate per perturbation](images/lecture-17/09-vlanext-per-perturbation.png)
+
+On Spatial, for both models Language is the third most harmful perturbation after Robot and Camera (OFT 80.5, VLANeXt 86.9; clean 97.6 / 99.0). On Goal, Language is the **worst** for both models (53.2 / 51.5) — a confirmation of the interpretation in Lecture 16: in the only suite where the task cannot be deduced from the scene, the command has to be read, and once it is read, the rewrite breaks it. Whether the ~12-point drop on Spatial comes from R1 or R2 is not in the paper; you can compute it by joining the type labels in `datasets/02` with the output of `parse_plus_log.py`.
+
+A note on an inconsistency (hypothesis): the paper's Table 7 gives Language 354 / Layout 312 for Spatial; the JSON has 390 / 385. The **totals** of the seven columns match the JSON exactly (Language 1,537, Layout 1,525), but the rows do not — most likely the suite rows are mixed up in the table (the JSON's Spatial Language 390 = the table's Object Language 390). When you give numbers in your thesis, take the JSON as the basis, and when citing the table, add this note.
+
+---
+
+## 6. The Turkish variant: `_language_trK` as the eighth perturbation
+
+Now let us bend the cheapest of the three carriers to our own purpose. Goal: a Turkish Language task that is fully compatible with LIBERO-Plus's own protocol — same scene, same init state, same `:goal`, same code path (the `grab_language_from_filename` else-branch).
+
+![Turkish variant pipeline](images/lecture-17/08-tr-variant-pipeline.png)
+
+`make_tr_variant.py` does four things: (1) checks the rules of Lecture 16 (lowercase, no `;`, no parentheses, no U+0307, NFC); (2) copies the base BDDL and changes **only** the `:language` line, writing `<base>_language_trK.bddl`; (3) reads the file back with the real `bddl.parsing.scan_tokens` and verifies that the text going to the model is the same as what you wrote; (4) produces the task-map line and the `task_classification.json` entry. Real output with the 10 Turkish commands from `datasets/01` (tasks 0–4 × tr/tr2):
 
 ```
-| dosya | yazılan | modele gidecek (task.language) | aynı mı |
-| …_language_tr1.bddl | tabak ile ramekinin arasındaki siyah kaseyi al ve tabağın üstüne koy | (aynı) | evet |
-| …_language_tr2.bddl | tabakla ramekin arasında duran siyah kâseyi kaldır ve tabağa yerleştir | (aynı) | evet |
-  … 10/10 evet
+| file | written | goes to the model (task.language) | same? |
+| …_language_tr1.bddl | tabak ile ramekinin arasındaki siyah kaseyi al ve tabağın üstüne koy | (same) | yes |
+| …_language_tr2.bddl | tabakla ramekin arasında duran siyah kâseyi kaldır ve tabağa yerleştir | (same) | yes |
+  … 10/10 yes
 ```
 
-ve bilerek bozuk iki satırla:
+and with two deliberately broken lines:
 
 ```
-| …_tr9 | Tabak ile ramekin'in arasındaki siyah KÂSEYİ al; tabağa koy | AYRIŞTIRICI HATASI: Missing close parenthesis | HAYIR |
-| …_tr8 | Işığın yanındaki (siyah) kâseyi al | AYRIŞTIRICI HATASI: TypeError: … expected str instance, list found | HAYIR |
+| …_tr9 | Tabak ile ramekin'in arasındaki siyah KÂSEYİ al; tabağa koy | PARSER ERROR: Missing close parenthesis | NO |
+| …_tr8 | Işığın yanındaki (siyah) kâseyi al | PARSER ERROR: TypeError: … expected str instance, list found | NO |
 ```
 
-Ders 16'daki öngörüler aynen çıktı: `;` kapanış parantezlerini yorum yapıyor, parantez `:language` listesinin içine liste sokuyor ve `" ".join` patlıyor; uyarı sütunu ayrıca `Işığın → işığın` ve `KÂSEYİ → kâseyi̇` (U+0307) dönüşümlerini önceden gösteriyor.
+The predictions of Lecture 16 came out exactly: `;` comments out the closing parentheses, a parenthesis inserts a list into the `:language` list and `" ".join` blows up; the warning column also shows in advance the `Işığın → işığın` and `KÂSEYİ → kâseyi̇` (U+0307) conversions.
 
-**Benchmark'a ekleme kuralları** (bunlar kodun okunmasından çıkan zorunluluklar):
+**Rules for adding to the benchmark** (these are requirements that follow from reading the code):
 
-| Adım | Neden |
+| Step | Why |
 |---|---|
-| Dosya adı `<temel>_language_trK.bddl`, görev adı `<temel>_language_trK_view_0_0_100_0_0_initstate_0` | `grab_language_from_filename` `_language_` arar, `_view_` öncesini `.bddl` yapar; `get_task_init_states` `_language_`'den bölüp temel görevin `.pruned_init` dosyasını yükler — ad şablonu bozulursa ikisi de kırılır |
-| Task map listesinin **sonuna** ekle (Spatial'da indeks 2402, 2403, …) | Araya eklersen Ders 16'daki 988/994/995 ve JSON `id`'leri kayar; `id − 1 == indeks` bozulur |
-| JSON'a `category: Language Instructions`, `difficulty_level: null` girdisi | `libero_plus_bench_eval.py` kategori istatistiğini JSON'dan toplar; girdisi olmayan görevde ne yaptığı (atlar mı, `KeyError` mi) **hipotez** — Ders 16 yama 1 dosya yolunu düzeltiyor, eksik girdiyi değil; en güvenlisi eklemek |
-| `VLANEXT_TASK_IDS=2402,2403,…` | Filtre olmadan 2.412 görevin hepsi sıraya girer (Ders 16) |
+| File name `<base>_language_trK.bddl`, task name `<base>_language_trK_view_0_0_100_0_0_initstate_0` | `grab_language_from_filename` looks for `_language_` and turns everything before `_view_` into `.bddl`; `get_task_init_states` splits at `_language_` and loads the base task's `.pruned_init` file — if the name template is broken, both break |
+| Add to the **end** of the task map list (index 2402, 2403, … on Spatial) | If you insert in the middle, 988/994/995 from Lecture 16 and the JSON `id`s shift; `id − 1 == index` breaks |
+| Add a JSON entry with `category: Language Instructions`, `difficulty_level: null` | `libero_plus_bench_eval.py` collects the category statistics from the JSON; what it does for a task with no entry (skip, or `KeyError`) is a **hypothesis** — patch 1 of Lecture 16 fixes the file path, not the missing entry; adding it is safest |
+| `VLANEXT_TASK_IDS=2402,2403,…` | Without the filter all 2,412 tasks get queued (Lecture 16) |
 
-İki yolun karşılaştırması artık net: Ders 16'nın `VLANEXT_INSTR_OVERRIDE`'ı eval katmanında çalışır, büyük/küçük harfi korur, ama LIBERO-Plus'ın "Language görevi" tanımının dışındadır (JSON'da yok, kategori istatistiğine girmez). Bugünkü BDDL yolu benchmark'ın kendi protokolüdür; Türkçe sonuçlar liderlik tablosundaki Language sütunuyla **aynı boru hattından** geçer — tez için savunması daha kolay bir metodoloji. Bedeli: komut baştan küçük harf, noktalamasız yazılmalı (zaten İngilizce varyantlar da öyle).
+The comparison of the two paths is now clear: Lecture 16's `VLANEXT_INSTR_OVERRIDE` works at the eval layer and preserves upper/lower case, but it lies outside LIBERO-Plus's definition of a "Language task" (it is not in the JSON, and does not enter the category statistics). Today's BDDL path is the benchmark's own protocol; the Turkish results pass through **the same pipeline** as the Language column of the leaderboard — a methodology that is easier to defend in a thesis. The price: the command has to be written lowercase and without punctuation from the start (the English variants are that way too).
 
-Tez bağlantısı: Bölüm 5'teki bulgu — LIBERO-Plus'ın yeniden yazımları ilişki kelimesine (*between*) dokunmuyor, R2 yalnızca nesne adlarını değiştiriyor. Türkçe varyant ikisini birden değiştirir: nesne adı (*black bowl → siyah kase/kâse*), ilişki ifadesi (*between → arasındaki*, morfolojik olarak nesneye yapışık: *ramekin-in ara-sı-nda-ki*) ve kelime sırası (ilişki ifadesi nesneden **önce**). Beklenti (hipotez): Türkçe'de düşüş R2-tam'dan büyük olmalı; `empty` tabanına yaklaşırsa model Türkçe'den hiçbir şey çıkaramıyor demektir (Chen vd. 2606.15714'ün OpenVLA-OFT bulgusu). VLANeXt'in Qwen3-VL omurgası için bu açık soru; Ders 18'in deneyi tam bu.
-
----
-
-## 7. Yazılımcı için köprüler
-
-- **Üç taşıyıcı = üç konfigürasyon kaynağı.** Görev adı ≈ query string (`?h=30&v=15&s=100`), BDDL ≈ istek gövdesi (JSON body), problem sınıfı ≈ DI container'dan ada göre çözülen implementasyon (`services.GetRequiredKeyedService<IScene>("light_10")`). Aynı endpoint, üç farklı yerden parametre alıyor; bir bozulmayı taklit edeceksen önce hangi kaynağa yazacağını bilmen gerekir.
-- **1.525 üretilmiş alt sınıf = T4 şablonundan çıkmış kod.** `Libero_Tabletop_Manipulation_tabletop_light_sync_modified_10` gibi sınıflar `__init__`'te tek bir `kwargs.update({"scene_xml": …})` yapar; C#'ta bir factory + sözlükle çözülecek şey burada her değer için ayrı sınıf. Okunması zor ama `@register_problem` dekoratörüyle isimden sınıfa gitmek O(1) — bir plugin registry.
-- **500 `MountedPandaK` = aynı arayüz, farklı sabitler.** Her sınıf tek bir property override ediyor; .NET'te `record` tipli bir `RobotInitState(float[] Qpos)` koleksiyonu olurdu. `ast` ile dosyayı okumak, reflection ile tüm türleri tarayıp property değerlerini toplamaya benziyor — kodu çalıştırmadan veri çıkarmak.
-- **Kamera dönüşümlerinin sırası = middleware sırası.** V → H → S → ER → EV; aynı beş sayı farklı sırada başka bir poz verir. Pipeline'da `UseAuthentication` ile `UseAuthorization`'ın yerini değiştirmek gibi: tip uyuyor, davranış değişiyor.
-- **`_noise_` yalnızca `agentview_image`'ı değiştiriyor = tek bir DTO alanına uygulanan dekoratör.** Bilek kamerası ve proprio aynı `obs` sözlüğünden geçiyor ama dokunulmuyor; test yazarken "hangi alan bozuldu" sorusunu sormak, "istek bozuldu" demekten daha bilgilendirici.
-- **Task map'in sonuna ekleme = veritabanında `ALTER TABLE ADD COLUMN`.** Ortaya sütun eklemek ordinal pozisyonla çalışan her şeyi kırar; LIBERO-Plus'ta indeks = ordinal pozisyon.
-- **`check_text` = model binding validation.** Kullanıcı girdisini (Türkçe komut) kaydetmeden önce ayrıştırıcının kabul edeceği biçime zorlamak; hatayı veri girişinde yakalamak, eval sırasında Colab'da 20 dakika sonra `Missing close parenthesis` görmekten ucuz.
+Connection to the thesis: the finding of Section 5 — LIBERO-Plus's rewrites do not touch the relation word (*between*), R2 changes only object names. The Turkish variant changes all of them at once: the object name (*black bowl → siyah kase/kâse*), the relation expression (*between → arasındaki*, morphologically attached to the object: *ramekin-in ara-sı-nda-ki*) and the word order (the relation expression comes **before** the object). Expectation (hypothesis): in Turkish the drop should be larger than R2-full; if it approaches the `empty` baseline, the model extracts nothing from Turkish (the finding of Chen et al. 2606.15714 for OpenVLA-OFT). For VLANeXt's Qwen3-VL backbone this is an open question; Lecture 18's experiment is exactly this.
 
 ---
 
-## 8. Bugünün görevi (15 dk)
+## 7. Bridges for the software developer
 
-Mac'te (`vla` env, model gerekmez) LIBERO-plus klonunla `classify_rewrites.py`'yi çalıştır ve `rewrites.csv`'deki **6 "R2 hafif" + 2 "R0" satırını** kendin oku: hangileri gerçekten R2 (nesne adı değişmiş), hangileri düz parafraz? Kararlarını `datasets/02-libero-plus-spatial0-rewrites/data/rewrites_task0.csv`'ye yeni bir `type_mesut` sütunu olarak ekle, kartı v0.2 yap. Sonra `camera_poses.csv`'den şunu çıkar: Spatial kamera görevlerinde `kind` (rotation/zoom/endpoint) başına zorluk dağılımı — hangi alt tür en çok L4–L5 üretiyor? Bir cümle olarak karta "Notlar"a yaz. Vaktin kalırsa görev 0 için iki yeni Türkçe komut yaz (`tr3`: robota-göre yön kullanan, Ders 7'deki şema; `tr4`: *kâse* yerine *çanak*) ve `make_tr_variant.py` ile BDDL'lerini üret — hata vermeden geçmeleri yeterli, çalıştırma Ders 18'de.
+- **Three carriers = three configuration sources.** Task name ≈ query string (`?h=30&v=15&s=100`), BDDL ≈ request body (JSON body), problem class ≈ an implementation resolved by name from the DI container (`services.GetRequiredKeyedService<IScene>("light_10")`). The same endpoint takes parameters from three different places; if you want to imitate a perturbation, you first need to know which source to write to.
+- **1,525 generated subclasses = code produced from a T4 template.** Classes like `Libero_Tabletop_Manipulation_tabletop_light_sync_modified_10` do a single `kwargs.update({"scene_xml": …})` in `__init__`; what in C# would be resolved with a factory + dictionary is a separate class per value here. Hard to read, but going from name to class with the `@register_problem` decorator is O(1) — a plugin registry.
+- **500 `MountedPandaK` = the same interface, different constants.** Each class overrides a single property; in .NET it would be a collection of a `record` type `RobotInitState(float[] Qpos)`. Reading the file with `ast` is like scanning all types with reflection and collecting the property values — extracting data without running the code.
+- **The order of camera transforms = middleware order.** V → H → S → ER → EV; the same five numbers in a different order give another pose. It is like swapping `UseAuthentication` and `UseAuthorization` in the pipeline: the types fit, the behavior changes.
+- **`_noise_` modifies only `agentview_image` = a decorator applied to a single DTO field.** The wrist camera and proprio pass through the same `obs` dictionary but are not touched; when writing tests, asking "which field was corrupted" is more informative than saying "the request was corrupted".
+- **Appending to the end of the task map = `ALTER TABLE ADD COLUMN` in a database.** Adding a column in the middle breaks everything that works by ordinal position; in LIBERO-Plus the index = the ordinal position.
+- **`check_text` = model binding validation.** Forcing user input (the Turkish command) into the format the parser will accept before saving it; catching the error at data entry is cheaper than seeing `Missing close parenthesis` 20 minutes into an eval on Colab.
 
-## Takılırsan
+---
 
-| Belirti | Çözüm |
+## 8. Today's task (15 min)
+
+On the Mac (`vla` env, no model needed), run `classify_rewrites.py` with your LIBERO-plus clone and read the **6 "R2 commonsense (light)" + 2 "R0 plain paraphrase" rows** in `rewrites.csv` yourself: which are really R2 (object name changed) and which are plain paraphrases? Add your decisions to `datasets/02-libero-plus-spatial0-rewrites/data/rewrites_task0.csv` as a new `type_mesut` column, and bump the card to v0.2. Then extract from `camera_poses.csv`: the difficulty distribution per `kind` (rotation/zoom/endpoint) among the Spatial camera tasks — which sub-type produces the most L4–L5? Write it as one sentence in the card's "Notes". If you have time left, write two new Turkish commands for task 0 (`tr3`: using robot-relative direction, the scheme from Lecture 7; `tr4`: *çanak* instead of *kâse*) and produce their BDDLs with `make_tr_variant.py` — it is enough for them to pass without errors, running happens in Lecture 18.
+
+## If you get stuck
+
+| Symptom | Fix |
 |---|---|
-| `camera_geometry.py`: `ModuleNotFoundError: scipy` | `pip install scipy` (`vla` env'inde robosuite zaten getiriyor olmalı) |
-| `robot_init_spread.py` 500 yerine 0 sınıf buluyor | Yanlış klon/kök: `<kök>/libero/libero/envs/robots/mounted_panda.py` var mı bak; LIBERO-plus'ı (orijinal LIBERO'yu değil) verdiğinden emin ol |
-| `render_perturbations.py`: Mac'te pencere açılıp kapanıyor / `GLFW` hatası | `MUJOCO_GL=glfw` ile çalıştır (Ders 9); EGL yalnızca Linux |
-| `render_perturbations.py --libero`: `Do you want to specify a custom path…` | `LIBERO_CONFIG_PATH` ayarlı değil (Ders 10 config'i); ya da Ders 16 uyarısı: LIBERO-plus ile orijinal LIBERO aynı env'de |
-| `noise_on_frame.py`: `ImportError: MagickWand shared library not found` | `brew install imagemagick` (Mac) / `apt install libmagickwand-dev` (Linux); ya da uyarıyı kabul et — motion_blur sütunu atlanır |
-| `make_tr_variant.py`: `ModuleNotFoundError: bddl` | `pip install bddl==1.0.1 future`; paket yoksa script yerel kopyayla devam eder (çıktıda "yerel kopya" yazar) |
-| `make_tr_variant.py` "HAYIR" / `AYRIŞTIRICI HATASI` | Uyarı sütununu oku: büyük harf, `;`, parantez. Komutu düzelt; `datasets/01`'deki metinler temizdir |
-| `classify_rewrites.py`: `KeyError` suite | `--suite libero_spatial` dışı için `BASES` sözlüğüne o suite'in temel görev listesini eklemen gerekir (Ders 10 `list_tasks.py`) |
+| `camera_geometry.py`: `ModuleNotFoundError: scipy` | `pip install scipy` (robosuite should already bring it in the `vla` env) |
+| `robot_init_spread.py` finds 0 classes instead of 500 | Wrong clone/root: check whether `<root>/libero/libero/envs/robots/mounted_panda.py` exists; make sure you gave LIBERO-plus (not the original LIBERO) |
+| `render_perturbations.py`: a window opens and closes on the Mac / `GLFW` error | Run with `MUJOCO_GL=glfw` (Lecture 9); EGL is Linux-only |
+| `render_perturbations.py --libero`: `Do you want to specify a custom path…` | `LIBERO_CONFIG_PATH` is not set (the config of Lecture 10); or the Lecture 16 warning: LIBERO-plus and original LIBERO in the same env |
+| `noise_on_frame.py`: `ImportError: MagickWand shared library not found` | `brew install imagemagick` (Mac) / `apt install libmagickwand-dev` (Linux); or accept the warning — the motion_blur column is skipped |
+| `make_tr_variant.py`: `ModuleNotFoundError: bddl` | `pip install bddl==1.0.1 future`; if the package is missing the script continues with a local copy (the output says "local copy") |
+| `make_tr_variant.py` "NO" / `PARSER ERROR` | Read the warning column: uppercase, `;`, parentheses. Fix the command; the texts in `datasets/01` are clean |
+| `classify_rewrites.py`: `KeyError` suite | For anything other than `--suite libero_spatial` you need to add that suite's base task list to the `BASES` dictionary (Lecture 10 `list_tasks.py`) |
 
 ---
 
-## Sonraki ders (Ders 18)
-Plan tablosundaki deney günü: **aynı görev, komut = doğru / boş / yanlış / Türkçe → success rate**. Ders 16'nın notebook'u ve bugünkü Türkçe BDDL'lerle Colab/Kaggle T4'te tasarım: Spatial görev 0'da **10 farklı init state** × 4 koşul (`clean` = orijinal komut, `empty` = `""`, `wrong` = `datasets/01`'deki `distractor` komutu — öteki kâseyi tarif eden, `tr` = `sp0_tr`), episode başına süre bütçesi ve `VLANEXT_TASK_IDS`/`VLANEXT_INSTR_OVERRIDE` ile BDDL yolunun karşılaştırılması; `results/runs.csv` şeması ve Wilson aralıklarıyla 4 satırlık sonuç tablosu. Ders 12'deki T4 süre hipotezleri ilk kez gerçek sayılarla yer değiştirecek (koşu sende); analiz Ders 19'da.
+## Next lecture (Lecture 18)
+The experiment day in the plan table: **same task, command = correct / empty / wrong / Turkish → success rate**. Design on a Colab/Kaggle T4 with Lecture 16's notebook and today's Turkish BDDLs: on Spatial task 0, **10 different init states** × 4 conditions (`clean` = the original command, `empty` = `""`, `wrong` = the `distractor` command from `datasets/01` — describing the other bowl, `tr` = `sp0_tr`), a per-episode time budget, and a comparison of the `VLANEXT_TASK_IDS`/`VLANEXT_INSTR_OVERRIDE` and BDDL paths; the `results/runs.csv` schema and a 4-row results table with Wilson intervals. The T4 time hypotheses of Lecture 12 will be replaced for the first time by real numbers (you run it); analysis in Lecture 19.
 
 ---
 
-## Kaynaklar
-- Fei, S., Wang, S., Shi, J. vd. (2025). *LIBERO-Plus: In-depth Robustness Analysis of Vision-Language-Action Models.* [arXiv:2510.13626](https://arxiv.org/abs/2510.13626) (CVPR 2026) — Ek A.1–A.7 (bozulma tanımları: O1/O2, B1/B2, L1–L4, C1–C3, qpos 0.1–0.5, R1/R2/R3, N1–N5 Tablo 5), Ek C.2 Tablo 7 (bileşim; JSON ile satır farkı Bölüm 5), Ek C.3 (zorluk), §4.1 boş komut. Kod: [github.com/sylvestf/LIBERO-plus](https://github.com/sylvestf/LIBERO-plus) (`4976dc3`) — `libero/libero/envs/env_wrapper.py:30-174` (gürültü fonksiyonları), `:207-233` (ad ayrıştırma), `:285-348` (step/reset); `envs/problems/libero_tabletop_manipulation.py:11-120` (kamera matematiği), `:305-351` (`_setup_camera`), `:414+` (üretilmiş alt sınıflar); `envs/robots/mounted_panda.py` (500 sınıf), `envs/robots/__init__.py` (`ROBOT_CLASS_MAPPING`); `bddl_files/libero_spatial/` (2.031 dosya); `benchmark/task_classification.json`; README liderlik tablosu (OFT_w Noise 49.9). Asset'ler: [HF Sylvest/LIBERO-plus](https://huggingface.co/datasets/Sylvest/LIBERO-plus/tree/main).
-- Wu, X.-M. vd. (2026). *VLANeXt: Recipes for Building Strong VLA Models.* ICML 2026. [arXiv:2602.18532v2](https://arxiv.org/abs/2602.18532v2) — Tablo III (LIBERO-plus 7 bozulma × suite, OpenVLA-OFT ve VLANeXt; görsel 09), LIBERO temiz skorları (Ders 12).
-- Hendrycks, D., Dietterich, T. (2019). *Benchmarking Neural Network Robustness to Common Corruptions and Perturbations.* [arXiv:1903.12261](https://arxiv.org/abs/1903.12261) — LIBERO-Plus'ın motion/gaussian/zoom/fog/glass blur uygulamalarının kaynağı (ImageNet-C).
-- Chen, H. vd. (2026). *Beyond English: Uncovering the Multilingual Gap in VLA Models.* [arXiv:2606.15714](https://arxiv.org/abs/2606.15714) — "komut yok" ≈ yabancı dil (Ders 15–16).
+## References
+- Fei, S., Wang, S., Shi, J. et al. (2025). *LIBERO-Plus: In-depth Robustness Analysis of Vision-Language-Action Models.* [arXiv:2510.13626](https://arxiv.org/abs/2510.13626) (CVPR 2026) — Appendix A.1–A.7 (perturbation definitions: O1/O2, B1/B2, L1–L4, C1–C3, qpos 0.1–0.5, R1/R2/R3, N1–N5 Table 5), Appendix C.2 Table 7 (composition; row discrepancy with the JSON in Section 5), Appendix C.3 (difficulty), §4.1 empty command. Code: [github.com/sylvestf/LIBERO-plus](https://github.com/sylvestf/LIBERO-plus) (`4976dc3`) — `libero/libero/envs/env_wrapper.py:30-174` (noise functions), `:207-233` (name parsing), `:285-348` (step/reset); `envs/problems/libero_tabletop_manipulation.py:11-120` (camera math), `:305-351` (`_setup_camera`), `:414+` (generated subclasses); `envs/robots/mounted_panda.py` (500 classes), `envs/robots/__init__.py` (`ROBOT_CLASS_MAPPING`); `bddl_files/libero_spatial/` (2,031 files); `benchmark/task_classification.json`; README leaderboard (OFT_w Noise 49.9). Assets: [HF Sylvest/LIBERO-plus](https://huggingface.co/datasets/Sylvest/LIBERO-plus/tree/main).
+- Wu, X.-M. et al. (2026). *VLANeXt: Recipes for Building Strong VLA Models.* ICML 2026. [arXiv:2602.18532v2](https://arxiv.org/abs/2602.18532v2) — Table III (LIBERO-plus 7 perturbations × suite, OpenVLA-OFT and VLANeXt; figure 09), clean LIBERO scores (Lecture 12).
+- Hendrycks, D., Dietterich, T. (2019). *Benchmarking Neural Network Robustness to Common Corruptions and Perturbations.* [arXiv:1903.12261](https://arxiv.org/abs/1903.12261) — the source of LIBERO-Plus's motion/gaussian/zoom/fog/glass blur implementations (ImageNet-C).
+- Chen, H. et al. (2026). *Beyond English: Uncovering the Multilingual Gap in VLA Models.* [arXiv:2606.15714](https://arxiv.org/abs/2606.15714) — "no command" ≈ foreign language (Lectures 15–16).
 - `bddl` 1.0.1 (PyPI) — `bddl/parsing.py:14-41` (`scan_tokens`), `libero/libero/envs/bddl_utils.py:83` (`" ".join`).
-- Veri: `datasets/02-libero-plus-spatial0-rewrites/` — `rewrites_task0.csv` (50 satır, tür etiketi hipotez), `tr_variants/` (10 Türkçe BDDL + task map satırları), `perturbation_table_spatial.md`.
-- Kod: `code/day17/` — `perturbation_table.py`, `camera_geometry.py` (görsel 02; LIBERO-plus fonksiyonları `ast` ile çekilip çalıştırıldı), `robot_init_spread.py` (03), `render_perturbations.py` (04; robosuite 1.4.1 + mujoco 2.3.7, EGL — Mac'te `MUJOCO_GL=glfw`), `layout_shift.py` (05), `classify_rewrites.py` (06), `noise_on_frame.py` (07; parametre tabloları env_wrapper.py'den), `make_tr_variant.py` + `tr_commands.csv` (gerçek bddl 1.0.1), `plot_day17.py` (09). Görseller 01 ve 08 Mermaid (`.mmd` yanında).
+- Data: `datasets/02-libero-plus-spatial0-rewrites/` — `rewrites_task0.csv` (50 rows, type label is a hypothesis), `tr_variants/` (10 Turkish BDDLs + task map lines), `perturbation_table_spatial.md`.
+- Code: `code/day17/` — `perturbation_table.py`, `camera_geometry.py` (figure 02; LIBERO-plus functions pulled out with `ast` and run), `robot_init_spread.py` (03), `render_perturbations.py` (04; robosuite 1.4.1 + mujoco 2.3.7, EGL — `MUJOCO_GL=glfw` on the Mac), `layout_shift.py` (05), `classify_rewrites.py` (06), `noise_on_frame.py` (07; parameter tables from env_wrapper.py), `make_tr_variant.py` + `tr_commands.csv` (real bddl 1.0.1), `plot_day17.py` (09). Figures 01 and 08 are Mermaid (`.mmd` next to them).

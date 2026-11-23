@@ -1,19 +1,19 @@
 flowchart LR
-  subgraph TABAN["Tabanlar: dil katkısı ne kadar olabilir"]
-    K["1/k ve komutsuz tavan<br/>analitik, episode yok<br/>Spatial 9/10, Goal 1/10 (Ders 19)"]:::prob
-    E["empty<br/>komut boş<br/>A1-A4 içinde"]:::in
-    W["wrong<br/>aynı sahne, başka hedef<br/>A1-A4 içinde"]:::in
+  subgraph TABAN["Baselines: how much can language contribute"]
+    K["1/k and command-free ceiling<br/>analytic, no episodes<br/>Spatial 9/10, Goal 1/10 (Lecture 19)"]:::prob
+    E["empty<br/>empty command<br/>inside A1-A4"]:::in
+    W["wrong<br/>same scene, different target<br/>inside A1-A4"]:::in
   end
-  subgraph HEDEF["Ölçülen"]
-    T["tr_a ve öbür yüzeyler"]:::key
+  subgraph HEDEF["Measured"]
+    T["tr_a and the other surfaces"]:::key
   end
-  subgraph TAVAN["Üst referanslar"]
-    C["clean<br/>eğitim komutu, İngilizce"]:::out
-    EB["EN-B<br/>yeni İngilizce tarif<br/>B3/B4; dış referans LangGap %11"]:::out
+  subgraph TAVAN["Upper references"]
+    C["clean<br/>training command, English"]:::out
+    EB["EN-B<br/>new English recipe<br/>B3/B4; external reference LangGap 11%"]:::out
   end
   K --> E --> T --> C
-  W -. "hedef sahneden mi seçiliyor" .-> T
-  T -. "blok B" .-> EB
+  W -. "is the target chosen from the scene" .-> T
+  T -. "block B" .-> EB
   classDef key fill:#ffd166,stroke:#c79a00,color:#000
   classDef in fill:#cfe8ff,stroke:#3b6ea8,color:#000
   classDef out fill:#d4f5d4,stroke:#2e8b57,color:#000

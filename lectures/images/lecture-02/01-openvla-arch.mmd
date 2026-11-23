@@ -1,14 +1,14 @@
 flowchart LR
-    IMG["📷 Görüntü<br/>224×224 RGB"] --> SIG["SigLIP<br/>(anlamsal özellikler)"]
-    IMG --> DINO["DINOv2<br/>(mekânsal / geometrik özellikler)"]
-    SIG --> CAT["kanal boyunca birleştir<br/>256 patch token"]
+    IMG["📷 Image<br/>224×224 RGB"] --> SIG["SigLIP<br/>(semantic features)"]
+    IMG --> DINO["DINOv2<br/>(spatial / geometric features)"]
+    SIG --> CAT["concatenate along channels<br/>256 patch token"]
     DINO --> CAT
-    CAT --> PROJ["Projector<br/>2 katmanlı MLP<br/>görsel → dil uzayı"]
-    TXT["💬 Komut<br/>'What action should the robot take<br/>to pick up the red cup?'"] --> TOK["LLaMA-2 tokenizer<br/>BPE"]
+    CAT --> PROJ["Projector<br/>2-layer MLP<br/>visual → language space"]
+    TXT["💬 Command<br/>'What action should the robot take<br/>to pick up the red cup?'"] --> TOK["LLaMA-2 tokenizer<br/>BPE"]
     PROJ --> LLM["LLaMA-2 7B<br/>(decoder-only transformer)"]
     TOK --> LLM
-    LLM --> OUT["7 action token<br/>(autoregressive, sırayla)"]
-    OUT --> DET["de-tokenize<br/>bin → sürekli değer"]
+    LLM --> OUT["7 action tokens<br/>(autoregressive, sequential)"]
+    OUT --> DET["de-tokenize<br/>bin → continuous value"]
     DET --> ACT["🦾 Δx Δy Δz Δr Δp Δy gripper"]
     style LLM fill:#ffd166,color:#000
     style PROJ fill:#cfe8ff,color:#000

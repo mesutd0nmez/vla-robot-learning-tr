@@ -1,7 +1,7 @@
-"""Gün 12 — VLANeXt eval.log dosyasını oku; episode tablosu + runs.csv satırı üret.
-Kullanım:  python parse_eval_log.py <eval.log> [--run-id vlanext_spatial_t4_01] [--lang en] [--condition correct] [--csv results/runs.csv]
-Log biçimi scripts/libero_bench_eval.py'deki "Episode result: ..." ve "Eval finished: ..." satırlarıdır.
-runs.csv sütunları repo CLAUDE.md'deki sözleşmeyle aynıdır:
+"""Day 12 — Read a VLANeXt eval.log file; produce an episode table + runs.csv rows.
+Usage:  python parse_eval_log.py <eval.log> [--run-id vlanext_spatial_t4_01] [--lang en] [--condition correct] [--csv results/runs.csv]
+The log format is the "Episode result: ..." and "Eval finished: ..." lines from scripts/libero_bench_eval.py.
+The runs.csv columns follow the convention in the repo's CLAUDE.md:
   run_id, model, checkpoint, suite, task_id, lang, condition, n_episodes, success_rate
 """
 import re, sys, csv, argparse, pathlib
@@ -12,7 +12,7 @@ p.add_argument("log")
 p.add_argument("--run-id", default="vlanext_t4_01")
 p.add_argument("--lang", default="en")
 p.add_argument("--condition", default="correct", help="correct | empty | wrong | paraphrase | tr")
-p.add_argument("--csv", default=None, help="varsa satırları bu CSV'ye ekler (başlık yoksa yazar)")
+p.add_argument("--csv", default=None, help="if given, appends the rows to this CSV (writes the header if missing)")
 args = p.parse_args()
 
 text = pathlib.Path(args.log).read_text(encoding="utf-8", errors="replace")
@@ -31,17 +31,17 @@ for m in ep_re.finditer(text):
     rows.append((task_id, int(trial), ok, int(steps), t))
 
 if not rows:
-    sys.exit("Log'da 'Episode result' satırı yok — eval başlamadan düşmüş olabilir; dosyanın sonuna bak.")
+    sys.exit("No 'Episode result' line in the log — the eval may have crashed before starting; look at the end of the file.")
 
-print(f"suite={suite}  checkpoint={ckpt}  episode={len(rows)}")
-print(f"{'task':>4} {'trial':>5} {'success':>7} {'steps':>5} {'süre':>8}")
+print(f"suite={suite}  checkpoint={ckpt}  episodes={len(rows)}")
+print(f"{'task':>4} {'trial':>5} {'success':>7} {'steps':>5} {'time':>8}")
 for task_id, trial, ok, steps, t in rows:
     print(f"{task_id:>4} {trial:>5} {str(ok):>7} {steps:>5} {t:>8}")
 tot_n = sum(v[0] for v in per_task.values()); tot_s = sum(v[1] for v in per_task.values())
-print(f"\nToplam: {tot_s}/{tot_n} = {100*tot_s/tot_n:.1f}%")
+print(f"\nTotal: {tot_s}/{tot_n} = {100*tot_s/tot_n:.1f}%")
 fin = re.search(r"Eval finished: .*final_success_rate=([\d.]+)%.*elapsed=(\S+)", text)
 if fin:
-    print(f"Script'in kendi özeti: SR={fin.group(1)}%  süre={fin.group(2)}")
+    print(f"Script's own summary: SR={fin.group(1)}%  time={fin.group(2)}")
 
 if args.csv:
     out = pathlib.Path(args.csv); out.parent.mkdir(parents=True, exist_ok=True)
@@ -53,4 +53,4 @@ if args.csv:
         for task_id in sorted(per_task):
             n, s = per_task[task_id]
             w.writerow([args.run_id, "VLANeXt-B", ckpt, suite, task_id, args.lang, args.condition, n, f"{s/n:.3f}"])
-    print(f"{len(per_task)} satır eklendi → {out}")
+    print(f"{len(per_task)} rows appended → {out}")

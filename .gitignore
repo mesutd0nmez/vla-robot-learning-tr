@@ -1,4 +1,4 @@
-# telifli materyal
+# copyrighted material
 *.pdf
 *.docx
 # python
@@ -17,13 +17,13 @@ __pycache__/
 *.pth
 *.npz
 
-# yerel klonlar (repo içine klonlanan dış depolar)
+# local clones (external repos cloned inside the repo)
 LIBERO/
 VLANeXt/
 LIBERO-plus/
 openvla/
 
-# Ders 22: tokenizer dosyaları ve node modülleri repoya girmez
+# Lecture 22: tokenizer files and node modules do not enter the repo
 code/day22/tokenizer.model
 code/day22/tokenizer.json
 code/day22/node_modules/

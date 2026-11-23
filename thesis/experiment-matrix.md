@@ -1,17 +1,17 @@
-# Deney matrisi — v0.1 (Ders 27)
+# Experiment matrix — v0.1 (Lecture 27)
 
-Makine tarafından okunan dosya: `experiment-matrix.csv` (19 hücre). Bütçe: `python code/day27/budget.py` (orta senaryo pilot + çekirdek ≈ 258 T4 saati; yalın matris, görev başına 20 init ≈ 108 saat). Ayrıntı ve varsayımlar: `lectures/lecture-27.md`.
+Machine-read file: `experiment-matrix.csv` (19 cells). Budget: `python code/day27/budget.py` (medium scenario pilot + core ≈ 258 T4 hours; lean matrix, 20 inits per task ≈ 108 hours). Details and assumptions: `lectures/lecture-27.md`.
 
-Hücre = sistem × suite × blok × koşul kümesi × görev başına init × tekrar. `tier`: pilot / core (çekirdek) / ext (genişletme). `status`: hazır ya da engelli (ön koşul yazılı).
+Cell = system × suite × block × condition set × inits per task × repetition. `tier`: pilot / core / ext (extension). `status`: ready or blocked (prerequisite written).
 
-Açık kararlar (Mesut / danışman):
-- **İddia birimi:** RQ-a ana iddiası görev düzeyinde mi (n_init 50, MDE 23) blok düzeyinde mi (n_init 20, havuz n=120, MDE 13)?
-- **Tekrar:** çekirdekte 1, PI yalnız pilotta (P1) — `rq-candidates.md` v0.2'ye girecek değişiklik önerisi.
-- **S-OV = 4-bit NF4** (T4); K1 (yayımlanan 84,7 ile) ve K3 (Mac bf16 ile eşli) kalibrasyonları zorunlu.
+Open decisions (Mesut / advisor):
+- **Claim unit:** is the main claim of RQ-a at the task level (n_init 50, MDE 23) or the block level (n_init 20, pool n=120, MDE 13)?
+- **Repetition:** 1 in the core, PI only in the pilot (P1) — a change proposal that will go into `rq-candidates.md` v0.2.
+- **S-OV = 4-bit NF4** (T4); the K1 (against the published 84.7) and K3 (paired with Mac bf16) calibrations are mandatory.
 
-İddia birimi kararı ve kota (Mesut doldurur):
+Claim unit decision and quota (Mesut fills in):
 ```
-iddia birimi: görev / blok   ; n_init (çekirdek): __   ; budget.py orta toplam: ___ sa ; Kaggle kotam: ___ sa/hafta
+claim unit: task / block   ; n_init (core): __   ; budget.py medium total: ___ h ; my Kaggle quota: ___ h/week
 ```
 
-Sürüm: v0.1 — Ders 27 (otomatik taslak). Değişiklikler buraya tarihle eklenir.
+Version: v0.1 — Lecture 27 (automatic draft). Changes are added here with a date.

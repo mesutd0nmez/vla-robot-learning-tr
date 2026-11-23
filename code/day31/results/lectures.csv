@@ -1,32 +1,32 @@
-lecture,phase,title,words,png,mmd,code_files,log_ran,log_py_compile,hipotez,arxiv
-1,Faz 1 Kavramlar,Ders 1 — Robot Learning Döngüsü ve Kaynak Haritası,1557,6,5,0,0,0,0,4
-2,Faz 1 Kavramlar,Ders 2 — OpenVLA'nın İçi: Görüntü + Dil Nasıl Action Olur?,1240,4,3,0,0,0,1,5
-3,Faz 1 Kavramlar,"Ders 3 — Benchmark ≠ Simülatör: LIBERO, MuJoCo ve LIBERO-Plus",1509,4,2,0,0,0,0,6
-4,Faz 1 Kavramlar,Ders 4 — Language Grounding ve Shortcut Learning: Model Dili Gerçekten Kullanıyor mu?,1081,3,2,0,0,0,2,3
-5,Faz 1 Kavramlar,"Ders 5 — Makale Derin Okuma: Tatar vd. (2026), OpenVLA'da Türkçe Komut Anlayışı",1229,4,1,0,0,0,2,4
-6,Faz 1 Kavramlar,"Ders 6 — Mekânsal Akıl Yürütmenin Temelleri: ""Dil Dünyanın Sıkıştırmasıdır""",1152,4,1,0,0,0,0,2
-7,Faz 1 Kavramlar,Ders 7 — RoomSpace: Bir Mekânsal Benchmark Nasıl Tasarlanır ve LIBERO'ya Nasıl Taşınır?,1260,3,2,0,0,0,0,3
-8,Faz 1 Kavramlar,Ders 8 — Hafta 1 Sentezi ve VLA Model Aileleri Haritası,1182,4,3,0,0,0,2,5
-9,Faz 2 Ortam,Ders 9 — Klavye Günü 1: Mac'te Python Ortamı ve İlk MuJoCo Sahnesi,874,2,1,2,0,0,0,0
-10,Faz 2 Ortam,Ders 10 — Klavye Günü 2: LIBERO Kurulumu ve İlk Episode,1114,3,2,2,0,0,0,1
-11,Faz 2 Ortam,Ders 11 — Klavye Günü 3: LIBERO Demo Verisi — HDF5'in İçi ve Gerçek Bir Trajectory,851,3,1,1,0,0,0,0
-12,Faz 2 Ortam,Ders 12 — Klavye Günü 4: Colab T4'te VLANeXt — İlk Success Rate Sayın,1939,4,2,4,0,0,4,1
-13,Faz 2 Ortam,"Ders 13 — Kod Okuma Günü: Komut Nereden Giriyor, Action Nasıl Çıkıyor, Success Nerede Hesa",2485,5,2,3,1,1,2,3
-14,Faz 2 Ortam,Ders 14 — Klavye Günü 5: OpenVLA-7B Mac'te — Tek Görüntü + Komut → 7 Token → 7-DoF Action,2810,6,2,5,2,2,4,1
-15,Faz 2 Ortam,"Ders 15 — Klavye Günü 6: Tatar Mini-Reprodüksiyonu — 5 Kare × 6 Koşul, L2 + Cosine",2850,6,2,6,3,2,7,4
-16,Faz 2 Ortam,"Ders 16 — Faz 2 Sentezi + LIBERO-Plus: Ayrı Runtime, Komutun Kod Yolu, Boş-Komut Denemesi",3388,6,2,6,4,0,7,3
-17,Faz 3 Deney tasarımı,"Ders 17 — LIBERO-Plus'ın Yedi Bozulması Kodda: Üç Taşıyıcı, Kamera Matematiği, 500 Panda, ",3458,9,2,9,1,0,8,4
-18,Faz 3 Deney tasarımı,"Ders 18 — Aynı Görev, Dört Komut: clean / empty / wrong / tr × 10 Init State — Deneyi Kur,",3011,7,2,7,0,0,3,5
-19,Faz 3 Deney tasarımı,"Ders 19 — Sonuç Analizi: Shortcut Learning Var mı, Hangi Suite'te? — Tabloyu Okuma Protoko",3156,6,2,4,0,0,5,6
-20,Faz 3 Deney tasarımı,"Ders 20 — Türkçe Mekânsal Komut Seti: 20 EN–TR Çift — İlişki Adı + Üç Ek, ""Soldaki"" Kime G",3317,6,2,6,1,0,3,5
-21,Faz 3 Deney tasarımı,"Ders 21 — Webots: Danışmanın İkinci Simülatörü — Yığındaki Yeri, Mac'te Kurulum, UR10e ile",3654,5,3,4,3,0,3,0
-22,Faz 3 Deney tasarımı,"Ders 22 — Tokenizasyon Analizi: Aynı 100 Komut, İki Tokenizer — LLaMA-2 (OpenVLA) ve Qwen3",3053,5,2,4,1,0,10,5
-23,Faz 3 Deney tasarımı,"Ders 23 — Cohn Hattı: Yedi Makale, Abstract Düzeyinde — Metin LLM'lerinde Mekânsal Akıl Yü",3837,6,2,2,2,0,2,7
-24,Faz 3 Deney tasarımı,"Ders 24 — Çözüm Yaklaşımları: Çeviri Katmanı, Çok Dilli Omurga, Türkçe LoRA, Parser + Semb",4021,7,2,4,3,1,4,10
-25,Faz 3 Deney tasarımı,"Ders 25 — Faz 3 Sentezi: Sekiz Ders Tek Sayfada, Bilanço (Gerçek / Bekleyen / Hipotez), Aç",2977,6,2,2,2,0,8,8
-26,Faz 4 Proje,"Ders 26 — Üç Aday Araştırma Sorusu: Tohumdan Sınanabilir Soruya — Null Hipotez, Değişkenle",3059,5,2,3,3,0,10,7
-27,Faz 4 Proje,"Ders 27 — Deney Matrisi: Her RQ için Veri, Model, Benchmark, Metrik, Maliyet — 19 Hücre, E",3423,6,2,3,3,0,5,5
-28,Faz 4 Proje,"Ders 28 — Baseline + Ablation: Neye Göre Okuyoruz, Hangi Fark Hangi Faktörün — Yüzey 2×2's",2812,5,2,3,3,0,6,5
-29,Faz 4 Proje,"Ders 29 — Tez Önerisi: Bir Sayfada Problem, Amaç, RQ, Yöntem, Katkı, Takvim ve Risk",2546,4,2,2,2,0,3,5
-30,Faz 4 Proje,"Ders 30 — Danışman Toplantısı: Repodaki 11 Açık Karar, Etki × Aciliyet, 30 Dakikalık Günde",2432,4,2,2,2,0,2,0
-31,Faz 4 Proje,"Ders 31 — Final: ""Bir Proje Yapalım"" Simülasyonu — Claude Önerir, Sen Tasarlarsın; Rubrik,",2502,4,2,3,3,0,4,0
+lecture,phase,title,words,png,mmd,code_files,log_ran,log_py_compile,hypothesis,arxiv
+1,Phase 1 Concepts,Lecture 1 — The Robot Learning Loop and the Source Map,1962,6,5,0,0,0,0,4
+2,Phase 1 Concepts,Lecture 2 — Inside OpenVLA: How Do Image + Language Become an Action?,1573,4,3,0,0,0,1,5
+3,Phase 1 Concepts,"Lecture 3 — Benchmark ≠ Simulator: LIBERO, MuJoCo, and LIBERO-Plus",1882,4,2,0,0,0,0,6
+4,Phase 1 Concepts,Lecture 4 — Language Grounding and Shortcut Learning: Does the Model Really Use Language?,1458,3,2,0,0,0,3,3
+5,Phase 1 Concepts,"Lecture 5 — Deep Paper Reading: Tatar et al. (2026), Turkish Command Understanding in Open",1549,4,1,0,0,0,2,4
+6,Phase 1 Concepts,"Lecture 6 — Foundations of Spatial Reasoning: ""Language Is a Compression of the World""",1523,4,1,0,0,0,0,2
+7,Phase 1 Concepts,"Lecture 7 — RoomSpace: How Is a Spatial Benchmark Designed, and How Is It Carried to LIBER",1567,3,2,0,0,0,0,3
+8,Phase 1 Concepts,Lecture 8 — Week 1 Synthesis and a Map of VLA Model Families,1398,4,3,0,0,0,2,5
+9,Phase 2 Environment,Lecture 9 — Keyboard Day 1: Python Environment on the Mac and the First MuJoCo Scene,1094,2,1,2,0,0,0,0
+10,Phase 2 Environment,Lecture 10 — Keyboard Day 2: Installing LIBERO and the First Episode,1386,3,2,2,0,0,0,1
+11,Phase 2 Environment,Lecture 11 — Keyboard Day 3: LIBERO Demo Data — Inside the HDF5 and a Real Trajectory,1045,3,1,1,0,0,0,0
+12,Phase 2 Environment,Lecture 12 — Keyboard Day 4: VLANeXt on a Colab T4 — Your First Success Rate Number,2479,4,2,4,0,0,4,1
+13,Phase 2 Environment,"Lecture 13 — Code-Reading Day: Where the Command Enters, How the Action Comes Out, Where S",3193,5,2,3,1,1,2,3
+14,Phase 2 Environment,Lecture 14 — Keyboard Day 5: OpenVLA-7B on the Mac — Single Image + Command → 7 Tokens → 7,3491,6,2,5,2,2,4,1
+15,Phase 2 Environment,"Lecture 15 — Keyboard Day 6: Tatar Mini-Reproduction — 5 Frames × 6 Conditions, L2 + Cosin",3702,6,2,6,3,2,7,4
+16,Phase 2 Environment,"Lecture 16 — Phase 2 Synthesis + LIBERO-Plus: A Separate Runtime, the Command's Code Path,",4307,6,2,6,4,0,7,3
+17,Phase 3 Experiment design,"Lecture 17 — LIBERO-Plus in Code: Three Carriers, Camera Math, 500 Pandas, R1/R2 and the T",4418,9,2,9,1,0,8,4
+18,Phase 3 Experiment design,"Lecture 18 — Same Task, Four Commands: clean / empty / wrong / tr × 10 Init States — Set U",3912,7,2,7,0,0,3,5
+19,Phase 3 Experiment design,"Lecture 19 — Result Analysis: Is There Shortcut Learning, and in Which Suite? — A Protocol",4225,6,2,4,0,0,5,6
+20,Phase 3 Experiment design,Lecture 20 — The Turkish Spatial Command Set: 20 EN–TR Pairs — Relation Noun + Three Suffi,4478,6,2,6,1,0,3,5
+21,Phase 3 Experiment design,"Lecture 21 — Webots: Your Advisor's Second Simulator — Its Place in the Stack, Installing ",4756,5,3,4,3,0,3,0
+22,Phase 3 Experiment design,"Lecture 22 — Tokenization Analysis: The Same 100 Commands, Two Tokenizers — How Do LLaMA-2",4008,5,2,4,1,0,10,5
+23,Phase 3 Experiment design,Lecture 23 — The Cohn Line: Seven Papers at Abstract Level — How Spatial Reasoning in Text,4972,6,2,2,2,0,2,7
+24,Phase 3 Experiment design,"Lecture 24 — Solution Approaches: Translation Layer, Multilingual Backbone, Turkish LoRA, ",5064,7,2,4,3,1,4,10
+25,Phase 3 Experiment design,"Lecture 25 — Phase 3 Synthesis: Eight Lectures on One Page, the Ledger (Real / Pending / H",3719,6,2,2,2,0,8,8
+26,Phase 4 Project,Lecture 26 — Three Candidate Research Questions: From Seed to Testable Question — Null Hyp,3886,5,2,3,3,0,10,7
+27,Phase 4 Project,"Lecture 27 — Experiment Matrix: Data, Model, Benchmark, Metric, Cost for Each RQ — 19 Cell",4250,6,2,3,3,0,5,5
+28,Phase 4 Project,"Lecture 28 — Baseline + Ablation: What We Read Against, Which Difference Belongs to Which ",3612,5,2,3,3,0,6,5
+29,Phase 4 Project,"Lecture 29 — Thesis Proposal: Problem, Aim, RQs, Method, Contribution, Schedule and Risk o",3448,4,2,2,2,0,3,5
+30,Phase 4 Project,"Lecture 30 — Advisor Meeting: the 11 Open Decisions in the Repo, Impact × Urgency, a 30-Mi",3182,4,2,2,2,0,2,0
+31,Phase 4 Project,"Lecture 31 — Final: ""Let's Do a Project"" Simulation — Claude Proposes, You Design; Rubric,",3239,4,2,3,3,0,4,0

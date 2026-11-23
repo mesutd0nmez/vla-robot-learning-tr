@@ -1,13 +1,13 @@
-"""Ders 22 — kenar durumları: iki tokenizer'a tek tek sorular (ders §4'teki tuzaklar buradan).
+"""Lecture 22 — edge cases: questions put to each of the two tokenizers (the pitfalls in lecture §4 come from here).
 
   python probe_edge_cases.py --llama tokenizer.model --qwen Qwen/Qwen3-VL-2B-Instruct
 
-1. OpenVLA'nın `.lower()`'ı Türkçe 'İ'ye ne yapar? ('İçine koy' → 'i̇çine koy': i + U+0307 → LLaMA'da bayt kırıntısı)
-2. Türkçe harfler tek başına ve sözcük başında (▁ç var mı?) — LLaMA'nın tek başına ▁ token'larının nedeni
-3. Qwen3'te cümle başı / cümle ortası farkı (boşluk önekli olup olmaması)
-4. OpenVLA action aralığı (LLaMA-2 id 31744–31999): Türkçe, Korece, Japonca, Çince, Rusça, Arapça cümlelerde çakışma
-5. Tatar vd.'nin 'Kal|dır' örneği (Ders 5/15): gerçek LLaMA-2 tokenizer ne veriyor?
-6. Yanlış arkadaşlar: Türkçe 'it' (itmek) = İngilizce 'it' (id 372); 'soldaki' içindeki 'sold'
+1. What does OpenVLA's `.lower()` do to the Turkish 'İ'? ('İçine koy' → 'i̇çine koy': i + U+0307 → a byte fragment in LLaMA)
+2. Turkish letters on their own and at the start of a word (is there a ▁ç?) — the reason for LLaMA's standalone ▁ tokens
+3. The sentence-initial / sentence-medial difference in Qwen3 (whether there is a space prefix)
+4. OpenVLA action range (LLaMA-2 ids 31744–31999): overlap in Turkish, Korean, Japanese, Chinese, Russian, Arabic sentences
+5. Tatar et al.'s 'Kal|dır' example (Lecture 5/15): what does the real LLaMA-2 tokenizer give?
+6. False friends: Turkish 'it' (to push) = English 'it' (id 372); the 'sold' inside 'soldaki'
 """
 import argparse
 import os
@@ -30,37 +30,37 @@ if __name__ == "__main__":
     a = ap.parse_args()
     L, Q = load_llama(a.llama), HFTokenizer(a.qwen, "qwen3")
 
-    print("1) lower() ve İ")
+    print("1) lower() and İ")
     for s in ("İçine koy", "İçine koy".lower(), "içine koy"):
         print(f"  {s!r}")
         show(L, s); show(Q, s)
 
-    print("\n2) Türkçe harfler: tek başına id / sözcük başında (▁+harf) var mı?")
+    print("\n2) Turkish letters: standalone id / is there a word-initial (▁+letter) piece?")
     for ch in "çğıöşüâ":
         has = L.sp.piece_to_id("▁" + ch) != L.sp.unk_id()
-        print(f"  {ch}: LLaMA '{ch}'={L.sp.piece_to_id(ch)}  '▁{ch}' {'VAR' if has else 'YOK → tek başına ▁ + ' + ch}   Qwen ' {ch}' → {Q.encode(' ' + ch)[1]}")
+        print(f"  {ch}: LLaMA '{ch}'={L.sp.piece_to_id(ch)}  '▁{ch}' {'YES' if has else 'NO -> standalone ▁ + ' + ch}   Qwen ' {ch}' → {Q.encode(' ' + ch)[1]}")
 
-    print("\n3) Qwen3 cümle başı / ortası")
+    print("\n3) Qwen3 sentence-initial / medial")
     for w in ("arasındaki", "soldaki", "öndeki", "kaseyi", "tabağın", "kaldır"):
-        print(f"  {w:12s} başta {Q.encode(w)[1]}   ortada {Q.encode(' ' + w)[1]}")
+        print(f"  {w:12s} initial {Q.encode(w)[1]}   medial {Q.encode(' ' + w)[1]}")
 
-    print("\n4) Action aralığı (31744–31999) çakışması")
+    print("\n4) Overlap with the action range (31744–31999)")
     tests = {"tr": "kaseyi tabağın üstüne koy", "ko": "검은 그릇을 접시 위에 놓으세요", "ja": "黒いボウルを皿の上に置いてください",
              "zh": "把黑色的碗放在盘子上", "ru": "положи чёрную миску на тарелку", "ar": "ضع الوعاء الأسود على الطبق",
              "en": "put the bowl on the plate"}
     for k, s in tests.items():
         ids, pieces, _ = L.encode(s)
         hit = [(i, p) for i, p in zip(ids, pieces) if i in LLAMA_ACTION_IDS]
-        print(f"  {k}: LLaMA {len(ids):2d} token, action aralığında {len(hit)} {hit[:4]}   Qwen {len(Q.encode(s)[0])} token")
-    print("  aralığın ilk 10 parçası:", " ".join(L.id_to_piece(i) for i in list(LLAMA_ACTION_IDS)[:10]))
+        print(f"  {k}: LLaMA {len(ids):2d} tokens, {len(hit)} in the action range {hit[:4]}   Qwen {len(Q.encode(s)[0])} token")
+    print("  first 10 pieces of the range:", " ".join(L.id_to_piece(i) for i in list(LLAMA_ACTION_IDS)[:10]))
 
     print("\n5) Tatar vd. 'Kal|dır'")
     for s in ("Kırmızı küpü kaldır", "Kırmızı küpü Kaldır", "kaldır", "Kaldır"):
         print(f"  {s!r}"); show(L, s); show(Q, s)
 
-    print("\n6) Yanlış arkadaşlar")
+    print("\n6) False friends")
     for s in ("tabağı ocağın önüne it", "place it on the plate", "soldaki", "sold", "sol", "al", "et al."):
         print(f"  {s!r}")
         ids = show(L, s)
-        print(f"           LLaMA id'leri {ids}")
+        print(f"           LLaMA ids {ids}")
         show(Q, s)

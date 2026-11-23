@@ -1,11 +1,11 @@
-"""Ders 26 — görsel 03 ve 05.
+"""Lecture 26 — figures 03 and 05.
 
-  python plot_day26.py <çıktı_klasörü/>   (varsayılan: ../../lectures/images/lecture-26/)
+  python plot_day26.py <output_folder/>   (default: ../../lectures/images/lecture-26/)
 
-03-rq-coverage.png : Deney uzayı (blok × koşul) — hangi hücreyi hangi RQ ister; blok sayıları datasets/04/data/pairs.csv'den
-                     GERÇEK (A 6 / B 6 / C 6 / D 2), komutsuz üst sınır Ders 19'dan (Spatial 9/10, Goal 1/10).
-05-literature-map.png : Türkçe × VLA hücresinin literatürdeki yeri — her çalışma, raporladığı özelliklerle
-                        (dil / komut manipülasyonu / döngü / boş-komut tabanı) yerleştirildi. Kaynaklar panelde; veri değil, konum.
+03-rq-coverage.png : Experiment space (block × condition) — which RQ needs which cell; block counts REAL from datasets/04/data/pairs.csv
+                     (A 6 / B 6 / C 6 / D 2), no-command upper bound from Lecture 19 (Spatial 9/10, Goal 1/10).
+05-literature-map.png : Where the Turkish × VLA cell sits in the literature — each study is placed by the properties it reports
+                        (language / command manipulation / loop / empty-command baseline). Sources in the panel; a position, not data.
 """
 import csv, os, sys
 import matplotlib; matplotlib.use("Agg")
@@ -18,7 +18,7 @@ plt.rcParams.update({"font.size": 10, "axes.spines.top": False, "axes.spines.rig
 Y, B, G, R = "#ffd166", "#cfe8ff", "#d4f5d4", "#ffd6d6"
 YD, BD, GD, RD = "#c79a00", "#3b6ea8", "#2e8b57", "#c0392b"
 
-# ---------- blok sayıları (gerçek) ----------
+# ---------- block counts (real) ----------
 pairs = os.path.join(os.path.dirname(__file__), "../../datasets/04-tr-spatial-commands/data/pairs.csv")
 blocks = {}
 with open(pairs, encoding="utf-8") as f:
@@ -26,12 +26,12 @@ with open(pairs, encoding="utf-8") as f:
         b = row["block"]; blocks.setdefault(b, {"n": 0, "suite": row["suite"], "tier2": 0})
         blocks[b]["n"] += 1
         if row["tier"] == "2": blocks[b]["tier2"] += 1
-print("bloklar:", blocks)
+print("blocks:", blocks)
 
-# ---------- 03: deney uzayı ----------
-conds = ["clean (EN)", "empty", "wrong", "tr_a", "tr_b", "tr_ascii", "tr_bare", "EN-B (yeni tarif)", "tr + MT", "tr + parser", "tr + LoRA"]
-cols = ["A\nSpatial eğitilmiş", "B\nSpatial yeni tarif", "C\nGoal eğitilmiş", "D\nGoal eğitilmemiş"]
-# hücre → (RQ etiketi, renk). "" = bu RQ'larda yok.
+# ---------- 03: experiment space ----------
+conds = ["clean (EN)", "empty", "wrong", "tr_a", "tr_b", "tr_ascii", "tr_bare", "EN-B (new recipe)", "tr + MT", "tr + parser", "tr + LoRA"]
+cols = ["A\nSpatial trained", "B\nSpatial new recipe", "C\nGoal trained", "D\nGoal untrained"]
+# cell -> (RQ label, color). "" = absent in these RQs.
 M = {
     "clean (EN)":        ["a b c", "b", "a b c", "—"],
     "empty":             ["a b c", "b c", "a b c", "—"],
@@ -40,7 +40,7 @@ M = {
     "tr_b":              ["b", "b", "b", "—"],
     "tr_ascii":          ["b", "b", "b", "—"],
     "tr_bare":           ["b", "", "b", "—"],
-    "EN-B (yeni tarif)": ["", "b", "", "—"],
+    "EN-B (new recipe)": ["", "b", "", "—"],
     "tr + MT":           ["c", "(=EN-B)", "c", "—"],
     "tr + parser":       ["c", "(=EN-B)", "c", "—"],
     "tr + LoRA":         ["c", "c", "c", "—"],
@@ -51,7 +51,7 @@ for i, c in enumerate(conds):
     for j in range(nc):
         v = M[c][j]
         if v == "—":
-            col, txt = "#eeeeee", "predicate yok"
+            col, txt = "#eeeeee", "no predicate"
         elif v == "":
             col, txt = "white", ""
         elif v.startswith("(="):
@@ -63,41 +63,41 @@ for i, c in enumerate(conds):
         ax.text(j + 0.5, nr - 1 - i + 0.5, txt, ha="center", va="center", fontsize=8.6, color="#222")
 ax.set_xlim(0, nc); ax.set_ylim(0, nr)
 ax.set_xticks([j + 0.5 for j in range(nc)])
-ax.set_xticklabels([f"{cols[j]}\n({blocks[k]['n']} çift; tavan {t})" for j, (k, t) in enumerate([("A", "9/10"), ("B", "9/10"), ("C", "1/10"), ("D", "1/10")])], fontsize=9)
+ax.set_xticklabels([f"{cols[j]}\n({blocks[k]['n']} pairs; ceiling {t})" for j, (k, t) in enumerate([("A", "9/10"), ("B", "9/10"), ("C", "1/10"), ("D", "1/10")])], fontsize=9)
 ax.set_yticks([nr - 1 - i + 0.5 for i in range(nr)]); ax.set_yticklabels(conds, fontsize=9)
 ax.tick_params(length=0)
 for s in ax.spines.values(): s.set_visible(False)
-ax.set_title("Ders 26 — Deney uzayı: blok (datasets/04, gerçek sayılar) × komut koşulu → hangi RQ hangi hücreyi ister\n"
-             "sarı = RQ-a'nın çekirdeği (Ders 18 koşulları), mavi = RQ-b'nin eklediği, yeşil = RQ-c'nin eklediği; "
-             "tavan = Ders 19 komutsuz üst sınır", fontsize=10.5)
-ax.text(0, -1.25, "B bloğunda tier 2 = %d çift karşı-olgusal BDDL ister (bddl_cf/, hedef bowl_2). MT/parser B'de İngilizce'ye indirir → sonucu EN-B satırıdır; "
-        "güçlü okuma yalnız LoRA sütununda ölçülür." % blocks["B"]["tier2"], fontsize=8.5, color="#444")
+ax.set_title("Lecture 26 — Experiment space: block (datasets/04, real counts) × command condition -> which RQ needs which cell\n"
+             "yellow = the core of RQ-a (Lecture 18 conditions), blue = added by RQ-b, green = added by RQ-c; "
+             "ceiling = Lecture 19 no-command upper bound", fontsize=10.5)
+ax.text(0, -1.25, "In block B, tier 2 = %d pairs need a counterfactual BDDL (bddl_cf/, target bowl_2). MT/parser reduce to English in B -> its result is the EN-B row; "
+        "strong reading is measured only in the LoRA row." % blocks["B"]["tier2"], fontsize=8.5, color="#444")
 fig.tight_layout(); fig.savefig(out + "03-rq-coverage.png", dpi=160); plt.close(fig)
 
-# ---------- 05: literatür haritası ----------
-# x: komut manipülasyonu türü, y: dil. İşaret: kapalı döngü (daire) / açık döngü (kare). Kenar: boş-komut tabanı var mı.
-xs = {"çeviri (eğitim cümlesi)": 0, "parafraz / yeniden yazım": 1, "aynı sahnede karşı-olgusal": 2, "boş / yanlış komut": 3}
-ys = {"yalnızca İngilizce": 0, "çok dilli (TR yok)": 1, "Türkçe": 2}
+# ---------- 05: literature map ----------
+# x: type of command manipulation, y: language. Marker: closed loop (circle) / open loop (square). Edge: is there an empty-command baseline.
+xs = {"translation (training sentence)": 0, "paraphrase / rewrite": 1, "counterfactual in the same scene": 2, "empty / wrong command": 3}
+ys = {"English only": 0, "multilingual (no TR)": 1, "Turkish": 2}
 studies = [
-    # ad, x, y, kapalı döngü?, boş taban?, not
+    # name, x, y, closed loop?, empty baseline?, note
     ("LIBERO-Plus Language\n(2510.13626)", 1, 0, True, False, ""),
     ("LIBERO-PRO\n(2510.03827)", 1, 0, True, False, ""),
     ("LIBERO-CF\n(2602.17659)", 2, 0, True, True, "vision-only"),
-    ("LangGap\n(2603.00592)", 2, 0, True, False, "1/k argümanı"),
-    ("Zhan vd.\n(2601.04052)", 3, 0, True, True, "blank"),
-    ("Dong vd.\n(2606.11906)", 0, 1, True, False, "9 dil"),
-    ("Chen vd.\n(2606.15714)", 0, 1, True, True, "4 dil + Ø"),
-    ("Tatar vd. 2026\n(SIU)", 0, 2, False, False, "1 kare, L2"),
-    ("Ders 15 mini\n(açık döngü)", 2, 2, False, True, "L2/cos"),
-    ("RQ-a / RQ-b / RQ-c\n(bu tez)", 2, 2, True, True, "empty + wrong + CF"),
+    ("LangGap\n(2603.00592)", 2, 0, True, False, "1/k argument"),
+    ("Zhan et al.\n(2601.04052)", 3, 0, True, True, "blank"),
+    ("Dong et al.\n(2606.11906)", 0, 1, True, False, "9 languages"),
+    ("Chen et al.\n(2606.15714)", 0, 1, True, True, "4 languages + Ø"),
+    ("Tatar et al. 2026\n(SIU)", 0, 2, False, False, "1 frame, L2"),
+    ("Lecture 15 mini\n(open loop)", 2, 2, False, True, "L2/cos"),
+    ("RQ-a / RQ-b / RQ-c\n(this thesis)", 2, 2, True, True, "empty + wrong + CF"),
 ]
 fig, ax = plt.subplots(figsize=(12.5, 6.2))
 jit = {}
 for name, x, y, closed, empty, note in studies:
     k = (x, y); jit[k] = jit.get(k, 0) + 1
     dx = (jit[k] - 1) * 0.0; dy = (jit[k] - 1) * 0.32
-    col = Y if "bu tez" in name else (B if y < 2 else R)
-    if "bu tez" in name: col = G
+    col = Y if "this thesis" in name else (B if y < 2 else R)
+    if "this thesis" in name: col = G
     ax.scatter(x + dx, y + dy, s=520, marker="o" if closed else "s", facecolor=col,
                edgecolor=(GD if empty else "#999"), linewidth=(2.6 if empty else 1.0), zorder=3)
     ax.text(x + dx + 0.13, y + dy, name + (f"  — {note}" if note else ""), va="center", fontsize=8.6)
@@ -105,8 +105,8 @@ ax.set_xticks(list(xs.values())); ax.set_xticklabels(list(xs.keys()), fontsize=9
 ax.set_yticks(list(ys.values())); ax.set_yticklabels(list(ys.keys()), fontsize=9.5)
 ax.set_xlim(-0.4, 4.2); ax.set_ylim(-0.5, 2.9)
 ax.grid(alpha=0.2)
-ax.set_title("Ders 26 — Türkçe × kapalı döngü × karşı-olgusal hücresi literatürde boş\n"
-             "daire = kapalı döngü (success), kare = açık döngü (action mesafesi); kalın yeşil kenar = boş-komut tabanı raporlanmış", fontsize=10.5)
-ax.text(-0.35, 2.75, "Konumlar çalışmaların raporladığı özelliklerden; sayı değil, sınıflama (kaynaklar Ders 23–25 ve derste).", fontsize=8.5, color="#444")
+ax.set_title("Lecture 26 — The Turkish × closed-loop × counterfactual cell is empty in the literature\n"
+             "circle = closed loop (success), square = open loop (action distance); thick green edge = empty-command baseline reported", fontsize=10.5)
+ax.text(-0.35, 2.75, "Positions come from the properties the studies report; a classification, not a number (sources in Lectures 23–25 and in the lecture).", fontsize=8.5, color="#444")
 fig.tight_layout(); fig.savefig(out + "05-literature-map.png", dpi=160); plt.close(fig)
-print("yazıldı:", out + "03-rq-coverage.png", out + "05-literature-map.png")
+print("written:", out + "03-rq-coverage.png", out + "05-literature-map.png")

@@ -1,145 +1,145 @@
-# Ders 3 — Benchmark ≠ Simülatör: LIBERO, MuJoCo ve LIBERO-Plus
+# Lecture 3 — Benchmark ≠ Simulator: LIBERO, MuJoCo, and LIBERO-Plus
 
-**Faz 1 / Gün 3** · **Okuma süresi:** ~40 dk
-**Ön koşul:** Ders 1–2 · **Tamamlayıcı okuma:** `resources/robot-learning-vla-intro-tr.md` §15–17, §22–24
+**Phase 1 / Day 3** · **Reading time:** ~40 min
+**Prerequisite:** Lectures 1–2 · **Complementary reading:** `resources/robot-learning-vla-intro-tr.md` §15–17, §22–24
 
-> **Bugünün tek cümlesi:** Simülatör *fiziği* taklit eder, benchmark *sınavı* tanımlar; LIBERO bir sınavdır, MuJoCo o sınavın yapıldığı salondur — ve LIBERO-Plus, sınavın fazla kolay olduğunu gösteren yeni soru setidir.
+> **Today in one sentence:** A simulator imitates *physics*, a benchmark defines the *exam*; LIBERO is an exam, MuJoCo is the hall where that exam is taken — and LIBERO-Plus is the new question set showing that the exam was too easy.
 
 ---
 
-## 1. Dört katman, dört ayrı şey
+## 1. Four layers, four separate things
 
-Bir VLA'yı simülasyonda çalıştırdığında aslında dört katmanlı bir yığın çalışır. Faz 2'de her birini ayrı ayrı kuracaksın; hangi hatanın hangi katmandan geldiğini bilmek saatler kazandırır.
+When you run a VLA in simulation, a four-layer stack is actually running. In Phase 2 you will set each one up separately; knowing which error comes from which layer saves hours.
 
-![Yazılım yığını](images/lecture-03/01-stack.png)
+![Software stack](images/lecture-03/01-stack.png)
 
-| Katman | Rolü | Sen ne yaparsın? |
+| Layer | Role | What do you do? |
 |---|---|---|
-| **MuJoCo** | Fizik motoru: rijit cisimler, eklemler, temas, sürtünme, yerçekimi. "Bardak düşer mi, gripper kayar mı" sorusunu o cevaplar. | `pip install mujoco`; Gün 9'da tek başına çalıştıracaksın |
-| **robosuite** | MuJoCo üstünde robot katmanı: Franka Panda modeli, kontrolcüler, kameralar, Gym benzeri `reset()` / `step()` API'si | Doğrudan kodlamazsın; LIBERO'nun bağımlılığı |
-| **LIBERO** | Benchmark: 130 görev tanımı, her görev için 50 insan demosu, sabit başlangıç durumları, başarı kriteri | Gün 10–11'de env açıp demo oynatacaksın |
-| **Eval harness** | Policy ile ortamı birbirine bağlayan döngü; episode sayar, success rate hesaplar | VLANeXt'in `libero_bench_eval` script'i (Gün 12–13) |
+| **MuJoCo** | Physics engine: rigid bodies, joints, contact, friction, gravity. It answers "does the cup fall, does the gripper slip". | `pip install mujoco`; on Day 9 you will run it on its own |
+| **robosuite** | The robot layer on top of MuJoCo: Franka Panda model, controllers, cameras, a Gym-like `reset()` / `step()` API | You don't code against it directly; it is LIBERO's dependency |
+| **LIBERO** | Benchmark: 130 task definitions, 50 human demos per task, fixed initial states, success criterion | On Days 10–11 you will open an env and replay a demo |
+| **Eval harness** | The loop connecting the policy to the environment; counts episodes, computes success rate | VLANeXt's `libero_bench_eval` script (Days 12–13) |
 
-Sık yapılan hata: "MuJoCo'yu öğreniyorum" diyerek fizik motoruna gömülmek. Senin için MuJoCo bir altyapı; onu *kurabilmen* yeterli, içini bilmen gerekmiyor.
+A common mistake: saying "I'm learning MuJoCo" and getting buried in the physics engine. For you MuJoCo is infrastructure; being able to *install* it is enough, you don't need to know its internals.
 
-### MuJoCo kısaca
-*Multi-Joint dynamics with Contact.* 2012'de Emo Todorov tarafından yazıldı, 2021'de DeepMind satın alıp açık kaynak yaptı. Robot öğrenmesinde fiili standart. Apple Silicon için hazır arm64 wheel'i var — Mac'inde sorunsuz çalışır. Sahne tanımı XML (MJCF) ile yapılır; LIBERO bu XML'leri senin için üretir.
+### MuJoCo in brief
+*Multi-Joint dynamics with Contact.* Written by Emo Todorov in 2012, acquired by DeepMind and open-sourced in 2021. The de facto standard in robot learning. It has a ready-made arm64 wheel for Apple Silicon — it runs without problems on your Mac. Scenes are defined in XML (MJCF); LIBERO generates these XMLs for you.
 
-### robosuite kısaca
-Stanford'un MuJoCo üstüne kurduğu manipülasyon kütüphanesi. LIBERO'nun kullandığı kontrolcü **OSC_POSE** (Operational Space Control): policy'nin ürettiği 7-DoF delta action'ı (Δx Δy Δz Δroll Δpitch Δyaw gripper) alır, eklem torklarına çevirir. Yani Ders 2'deki 7 sayı doğrudan motorlara gitmez; araya bu kontrolcü girer. Gözlem olarak iki kamera verir: **agentview** (üçüncü şahıs, masanın karşısından) ve **eye-in-hand** (bilek kamerası). İkisi de 128×128 (OpenVLA 224×224'e yeniden boyutlandırır).
+### robosuite in brief
+Stanford's manipulation library built on top of MuJoCo. The controller LIBERO uses is **OSC_POSE** (Operational Space Control): it takes the 7-DoF delta action produced by the policy (Δx Δy Δz Δroll Δpitch Δyaw gripper) and converts it into joint torques. That is, the 7 numbers from Lecture 2 do not go directly to the motors; this controller sits in between. As observations it provides two cameras: **agentview** (third-person, from across the table) and **eye-in-hand** (wrist camera). Both are 128×128 (OpenVLA resizes to 224×224).
 
 ---
 
-## 2. LIBERO: sınavın tanımı
+## 2. LIBERO: the definition of the exam
 
-**LIBERO** (Liu vd., NeurIPS 2023) aslında *lifelong learning* — robotun görevleri sırayla öğrenirken eskiyi unutmaması — için tasarlandı. Ama VLA topluluğu onu başka bir amaçla benimsedi: **standart fine-tune + eval sınavı.** OpenVLA, OFT, π0, VLANeXt hepsi sonuçlarını LIBERO'da raporlar; bu yüzden makaleleri karşılaştırabiliyorsun.
+**LIBERO** (Liu et al., NeurIPS 2023) was actually designed for *lifelong learning* — the robot not forgetting old tasks as it learns tasks in sequence. But the VLA community adopted it for a different purpose: **a standard fine-tune + eval exam.** OpenVLA, OFT, π0, VLANeXt all report their results on LIBERO; that is why you can compare the papers.
 
-### 2.1 Görevler nasıl tanımlı?
-Her görev bir **BDDL** dosyasıdır (PDDL'in robot sürümü): hangi nesneler var, nerede başlıyorlar, başarı koşulu ne (ör. `(On akita_black_bowl plate)`). Başarı predicate ile kontrol edilir — "bardak tabağın üstünde mi" sorusunu simülatör geometriden cevaplar; insan yargısı yoktur. Bu, success rate'i tamamen otomatik ve tekrarlanabilir yapar.
+### 2.1 How are tasks defined?
+Each task is a **BDDL** file (the robot version of PDDL): which objects exist, where they start, what the success condition is (e.g. `(On akita_black_bowl plate)`). Success is checked with a predicate — the question "is the cup on the plate" is answered by the simulator from geometry; there is no human judgment. This makes the success rate fully automatic and reproducible.
 
-### 2.2 Demonstrasyonlar
-Her görev için **50 insan demosu**, 3D fare (SpaceMouse) ile teleoperasyon. Her demo bir HDF5 dosyasında `(görüntü, robot durumu, action)` zaman serisi olarak saklanır — Ders 1'deki trajectory tam olarak budur. Gün 11'de bu dosyayı açacaksın.
+### 2.2 Demonstrations
+**50 human demos** per task, teleoperated with a 3D mouse (SpaceMouse). Each demo is stored in an HDF5 file as an `(image, robot state, action)` time series — the trajectory from Lecture 1 is exactly this. On Day 11 you will open this file.
 
-### 2.3 Dört suite
-VLA makalelerinde kullanılan dört suite, her biri 10 görev, her biri *farklı bir genelleme türünü* yalıtır:
+### 2.3 Four suites
+The four suites used in VLA papers have 10 tasks each, and each isolates *a different kind of generalization*:
 
-![LIBERO suite'leri](images/lecture-03/02-suites.png)
+![LIBERO suites](images/lecture-03/02-suites.png)
 
-| Suite | Sabit | Değişen | Ölçtüğü şey |
+| Suite | Fixed | Varies | What it measures |
 |---|---|---|---|
-| **Spatial** | nesneler | nesnelerin yerleşimi | mekânsal ilişkiyi anlayabiliyor mu ("tabak **ile** ramekin **arasındaki** kâse") |
-| **Object** | yerleşim | hedef nesne | nesne tanıma + dil ("alphabet soup" mu "cream cheese" mi) |
-| **Goal** | nesneler + yerleşim | görev/hedef | aynı sahnede farklı komutlar — dil **gerçekten** gerekli |
-| **Long (LIBERO-10)** | — | iki alt görev zincirlenir | uzun ufuk, hata birikimi |
+| **Spatial** | objects | placement of objects | can it understand the spatial relation (*tabak **ile** ramekin **arasındaki** kâse*, "the bowl between the plate and the ramekin") |
+| **Object** | placement | target object | object recognition + language ("alphabet soup" or "cream cheese") |
+| **Goal** | objects + placement | task/goal | different commands in the same scene — language is **genuinely** needed |
+| **Long (LIBERO-10)** | — | two subtasks are chained | long horizon, error accumulation |
 
-Tezin için en kritik ikisi: **Spatial** (mekânsal ilişki kelimeleri: *between, next to, on, in*) ve **Goal** (aynı görüntü, farklı komut — dili atlayan model burada çakılmalı). Türkçe mekânsal komut sorusu doğal olarak Spatial suite'e oturuyor; dil kullanımını test etmek Goal suite'e.
+The two most critical for your thesis: **Spatial** (spatial relation words: *between, next to, on, in*) and **Goal** (same image, different command — a model that skips the language should fail here). The question of Turkish spatial commands naturally fits the Spatial suite; testing language use fits the Goal suite.
 
-LIBERO-100 (90 kısa + 10 uzun görev) de vardır; VLA makaleleri genellikle sadece yukarıdaki dördü raporlar.
+There is also LIBERO-100 (90 short + 10 long tasks); VLA papers generally report only the four above.
 
-### 2.4 Değerlendirme protokolü
-Standart protokol (OpenVLA'dan beri): her görev için **50 episode**, suite başına 500, dört suite 2000 episode. Her episode sabit bir başlangıç durumundan (init state) başlar; maksimum adım sayısı dolunca ya da başarı predicate'i sağlanınca biter. Rapor edilen sayı suite ortalamalarının ortalamasıdır.
+### 2.4 Evaluation protocol
+The standard protocol (since OpenVLA): **50 episodes** per task, 500 per suite, 2,000 episodes across the four suites. Each episode starts from a fixed initial state (init state); it ends when the maximum number of steps is reached or the success predicate is satisfied. The reported number is the mean of the suite means.
 
-Pratik sonuç: 2000 episode, OpenVLA ile T4'te saatler sürer. Gün 13'te 2–3 episode ile başlayacaksın; "tam eval" tez deneyinin işi.
-
----
-
-## 3. Sınav doydu: herkes %95+
-
-![LIBERO liderlik tablosu](images/lecture-03/04-libero-leaderboard.png)
-
-2024 ortasında OpenVLA %76.5 ile "güçlü" sayılıyordu; 2025 sonunda OFT %97.1, RIPT-VLA %97.5. Skorlar tavana vurdu. Bu iki şey anlamına gelebilir: ya modeller gerçekten çok iyi, ya da **sınav kolay**. LIBERO'nun yapısal zayıflıkları:
-
-- Her görev *tek* bir sabit kamera açısı, *tek* ışık, *tek* doku ile hem eğitilir hem test edilir — eğitim ve test dağılımı neredeyse aynı.
-- Spatial ve Object suite'lerinde sahne, görevi büyük ölçüde ele verir: masada bir kâse ve bir tabak varsa görev neredeyse kesin "kâseyi tabağa koy".
-- Komutlar sabit kalıplar; parafraz yok.
+Practical consequence: 2,000 episodes take hours on a T4 with OpenVLA. On Day 13 you will start with 2–3 episodes; the "full eval" is the job of the thesis experiment.
 
 ---
 
-## 4. LIBERO-Plus: aynı görevler, yedi bozulma
+## 3. The exam is saturated: everyone is at 95%+
 
-**LIBERO-Plus** (Fei vd., 2025; CVPR 2026) yeni görev eklemez; *aynı* LIBERO görevlerini yedi eksende bozar ve her modeli yeniden test eder:
+![LIBERO leaderboard](images/lecture-03/04-libero-leaderboard.png)
 
-| # | Bozulma | Örnek |
+In mid-2024 OpenVLA was considered "strong" with 76.5%; by the end of 2025 OFT is at 97.1%, RIPT-VLA at 97.5%. Scores hit the ceiling. This can mean two things: either the models are really very good, or **the exam is easy**. LIBERO's structural weaknesses:
+
+- Each task is both trained and tested with *a single* fixed camera angle, *a single* light, *a single* texture — the training and test distributions are almost identical.
+- In the Spatial and Object suites, the scene largely gives away the task: if there is a bowl and a plate on the table, the task is almost certainly "put the bowl on the plate".
+- The commands are fixed templates; there are no paraphrases.
+
+---
+
+## 4. LIBERO-Plus: same tasks, seven perturbations
+
+**LIBERO-Plus** (Fei et al., 2025; CVPR 2026) adds no new tasks; it perturbs the *same* LIBERO tasks along seven axes and re-tests each model:
+
+| # | Perturbation | Example |
 |---|---|---|
-| 1 | Nesne yerleşimi | dikkat dağıtıcı nesne ekle, hedefi kaydır |
-| 2 | Kamera bakış açısı | üçüncü şahıs kameranın pozu ve görüş açısı |
-| 3 | Robot başlangıç durumu | kolun başlangıç pozu |
-| 4 | **Dil komutu** | daha zengin / karmaşık yeniden yazım; boş komut; hedef nesnesi değiştirilmiş komut |
-| 5 | Işık | şiddet, yön, renk, gölge |
-| 6 | Arka plan dokusu | masa ve sahne malzemeleri |
-| 7 | Sensör gürültüsü | jitter, Gaussian blur |
+| 1 | Object layout | add a distractor object, shift the target |
+| 2 | Camera viewpoint | pose and field of view of the third-person camera |
+| 3 | Robot initial state | the arm's starting pose |
+| 4 | **Language command** | richer / more complex rewriting; empty command; command with the target object swapped |
+| 5 | Lighting | intensity, direction, color, shadow |
+| 6 | Background texture | table and scene materials |
+| 7 | Sensor noise | jitter, Gaussian blur |
 
-Bulgular, 10 modelde (OpenVLA, OFT, π0, π0-fast, Nora, WorldVLA, UniVLA, RIPT-VLA…):
+Findings across 10 models (OpenVLA, OFT, π0, π0-fast, Nora, WorldVLA, UniVLA, RIPT-VLA…):
 
-![OFT bozulma altında](images/lecture-03/03-oft-under-perturbation.png)
+![OFT under perturbation](images/lecture-03/03-oft-under-perturbation.png)
 
-1. **En kırılgan eksenler kamera ve robot başlangıç durumu.** OFT %97.1 → kamera değişince %59.7, kol farklı pozdan başlayınca %37.2. π0 başlangıç durumu değişince %6.6'ya düşüyor.
-2. **Dil bozulması en *az* zarar verenlerden** (ortalama −25 puan) — ve bu makalenin asıl şok edici bulgusu, çünkü tersi beklenirdi.
-3. **Boş komut testi:** OFT'ye hiç komut verilmediğinde Object suite'te başarı neredeyse değişmiyor; sadece Long suite ciddi düşüyor. Yazarların ifadesiyle model "bir Vision-Action modeli gibi davranıyor".
-4. **Hedef değiştirme testi:** komuttaki hedef nesne değiştirilince başarı sıfıra yakın; rollout'lara bakınca model *eski* hedefe gitmeye devam ediyor. Yani komutu okumuyor, sahneden ezberlediği görevi yapıyor.
-5. Bilek kamerası olan modeller (OFT) kamera değişimine daha dayanıklı.
+1. **The most fragile axes are the camera and the robot initial state.** OFT 97.1% → 59.7% when the camera changes, 37.2% when the arm starts from a different pose. π0 drops to 6.6% when the initial state changes.
+2. **Language perturbation is among the *least* damaging** (average −25 points) — and this is the paper's real shocking finding, because the opposite would be expected.
+3. **Empty-command test:** when OFT is given no command at all, success on the Object suite barely changes; only the Long suite drops seriously. In the authors' words the model "behaves like a Vision-Action model".
+4. **Target-swap test:** when the target object in the command is changed, success is near zero; looking at rollouts, the model keeps going to the *old* target. That is, it is not reading the command, it is doing the task it memorized from the scene.
+5. Models with a wrist camera (OFT) are more robust to camera changes.
 
-Bunun adı **shortcut learning** (Ders 4'ün konusu): model, görevi dilden değil sahnenin görünümünden çıkarıyor, çünkü LIBERO'da bu daha kolay ve eğitim verisinde her zaman işe yarıyor.
+This is called **shortcut learning** (the topic of Lecture 4): the model infers the task not from the language but from the appearance of the scene, because in LIBERO this is easier and always works in the training data.
 
-### Bu bulgu senin tezin için ne demek?
-Tatar vd. "Türkçe komut verince action vektörü sapıyor" diyor. LIBERO-Plus ise "model komutu zaten büyük ölçüde görmezden geliyor" diyor. İkisi birlikte okununca ortaya ciddi bir metodolojik soru çıkıyor: *Türkçe komutla başarı düşüyorsa bu dil anlamamadan mı, yoksa komut değişince modelin sahne-ezberinden çıkmasından mı?* Bunu ayırt etmek için en az dört koşul gerekir: doğru İngilizce komut / boş komut / yanlış İngilizce komut / Türkçe komut. Gün 18'de tam bu deneyi yapacaksın; fark edeceğin şey, "boş" ile "Türkçe" arasındaki fark asıl sinyal olacak.
+### What does this finding mean for your thesis?
+Tatar et al. say "when given a Turkish command, the action vector deviates". LIBERO-Plus says "the model largely ignores the command anyway". Read together, a serious methodological question arises: *if success drops with a Turkish command, is it because of not understanding the language, or because changing the command knocks the model out of its scene memorization?* To tell these apart you need at least four conditions: correct English command / empty command / wrong English command / Turkish command. On Day 18 you will run exactly this experiment; what you will notice is that the difference between "empty" and "Turkish" will be the real signal.
 
 ---
 
-## 5. Diğer benchmark'lar (tanımak yeter)
+## 5. Other benchmarks (just know them)
 
-| Benchmark | Simülatör | Ayırt edici özellik |
+| Benchmark | Simulator | Distinguishing feature |
 |---|---|---|
-| **CALVIN** | PyBullet | uzun ufuklu, dil koşullu, 34 alt görev zinciri |
-| **RLBench** | CoppeliaSim | 100 görev, çok kameralı |
-| **SimplerEnv** | SAPIEN | gerçek robot kurulumlarının (Bridge, RT-1) sim kopyası; sim-to-real için |
-| **ManiSkill** | SAPIEN | GPU paralel, binlerce ortam aynı anda |
+| **CALVIN** | PyBullet | long-horizon, language-conditioned, chains of 34 subtasks |
+| **RLBench** | CoppeliaSim | 100 tasks, multi-camera |
+| **SimplerEnv** | SAPIEN | sim replicas of real robot setups (Bridge, RT-1); for sim-to-real |
+| **ManiSkill** | SAPIEN | GPU-parallel, thousands of environments at once |
 
-Kural: makale LIBERO'da %97 diyorsa, aynı modelin CALVIN ya da gerçek robotta ne yaptığına da bak. Benchmark seçimi sonucu belirler.
-
----
-
-## 6. Yazılımcı için köprüler
-
-- **Benchmark = test suite + fixture'lar.** BDDL dosyaları test case tanımları, init state'ler fixture, success predicate assertion. Simülatör ise test runner'ın altındaki runtime.
-- **Success rate = pass rate.** Ama her test 50 kez farklı seed'le koşuyor; "flaky" olan model değil, protokolün kendisi stokastik.
-- **LIBERO-Plus = mutation testing.** Aynı testleri bozup hangi "mutant"ların hâlâ geçtiğine bakmak; geçiyorsa testin bir şeyi ölçmediğini anlarsın.
+Rule: if a paper says 97% on LIBERO, also look at what the same model does on CALVIN or a real robot. The choice of benchmark determines the result.
 
 ---
 
-## 7. Bugünün görevi (15 dk)
-Dört suite için bir tablo yaz: suite adı, sabit olan, değişen, Türkçe mekânsal komut sorusuna uygunluk (1–5). Sonra şunu düşün: Spatial suite'in 10 komutunu Türkçe'ye çevirirken hangi İngilizce ilişki kelimeleri Türkçe'de *ek* olur? (Bu listeyi Gün 20'de kullanacağız.)
+## 6. Bridges for the software developer
 
-## Sonraki ders (Ders 4)
-Language grounding ve shortcut learning: bir VLA'nın dili gerçekten kullandığını nasıl ispatlarsın? Ablation mantığı, counterfactual komutlar, OpenVLA ≠ OFT ayrımı ve "dili gerçekten kullanıyor mu" için beş deney tasarımı.
+- **Benchmark = test suite + fixtures.** BDDL files are test case definitions, init states are fixtures, the success predicate is the assertion. The simulator is the runtime under the test runner.
+- **Success rate = pass rate.** But each test runs 50 times with a different seed; it is not the model that is "flaky", it is the protocol itself that is stochastic.
+- **LIBERO-Plus = mutation testing.** Perturb the same tests and see which "mutants" still pass; if they pass, you learn that the test is not measuring something.
 
 ---
 
-## Kaynaklar
+## 7. Today's task (15 min)
+Write a table for the four suites: suite name, what is fixed, what varies, suitability for the Turkish spatial command question (1–5). Then think about this: when translating the 10 commands of the Spatial suite into Turkish, which English relation words become *suffixes* in Turkish? (We will use this list on Day 20.)
+
+## Next lecture (Lecture 4)
+Language grounding and shortcut learning: how do you prove that a VLA really uses language? Ablation logic, counterfactual commands, the OpenVLA ≠ OFT distinction, and five experiment designs for "does it really use language".
+
+---
+
+## References
 - Liu et al. (2023). *LIBERO: Benchmarking Knowledge Transfer for Lifelong Robot Learning.* NeurIPS. [arXiv:2306.03310](https://arxiv.org/abs/2306.03310) · [github.com/Lifelong-Robot-Learning/LIBERO](https://github.com/Lifelong-Robot-Learning/LIBERO)
 - Fei et al. (2025). *LIBERO-Plus: In-depth Robustness Analysis of Vision-Language-Action Models.* [arXiv:2510.13626](https://arxiv.org/abs/2510.13626) (CVPR 2026) · [github.com/sylvestf/LIBERO-plus](https://github.com/sylvestf/LIBERO-plus)
 - Todorov, Erez, Tassa (2012). *MuJoCo: A physics engine for model-based control.* IROS. · [mujoco.org](https://mujoco.org)
 - Zhu et al. (2020). *robosuite: A Modular Simulation Framework and Benchmark for Robot Learning.* [arXiv:2009.12293](https://arxiv.org/abs/2009.12293)
 - Mees et al. (2022). *CALVIN.* [arXiv:2112.03227](https://arxiv.org/abs/2112.03227) · James et al. (2020). *RLBench.* [arXiv:1909.12271](https://arxiv.org/abs/1909.12271)
-- Kim et al. (2024). OpenVLA, Bölüm 5 (LIBERO protokolü) [arXiv:2406.09246](https://arxiv.org/abs/2406.09246)
-- Görseller: bu repo için üretildi (`images/lecture-03/`); grafiklerdeki sayılar LIBERO-Plus makalesinden alınmıştır.
+- Kim et al. (2024). OpenVLA, Section 5 (LIBERO protocol) [arXiv:2406.09246](https://arxiv.org/abs/2406.09246)
+- Figures: produced for this repo (`images/lecture-03/`); the numbers in the plots are taken from the LIBERO-Plus paper.

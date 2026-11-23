@@ -4,15 +4,15 @@ sequenceDiagram
     participant R as robosuite OSC_POSE
     participant M as MuJoCo
     S->>L: OffScreenRenderEnv(bddl)
-    L->>M: sahneyi kur (BDDL to MJCF)
+    L->>M: build the scene (BDDL to MJCF)
     S->>L: reset() + set_init_state(init_states[0])
-    L->>M: qpos ve qvel yukle
+    L->>M: load qpos and qvel
     L-->>S: obs: agentview_image, eye_in_hand, eef_pos, gripper_qpos
-    loop her kontrol adimi (20 Hz)
+    loop every control step (20 Hz)
         S->>L: step(action[7])
-        L->>R: delta poz to eklem torklari
+        L->>R: delta pose to joint torques
         R->>M: mj_step x 25
-        M-->>L: yeni durum
+        M-->>L: new state
         L->>L: render + success predicate
         L-->>S: obs, reward, done, info
     end

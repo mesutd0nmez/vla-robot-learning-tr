@@ -1,8 +1,8 @@
 flowchart TB
-    F["📦 ..._demo.hdf5 (bir görev)"] --> D["data/  attrs: env, problem_info{language_instruction}, bddl_file_name, env_info"]
+    F["📦 ..._demo.hdf5 (one task)"] --> D["data/  attrs: env, problem_info{language_instruction}, bddl_file_name, env_info"]
     D --> E0["demo_0/"] 
     D --> E1["demo_1/"]
-    D --> EN["… demo_49/  (50 insan demosu)"]
+    D --> EN["… demo_49/  (50 human demos)"]
     E0 --> A["actions  (T,7) float<br/>Δx Δy Δz Δr Δp Δy gripper"]
     E0 --> O["obs/"]
     E0 --> R["rewards (T,)  dones (T,)  states (T,·)"]

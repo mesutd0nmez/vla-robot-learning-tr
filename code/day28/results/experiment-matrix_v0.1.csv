@@ -1,20 +1,20 @@
 cell_id,rq,tier,purpose,system,suite,block,n_tasks,conditions,n_init,repeats,data_dep,model_dep,metric,status
-K1,cal,core,S-OV 4-bit kalibrasyon (yayımlanan bf16 84.7 ile),S-OV,libero_spatial,tüm10,10,clean,10,1,—,openvla-7b-finetuned-libero-spatial 4-bit,Wilson; 84.7 ile fark,hazır
-K2,cal,core,S-VN kalibrasyon (makale Spatial ile),S-VN,libero_spatial,tüm10,10,clean,10,1,—,VLANeXt-B Spatial,Wilson,hazır
-K3,cal,core,niceleme köprüsü: aynı 50 episode bf16 (Mac) vs 4-bit (T4),S-OV-mac,libero_spatial,A,1,clean;tr_a,25,1,—,S-OV bf16 MPS,eşli Δ(4bit−bf16),hazır
-P1,a,pilot,Ders 18 pilotu + tekrar (PI),S-VN,libero_spatial,A,1,clean;empty;wrong;tr_a,10,3,datasets/03,VLANeXt-B Spatial,Wilson+PI,hazır (S1)
-P2,a,pilot,S-OV pilotu,S-OV,libero_spatial,A,1,clean;empty;wrong;tr_a,10,1,datasets/03,S-OV 4-bit,Wilson,hazır
-A1,a,core,RQ-a Spatial,S-VN,libero_spatial,A,6,clean;empty;wrong;tr_a,50,1,datasets/04 A,VLANeXt-B Spatial,McNemar+TOST (blok havuzu),hazır
-A2,a,core,RQ-a Goal,S-VN,libero_goal,C,6,clean;empty;wrong;tr_a,50,1,datasets/04 C,VLANeXt-B Goal,McNemar+TOST (blok havuzu),hazır
-A3,a,core,RQ-a Spatial,S-OV,libero_spatial,A,6,clean;empty;wrong;tr_a,50,1,datasets/04 A,S-OV 4-bit Spatial,McNemar+TOST (blok havuzu),hazır
-A4,a,core,RQ-a Goal,S-OV,libero_goal,C,6,clean;empty;wrong;tr_a,50,1,datasets/04 C,openvla-7b-finetuned-libero-goal 4-bit,McNemar+TOST (blok havuzu),hazır
-B1,b,core,H0-b2 harf bedeli (tr_ascii; iki sistem zıt yön),S-VN,libero_spatial+libero_goal,A+C,12,tr_ascii,50,1,datasets/04 A+C,VLANeXt-B,eşli Δ(tr_ascii−tr_a),hazır
-B2,b,core,H0-b2 harf bedeli,S-OV,libero_spatial+libero_goal,A+C,12,tr_ascii,50,1,datasets/04 A+C,S-OV 4-bit,eşli Δ(tr_ascii−tr_a),hazır
-B3,b,core,H0-b3 güçlü okuma (EN-B ve TR-B),S-VN,libero_spatial,B,6,en_B;tr_B,50,1,datasets/04 B + bddl_cf (5),VLANeXt-B Spatial,McNemar tr_B−empty,engelli (bddl_cf yükleme testi)
-B4,b,core,H0-b3 güçlü okuma,S-OV,libero_spatial,B,6,en_B;tr_B,50,1,datasets/04 B + bddl_cf (5),S-OV 4-bit,McNemar tr_B−empty,engelli (bddl_cf yükleme testi)
-B5,b,core,B bloğu empty (görev 8 A'da yok),S-VN;S-OV,libero_spatial,B,1,empty,50,1,—,iki sistem,taban,hazır
-B6,b,ext,öbür yüzeyler (tr_b; tr_bare),S-VN;S-OV,libero_spatial+libero_goal,A+C,12,tr_b;tr_bare,50,1,datasets/04,iki sistem,aile/yüzey betimsel,hazır
-C1,c,core,MT katmanı (yalnız clean'den farklı çıktılar koşulur),S-VN;S-OV,libero_spatial+libero_goal,A+C,12,tr_mt,50,1,Opus-MT tr-en çıktıları,iki sistem,κ + ara çıktı doğruluğu,engelli (MT çıktısı yok: HF)
-C2,c,core,parser (yalnız clean'den farklı çıktılar koşulur),S-VN;S-OV,libero_spatial+libero_goal,A+C,12,tr_parse,50,1,parse_roundtrip.csv,iki sistem,κ,hazır
-C3,c,ext,EN+TR co-training QLoRA eğitimi,S-OV,libero_spatial,—,0,train,0,1,EN+TR karışık RLDS,openvla finetune.py --use_quantization,—,engelli (S9 danışman)
-C4,c,ext,LoRA eval: zayıf+güçlü okuma+yan etki,S-OV-lora,libero_spatial,A+B,12,clean;tr_a;tr_B,50,1,C3 çıktısı,S-OV-LoRA 4-bit,κ; H0-c3; H0-c4 TOST δ=5,engelli (C3)
+K1,cal,core,S-OV 4-bit calibration (against the published bf16 84.7),S-OV,libero_spatial,tüm10,10,clean,10,1,—,openvla-7b-finetuned-libero-spatial 4-bit,Wilson; difference from 84.7,ready
+K2,cal,core,S-VN calibration (against the paper's Spatial),S-VN,libero_spatial,tüm10,10,clean,10,1,—,VLANeXt-B Spatial,Wilson,ready
+K3,cal,core,quantization bridge: the same 50 episodes bf16 (Mac) vs 4-bit (T4),S-OV-mac,libero_spatial,A,1,clean;tr_a,25,1,—,S-OV bf16 MPS,paired Δ(4bit−bf16),ready
+P1,a,pilot,Lecture 18 pilot + repeats (PI),S-VN,libero_spatial,A,1,clean;empty;wrong;tr_a,10,3,datasets/03,VLANeXt-B Spatial,Wilson+PI,ready (S1)
+P2,a,pilot,S-OV pilot,S-OV,libero_spatial,A,1,clean;empty;wrong;tr_a,10,1,datasets/03,S-OV 4-bit,Wilson,ready
+A1,a,core,RQ-a Spatial,S-VN,libero_spatial,A,6,clean;empty;wrong;tr_a,50,1,datasets/04 A,VLANeXt-B Spatial,McNemar+TOST (block pool),ready
+A2,a,core,RQ-a Goal,S-VN,libero_goal,C,6,clean;empty;wrong;tr_a,50,1,datasets/04 C,VLANeXt-B Goal,McNemar+TOST (block pool),ready
+A3,a,core,RQ-a Spatial,S-OV,libero_spatial,A,6,clean;empty;wrong;tr_a,50,1,datasets/04 A,S-OV 4-bit Spatial,McNemar+TOST (block pool),ready
+A4,a,core,RQ-a Goal,S-OV,libero_goal,C,6,clean;empty;wrong;tr_a,50,1,datasets/04 C,openvla-7b-finetuned-libero-goal 4-bit,McNemar+TOST (block pool),ready
+B1,b,core,H0-b2 letter cost (tr_ascii; the two systems in opposite directions),S-VN,libero_spatial+libero_goal,A+C,12,tr_ascii,50,1,datasets/04 A+C,VLANeXt-B,paired Δ(tr_ascii−tr_a),ready
+B2,b,core,H0-b2 letter cost,S-OV,libero_spatial+libero_goal,A+C,12,tr_ascii,50,1,datasets/04 A+C,S-OV 4-bit,paired Δ(tr_ascii−tr_a),ready
+B3,b,core,H0-b3 strong reading (EN-B and TR-B),S-VN,libero_spatial,B,6,en_B;tr_B,50,1,datasets/04 B + bddl_cf (5),VLANeXt-B Spatial,McNemar tr_B−empty,blocked (bddl_cf loading test)
+B4,b,core,H0-b3 strong reading,S-OV,libero_spatial,B,6,en_B;tr_B,50,1,datasets/04 B + bddl_cf (5),S-OV 4-bit,McNemar tr_B−empty,blocked (bddl_cf loading test)
+B5,b,core,block B empty (task 8 is not in A),S-VN;S-OV,libero_spatial,B,1,empty,50,1,—,both systems,baseline,ready
+B6,b,ext,the other surfaces (tr_b; tr_bare),S-VN;S-OV,libero_spatial+libero_goal,A+C,12,tr_b;tr_bare,50,1,datasets/04,both systems,family/surface descriptive,ready
+C1,c,core,MT layer (only outputs that differ from clean are run),S-VN;S-OV,libero_spatial+libero_goal,A+C,12,tr_mt,50,1,Opus-MT tr-en outputs,both systems,κ + intermediate-output accuracy,blocked (no MT output: HF)
+C2,c,core,parser (only outputs that differ from clean are run),S-VN;S-OV,libero_spatial+libero_goal,A+C,12,tr_parse,50,1,parse_roundtrip.csv,both systems,κ,ready
+C3,c,ext,EN+TR co-training QLoRA training,S-OV,libero_spatial,—,0,train,0,1,EN+TR mixed RLDS,openvla finetune.py --use_quantization,—,blocked (S9 advisor)
+C4,c,ext,LoRA eval: weak + strong reading + side effect,S-OV-lora,libero_spatial,A+B,12,clean;tr_a;tr_B,50,1,C3 output,S-OV-LoRA 4-bit,κ; H0-c3; H0-c4 TOST δ=5,blocked (C3)

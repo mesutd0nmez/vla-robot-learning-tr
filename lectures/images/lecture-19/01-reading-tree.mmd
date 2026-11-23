@@ -1,21 +1,21 @@
 flowchart TD
-    T["episodes.csv (Ders 18)<br/>10 init × 4 koşul"]:::in --> W["Her satıra Wilson %95<br/>clean aralığıyla çakışıyor mu?"]:::key
-    W -->|"çakışıyor (n=10'da hemen hep)"| Y["Sonuç = YÖN<br/>cümle: 'düşüş yönünde', 'anlamlı' değil"]:::bad
-    W -->|"ayrışıyor (≥ 50 puan ya da n=50)"| F["Sonuç = BULGU<br/>etki büyüklüğü + aralık + McNemar p"]:::out
+    T["episodes.csv (Lecture 18)<br/>10 init × 4 conditions"]:::in --> W["For each row: does the Wilson 95%<br/>overlap with the clean interval?"]:::key
+    W -->|"overlaps (almost always at n=10)"| Y["Result = DIRECTION<br/>sentence: 'in the direction of a drop', not 'significant'"]:::bad
+    W -->|"separates (≥ 50 points or n=50)"| F["Result = FINDING<br/>effect size + interval + McNemar p"]:::out
     Y --> Q1
     F --> Q1
-    Q1{"clean − empty<br/>≤ 15 puan?"}:::key
-    Q1 -->|"evet"| A["A: dil görmezden geliniyor<br/>Spatial görev 0 sahneden çözülüyor<br/>(yapısal üst sınır 9/10)<br/>→ Türkçe etkisi BU görevde ölçülemez"]:::bad
-    Q1 -->|"hayır (≥ 25)"| Q2{"clean − wrong<br/>≤ 15 puan?"}:::key
-    Q2 -->|"evet"| C["C: wrong 'biased'<br/>eylem okunuyor, hedef sahneden<br/>→ grasped_bowl etiketine bak:<br/>bowl_1 çoğunluk = biased, bowl_2 = faithful"]:::bad
-    Q2 -->|"hayır"| L["wrong da düşürüyor:<br/>komut nesneyi seçiyor"]:::out
+    Q1{"clean − empty<br/>≤ 15 points?"}:::key
+    Q1 -->|"yes"| A["A: language is ignored<br/>Spatial task 0 is solved from the scene<br/>(structural upper bound 9/10)<br/>→ Turkish effect NOT measurable on this task"]:::bad
+    Q1 -->|"no (≥ 25)"| Q2{"clean − wrong<br/>≤ 15 points?"}:::key
+    Q2 -->|"yes"| C["C: wrong is 'biased'<br/>action is read, target from the scene<br/>→ check the grasped_bowl label:<br/>bowl_1 majority = biased, bowl_2 = faithful"]:::bad
+    Q2 -->|"no"| L["wrong also lowers success:<br/>the command selects the object"]:::out
     C --> Q3
     L --> Q3
     Q3{"tr − empty"}:::key
-    Q3 -->|"≤ 10"| B["B: Türkçe okunmuyor<br/>tr ≈ empty — Chen vd. örüntüsü<br/>→ Ders 21 tokenizasyon, Ders 23 çözümler"]:::bad
-    Q3 -->|"≥ 25"| D["D: çok dilli omurga işe yarıyor<br/>Türkçe'den nesne/eylem çıkıyor (hipotez)<br/>→ ilişki kelimesi için distractor koşulu"]:::out
-    Q3 -->|"arada"| U["belirsiz → 50 init state"]:::in
-    A --> G["Goal suite'e geç<br/>(sahne tek, 10 hedef: üst sınır 1/10)"]:::key
+    Q3 -->|"≤ 10"| B["B: Turkish is not read<br/>tr ≈ empty — the Chen et al. pattern<br/>→ Lecture 21 tokenization, Lecture 23 solutions"]:::bad
+    Q3 -->|"≥ 25"| D["D: the multilingual backbone works<br/>object/action comes out of Turkish (hypothesis)<br/>→ distractor condition for the relation word"]:::out
+    Q3 -->|"in between"| U["undetermined → 50 init states"]:::in
+    A --> G["Move to the Goal suite<br/>(single scene, 10 goals: upper bound 1/10)"]:::key
     classDef in fill:#cfe8ff,stroke:#3b6fa0,color:#000
     classDef key fill:#ffd166,stroke:#b8860b,color:#000
     classDef out fill:#d4f5d4,stroke:#2e8b57,color:#000

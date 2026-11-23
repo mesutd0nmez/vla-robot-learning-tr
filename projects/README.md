@@ -1,11 +1,11 @@
-# Projeler
+# Projects
 
-Derslerden bağımsız, elle yürütülen demo, deney ve araştırma çalışmaları. Her proje kendi klasöründe;
-`_template/` kopyalanarak başlanır. Klasör adı: `NN-kisa-ad` (ör. `01-libero-turkce-komut`).
+Demo, experiment and research work done by hand, independent of the lectures. Each project lives in its own folder;
+start by copying `_template/`. Folder name: `NN-short-name` (e.g. `01-libero-turkish-command`).
 
-| # | Proje | Durum | Özet |
+| # | Project | Status | Summary |
 |---|---|---|---|
-| 1 | [İlk MuJoCo sahnesi](project-1/README.md) | tamam | Mac'te conda + MuJoCo offscreen render doğrulaması, 4 deneme |
-| 2 | [LIBERO'da ilk episode'lar](project-2/README.md) | tamam | Spatial ve Goal görev 0–4, agentview + bilek kamerası kareleri |
+| 1 | [First MuJoCo scene](project-1/README.md) | done | conda + MuJoCo offscreen render verification on the Mac, 4 trials |
+| 2 | [First episodes in LIBERO](project-2/README.md) | done | Spatial and Goal tasks 0–4, agentview + wrist camera frames |
 
-Durumlar: `fikir` → `devam` → `tamam` / `rafta`.
+Statuses: `idea` → `in progress` → `done` / `shelved`.

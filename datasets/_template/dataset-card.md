@@ -1,38 +1,38 @@
-# Veri seti adı
+# Dataset name
 
-**Tür:** kendi ürettiğim / dış · **Sürüm:** v0.1 · **Tarih:** — · **Lisans:** — · **İlgili proje/ders:** —
+**Type:** self-produced / external · **Version:** v0.1 · **Date:** — · **License:** — · **Related project/lecture:** —
 
-## Ne içeriyor
-Bir paragraf: kaç örnek, hangi diller, hangi görevler.
+## What it contains
+One paragraph: how many examples, which languages, which tasks.
 
-## Kaynak ve elde etme
-- Dış veri: kaynak bağlantısı, sürüm/commit, indirme komutu, dosya boyutu, `sha256sum` çıktısı.
-- Kendi verim: nasıl üretildi (elle yazım / çeviri / script), kim üretti, doğrulama (ikinci okuma, tokenizer kontrolü).
+## Source and acquisition
+- External data: source link, version/commit, download command, file size, `sha256sum` output.
+- My own data: how it was produced (hand-written / translation / script), who produced it, verification (second reading, tokenizer check).
 
-## Şema
-| Alan | Tip | Açıklama | Örnek |
+## Schema
+| Field | Type | Description | Example |
 |---|---|---|---|
-| id | str | benzersiz kimlik | `spatial_03_tr_a` |
+| id | str | unique id | `spatial_03_tr_a` |
 | suite | str | LIBERO suite | `libero_spatial` |
-| task_id | int | görev indeksi | 3 |
+| task_id | int | task index | 3 |
 | lang | str | `en` / `tr` | `tr` |
-| instruction | str | komut metni | `siyah kâseyi tabağın üstüne koy` |
-| relation | str | mekânsal ilişki (EC/NTPP/1-cross/mesafe/arasına) | `EC` |
-| frame | str | bakış açısı: `camera` / `robot` / `n/a` | `n/a` |
-| suffixes | str | Türkçe ekler, `;` ile | `-ın;üst-ü-ne` |
-| variant | str | parafraz varyantı | `a` |
+| instruction | str | command text | `siyah kâseyi tabağın üstüne koy` ("put the black bowl on the plate") |
+| relation | str | spatial relation (EC/NTPP/1-cross/distance/between) | `EC` |
+| frame | str | viewpoint: `camera` / `robot` / `n/a` | `n/a` |
+| suffixes | str | Turkish suffixes, separated by `;` | `-ın;üst-ü-ne` |
+| variant | str | paraphrase variant | `a` |
 
-## Uygulanan dönüşümler
-Görüntü döndürme, gripper işareti, normalizasyon, filtreleme — sırayla, script adıyla.
+## Applied transformations
+Image rotation, gripper sign, normalization, filtering — in order, with the script name.
 
-## Bilinen sınırlılıklar
-Örnek sayısı, bakış açısı belirsizliği, tek çevirmen vb.
+## Known limitations
+Number of examples, viewpoint ambiguity, single translator, etc.
 
-## Kullanım
+## Usage
 ```python
 import pandas as pd
 df = pd.read_csv("data/commands.csv")
 ```
 
-## Değişiklik günlüğü
-- v0.1 — ilk sürüm
+## Changelog
+- v0.1 — first version

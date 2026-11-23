@@ -1,8 +1,8 @@
-"""Ders 21 — Webots + conda `vla` bağlantı kontrolü (Webots'u açmadan çalışır).
+"""Lecture 21 — Webots + conda `vla` connection check (runs without opening Webots).
 
-Kontroller: WEBOTS_HOME doğru mu, Python API klasörü var mı, libController yüklenebiliyor mu,
-launcher (webots-controller) nerede, python3 hangi ortamdan geliyor.
-Çalıştır (vla aktif):  WEBOTS_HOME=/Applications/Webots.app python check_webots_env.py
+Checks: is WEBOTS_HOME correct, does the Python API folder exist, can libController be loaded,
+where is the launcher (webots-controller), which environment python3 comes from.
+Run (vla active):  WEBOTS_HOME=/Applications/Webots.app python check_webots_env.py
 """
 import os
 import platform
@@ -19,17 +19,17 @@ pyapi = os.path.join(home, "Contents", "lib", "controller", "python") if mac els
 lib = os.path.join(home, "Contents", "lib", "controller", "libController.dylib") if mac else os.path.join(home, "lib", "controller", "libController.so")
 launcher = os.path.join(home, "Contents", "MacOS", "webots-controller") if mac else os.path.join(home, "webots-controller")
 for label, path in [("Python API", pyapi), ("libController", lib), ("launcher", launcher)]:
-    print(f"{label:12s}: {'VAR ' if os.path.exists(path) else 'YOK '} {path}")
+    print(f"{label:12s}: {'OK  ' if os.path.exists(path) else 'MISSING '} {path}")
 if platform.machine() == "arm64" and mac:
-    print("Apple Silicon: R2025a'da launcher'ın arm Mac'te çalışmama hatası var (PR #6806, R2025b'de düzeltildi).")
-    print("  Launcher hata verirse: PYTHONPATH=" + pyapi + " python ders21_kol.py  (Webots açıkken)")
+    print("Apple Silicon: in R2025a the launcher has a bug and does not run on arm Macs (PR #6806, fixed in R2025b).")
+    print("  If the launcher fails: PYTHONPATH=" + pyapi + " python ders21_kol.py  (with Webots open)")
 sys.path.insert(0, pyapi)
 try:
     import controller  # noqa: F401
     from controller import Supervisor, Camera, Motor  # noqa: F401
-    print("import controller : OK  (ctypes ile", os.path.basename(lib), "yüklendi; numpy/torch ortamın aynen kullanılabilir)")
+    print("import controller : OK  (loaded via ctypes:", os.path.basename(lib), "; the numpy/torch of your environment can be used as is)")
 except Exception as e:  # pragma: no cover
-    print("import controller : HATA ->", repr(e))
-    print("  Olası sebep: WEBOTS_HOME yanlış, Rosetta altında açılmış Webots (x86_64 dylib), ya da Python < 3.8")
+    print("import controller : ERROR ->", repr(e))
+    print("  Possible cause: wrong WEBOTS_HOME, Webots opened under Rosetta (x86_64 dylib), or Python < 3.8")
     sys.exit(2)
-print("Hepsi tamam. Şimdi Webots'ta ders21_masa.wbt'yi aç, oynat, sonra ders21_kol.py'yi başlat.")
+print("All good. Now open ders21_masa.wbt in Webots, press play, then start ders21_kol.py.")

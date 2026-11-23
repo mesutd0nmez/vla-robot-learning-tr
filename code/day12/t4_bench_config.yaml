@@ -1,25 +1,25 @@
-# Gün 12 — VLANeXt LIBERO eval, ücretsiz T4 için küçük bütçe.
-# Orijinal: VLANeXt/config/libero_bench_config.yaml (num_parallel_envs: 32, num_trials_per_task: 50)
-# Kullanım: VLANeXt kökünde  python -m scripts.libero_bench_eval --config config/t4_bench_config.yaml
+# Day 12 — VLANeXt LIBERO eval, small budget for the free T4.
+# Original: VLANeXt/config/libero_bench_config.yaml (num_parallel_envs: 32, num_trials_per_task: 50)
+# Usage: from the VLANeXt root  python -m scripts.libero_bench_eval --config config/t4_bench_config.yaml
 data:
   augmentation:
-    center_crop: true          # eğitimde random crop vardı; eval'de merkez kırpma (orijinal ayar)
+    center_crop: true          # training used random crop; eval uses center crop (original setting)
     center_crop_ratio: 0.9
 
 model:
-  diffusion_steps: 5           # flow-matching adımı; orijinal 5. Hızlandırmak için düşürme, kalite düşer
+  diffusion_steps: 5           # flow-matching steps; original is 5. Do not lower it to speed up, quality drops
   scheduler_type: "flow_match"
 
 project:
-  use_wandb: false             # wandb hesabı isteme
+  use_wandb: false             # do not ask for a wandb account
 
 eval:
-  finetuned_checkpoint: "checkpoints/VLANeXt_libero_spatial.pt"   # hf download ile indirdiğin dosya (16.4 GB)
+  finetuned_checkpoint: "checkpoints/VLANeXt_libero_spatial.pt"   # the file you downloaded with hf download (16.4 GB)
   task_suite_name: "libero_spatial"   # libero_spatial | libero_object | libero_goal | libero_10
-  num_steps_wait: 10           # ilk 10 adım no-op (nesneler yerleşsin) — OpenVLA protokolüyle aynı
-  num_steps_execute: 8         # 8'lik chunk'ın 8'i de uygulanır, sonra model yeniden çağrılır
-  num_parallel_envs: 2         # T4 + 12 GB RAM: 1–2. Her env ayrı bir süreç (~1 GB RAM)
-  num_trials_per_task: 1       # görev başına 1 episode (orijinal 50). VLANEXT_TASK_IDS ile görevleri de daralt
+  num_steps_wait: 10           # first 10 steps are no-ops (let objects settle) — same as the OpenVLA protocol
+  num_steps_execute: 8         # all 8 actions of the 8-step chunk are executed, then the model is called again
+  num_parallel_envs: 2         # T4 + 12 GB RAM: 1–2. Each env is a separate process (~1 GB RAM)
+  num_trials_per_task: 1       # 1 episode per task (original 50). Also narrow the tasks with VLANEXT_TASK_IDS
   seed: 42
   image_size: 256
   resume_episodes: 0

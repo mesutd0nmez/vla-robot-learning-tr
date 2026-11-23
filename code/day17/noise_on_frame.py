@@ -1,11 +1,11 @@
-"""Ders 17 — LIBERO-Plus 'Sensor Noise': env_wrapper.py'deki beş bozulmayı bir kareye uygular.
+"""Lecture 17 — LIBERO-Plus 'Sensor Noise': applies the five perturbations in env_wrapper.py to a frame.
 
-Fonksiyonlar LIBERO-plus `libero/libero/envs/env_wrapper.py` (4976dc3) satır 30-174'ten, PARAMETRE TABLOLARI
-BİREBİR aktarılarak yeniden yazıldı (dış depodan kod çalıştırmamak için; algoritmalar aynı, Hendrycks & Dietterich
-ImageNet-C'nin bilinen uygulamaları). motion_blur için `wand` (ImageMagick) gerekir; yoksa o sütun atlanır.
+The functions were rewritten from LIBERO-plus `libero/libero/envs/env_wrapper.py` (4976dc3) lines 30-174 with the PARAMETER TABLES
+TRANSCRIBED EXACTLY (so as not to run code from an external repo; the algorithms are the same, the known implementations of
+Hendrycks & Dietterich ImageNet-C). motion_blur needs `wand` (ImageMagick); if it is missing that column is skipped.
 
-Kullanım:  python noise_on_frame.py <kare.png> <çıktı.png> [--size 128] [--severity 1,5,10] [--seed 0]
-Kare: Ders 10/14'teki gibi gerçek bir agentview karesi (LIBERO-Plus eval'de 128x128 kullanılır; --size ile ölçeklenir).
+Usage:  python noise_on_frame.py <frame.png> <output.png> [--size 128] [--severity 1,5,10] [--seed 0]
+Frame: a real agentview frame like in Lecture 10/14 (LIBERO-Plus eval uses 128x128; scaled with --size).
 """
 import argparse, pathlib, sys
 from io import BytesIO
@@ -14,14 +14,14 @@ from PIL import Image
 from scipy.ndimage import zoom as scizoom
 from skimage.filters import gaussian
 
-# --- env_wrapper.py:33-44  motion_blur: (radius, sigma), açı U(-45,45)
+# --- env_wrapper.py:33-44  motion_blur: (radius, sigma), angle U(-45,45)
 MOTION = [(5, 2), (8, 3), (10, 4), (12, 5), (15, 6), (18, 8), (20, 10), (25, 12), (30, 15), (35, 20)]
 # --- env_wrapper.py:61  gaussian_blur: sigma
 GAUSS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-# --- env_wrapper.py:79-88  zoom_blur: zoom faktörleri
+# --- env_wrapper.py:79-88  zoom_blur: zoom factors
 ZOOM = [np.arange(1, 1.11, 0.01), np.arange(1, 1.16, 0.01), np.arange(1, 1.21, 0.02), np.arange(1, 1.26, 0.02), np.arange(1, 1.31, 0.03),
         np.arange(1, 1.36, 0.01), np.arange(1, 1.41, 0.01), np.arange(1, 1.46, 0.02), np.arange(1, 1.51, 0.02), np.arange(1, 1.56, 0.03)]
-# --- env_wrapper.py:148  fog: (yoğunluk alpha, wibbledecay)
+# --- env_wrapper.py:148  fog: (intensity alpha, wibbledecay)
 FOG = [(0.5, 3), (1.0, 2.8), (1.5, 2.5), (2.0, 2.2), (2.5, 2.0), (3.0, 1.8), (3.5, 1.6), (4.0, 1.5), (4.5, 1.4), (5.0, 1.3)]
 # --- env_wrapper.py:159  glass_blur: (sigma, max_delta, iterations)
 GLASS = [(0.5, 1, 3), (0.7, 1, 3), (0.9, 2, 3), (1.0, 2, 2), (1.1, 3, 2), (1.3, 3, 2), (1.5, 4, 2), (1.8, 4, 2), (2.2, 5, 1), (2.5, 5, 1)]
@@ -99,7 +99,7 @@ def main():
         import wand.image  # noqa
         have_wand = True
     except Exception as e:
-        print("UYARI: wand/ImageMagick yok, motion_blur atlanacak:", e, file=sys.stderr); have_wand = False
+        print("WARNING: wand/ImageMagick missing, motion_blur will be skipped:", e, file=sys.stderr); have_wand = False
     img = Image.open(a.frame).convert("RGB")
     if img.size != (a.size, a.size):
         side = min(img.size)
@@ -112,19 +112,19 @@ def main():
     axes = np.atleast_2d(axes)
     for r, s in enumerate(sev):
         axes[r, 0].imshow(img); axes[r, 0].set_ylabel(f"severity {s}", fontsize=10)
-        if r == 0: axes[r, 0].set_title("orijinal", fontsize=9)
+        if r == 0: axes[r, 0].set_title("original", fontsize=9)
         for c, (label, base_code, fn) in enumerate(fams, start=1):
             axes[r, c].imshow(fn(img, severity=s))
             if r == 0: axes[r, c].set_title(label, fontsize=8.5)
             axes[r, c].text(0.03, 0.03, f"_noise_{base_code + s - 1}", transform=axes[r, c].transAxes, fontsize=7.5, color="#fff",
                             bbox=dict(facecolor="#000", alpha=0.5, pad=1.5, lw=0))
     for ax in axes.ravel(): ax.set_xticks([]); ax.set_yticks([])
-    fig.suptitle(f"LIBERO-Plus 'Sensor Noise': env_wrapper.py'nin 5 bozulması ({a.size}×{a.size} agentview karesi; parametre tabloları koddan) — noise_on_frame.py"
-                 + ("" if have_wand else "  [motion_blur: wand yok, atlandı]"), fontsize=9.5)
-    fig.text(0.5, 0.005, "yalnızca agentview_image değişir; bilek (eye-in-hand) kamerası ve proprio dokunulmaz (env_wrapper.py:288-308). Kare: " + pathlib.Path(a.frame).name,
+    fig.suptitle(f"LIBERO-Plus 'Sensor Noise': the 5 perturbations of env_wrapper.py ({a.size}×{a.size} agentview frame; parameter tables from the code) — noise_on_frame.py"
+                 + ("" if have_wand else "  [motion_blur: wand missing, skipped]"), fontsize=9.5)
+    fig.text(0.5, 0.005, "only agentview_image changes; the wrist (eye-in-hand) camera and proprio are untouched (env_wrapper.py:288-308). Frame: " + pathlib.Path(a.frame).name,
              ha="center", fontsize=8, color="#555")
     fig.tight_layout(rect=(0, 0.02, 1, 0.95)); fig.savefig(a.out, dpi=170); plt.close(fig)
-    print("yazıldı:", a.out, "| wand:", have_wand, "| aileler:", [f[2].__name__ for f in fams])
+    print("written:", a.out, "| wand:", have_wand, "| families:", [f[2].__name__ for f in fams])
 
 
 if __name__ == "__main__":

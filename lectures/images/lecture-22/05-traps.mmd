@@ -4,7 +4,7 @@ flowchart TD
   classDef out fill:#d4f5d4,stroke:#333,color:#000
   classDef bad fill:#ffd6d6,stroke:#333,color:#000
 
-  C["Türkçe komut (datasets/04, 100 satır)"]:::in
+  C["Turkish command (datasets/04, 100 rows)"]:::in
   C --> T1
   C --> T2
   C --> T3
@@ -12,20 +12,20 @@ flowchart TD
   C --> T5
   C --> T6
 
-  T1["Şişme<br/>LLaMA-2 tr_a/en = 1,63×, Qwen3 = 1,41×<br/>(fertility 3,1 vs 2,4 token/sözcük)"]:::key
-  T1 --> R1["her iki modelde de gerçek;<br/>LLaMA-2'de yarısı Türkçe harflerden<br/>(tr_ascii: −4,9 vs −0,9 token)"]:::bad
+  T1["Inflation<br/>LLaMA-2 tr_a/en = 1.63×, Qwen3 = 1.41×<br/>(fertility 3.1 vs 2.4 tokens/word)"]:::key
+  T1 --> R1["real in both models;<br/>in LLaMA-2 half of it comes from the Turkish letters<br/>(tr_ascii: −4.9 vs −0.9 tokens)"]:::bad
 
-  T2["İlişki eki kararsız<br/>-ki: 3 biçim (L) / 5 biçim (Q)<br/>-nA: 5 / 6 biçim"]:::key
-  T2 --> R2["'soldaki' → ▁sold | aki (ikisinde de)<br/>'sağına' ▁sa ğ ı na vs 'soluna' ▁sol una:<br/>ortak ek, ortak token yok"]:::bad
+  T2["Relation suffix is unstable<br/>-ki: 3 forms (L) / 5 forms (Q)<br/>-nA: 5 / 6 forms"]:::key
+  T2 --> R2["'soldaki' → ▁sold | aki (in both)<br/>'sağına' ▁sa ğ ı na vs 'soluna' ▁sol una:<br/>shared suffix, no shared token"]:::bad
 
-  T3["Sözcük başı boşluk<br/>LLaMA: ▁ç ▁ş ▁ğ ▁ı vocab'da yok →<br/>14 tek başına ▁ token'ı"]:::key
-  T3 --> R3["▁ | ç | ek | m | ec | es | inde | ki<br/>(çekmecesindeki = 8 parça)"]:::bad
+  T3["Word-initial space<br/>LLaMA: ▁ç ▁ş ▁ğ ▁ı not in vocab →<br/>14 lone ▁ tokens"]:::key
+  T3 --> R3["▁ | ç | ek | m | ec | es | inde | ki<br/>(çekmecesindeki = 8 pieces)"]:::bad
 
-  T4["Konum etkisi (yalnızca Qwen3)<br/>cümle başı boşluksuz → 31 sözcük<br/>farklı bölünüyor"]:::key
-  T4 --> R4["'arasındaki' ortada 1 token,<br/>başta aras | ındaki;<br/>B07–B09 (soldaki/sağdaki/öndeki) başta"]:::bad
+  T4["Position effect (Qwen3 only)<br/>at the start of the sentence, no space → 31 words<br/>are split differently"]:::key
+  T4 --> R4["'arasındaki' in the middle 1 token,<br/>at the start aras | ındaki;<br/>B07–B09 (soldaki/sağdaki/öndeki) at the start"]:::bad
 
-  T5["lower() tuzağı (yalnızca OpenVLA)<br/>Python: 'İ'.lower() = 'i' + U+0307"]:::key
-  T5 --> R5["'İçine koy' → ▁i &lt;0xCC&gt; &lt;0x87&gt; ç ine<br/>iki bayt-kırıntısı; setteki 100 satır<br/>küçük harf olduğu için etkilenmedi"]:::bad
+  T5["lower() trap (OpenVLA only)<br/>Python: 'İ'.lower() = 'i' + U+0307"]:::key
+  T5 --> R5["'İçine koy' → ▁i &lt;0xCC&gt; &lt;0x87&gt; ç ine<br/>two byte fragments; the 100 rows in the set<br/>are lowercase, so unaffected"]:::bad
 
-  T6["Action aralığı çakışması<br/>LLaMA-2 id 31744–31999 = OpenVLA bin'leri"]:::key
-  T6 --> R6["100 komutta 0 çakışma<br/>(ko/ja/zh/ru/ar denemelerinde de 0;<br/>aralık nadir CJK karakterleri)"]:::out
+  T6["Action range collision<br/>LLaMA-2 id 31744–31999 = OpenVLA bins"]:::key
+  T6 --> R6["0 collisions in 100 commands<br/>(0 in the ko/ja/zh/ru/ar trials too;<br/>the range is rare CJK characters)"]:::out

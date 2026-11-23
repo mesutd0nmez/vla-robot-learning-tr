@@ -1,18 +1,18 @@
-"""Ders 15 — Tatar vd. mini-reprodüksiyonu: 5 LIBERO-Spatial karesi × 6 komut koşulu → OpenVLA-7B (MPS) → 7-DoF action.
+"""Lecture 15 — Mini reproduction of Tatar et al.: 5 LIBERO-Spatial frames × 6 command conditions → OpenVLA-7B (MPS) → 7-DoF action.
 
-Ders 14'ün `openvla_mps_single_action.py` zinciri, model BİR kez yüklenip 30 çağrı için döngüye alınmış hâli.
-Girdi : frames/frame_task{0..4}.png  (render_frames.py; 180° döndürülmüş 256x256 agentview)
+The chain of Lecture 14's `openvla_mps_single_action.py`, with the model loaded ONCE and looped over 30 calls.
+Input : frames/frame_task{0..4}.png  (render_frames.py; 256x256 agentview rotated by 180°)
         datasets/01-libero-spatial-tr-mini/data/commands.csv  (make_commands.py)
-Çıktı : results/actions.csv  — satır başına: id, task_id, condition, lang, instruction, prompt_tokens,
-        tok0..tok6 (token id), bin0..bin6, n0..n6 ([-1,1]), a0..a6 (LIBERO birimi), gripper_libero, seconds
-        results/json/<id>.json — Ders 14 formatında tam kayıt
-Kullanım (openvla env, Ders 14):
+Output: results/actions.csv  — per row: id, task_id, condition, lang, instruction, prompt_tokens,
+        tok0..tok6 (token id), bin0..bin6, n0..n6 ([-1,1]), a0..a6 (LIBERO units), gripper_libero, seconds
+        results/json/<id>.json — full record in the Lecture 14 format
+Usage (openvla env, Lecture 14):
     python run_tatar_mini.py --frames frames --commands ../../datasets/01-libero-spatial-tr-mini/data/commands.csv \
         --out results/actions.csv
-    python run_tatar_mini.py ... --only sp0_en,sp0_tr      # yalnızca seçili satırlar (hızlı deneme)
-    python run_tatar_mini.py ... --repeat 2                # her satırı 2 kez: greedy ile aynı çıkmalı (determinizm kontrolü)
-Greedy decode (do_sample=False): Tatar vd.'nin sıcaklık 0.3 örneklemesi yerine deterministik; EN–EN gürültüsü 0 olmalı,
-dil-dışı gürültü kontrolünü `para` koşulu üstlenir.
+    python run_tatar_mini.py ... --only sp0_en,sp0_tr      # only the selected rows (quick trial)
+    python run_tatar_mini.py ... --repeat 2                # each row twice: greedy should give identical results (determinism check)
+Greedy decode (do_sample=False): deterministic instead of Tatar et al.'s temperature-0.3 sampling; EN–EN noise should be 0,
+the `para` condition takes over the non-language noise control.
 """
 import argparse
 import csv
@@ -54,7 +54,7 @@ def load_model(dtype, attn):
     vla = AutoModelForVision2Seq.from_pretrained(CKPT, attn_implementation=attn, torch_dtype=dtype,
                                                 low_cpu_mem_usage=True, device_map={"": device}, trust_remote_code=True)
     vla.eval()
-    print(f"[*] model yüklendi ({time.time()-t0:.0f} s), device={device}")
+    print(f"[*] model loaded ({time.time()-t0:.0f} s), device={device}")
     return processor, vla, device
 
 
@@ -92,7 +92,7 @@ def main():
     ap.add_argument("--frames", default="frames")
     ap.add_argument("--commands", required=True)
     ap.add_argument("--out", default="results/actions.csv")
-    ap.add_argument("--only", default="", help="virgülle ayrılmış id listesi")
+    ap.add_argument("--only", default="", help="comma-separated list of ids")
     ap.add_argument("--repeat", type=int, default=1)
     ap.add_argument("--dtype", default="bfloat16", choices=["bfloat16", "float16"])
     ap.add_argument("--attn", default="sdpa", choices=["sdpa", "eager"])
@@ -134,8 +134,8 @@ def main():
                 json.dump(dict(checkpoint=CKPT, **{k: r[k] for k in r}, **res, device=str(device), dtype=args.dtype),
                           open(os.path.join(jdir, f"{r['id']}_r{rep}.json"), "w"), indent=1, ensure_ascii=False)
                 print(f"{r['id']:16s} rep{rep} tokens={res['action_token_ids']} g={res['gripper_libero']:+.0f} "
-                      f"{res['seconds']:.2f}s  [{rec['prompt_tokens']} prompt token]")
-    print(f"[*] yazıldı: {args.out}  → şimdi: python analyze_day15.py --actions {args.out}")
+                      f"{res['seconds']:.2f}s  [{rec['prompt_tokens']} prompt tokens]")
+    print(f"[*] written: {args.out}  → now: python analyze_day15.py --actions {args.out}")
 
 
 if __name__ == "__main__":

@@ -1,20 +1,20 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>VLA Tez Günlüğü</title>
+  <title>VLA Thesis Journal</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Robot Learning ve VLA — yüksek lisans tez günlüğü (Türkçe)">
+  <meta name="description" content="Robot Learning and VLA — MSc thesis journal (English; Turkish spatial-command research)">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/site.css?v=5">
+  <link rel="stylesheet" href="assets/site.css?v=6">
 </head>
 <body>
   <div id="app"></div>
   <script>
     window.$docsify = {
-      name: 'VLA Tez Günlüğü',
+      name: 'VLA Thesis Journal',
       repo: '',
       homepage: 'home.md',
       loadSidebar: true,
@@ -23,14 +23,16 @@
       relativePath: true,
       auto2top: true,
       notFoundPage: true,
+      // on mobile the fixed top bar (56px) must not cover headings: leave a margin when scrolling to ?id=
+      topMargin: (window.matchMedia && window.matchMedia('(max-width: 860px)').matches) ? 64 : 0,
       requestHeaders: { 'cache-control': 'no-cache' },
-      search: { placeholder: 'Derslerde ara', noData: 'Sonuç yok', paths: 'auto', depth: 3 },
-      copyCode: { buttonText: 'Kopyala', successText: 'Kopyalandı', errorText: 'Hata' },
-      pagination: { previousText: 'Önceki', nextText: 'Sonraki', crossChapter: true, crossChapterText: true },
+      search: { placeholder: 'Search lectures', noData: 'No results', paths: 'auto', depth: 3 },
+      copyCode: { buttonText: 'Copy', successText: 'Copied', errorText: 'Error' },
+      pagination: { previousText: 'Previous', nextText: 'Next', crossChapter: true, crossChapterText: true },
       plugins: [
         function (hook, vm) {
-          // 0) Kenar çubuğu: açılır-kapanır gruplar. Açık/kapalı tercih localStorage'da;
-          //    içinde bulunulan sayfanın grubu her gezinmede kendiliğinden açılır.
+          // 0) Sidebar: collapsible groups. Open/closed preference is kept in localStorage;
+          //    the group of the current page opens automatically on every navigation.
           var NAV_KEY = 'vla-nav-v1';
           function navState() { try { return JSON.parse(localStorage.getItem(NAV_KEY)) || {}; } catch (e) { return {}; } }
           function navSave(s) { try { localStorage.setItem(NAV_KEY, JSON.stringify(s)); } catch (e) {} }
@@ -44,7 +46,7 @@
           function navSyncTool(nav) {
             var tool = nav.querySelector('.nav-tools button'); if (!tool) return;
             var anyClosed = navGroups(nav).some(function (li) { return li.querySelector(':scope > ul').hidden; });
-            tool.textContent = anyClosed ? 'Tümünü aç' : 'Tümünü kapat';
+            tool.textContent = anyClosed ? 'Expand all' : 'Collapse all';
             tool.dataset.action = anyClosed ? 'open' : 'close';
           }
           function enhanceNav() {
@@ -90,10 +92,71 @@
               tools.appendChild(tool); nav.insertBefore(tools, nav.firstChild);
             }
             navSyncTool(nav);
-            var act = nav.querySelector('li.active > a');
-            if (act) { try { act.scrollIntoView({ block: 'nearest' }); } catch (e) {} }
+            revealActive(false);
           }
-          // 1) Ders başlığı: "Ders N — Başlık" → büyük numara + başlık
+          // Bring the active link into view by scrolling the sidebar itself (not the page).
+          function revealActive(center) {
+            var sb = document.querySelector('.sidebar');
+            var act = sb && sb.querySelector('.sidebar-nav li.active > a');
+            if (!act) return;
+            var s = sb.getBoundingClientRect(), a = act.getBoundingClientRect();
+            if (!center && a.top >= s.top + 8 && a.bottom <= s.bottom - 8) return;
+            sb.scrollTop += (a.top - s.top) - (center ? (s.height - a.height) / 2 : 24);
+          }
+
+          // 0b) Menu open/close — replaces Docsify's own toggle behaviour.
+          //   Why: if the page loads at ≤600px width, Docsify 4 attaches a click listener to body and,
+          //   while body.close is set, closes the menu on ANY tap (including group headers, "Expand all", the search box);
+          //   moreover on mobile the "close" class means "open", and between 600–860px this
+          //   behaviour does not exist at all. We never use the "close" class here (so that listener is inert):
+          //   narrow screens: body.nav-open = menu open; wide screens: body.nav-collapsed = menu hidden.
+          var NARROW = window.matchMedia('(max-width: 860px)');
+          function navIsOpen() {
+            return NARROW.matches ? document.body.classList.contains('nav-open')
+                                  : !document.body.classList.contains('nav-collapsed');
+          }
+          function navOpen(open) {
+            var b = document.body;
+            if (NARROW.matches) { b.classList.toggle('nav-open', open); b.classList.remove('nav-collapsed'); }
+            else { b.classList.toggle('nav-collapsed', !open); b.classList.remove('nav-open'); }
+            var btn = document.querySelector('button.sidebar-toggle');
+            if (btn) { btn.setAttribute('aria-expanded', open ? 'true' : 'false'); btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu'); }
+            if (open && NARROW.matches) revealActive(true);
+          }
+          hook.mounted(function () {
+            var old = document.querySelector('button.sidebar-toggle');
+            var sb = document.querySelector('.sidebar');
+            if (!old || !sb) return;
+            var btn = old.cloneNode(true);                     // clone = without Docsify's click listener
+            old.parentNode.replaceChild(btn, old);
+            sb.id = sb.id || 'site-sidebar';
+            btn.setAttribute('aria-controls', sb.id);
+            btn.addEventListener('click', function (e) { e.stopPropagation(); navOpen(!navIsOpen()); });
+            // mobile top bar + backdrop
+            var bar = document.createElement('div'); bar.className = 'm-bar';
+            var t = document.createElement('a'); t.className = 'm-title'; t.href = '#/'; t.textContent = window.$docsify.name;
+            bar.appendChild(t);
+            var veil = document.createElement('div'); veil.className = 'nav-backdrop'; veil.setAttribute('aria-hidden', 'true');
+            veil.addEventListener('click', function () { navOpen(false); });
+            sb.parentNode.insertBefore(veil, sb);
+            sb.parentNode.insertBefore(bar, veil);
+            // narrow screens: tapping a page link navigates and closes; group headers do not close the menu
+            sb.addEventListener('click', function (e) {
+              var a = e.target.closest && e.target.closest('a[href]');
+              if (a && NARROW.matches && navIsOpen()) navOpen(false);
+            });
+            document.addEventListener('keydown', function (e) {
+              if (e.key === 'Escape' && NARROW.matches && navIsOpen()) { navOpen(false); btn.focus(); }
+            });
+            function onMq() {
+              document.body.classList.remove('nav-open', 'nav-collapsed');
+              vm.config.topMargin = NARROW.matches ? 64 : 0;
+              navOpen(navIsOpen());
+            }
+            if (NARROW.addEventListener) NARROW.addEventListener('change', onMq); else if (NARROW.addListener) NARROW.addListener(onMq);
+            navOpen(navIsOpen());
+          });
+          // 1) Lecture title: "Lecture N — Title" → big number + title
           hook.afterEach(function (html, next) {
             var m = html.match(/<h1 id="([^"]+)"[^>]*>([\s\S]*?)<\/h1>/);
             if (m) {
@@ -102,12 +165,14 @@
               if (t) {
                 html = html.replace(m[0],
                   '<header class="lec-head"><div class="lec-num">' + String(t[1]).padStart(2, '0') + '</div>' +
-                  '<div><div class="lec-kicker">Ders ' + t[1] + '</div><h1 id="' + m[1] + '">' + t[2] + '</h1></div></header>');
+                  '<div><div class="lec-kicker">Lecture ' + t[1] + '</div><h1 id="' + m[1] + '">' + t[2] + '</h1></div></header>');
               }
             }
+            // wide tables scroll horizontally inside their own box, not the page
+            html = html.replace(/<table(\s[^>]*)?>/g, '<div class="table-wrap"><table$1>').replace(/<\/table>/g, '</table></div>');
             next(html);
           });
-          // 2) Sayfa içi başlıklar (sağ sütun) + onay kutularını aç + dış bağlantılar yeni sekme
+          // 2) On-page headings (right column) + enable checkboxes + external links open in a new tab
           hook.doneEach(function () {
             enhanceNav();
             document.querySelectorAll('.task-list-item input[type=checkbox]').forEach(function (c) { c.disabled = false; });
@@ -124,7 +189,7 @@
               var li = document.createElement('li'); li.appendChild(a); ul.appendChild(li);
             });
             toc.appendChild(ul); document.querySelector('.content').appendChild(toc);
-            // aktif başlık takibi
+            // active heading tracking
             var links = ul.querySelectorAll('a');
             var obs = new IntersectionObserver(function (entries) {
               entries.forEach(function (e) { if (e.isIntersecting) { links.forEach(function (l) { l.classList.remove('is-active'); }); var i = hs.indexOf(e.target); if (links[i]) links[i].classList.add('is-active'); } });

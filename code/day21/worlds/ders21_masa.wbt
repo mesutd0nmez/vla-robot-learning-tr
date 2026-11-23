@@ -1,7 +1,7 @@
 #VRML_SIM R2025a utf8
-# Ders 21 — Webots'ta LIBERO-Spatial'a benzeyen bir masa sahnesi:
-# UR10e kol (bilek kamerasıyla) + masa + siyah kâse, tabak, ocak, mısır gevreği kutusu, elma, kutu içecek.
-# Açmak için: Webots > File > Open World... > bu dosya. Kol controller'ı <extern>: terminalden başlatılır (bkz. README).
+# Lecture 21 — a table scene in Webots resembling LIBERO-Spatial:
+# UR10e arm (with a wrist camera) + table + black bowl, plate, stove, cereal box, apple, soda can.
+# To open: Webots > File > Open World... > this file. The arm controller is <extern>: started from the terminal (see README).
 
 EXTERNPROTO "webots://projects/objects/backgrounds/protos/TexturedBackground.proto"
 EXTERNPROTO "webots://projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
@@ -17,13 +17,13 @@ EXTERNPROTO "webots://projects/objects/drinks/protos/Can.proto"
 
 WorldInfo {
   info [
-    "Ders 21: UR10e + masa + nesneler. Türkçe mekânsal komutlar için Webots deneme sahnesi."
+    "Lecture 21: UR10e + table + objects. Webots trial scene for Turkish spatial commands."
   ]
-  title "Ders 21 masa sahnesi"
+  title "Lecture 21 table scene"
   basicTimeStep 16
 }
 Viewpoint {
-  # agentview benzeri: robotun karşısından, masaya bakan sabit bakış (vp.py ile hesaplandı)
+  # agentview-like: a fixed viewpoint across from the robot, looking at the table (computed with vp.py)
   orientation 0 0.558702 0.829369 3.141593
   position 0 1.75 1.55
 }

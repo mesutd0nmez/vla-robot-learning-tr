@@ -1,23 +1,23 @@
-metrik,deger
-ders,31
-ders_aralik,1–31
-toplam_kelime,73779
-gorsel_png,152
-mermaid_kaynak,64
-kod_dosyasi,87
-kod_klasoru,23
-logda_calistirildi,39
-logda_yalniz_py_compile,6
-hipotez_gecisi,107
-farkli_arxiv_kimligi,49
-veri_karti,5
-tez_dosyasi,5
-tez_dosyalari,ablation-plan.md;experiment-matrix.csv;experiment-matrix.md;proposal-v0.1.md;rq-candidates.md
-proje_klasoru_mesut,2
-projeler,project-1;project-2
-log_ders_girisi,31
-log_gorev_satiri,31
-ders_Faz 1 Kavramlar,8
-ders_Faz 2 Ortam,8
-ders_Faz 3 Deney tasarımı,9
-ders_Faz 4 Proje,6
+metric,value
+lectures,31
+lecture_range,1–31
+total_words,94778
+png_images,152
+mermaid_sources,64
+code_files,87
+code_folders,23
+log_ran,39
+log_py_compile_only,6
+hypothesis_mentions,108
+distinct_arxiv_ids,49
+data_cards,5
+thesis_files,5
+thesis_file_names,ablation-plan.md;experiment-matrix.csv;experiment-matrix.md;proposal-v0.1.md;rq-candidates.md
+project_folders_mesut,2
+projects,project-1;project-2
+log_lecture_entries,31
+log_task_lines,31
+lectures_Phase 1 Concepts,8
+lectures_Phase 2 Environment,8
+lectures_Phase 3 Experiment design,9
+lectures_Phase 4 Project,6

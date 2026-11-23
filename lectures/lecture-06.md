@@ -1,111 +1,111 @@
-# Ders 6 — Mekânsal Akıl Yürütmenin Temelleri: "Dil Dünyanın Sıkıştırmasıdır"
+# Lecture 6 — Foundations of Spatial Reasoning: "Language Is a Compression of the World"
 
-**Faz 1 / Gün 6** · **Okuma süresi:** ~45 dk
-**Ön koşul:** Ders 4 (grounding) · **Kaynak:** Li, F. (2025), *Benchmarking and Enhancing Spatial Reasoning in LLMs*, PhD tezi, Leeds — Bölüm 1, 2.2, 2.3, 3.2; Cohn'un slaytı
+**Phase 1 / Day 6** · **Reading time:** ~45 min
+**Prerequisite:** Lecture 4 (grounding) · **Source:** Li, F. (2025), *Benchmarking and Enhancing Spatial Reasoning in LLMs*, PhD thesis, Leeds — Chapters 1, 2.2, 2.3, 3.2; Cohn's slide
 
-> **Bugünün tek cümlesi:** "Tabağın solunda" gibi bir ifade, sürekli 3B dünyanın birkaç bit'e sıkıştırılmış hâlidir; bu sıkıştırmanın kuralları (niteliksel mekânsal kalkülüsler) 30 yıldır biliniyor ve LLM'lerin bu kuralları ne kadar takip edebildiği ölçülebiliyor — VLA'da ise sıkıştırmayı tersine açıp action'a dönüştürmek gerekiyor.
-
----
-
-## 1. Slayt: "Language is a beautiful compression of the world, but it is not the world"
-
-Cohn'un Milano'daki konuşmasından alıntıladığı bu cümle (Pat Grady, Sequoia) tezinin motivasyonunu tek satırda verir:
-
-![Sıkıştırma](images/lecture-06/04-compression.png)
-
-- Dünya sürekli ve metriktir: kâse (0.42, 0.17, 0.03)'te, tabak (0.51, 0.18, 0.02)'de, aralarında 9 cm var.
-- Dil bunu "kâse tabağın solunda" diye sıkıştırır. Mesafe, yükseklik, boyut atılmıştır; "sol" ise *kime göre* olduğunu söylemez.
-- Saf bir LLM yalnızca sıkıştırılmış metni görür; dünyayı hiç görmemiştir. Çok adımlı mekânsal çıkarımda tökezlemesi şaşırtıcı değildir (slaydın ikinci cümlesi).
-- VLA ise ters yönde çalışmak zorundadır: "tabağın soluna koy" komutunu alıp ±2 cm hassasiyetle bir hedef noktaya açmalıdır. Sıkıştırmayı *geri açmak* grounding'dir.
-
-Türkçe için ek katman: bu sıkıştırma Türkçe'de kelimeyle değil **ekle** yapılır. "tabağ-ın sol-u-na" üç ek taşır (ilgi, iyelik, yönelme). İngilizce "to the left of the plate" dört ayrı kelime. Tokenizer bu ekleri yanlış bölerse (Ders 5) sıkıştırma daha açılmadan bozulur.
+> **Today in one sentence:** An expression like *tabağın solunda* ("to the left of the plate") is the continuous 3D world compressed into a few bits; the rules of this compression (qualitative spatial calculi) have been known for 30 years, and how well LLMs can follow these rules can be measured — in a VLA, however, the compression has to be reversed and turned into an action.
 
 ---
 
-## 2. Niteliksel mekânsal gösterim (QSR): sıkıştırmanın grameri
+## 1. The slide: "Language is a beautiful compression of the world, but it is not the world"
 
-Yapay zekâ topluluğu 1990'lardan beri "insanların mekânı nasıl kaba ama kullanışlı kategorilerle tanımladığını" formalize ediyor. Buna **Qualitative Spatial Reasoning (QSR)** denir; Cohn bu alanın kurucularından. Li'nin tezi (Tablo 2.6) kalkülüsleri üç eksende sınıflandırır: **yön**, **topoloji**, **mesafe**. Her birinden bir temsilci:
+This sentence, which Cohn quoted in his talk in Milan (Pat Grady, Sequoia), gives the motivation of his thesis in one line:
 
-### 2.1 Yön — Cardinal Direction Calculus (CDC)
+![Compression](images/lecture-06/04-compression.png)
+
+- The world is continuous and metric: the bowl is at (0.42, 0.17, 0.03), the plate at (0.51, 0.18, 0.02), with 9 cm between them.
+- Language compresses this into *kâse tabağın solunda* ("the bowl is to the left of the plate"). Distance, height, and size are discarded; and "left" does not say *relative to whom*.
+- A pure LLM sees only the compressed text; it has never seen the world. It is unsurprising that it stumbles on multi-step spatial inference (the second sentence of the slide).
+- A VLA, however, has to work in the opposite direction: it must take the command *tabağın soluna koy* ("put it to the left of the plate") and decompress it into a target point with ±2 cm precision. *Decompressing* the compression is grounding.
+
+An extra layer for Turkish: in Turkish this compression is done not with words but with **suffixes**. *tabağ-ın sol-u-na* carries three suffixes (genitive, possessive, dative). The English "to the left of the plate" is four separate words. If the tokenizer splits these suffixes wrongly (Lecture 5), the compression is corrupted before it can even be decompressed.
+
+---
+
+## 2. Qualitative spatial representation (QSR): the grammar of the compression
+
+Since the 1990s the AI community has been formalizing "how people describe space with coarse but useful categories". This is called **Qualitative Spatial Reasoning (QSR)**; Cohn is one of the founders of this field. Li's thesis (Table 2.6) classifies the calculi along three axes: **direction**, **topology**, **distance**. One representative from each:
+
+### 2.1 Direction — Cardinal Direction Calculus (CDC)
 
 ![CDC](images/lecture-06/01-cdc.png)
 
-Referans noktası b etrafında düzlem 9 bölgeye ayrılır: N, NE, E, SE, S, SW, W, NW ve EQ (aynı yer). İki yöntem:
-- **Projection-based:** x ve z farklarına bakılır (Δx<0 → batı, Δz<0 → güney). Ortada bir "B" kutusu vardır.
-- **Cone-based:** `θ = atan2(Δz, Δx)` açısı 45°'lik 8 koniye düşer.
+Around a reference point b, the plane is divided into 9 regions: N, NE, E, SE, S, SW, W, NW, and EQ (same place). Two methods:
+- **Projection-based:** look at the x and z differences (Δx<0 → west, Δz<0 → south). There is a "B" box in the middle.
+- **Cone-based:** the angle `θ = atan2(Δz, Δx)` falls into one of 8 cones of 45°.
 
-İkisi aynı iki nokta için farklı sonuç verebilir. Bir benchmark hangisini kullandığını söylemek zorundadır — Li'nin tezinde bu, StepGame'deki "template hatalarının" kaynaklarından biridir.
+The two can give different results for the same two points. A benchmark must state which one it uses — in Li's thesis this is one of the sources of the "template errors" in StepGame.
 
-### 2.2 Topoloji — RCC-8
+### 2.2 Topology — RCC-8
 
 ![RCC-8](images/lecture-06/02-rcc8.png)
 
-Nokta değil **bölge** tabanlıdır; iki bölgenin iç, sınır ve dışının nasıl kesiştiğine bakar. 8 ilişki: DC (ayrık), EC (dıştan temas), PO (kısmen örtüşme), EQ (eşit), TPP/NTPP (teğet / teğet olmayan iç parça) ve tersleri. Manipülasyon için en önemlisi EC ve NTPP: "bardak **tabağın üstünde**" (EC: temas), "elma **kâsenin içinde**" (NTPP: iç parça). Türkçe: *üst-ü-nde* vs *iç-i-nde* — tek ek farkı, topolojik olarak bambaşka iki ilişki.
+It is based on **regions**, not points; it looks at how the interior, boundary, and exterior of two regions intersect. 8 relations: DC (disconnected), EC (externally connected), PO (partial overlap), EQ (equal), TPP/NTPP (tangential / non-tangential proper part) and their inverses. The most important for manipulation are EC and NTPP: "the cup is **on the plate**" (EC: contact), "the apple is **in the bowl**" (NTPP: proper part). In Turkish: *üst-ü-nde* vs *iç-i-nde* ("on top of it" vs "inside it") — a difference of a single suffix, two topologically entirely different relations.
 
-### 2.3 Göreli yön — 1-cross ve TPCC
+### 2.3 Relative direction — 1-cross and TPCC
 
-![Göreli yön](images/lecture-06/03-relative.png)
+![Relative direction](images/lecture-06/03-relative.png)
 
-"Sağ / sol / ön / arka" **üçlü** ilişkidir: gözlemci A, referans B, hedef C. A kapıda kuzeye bakıyorsa yatak sandalyenin "ön-sağında"dır; A güneye baksa "arka-solunda" olur. **1-cross** dört bölgeyi, **TPCC** daha ince ayrımları (düz-sağ, sağ-ön vs ön-sağ) ve mesafeyi (yakın/uzak) ekler.
+"Right / left / front / back" is a **ternary** relation: observer A, reference B, target C. If A is at the door looking north, the bed is "front-right" of the chair; if A looked south it would be "back-left". **1-cross** adds four regions, **TPCC** adds finer distinctions (straight-right, right-front vs front-right) and distance (near/far).
 
-Robot için bu kritik: "kâseyi tabağın sağına koy" dendiğinde "sağ" kameraya göre mi, robota göre mi, insana göre mi? LIBERO'da agentview kamerası masanın karşısından bakar; robotun sağı kameranın soludur. Komut setini tasarlarken bu belirsizliği bilinçli olarak yönetmek gerekir (Gün 20).
+This is critical for the robot: when told *kâseyi tabağın sağına koy* ("put the bowl to the right of the plate"), is "right" relative to the camera, the robot, or the human? In LIBERO the agentview camera looks from across the table; the robot's right is the camera's left. When designing the command set, this ambiguity has to be managed deliberately (Day 20).
 
-### 2.4 Mesafe
-Niteliksel mesafe için eşik gerekir: oda genişliğinin yarısına kadar "yakın", ötesi "uzak"; ya da köşegenin üçte birleriyle yakın/orta/uzak. Keyfi ama tanımlı olmalıdır. Masa üstünde "yanına" (yakın + yön) ile "uzağına" ayrımı bu tanımla ölçülebilir hâle gelir.
+### 2.4 Distance
+Qualitative distance needs thresholds: up to half the room width is "near", beyond that "far"; or near/medium/far with thirds of the diagonal. It is arbitrary but must be defined. On a tabletop, the distinction between *yanına* ("next to", near + direction) and *uzağına* ("far from") becomes measurable with this definition.
 
 ---
 
-## 3. Metin tabanlı benchmark'lar: LLM'ler nasıl sınandı?
+## 3. Text-based benchmarks: how were LLMs tested?
 
-Li'nin tezi dört mevcut benchmark'ı inceler ve her birinin kusurunu gösterir:
+Li's thesis examines four existing benchmarks and shows each one's flaw:
 
-| Benchmark | Ne? | Kusur |
+| Benchmark | What? | Flaw |
 |---|---|---|
-| **bAbI** (task 17, 19) | "A, B'nin solunda. B, C'nin üstünde. A, C'nin ?" | tekrarlayan sorular, az ilişki türü, en fazla 2 hop |
-| **StepGame** | k adımlık zincir (k=1…10), 8 yön; grid tabanlı | şablon hataları (bazı ifadeler yanlış yöne eşlenmiş), hop tanımı tutarsız |
-| **SpartQA / SpaRTUN** | NLVR görsellerinden üretilmiş, zengin dil | açıklama yöntemi ve etiketleme sorunları |
+| **bAbI** (task 17, 19) | "A is to the left of B. B is above C. What is A relative to C?" | repetitive questions, few relation types, at most 2 hops |
+| **StepGame** | chains of k steps (k=1…10), 8 directions; grid-based | template errors (some expressions mapped to the wrong direction), inconsistent hop definition |
+| **SpartQA / SpaRTUN** | generated from NLVR images, rich language | problems with the annotation method and labeling |
 
-StepGame önemli: ChatGPT'nin %43 aldığı, Li'nin düzeltip (template hataları) CoT/ToT prompting ve LLM + mantıksal çözücü (ASP) ile neredeyse %100'e taşıdığı benchmark. Ders: **görev dilden mantığa çevrilebiliyorsa saf LLM'e gerek yok; LLM'i sadece "parser" olarak kullan, çıkarımı sembolik motora bırak.** Bu neuro-symbolic fikir, VLA için de bir çözüm adayıdır (Gün 23: Türkçe komutu önce yapısal gösterime çevirip sonra robota vermek).
+StepGame is important: it is the benchmark where ChatGPT scored 43% and which Li, after fixing it (template errors), brought to nearly 100% with CoT/ToT prompting and an LLM + logical solver (ASP). Lesson: **if the task can be translated from language to logic, there is no need for a pure LLM; use the LLM only as a "parser" and leave the inference to a symbolic engine.** This neuro-symbolic idea is also a solution candidate for VLAs (Day 23: first converting the Turkish command into a structured representation and then giving it to the robot).
 
 ---
 
-## 4. Bu konu tezine nasıl bağlanır?
+## 4. How does this topic connect to your thesis?
 
-Li'nin tezi ile senin çalışmanın kesişimi tek bir soruda toplanır: **mekânsal ilişki kelimeleri (ekleri) ne kadar güvenilir şekilde action'a açılıyor?**
+The intersection of Li's thesis and your work comes down to a single question: **how reliably are spatial relation words (suffixes) decompressed into actions?**
 
-| Li (LLM, metin) | Sen (VLA, action) |
+| Li (LLM, text) | You (VLA, action) |
 |---|---|
-| Girdi: metin hikâye | Girdi: görüntü + komut |
-| Çıktı: ilişki adı ("front-right") | Çıktı: 7-DoF action dizisi |
-| Doğruluk: etiket eşleşmesi | Doğruluk: success predicate (kâse tabağın üstünde mi) |
-| Zorluk: hop sayısı, bakış açısı | Zorluk: sahne, bakış açısı, **dil** (ve Türkçe ekleri) |
-| Kontrol: mantıksal çözücü tüm geçerli cevapları verir | Kontrol: simülatör geometriyi bilir — altın etiket bedava |
+| Input: text story | Input: image + command |
+| Output: relation name ("front-right") | Output: 7-DoF action sequence |
+| Correctness: label match | Correctness: success predicate (is the bowl on the plate) |
+| Difficulty: number of hops, viewpoint | Difficulty: scene, viewpoint, **language** (and Turkish suffixes) |
+| Control: a logical solver gives all valid answers | Control: the simulator knows the geometry — the gold label comes for free |
 
-Son satır önemli: LIBERO'da "tabağın sağına koydu mu" sorusunun cevabı simülatörden kesin olarak alınır. RoomSpace'in ASP çözücüyle yaptığı işi simülatör sana zaten yapıyor. Yani Cohn grubunun *değerlendirme felsefesini* (ilişki türlerini sistematik tarama, bakış açısı kontrolü, çoklu geçerli cevap) LIBERO'ya taşıman mümkün — yarın.
-
----
-
-## 5. Yazılımcı için köprüler
-
-- CDC/RCC-8 = enum'lar; mekânsal ilişki bir kategori değişkenidir. Benchmark, her ilişki türü için en az bir test case ister (coverage).
-- "Bakış açısı" = koordinat sistemi dönüşümü. Kamera, robot tabanı, dünya: üç frame; "sağ" hangisinde tanımlı, API sözleşmesinde yazmalı.
-- LLM + ASP çözücü = LLM'i parser olarak kullanıp iş mantığını deterministik motora bırakmak. Backend'de LLM'e sorgu üretip SQL'i veritabanına koşturmakla aynı mimari.
+The last row is important: in LIBERO the answer to "did it put it to the right of the plate" is obtained exactly from the simulator. The work RoomSpace does with an ASP solver, the simulator already does for you. So it is possible for you to carry the Cohn group's *evaluation philosophy* (systematic scanning of relation types, viewpoint control, multiple valid answers) to LIBERO — tomorrow.
 
 ---
 
-## 6. Bugünün görevi (15 dk)
-Aşağıdaki Türkçe ekleri bir tabloya koy ve her birini CDC / RCC-8 / 1-cross / mesafe eksenlerinden birine yerleştir: *-ın üstüne, -ın içine, -ın yanına, -ın sağına, -ın soluna, -ın önüne, -ın arkasına, -ın arasına, -a doğru, -dan uzağa*. Hangileri bakış açısına bağlı? (Yarın bu tablodan komut üreteceğiz.)
+## 5. Bridges for the software developer
 
-## Sonraki ders (Ders 7)
-RoomSpace benchmark'ının tasarımı (ProcTHOR odalar, CSP tabanlı hikâye üretimi, bakış açısı, mantıksal altın etiket) ve bu tasarımın LIBERO'ya nasıl taşınacağı: Türkçe mekânsal komut seti için ilk 10 aday.
+- CDC/RCC-8 = enums; a spatial relation is a categorical variable. A benchmark requires at least one test case for each relation type (coverage).
+- "Viewpoint" = coordinate system transformation. Camera, robot base, world: three frames; which one "right" is defined in must be written in the API contract.
+- LLM + ASP solver = using the LLM as a parser and leaving the business logic to a deterministic engine. The same architecture as having the LLM generate a query and running the SQL on the database in a backend.
 
 ---
 
-## Kaynaklar
-- Li, F. (2025). *Benchmarking and Enhancing Spatial Reasoning in Large Language Models.* PhD tezi, University of Leeds — Bölüm 1, 2.2 (Tablo 2.6, Şekil 2.2–2.4), 2.3, 3.2.
+## 6. Today's task (15 min)
+Put the following Turkish suffixed expressions into a table and place each one on one of the CDC / RCC-8 / 1-cross / distance axes: *-ın üstüne* ("onto"), *-ın içine* ("into"), *-ın yanına* ("next to"), *-ın sağına* ("to the right of"), *-ın soluna* ("to the left of"), *-ın önüne* ("in front of"), *-ın arkasına* ("behind"), *-ın arasına* ("between"), *-a doğru* ("toward"), *-dan uzağa* ("away from"). Which ones depend on the viewpoint? (Tomorrow we will generate commands from this table.)
+
+## Next lecture (Lecture 7)
+The design of the RoomSpace benchmark (ProcTHOR rooms, CSP-based story generation, viewpoint, logical gold labels) and how to carry this design to LIBERO: the first 10 candidates for the Turkish spatial command set.
+
+---
+
+## References
+- Li, F. (2025). *Benchmarking and Enhancing Spatial Reasoning in Large Language Models.* PhD thesis, University of Leeds — Chapters 1, 2.2 (Table 2.6, Figures 2.2–2.4), 2.3, 3.2.
 - Li, Hogg, Cohn (2024). *Advancing Spatial Reasoning in LLMs: An In-Depth Evaluation and Enhancement Using the StepGame Benchmark.* AAAI-24. [arXiv:2401.03991](https://arxiv.org/abs/2401.03991)
-- Randell, Cui, Cohn (1992). *A Spatial Logic Based on Regions and Connection.* KR-92 (RCC'nin kaynağı).
+- Randell, Cui, Cohn (1992). *A Spatial Logic Based on Regions and Connection.* KR-92 (the source of RCC).
 - Frank (1991/1996). Cardinal direction calculus; Freksa (1992). *Using Orientation Information for Qualitative Spatial Reasoning* (1-cross / double-cross).
 - Shi, Zhang, Lipani (2022). *StepGame.* AAAI-22. [arXiv:2204.08292](https://arxiv.org/abs/2204.08292)
-- Cohn, A. G. — Milano konuşması slaydı (Pat Grady alıntısı), 2026.
-- Görseller: bu repo için üretildi (`images/lecture-06/`).
+- Cohn, A. G. — Milan talk slide (Pat Grady quote), 2026.
+- Figures: produced for this repo (`images/lecture-06/`).
