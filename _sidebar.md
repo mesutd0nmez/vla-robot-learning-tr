@@ -31,6 +31,7 @@
     - [<span class="nav-num">25</span>Faz 3 Sentezi](/lectures/lecture-25.md)
   - **Faz 4 · Proje üzerine akıl yürütme**
     - [<span class="nav-num">26</span>Üç Aday Araştırma Sorusu](/lectures/lecture-26.md)
+    - [<span class="nav-num">27</span>Deney Matrisi](/lectures/lecture-27.md)
 
 - **Plan**
   - [<span class="nav-num">·</span>Günlük Çalışma Logu](/plan/daily-log.md)
@@ -46,6 +47,7 @@
   - [<span class="nav-num">·</span>Rapor: VLA ve çok dilli VLA'da mevcut durum](/literature/rapor.md)
 
 - **Tez**
+  - [<span class="nav-num">·</span>Deney matrisi — v0.1 (Ders 27)](/thesis/experiment-matrix.md)
   - [<span class="nav-num">·</span>Aday araştırma soruları (RQ) — taslak v0.1 (Ders 26)](/thesis/rq-candidates.md)
 
 - **Projeler**
@@ -80,3 +82,4 @@
   - [<span class="nav-num">24</span>Gün 24 kodu](/code/day24/README.md)
   - [<span class="nav-num">25</span>Gün 25 kodu](/code/day25/README.md)
   - [<span class="nav-num">26</span>Gün 26 kodu](/code/day26/README.md)
+  - [<span class="nav-num">27</span>Gün 27 kodu](/code/day27/README.md)

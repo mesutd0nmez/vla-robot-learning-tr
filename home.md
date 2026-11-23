@@ -35,6 +35,7 @@ Bilgisayar Mühendisliği yüksek lisans tezimin açık kaydı: Vision-Language-
 <a href="#/lectures/lecture-24"><b>24</b><span>Çözüm yaklaşımları: MT çeviri / parser + sembolik / çok dilli omurga / Türkçe LoRA / hidden-state hizalama — Dong & Chen (Haz 2026) sayılarıyla artı-eksi, Mac–T4 bütçesi, Ders 18 örüntüsüne göre karar ağacı; parser gerçekten koştu (set içi 79/80, dışı 5/12)<small>Faz 3 · Karar + Klavye</small></span></a>
 <a href="#/lectures/lecture-25"><b>25</b><span>Faz 3 sentezi: sekiz ders tek sayfada — bilanço 21 ölçüm = 11 gerçek / 6 Mesut'ta / 4 hipotez; phase3_smoke.py 30 script 28 OK (Ders 22 tokens.csv birebir yeniden üretildi); LangGap (aynı sahne, Spatial 97 → 5,9); açık sorular S1–S10 → üç RQ tohumu<small>Faz 3 · Sentez</small></span></a>
 <a href="#/lectures/lecture-26"><b>26</b><span>Üç aday araştırma sorusu: tohumdan sınanabilir soruya — 6 alan (null + δ, değişkenler, sayısal eşik, suite+blok+n, sistemler, evet/hayır); rq_power.py: n=50 ancak ≥23 puanı yakalar, TOST δ=15 → n≈25; RQ-a/b/c, S1'e göre koşullu sıralama; thesis/rq-candidates.md<small>Faz 4 · RQ + Ön kayıt</small></span></a>
+<a href="#/lectures/lecture-27"><b>27</b><span>Deney matrisi: 19 hücre (veri/model/benchmark/metrik/maliyet); episode süresi modeli — LIBERO fiziği 12–23 ms ölçüldü, S-OV chunk 1 → bütçenin %63'ü; pilot+çekirdek ≈ 258 T4 sa; görev başına 50 init tavanı → iddia bloğa taşınınca yalın matris ≈ 108 sa<small>Faz 4 · Deney matrisi</small></span></a>
 </div>
 
 ## VLA ve Çok Dilli VLA Literatürü
@@ -52,7 +53,7 @@ Her ders aynı iskelette: 35 dakikalık okuma (görsellerle) ve 15 dakikalık bi
 
 | Aşama | Kapsam | Durum |
 |---|---|---|
-| 0. Hızlandırılmış giriş (Ders 1–30) | Kavramlar → ortam kurulumu → ilk deneyler → proje üzerine akıl yürütme | Ders 1–26 hazır |
+| 0. Hızlandırılmış giriş (Ders 1–30) | Kavramlar → ortam kurulumu → ilk deneyler → proje üzerine akıl yürütme | Ders 1–27 hazır |
 | 1. Literatür ve konu seçimi | Tez ekseninin danışmanla netleştirilmesi, kaynak taraması | — |
 | 2. Deney altyapısı | Benchmark, model, metrik ve veri setinin kurulması | — |
 | 3. Deneyler | Ana deneyler, ablasyonlar, sonuç analizi | — |

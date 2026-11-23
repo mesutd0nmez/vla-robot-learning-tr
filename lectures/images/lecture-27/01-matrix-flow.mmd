@@ -1,0 +1,16 @@
+flowchart LR
+  RQ["RQ-a / RQ-b / RQ-c<br/>thesis/rq-candidates.md<br/>6 alan"]:::key --> CELL["Hücre = RQ × sistem × suite × blok × koşul × n_init × tekrar<br/>thesis/experiment-matrix.csv (19 satır)"]:::key
+  D["Veri<br/>datasets/04 blokları A/B/C<br/>bddl_cf, MT / parser çıktısı"]:::in --> CELL
+  M["Model<br/>S-OV 4-bit / S-VN<br/>Spatial ve Goal checkpoint"]:::in --> CELL
+  CELL --> EP["episode sayısı<br/>tekrar etmeyen dizeler önbellekten"]:::out
+  EP --> T["T_ep = reset + adım × t_sim + çağrı × t_call<br/>budget.py"]:::key
+  T --> H["T4 saati → Kaggle haftası<br/>Mac gecesi"]:::out
+  H --> OK{"bütçeye<br/>sığıyor mu?"}
+  OK -- evet --> RUN["çekirdek matris koşulur"]:::out
+  OK -- hayır --> INV["tersine güç:<br/>bütçe → n_init → havuz n → MDE"]:::key
+  INV --> CUT["görev başına init azalt<br/>iddia birimi = blok"]:::prob
+  CUT --> CELL
+  classDef key fill:#ffd166,stroke:#c79a00,color:#000
+  classDef in fill:#cfe8ff,stroke:#3b6ea8,color:#000
+  classDef out fill:#d4f5d4,stroke:#2e8b57,color:#000
+  classDef prob fill:#ffd6d6,stroke:#c0392b,color:#000

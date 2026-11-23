@@ -1,0 +1,13 @@
+suite,task_id,n_init,res,reset_s,step_ms_median,step_ms_p90,img_shape,language,host,gl
+libero_spatial,0,50,0,1.47,19.2,23.1,render yok,pick up the black bowl between the plate and the ramekin and place it on the plate,Linux-x86_64-2cpu,egl
+libero_spatial,0,50,128,2.35,208.1,228.4,128x128x3,pick up the black bowl between the plate and the ramekin and place it on the plate,Linux-x86_64-2cpu,egl
+libero_spatial,0,50,256,2.68,206.2,228.6,256x256x3,pick up the black bowl between the plate and the ramekin and place it on the plate,Linux-x86_64-2cpu,egl
+libero_spatial,5,50,0,1.18,22.7,33.4,render yok,pick up the black bowl on the ramekin and place it on the plate,Linux-x86_64-2cpu,egl
+libero_spatial,5,50,128,2.39,214.7,247.6,128x128x3,pick up the black bowl on the ramekin and place it on the plate,Linux-x86_64-2cpu,egl
+libero_spatial,5,50,256,2.7,258.3,283.9,256x256x3,pick up the black bowl on the ramekin and place it on the plate,Linux-x86_64-2cpu,egl
+libero_goal,0,50,0,0.87,13.3,15.7,render yok,open the middle drawer of the cabinet,Linux-x86_64-2cpu,egl
+libero_goal,0,50,128,2.13,167.0,190.8,128x128x3,open the middle drawer of the cabinet,Linux-x86_64-2cpu,egl
+libero_goal,0,50,256,2.34,187.3,212.4,256x256x3,open the middle drawer of the cabinet,Linux-x86_64-2cpu,egl
+libero_goal,8,50,0,0.91,12.0,20.8,render yok,put the bowl on the plate,Linux-x86_64-2cpu,egl
+libero_goal,8,50,128,2.14,172.5,188.8,128x128x3,put the bowl on the plate,Linux-x86_64-2cpu,egl
+libero_goal,8,50,256,2.4,182.4,209.3,256x256x3,put the bowl on the plate,Linux-x86_64-2cpu,egl
