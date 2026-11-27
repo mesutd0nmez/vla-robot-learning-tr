@@ -6,7 +6,7 @@ each ending in a written report with goal / hypothesis / results / findings and 
 
 ## Rules
 - **3 days per project, ~1 hour per day.** Day 1 = setup + smoke test, Day 2 = the real run, Day 3 = analysis + report + commit.
-- Every morning at 06:51 (TR) the coach task reads the repo, checks what was committed since yesterday, and writes
+- Every morning at 06:51 (TR) the coach (cloud task, or local Claude Code with `tools/COACH_PROMPT.md` when the task did not run) reads the repo, checks what was committed since yesterday, and writes
   `projects/<project>/coach/day-N.md`: today's step-by-step instructions adjusted to the actual state. On the morning after
   Day 3 it grades the project (rubric below), writes the verdict into the README, and opens the next project from this ladder.
 - Mesut works locally with Claude Code: `git pull` → follow `coach/day-N.md` → commit at the end of the hour

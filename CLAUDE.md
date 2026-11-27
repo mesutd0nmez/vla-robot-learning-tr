@@ -29,8 +29,10 @@ Turkish paper titles and data files.
 - **Stage 1 (from 28 Nov 2026): the project ladder** — `projects/ROADMAP.md`. 3-day projects of rising difficulty. Every morning at
   06:51 (TR) the cloud coach task reads `projects/<current>/progress.md` and the commits since yesterday, writes
   `projects/<current>/coach/day-N.md` (today's step-by-step instructions), and on the morning after day 3 grades the project
-  (rubric in ROADMAP.md), closes it and opens the next one. Local Claude Code: follow today's `coach/day-N.md`, write to
-  `progress.md`, commit `Project NN day N: ...`, push.
+  (rubric in ROADMAP.md), closes it and opens the next one. The coach's instructions are in `tools/COACH_PROMPT.md`.
+  **If today's `coach/day-N.md` does not exist when Mesut starts (the cloud task did not run), local Claude Code acts as the coach
+  first — follow `tools/COACH_PROMPT.md`, write the note, then help him execute it.** Local Claude Code otherwise: follow today's
+  `coach/day-N.md`, write to `progress.md`, commit `Project NN day N: ...`, push.
 - After adding a new lecture/folder: `python tools/gen_sidebar.py`, add a card to the `home.md` grid, add a row to the `README.md` table.
 
 ## Doing projects locally (Claude Code)
