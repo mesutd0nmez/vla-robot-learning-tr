@@ -61,6 +61,8 @@
 
 - **Projects**
   - [<span class="nav-num">·</span>Overview](/projects/README.md)
+  - [<span class="nav-num">·</span>Ladder (ROADMAP)](/projects/ROADMAP.md)
+  - [<span class="nav-num">03</span>VLANeXt on the free T4: first real success rate (LIBERO-Spatial task 0, clean, 10 init states)](/projects/03-vlanext-t4-first-eval/README.md)
   - [<span class="nav-num">01</span>First MuJoCo scene (setup verification on the Mac)](/projects/project-1/README.md)
   - [<span class="nav-num">02</span>First episodes in LIBERO (Spatial and Goal, tasks 0–4)](/projects/project-2/README.md)
 

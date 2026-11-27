@@ -42,6 +42,8 @@ for folder, label in [("plan","Plan"),("resources","Resources"),("literature","V
 proj = root/"projects"
 if proj.exists():
     lines += ["", "- **Projects**", f'  - [<span class="nav-num">·</span>Overview](/projects/README.md)']
+    if (proj/"ROADMAP.md").exists():
+        lines.append('  - [<span class="nav-num">·</span>Ladder (ROADMAP)](/projects/ROADMAP.md)')
     for d in sorted(x for x in proj.iterdir() if x.is_dir() and not x.name.startswith(("_", "."))):
         r = d/"README.md"
         if r.exists():

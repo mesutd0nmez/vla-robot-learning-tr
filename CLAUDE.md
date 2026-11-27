@@ -26,6 +26,11 @@ Turkish paper titles and data files.
 ## Automation
 - Stage 0 (Lectures 1–31) is **complete**; the daily lecture task was closed on 23 Nov 2026. Lecture 31 is the last lecture —
   do not write new lectures (lecture-32+) unless Mesut explicitly asks. Run **`git pull`** before starting local work.
+- **Stage 1 (from 28 Nov 2026): the project ladder** — `projects/ROADMAP.md`. 3-day projects of rising difficulty. Every morning at
+  06:51 (TR) the cloud coach task reads `projects/<current>/progress.md` and the commits since yesterday, writes
+  `projects/<current>/coach/day-N.md` (today's step-by-step instructions), and on the morning after day 3 grades the project
+  (rubric in ROADMAP.md), closes it and opens the next one. Local Claude Code: follow today's `coach/day-N.md`, write to
+  `progress.md`, commit `Project NN day N: ...`, push.
 - After adding a new lecture/folder: `python tools/gen_sidebar.py`, add a card to the `home.md` grid, add a row to the `README.md` table.
 
 ## Doing projects locally (Claude Code)
